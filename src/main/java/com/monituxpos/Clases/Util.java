@@ -1,0 +1,213 @@
+package com.monituxpos.Clases;
+
+
+import com.google.zxing.*;
+import com.google.zxing.common.BitMatrix;
+import com.google.zxing.client.j2se.MatrixToImageWriter;
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.client.j2se.MatrixToImageConfig;
+import java.awt.Image;
+import java.util.Properties;
+import javax.mail.Authenticator;
+import javax.mail.Session;
+import javax.mail.PasswordAuthentication;
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.Transport;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeBodyPart;
+import javax.mail.Multipart;
+import javax.mail.internet.MimeMultipart;
+import javax.activation.DataSource;
+import javax.activation.FileDataSource;
+import javax.activation.DataHandler;
+
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+
+import java.util.Hashtable;
+import javax.imageio.ImageIO;
+import javax.swing.JFileChooser;
+
+
+public class Util {
+
+
+    //Generar Codigo de Barra
+    public static BufferedImage generarCodigoBarra(int secuencial, String codigo, int secuencialEmpresa) {
+        try {
+            int width = 300;
+            int height = 200;
+
+            Hashtable<EncodeHintType, Object> hints = new Hashtable<>();
+            hints.put(EncodeHintType.MARGIN, 1);
+
+            BitMatrix bitMatrix = new MultiFormatWriter().encode(
+                    codigo,
+                    BarcodeFormat.CODE_128,
+                    width,
+                    height,
+                    hints
+            );
+
+            BufferedImage imagen = MatrixToImageWriter.toBufferedImage(bitMatrix, new MatrixToImageConfig());
+
+            // Guardar la imagen (opcional)
+            // Path path = Paths.get("Resources/BC/" + secuencialEmpresa + "-BC-" + secuencial + ".png");
+            // MatrixToImageWriter.writeToPath(bitMatrix, "PNG", path);
+
+            return imagen;
+
+        } catch (WriterException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+    //Fin Generar Codigo de Barra
+
+
+    //Enviar Correo
+
+
+    public static void enviarCorreoConPdf(
+            String remitente,
+            String destinatario,
+            String asunto,
+            String cuerpo,
+            String rutaPdf,
+            String smtpServidor,
+            int puerto,
+            final String usuario,
+            final String contraseña
+    ) {
+        Properties props = new Properties();
+        props.put("mail.smtp.host", smtpServidor);
+        props.put("mail.smtp.port", String.valueOf(puerto));
+        props.put("mail.smtp.auth", "true");
+        props.put("mail.smtp.starttls.enable", "true");
+
+        Session session = Session.getInstance(props, new Authenticator() {
+            protected PasswordAuthentication getPasswordAuthentication() {
+                return new PasswordAuthentication(usuario, contraseña);
+            }
+        });
+
+        try {
+            Message mensaje = new MimeMessage(session);
+            mensaje.setFrom(new InternetAddress(remitente));
+            mensaje.setRecipients(Message.RecipientType.TO, InternetAddress.parse(destinatario));
+            mensaje.setSubject(asunto);
+
+            // Parte del cuerpo del mensaje
+            MimeBodyPart cuerpoTexto = new MimeBodyPart();
+            cuerpoTexto.setText(cuerpo);
+
+            // Parte del archivo adjunto
+            MimeBodyPart adjunto = new MimeBodyPart();
+            DataSource source = new FileDataSource(rutaPdf);
+            adjunto.setDataHandler(new DataHandler(source));
+            adjunto.setFileName(source.getName());
+
+            // Combinar partes
+            Multipart multipart = new MimeMultipart();
+            multipart.addBodyPart(cuerpoTexto);
+            multipart.addBodyPart(adjunto);
+
+            mensaje.setContent(multipart);
+
+            // Enviar el mensaje
+            Transport.send(mensaje);
+
+            System.out.println("✅ Correo enviado exitosamente.");
+        } catch (MessagingException e) {
+            System.err.println("❌ Error al enviar el correo: " + e.getMessage());
+        }
+    }
+
+
+    //Fin Enviar Correo
+
+    
+    
+    public static String abrirDialogoSeleccionFilename() {
+    JFileChooser fileChooser = new JFileChooser();
+
+    // Opcional: puedes establecer un filtro si lo necesitas
+    // fileChooser.setFileFilter(new FileNameExtensionFilter("Archivos de texto", "txt"));
+
+    int resultado = fileChooser.showOpenDialog(null); // null para que se centre en pantalla
+
+    if (resultado == JFileChooser.APPROVE_OPTION) {
+        File archivoSeleccionado = fileChooser.getSelectedFile();
+        return archivoSeleccionado.getAbsolutePath(); // Solo el nombre del archivo
+    } else {
+        return "";
+    }
+}
+    
+    
+    
+    //Cargar Imagen Local
+    
+     public static Image cargarImagenLocal(String ruta) {
+        if (ruta != null && !ruta.trim().isEmpty()) {
+            try {
+                BufferedImage original = ImageIO.read(new File(ruta));
+
+                // Clonar la imagen
+                BufferedImage clon = new BufferedImage(
+                        original.getWidth(),
+                        original.getHeight(),
+                        BufferedImage.TYPE_INT_ARGB
+                );
+                clon.getGraphics().drawImage(original, 0, 0, null);
+
+                return clon;
+            } catch (IOException e) {
+                e.printStackTrace();
+                return null;
+            }
+        } else {
+            return null; // Retorna null si la ruta es nula o vacía
+        }
+    }
+    
+    //Fin Cargar Imagen Local
+    
+    
+
+
+    //Generar Codigo QR
+    public static BufferedImage generarCodigoQR(int secuencial, String codigo, int secuencialEmpresa) {
+        try {
+            int width = 300;
+            int height = 300;
+
+            Hashtable<EncodeHintType, Object> hints = new Hashtable<>();
+            hints.put(EncodeHintType.MARGIN, 1);
+
+            BitMatrix bitMatrix = new MultiFormatWriter().encode(
+                    codigo,
+                    BarcodeFormat.QR_CODE,
+                    width,
+                    height,
+                    hints
+            );
+
+            BufferedImage imagen = MatrixToImageWriter.toBufferedImage(bitMatrix, new MatrixToImageConfig());
+
+            // Guardar la imagen (opcional)
+            // Path path = Paths.get("Resources/Imagenes/QR-" + secuencial + "-" + codigo + ".png");
+            // MatrixToImageWriter.writeToPath(bitMatrix, "PNG", path);
+
+            return imagen;
+
+        } catch (WriterException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+//Fin Generar Codigo QR
+}//Fin Clase

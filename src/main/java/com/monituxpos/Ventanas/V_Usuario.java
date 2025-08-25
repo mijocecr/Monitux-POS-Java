@@ -1,0 +1,912 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
+ */
+package com.monituxpos.Ventanas;
+
+import com.monituxpos.Clases.Encriptador;
+import com.monituxpos.Clases.Usuario;
+import com.monituxpos.Clases.Util;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.Persistence;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Image;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
+import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
+import javax.swing.JOptionPane;
+import javax.swing.JTable;
+import javax.swing.ListSelectionModel;
+import javax.swing.SwingConstants;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
+
+/**
+ *
+ * @author Miguel Cerrato
+ */
+public class V_Usuario extends javax.swing.JFrame {
+
+    public int Secuencial_Usuario=1;//Cambiar esto
+    public int Secuencial_Empresa=1;//Cambiar esto
+    public int Secuencial;
+    
+    
+    private byte[] imagen;
+
+public byte[] getImagen() {
+    return imagen;
+}
+
+public void setImagen(byte[] imagen) {
+    this.imagen = imagen;
+}
+
+    
+    /**
+     * Creates new form V_Usuario
+     */
+    public V_Usuario() {
+        initComponents();
+    }
+
+    
+    
+    private void cargarDatos() {
+    // Modelo no editable
+    DefaultTableModel model = new DefaultTableModel(
+        new String[] { "S", "Codigo", "Nombre", "Acceso", "Activo", "Password", "Imagen" }, 0
+    ) {
+        @Override
+        public boolean isCellEditable(int row, int column) {
+            return false;
+        }
+    };
+    tableUsuarios.setModel(model);
+
+    // Efecto zebra + centrado
+    tableUsuarios.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
+        @Override
+        public Component getTableCellRendererComponent(JTable table, Object value,
+                boolean isSelected, boolean hasFocus, int row, int column) {
+
+            Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+            setHorizontalAlignment(SwingConstants.CENTER);
+            c.setBackground(isSelected ? table.getSelectionBackground() :
+                (row % 2 == 0 ? Color.WHITE : new Color(224, 224, 224)));
+            return c;
+        }
+    });
+
+    // Ocultar columnas sensibles
+    for (int i = 5; i <= 6; i++) {
+        tableUsuarios.getColumnModel().getColumn(i).setMinWidth(0);
+        tableUsuarios.getColumnModel().getColumn(i).setMaxWidth(0);
+        tableUsuarios.getColumnModel().getColumn(i).setWidth(0);
+    }
+
+    // Cargar datos desde JPA
+    EntityManager em = Persistence.createEntityManagerFactory("MonituxPU").createEntityManager();
+    try {
+        List<Usuario> usuarios = em.createQuery(
+            "SELECT u FROM Usuario u WHERE u.secuencial_empresa = :empresa", Usuario.class)
+            .setParameter("empresa", 1)
+            .getResultList();
+
+        for (Usuario u : usuarios) {
+            model.addRow(new Object[] {
+                u.getSecuencial(), u.getCodigo(), u.getNombre(),
+                u.getAcceso(), u.isActivo() ? "Sí" : "No",
+                u.getPassword(), u.getImagen()
+            });
+        }
+
+        if (tableUsuarios.getRowCount() > 0) {
+            tableUsuarios.setRowSelectionInterval(0, 0);
+        }
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(null, "Error al cargar datos: " + e.getMessage());
+    } finally {
+        em.close();
+    }
+}
+
+    
+    
+    
+    
+    
+    
+    /*
+    private void cargarDatos() {
+    // Crear modelo no editable con columnas definidas
+    DefaultTableModel model = new DefaultTableModel(
+        new String[] { "S", "Codigo", "Nombre", "Acceso", "Activo", "Password", "Imagen" }, 0
+    ) {
+        @Override
+        public boolean isCellEditable(int row, int column) {
+            return false;
+        }
+    };
+
+    // Asignar modelo a la tabla
+    tableUsuarios.setModel(model);
+
+    // Configurar selección y navegación
+    tableUsuarios.setEnabled(true);
+    tableUsuarios.setRowSelectionAllowed(true);
+    tableUsuarios.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+    tableUsuarios.requestFocusInWindow();
+
+    // Centrar contenido
+    DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+    centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
+    tableUsuarios.setDefaultRenderer(Object.class, centerRenderer);
+
+    // Ocultar columnas sensibles
+    TableColumnModel columnModel = tableUsuarios.getColumnModel();
+    for (int i = 5; i <= 6; i++) {
+        columnModel.getColumn(i).setMinWidth(0);
+        columnModel.getColumn(i).setMaxWidth(0);
+        columnModel.getColumn(i).setWidth(0);
+    }
+
+    // Ajustar anchos
+    columnModel.getColumn(0).setPreferredWidth(30);
+    columnModel.getColumn(1).setPreferredWidth(80);
+    columnModel.getColumn(2).setPreferredWidth(120);
+    columnModel.getColumn(3).setPreferredWidth(100);
+    columnModel.getColumn(4).setPreferredWidth(60);
+
+    // Cargar datos desde JPA
+    EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
+    EntityManager em = emf.createEntityManager();
+
+    try {
+        List<Usuario> usuarios = em.createQuery(
+            "SELECT u FROM Usuario u WHERE u.secuencialEmpresa = :empresa", Usuario.class)
+            .setParameter("empresa", 1)
+            .getResultList();
+
+        for (Usuario item : usuarios) {
+            model.addRow(new Object[] {
+                item.getSecuencial(),
+                item.getCodigo(),
+                item.getNombre(),
+                item.getAcceso(),
+                item.isActivo() ? "Sí" : "No",
+                item.getPassword(),
+                item.getImagen()
+            });
+        }
+
+        // Seleccionar la primera fila automáticamente
+        if (tableUsuarios.getRowCount() > 0) {
+            tableUsuarios.setRowSelectionInterval(0, 0);
+        }
+
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(null, "Error al cargar datos: " + e.getMessage());
+    } finally {
+        em.close();
+        emf.close();
+    }
+}
+
+  */
+    
+    /**
+     * This method is called from within the constructor to initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is always
+     * regenerated by the Form Editor.
+     */
+    @SuppressWarnings("unchecked")
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    private void initComponents() {
+
+        jScrollPane1 = new javax.swing.JScrollPane();
+        jTable1 = new javax.swing.JTable();
+        jLabel1 = new javax.swing.JLabel();
+        jPanel1 = new javax.swing.JPanel();
+        jLabel2 = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
+        jLabel4 = new javax.swing.JLabel();
+        jLabel5 = new javax.swing.JLabel();
+        checkBoxActivo = new javax.swing.JCheckBox();
+        jPanel3 = new javax.swing.JPanel();
+        txt_Codigo = new javax.swing.JTextField();
+        txt_Nombre = new javax.swing.JTextField();
+        comboBoxAcceso = new javax.swing.JComboBox<>();
+        txt_Password = new javax.swing.JPasswordField();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        tableUsuarios = new javax.swing.JTable();
+        labelImagen = new javax.swing.JLabel();
+        jPanel4 = new javax.swing.JPanel();
+        jTextField3 = new javax.swing.JTextField();
+        jLabel6 = new javax.swing.JLabel();
+        jComboBox2 = new javax.swing.JComboBox<>();
+        jMenuBar1 = new javax.swing.JMenuBar();
+        jMenu1 = new javax.swing.JMenu();
+        Menu_Nuevo = new javax.swing.JMenuItem();
+        Menu_Guardar = new javax.swing.JMenuItem();
+        Menu_Eliminar = new javax.swing.JMenuItem();
+        jSeparator1 = new javax.swing.JPopupMenu.Separator();
+        Menu_Salir = new javax.swing.JMenuItem();
+
+        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
+            },
+            new String [] {
+                "Title 1", "Title 2", "Title 3", "Title 4"
+            }
+        ));
+        jScrollPane1.setViewportView(jTable1);
+
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setBackground(new java.awt.Color(0, 102, 255));
+        setResizable(false);
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowOpened(java.awt.event.WindowEvent evt) {
+                formWindowOpened(evt);
+            }
+        });
+
+        jLabel1.setBackground(new java.awt.Color(102, 255, 51));
+        jLabel1.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
+        jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel1.setText("Usuarios");
+
+        jLabel2.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        jLabel2.setText("Codigo:");
+
+        jLabel3.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        jLabel3.setText("Nombre:");
+
+        jLabel4.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        jLabel4.setText("Password:");
+
+        jLabel5.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        jLabel5.setText("Acceso:");
+
+        checkBoxActivo.setText("Activo");
+
+        jPanel3.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+
+        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
+        jPanel3.setLayout(jPanel3Layout);
+        jPanel3Layout.setHorizontalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 21, Short.MAX_VALUE)
+        );
+        jPanel3Layout.setVerticalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 17, Short.MAX_VALUE)
+        );
+
+        tableUsuarios.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {},
+                {},
+                {},
+                {}
+            },
+            new String [] {
+
+            }
+        ));
+        tableUsuarios.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        tableUsuarios.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tableUsuariosMouseClicked(evt);
+            }
+        });
+        tableUsuarios.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                tableUsuariosKeyReleased(evt);
+            }
+        });
+        jScrollPane2.setViewportView(tableUsuarios);
+
+        labelImagen.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        labelImagen.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                labelImagenMouseClicked(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel5, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 47, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(jLabel4, javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addComponent(jLabel3, javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addComponent(jLabel2, javax.swing.GroupLayout.Alignment.TRAILING))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(txt_Codigo)
+                                    .addComponent(txt_Nombre)
+                                    .addComponent(txt_Password)
+                                    .addGroup(jPanel1Layout.createSequentialGroup()
+                                        .addComponent(comboBoxAcceso, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 8, Short.MAX_VALUE)
+                                        .addComponent(checkBoxActivo))))
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addGap(0, 0, Short.MAX_VALUE)
+                                .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(labelImagen, javax.swing.GroupLayout.DEFAULT_SIZE, 124, Short.MAX_VALUE)))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel2)
+                            .addComponent(txt_Codigo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(txt_Nombre, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel3))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel4)
+                            .addComponent(txt_Password, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel5)
+                            .addComponent(comboBoxAcceso, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(checkBoxActivo))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(labelImagen, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(22, 22, 22)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 152, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+
+        jTextField3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jTextField3ActionPerformed(evt);
+            }
+        });
+        jTextField3.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                jTextField3KeyReleased(evt);
+            }
+        });
+
+        jLabel6.setText("Buscar por:");
+
+        javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
+        jPanel4.setLayout(jPanel4Layout);
+        jPanel4Layout.setHorizontalGroup(
+            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel4Layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jLabel6)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jComboBox2, javax.swing.GroupLayout.PREFERRED_SIZE, 129, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(54, 54, 54)
+                .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, 134, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(19, 19, 19))
+        );
+        jPanel4Layout.setVerticalGroup(
+            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel4Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel6)
+                    .addComponent(jComboBox2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        jMenu1.setText("Opciones");
+
+        Menu_Nuevo.setText("Nuevo");
+        jMenu1.add(Menu_Nuevo);
+
+        Menu_Guardar.setText("Guardar");
+        jMenu1.add(Menu_Guardar);
+
+        Menu_Eliminar.setText("Eliminar");
+        jMenu1.add(Menu_Eliminar);
+        jMenu1.add(jSeparator1);
+
+        Menu_Salir.setText("Salir");
+        jMenu1.add(Menu_Salir);
+
+        jMenuBar1.add(jMenu1);
+
+        setJMenuBar(jMenuBar1);
+
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
+        getContentPane().setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                    .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, 397, Short.MAX_VALUE)
+                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
+        );
+
+        pack();
+    }// </editor-fold>//GEN-END:initComponents
+
+    private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
+        
+
+        
+        // Establece el título del formulario
+setTitle("Monitux-POS v." + "");//V_Menu_Principal.VER);
+
+// Asigna el secuencial del usuario
+Secuencial_Usuario = 1;//V_Menu_Principal.Secuencial_Usuario;
+
+//// Oculta o muestra el botón de eliminar según el rol
+//if (!"Administrador".equals(V_Menu_Principal.Acceso_Usuario)) {
+//    Menu_Eliminar.setVisible(false);
+//} else {
+//    Menu_Eliminar.setVisible(true);
+//}
+
+// Limpia la tabla
+DefaultTableModel model = (DefaultTableModel) tableUsuarios.getModel();
+model.setRowCount(0);
+
+// Carga los datos
+cargarDatos();
+
+// Centra el contenido de las celdas
+DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
+for (int i = 0; i < tableUsuarios.getColumnCount(); i++) {
+    tableUsuarios.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
+}
+
+// Llena el comboBox1
+comboBoxAcceso.addItem("Vendedor");
+comboBoxAcceso.addItem("Administrador");
+
+comboBoxAcceso.setSelectedIndex(0);
+
+// Hace la tabla de solo lectura
+//tableUsuarios.setEnabled(false);
+
+// Llena el comboBox2
+jComboBox2.addItem("Codigo");
+jComboBox2.addItem("Nombre");
+jComboBox2.setSelectedIndex(0);
+
+// Selecciona la primera fila si hay datos
+if (tableUsuarios.getRowCount() > 0) {
+    tableUsuarios.setRowSelectionInterval(0, 0);
+    tableUsuarios.setColumnSelectionInterval(0, 0);
+
+    // Simula el evento CellClick
+   // tableUsuarios_CellClick(0, 0); // <- llama tu propio método
+   //Ojo Aqui
+}
+
+
+
+
+
+// TODO add your handling code here:
+    }//GEN-LAST:event_formWindowOpened
+
+    private void jTextField3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField3ActionPerformed
+
+       
+        
+
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jTextField3ActionPerformed
+
+    private void jTextField3KeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextField3KeyReleased
+
+
+         Filtrar(jComboBox2.getSelectedItem().toString().toLowerCase(), jTextField3.getText()); // Llama al método Filtrar con el valor del TextBox
+        
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jTextField3KeyReleased
+
+    private void tableUsuariosKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tableUsuariosKeyReleased
+        // TODO add your handling code here:
+        
+        
+    try {
+        int rowIndex = tableUsuarios.getSelectedRow();
+        if (rowIndex < 0) return; // No hay fila seleccionada
+
+        DefaultTableModel model = (DefaultTableModel) tableUsuarios.getModel();
+
+        // Asignar valores si existen
+        Object secuencialObj = model.getValueAt(rowIndex, 0); // Columna "S"
+        if (secuencialObj != null) {
+            this.Secuencial = Integer.parseInt(secuencialObj.toString());
+        }
+
+        txt_Codigo.setText(getCellValue(model, rowIndex, 1)); // "Código"
+        txt_Nombre.setText(getCellValue(model, rowIndex, 2)); // "Nombre"
+
+        String password = getCellValue(model, rowIndex, 5); // "Password"
+        if (password != null && !password.isEmpty()) {
+            txt_Password.setText(Encriptador.desencriptar(password));
+        }
+
+        String acceso = getCellValue(model, rowIndex, 3); // "Acceso"
+        if (acceso != null) {
+            for (int i = 0; i < comboBoxAcceso.getItemCount(); i++) {
+                Object item = comboBoxAcceso.getItemAt(i);
+                if (item != null && item.toString().contains(acceso)) {
+                    comboBoxAcceso.setSelectedIndex(i);
+                    break;
+                }
+            }
+        }
+
+        String activo = getCellValue(model, rowIndex, 4); // "Activo"
+        checkBoxActivo.setSelected("Sí".equalsIgnoreCase(activo));
+
+        // Cargar imagen desde la base de datos
+        try (EntityManager em = Persistence.createEntityManagerFactory("MonituxPU").createEntityManager()) {
+            Usuario usuario = em.createQuery(
+                "SELECT u FROM Usuario u WHERE u.secuencial = :secuencial AND u.secuencialEmpresa = :empresa", Usuario.class)
+                .setParameter("secuencial", this.Secuencial)
+                .setParameter("empresa", Secuencial_Empresa)
+                .getResultStream()
+                .findFirst()
+                .orElse(null);
+
+            if (usuario != null && usuario.getImagen() != null && usuario.getImagen().length > 0) {
+                try (ByteArrayInputStream bis = new ByteArrayInputStream(usuario.getImagen())) {
+                    BufferedImage img = ImageIO.read(bis);
+                    labelImagen.setIcon(new ImageIcon(img));
+                } catch (IOException ex) {
+                    labelImagen.setIcon(null);
+                }
+            } else {
+                labelImagen.setIcon(null);
+            }
+        }
+
+    } catch (Exception ex) {
+        labelImagen.setIcon(null);
+        ex.printStackTrace(); // Para depuración
+    }
+}
+
+// Método auxiliar para obtener valor seguro de celda
+private String getCellValue(DefaultTableModel model, int row, int col) {
+    Object value = model.getValueAt(row, col);
+    return value != null ? value.toString() : "";
+        
+    }//GEN-LAST:event_tableUsuariosKeyReleased
+
+    private void tableUsuariosMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tableUsuariosMouseClicked
+
+        
+        
+          try {
+        int rowIndex = tableUsuarios.getSelectedRow();
+        if (rowIndex < 0) return; // No hay fila seleccionada
+
+        DefaultTableModel model = (DefaultTableModel) tableUsuarios.getModel();
+
+        // Asignar valores si existen
+        Object secuencialObj = model.getValueAt(rowIndex, 0); // Columna "S"
+        if (secuencialObj != null) {
+            this.Secuencial = Integer.parseInt(secuencialObj.toString());
+        }
+
+        txt_Codigo.setText(getCellValue(model, rowIndex, 1)); // "Código"
+        txt_Nombre.setText(getCellValue(model, rowIndex, 2)); // "Nombre"
+
+        String password = getCellValue(model, rowIndex, 5); // "Password"
+        if (password != null && !password.isEmpty()) {
+            txt_Password.setText(Encriptador.desencriptar(password));
+        }
+
+        String acceso = getCellValue(model, rowIndex, 3); // "Acceso"
+        if (acceso != null) {
+            for (int i = 0; i < comboBoxAcceso.getItemCount(); i++) {
+                Object item = comboBoxAcceso.getItemAt(i);
+                if (item != null && item.toString().contains(acceso)) {
+                    comboBoxAcceso.setSelectedIndex(i);
+                    break;
+                }
+            }
+        }
+
+        String activo = getCellValue(model, rowIndex, 4); // "Activo"
+        checkBoxActivo.setSelected("Sí".equalsIgnoreCase(activo));
+
+        // Cargar imagen desde la base de datos
+        try (EntityManager em = Persistence.createEntityManagerFactory("MonituxPU").createEntityManager()) {
+            Usuario usuario = em.createQuery(
+                "SELECT u FROM Usuario u WHERE u.secuencial = :secuencial AND u.secuencialEmpresa = :empresa", Usuario.class)
+                .setParameter("secuencial", this.Secuencial)
+                .setParameter("empresa", Secuencial_Empresa)
+                .getResultStream()
+                .findFirst()
+                .orElse(null);
+
+            if (usuario != null && usuario.getImagen() != null && usuario.getImagen().length > 0) {
+                try (ByteArrayInputStream bis = new ByteArrayInputStream(usuario.getImagen())) {
+                    BufferedImage img = ImageIO.read(bis);
+                    labelImagen.setIcon(new ImageIcon(img));
+                } catch (IOException ex) {
+                    labelImagen.setIcon(null);
+                }
+            } else {
+                labelImagen.setIcon(null);
+            }
+        }
+
+    } catch (Exception ex) {
+        labelImagen.setIcon(null);
+        ex.printStackTrace(); // Para depuración
+    }
+        
+        
+
+        // TODO add your handling code here:
+    }//GEN-LAST:event_tableUsuariosMouseClicked
+
+    private void labelImagenMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_labelImagenMouseClicked
+
+/*
+        try {
+    String imagenSeleccionada = Util.abrirDialogoSeleccionFilename();
+
+    if (imagenSeleccionada != null && !imagenSeleccionada.trim().isEmpty()) {
+        File archivoImagen = new File(imagenSeleccionada);
+
+        if (archivoImagen.exists() && archivoImagen.isFile()) {
+            // Cargar imagen para mostrar en el JLabel
+            Image imagenCargada = Util.cargarImagenLocal(imagenSeleccionada);
+            labelImagen.setIcon(new ImageIcon(imagenCargada));
+
+            // Convertir a byte[] para guardar
+            BufferedImage buffered = ImageIO.read(archivoImagen);
+            if (buffered != null) {
+                ByteArrayOutputStream ms = new ByteArrayOutputStream();
+                ImageIO.write(buffered, "png", ms);
+                imagen = ms.toByteArray();
+            } else {
+                imagen = null; // Imagen no válida
+                System.err.println("Formato de imagen no soportado.");
+            }
+        } else {
+            imagen = null;
+            System.err.println("Archivo no encontrado o invalido: " + imagenSeleccionada);
+        }
+    }
+} catch (IOException e) {
+    imagen = null;
+    e.printStackTrace(); // Para depuración
+    // VMenuPrincipal.MSG.showMSG("No se pudo cargar la imagen seleccionada.", "Error");
+}
+
+     */
+
+
+
+
+try {
+    String imagenSeleccionada = Util.abrirDialogoSeleccionFilename();
+
+    if (imagenSeleccionada != null && !imagenSeleccionada.trim().isEmpty()) {
+        File archivoImagen = new File(imagenSeleccionada);
+
+        if (archivoImagen.exists() && archivoImagen.isFile()) {
+            // Cargar imagen como BufferedImage
+            BufferedImage buffered = ImageIO.read(archivoImagen);
+
+            if (buffered != null) {
+                // Redimensionar al tamaño del JLabel
+                int ancho = labelImagen.getWidth();
+                int alto = labelImagen.getHeight();
+
+                Image imagenEscalada = buffered.getScaledInstance(ancho, alto, Image.SCALE_SMOOTH);
+
+                // Mostrar imagen redimensionada en el JLabel
+                labelImagen.setIcon(new ImageIcon(imagenEscalada));
+
+                // Convertir imagen original (no escalada) a byte[] para guardar
+                ByteArrayOutputStream ms = new ByteArrayOutputStream();
+                ImageIO.write(buffered, "png", ms);
+                imagen = ms.toByteArray();
+            } else {
+                imagen = null;
+                System.err.println("Formato de imagen no soportado.");
+            }
+        } else {
+            imagen = null;
+            System.err.println("Archivo no encontrado o inválido: " + imagenSeleccionada);
+        }
+    }
+} catch (IOException e) {
+    imagen = null;
+    e.printStackTrace();
+    // VMenuPrincipal.MSG.showMSG("No se pudo cargar la imagen seleccionada.", "Error");
+}
+
+
+
+
+        // TODO add your handling code here:
+    }//GEN-LAST:event_labelImagenMouseClicked
+
+    
+    
+    
+// Método auxiliar para obtener el valor de celda como String
+
+
+
+    
+    private void Filtrar(String campo, String valor) {
+
+        tableUsuarios.removeAll();
+// Crear modelo si la tabla está vacía
+    DefaultTableModel model = (DefaultTableModel) tableUsuarios.getModel();
+    if (tableUsuarios.getColumnCount() == 0) {
+        model.setColumnIdentifiers(new String[] { "S", "Codigo", "Nombre", "Acceso", "Activo" });
+
+        // Ocultar columna Password
+        TableColumn passwordCol = tableUsuarios.getColumnModel().getColumn(3);
+        passwordCol.setMinWidth(0);
+        passwordCol.setMaxWidth(0);
+        passwordCol.setWidth(0);
+
+        // Ajustar anchos
+        tableUsuarios.getColumnModel().getColumn(0).setPreferredWidth(20);  // S
+        tableUsuarios.getColumnModel().getColumn(1).setPreferredWidth(80);  // Código
+        tableUsuarios.getColumnModel().getColumn(2).setPreferredWidth(80);  // Nombre
+    }
+
+    // Limpiar filas existentes
+    model.setRowCount(0);
+
+    // Conectar con JPA y filtrar usuarios
+    EntityManager em = Persistence.createEntityManagerFactory("MonituxPU").createEntityManager();
+    try {
+        String jpql = "SELECT u FROM Usuario u WHERE u.secuencial_empresa = :empresa AND LOWER(FUNCTION('REPLACE', FUNCTION('LOWER', u." + campo + "), ' ', '')) LIKE :valor";
+        List<Usuario> usuarios = em.createQuery(jpql, Usuario.class)
+            .setParameter("empresa", Secuencial_Empresa)
+            .setParameter("valor", "%" + valor.toLowerCase().replace(" ", "") + "%")
+            .getResultList();
+
+        for (Usuario u : usuarios) {
+            model.addRow(new Object[] {
+                u.getSecuencial(),
+                u.getCodigo(),
+                u.getNombre(),
+                u.getAcceso(),
+                u.isActivo() ? "Sí" : "No"
+            });
+        }
+
+        tableUsuarios.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        if (tableUsuarios.getRowCount() > 0) {
+            tableUsuarios.setRowSelectionInterval(0, 0);
+        }
+
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(null, "Error al filtrar usuarios: " + e.getMessage());
+        System.err.println(e.getMessage());
+    } finally {
+        em.close();
+    }
+}
+
+    
+    
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String args[]) {
+        /* Set the Nimbus look and feel */
+        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
+        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
+         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+         */
+        try {
+            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
+            }
+        } catch (ClassNotFoundException ex) {
+            java.util.logging.Logger.getLogger(V_Usuario.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (InstantiationException ex) {
+            java.util.logging.Logger.getLogger(V_Usuario.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (IllegalAccessException ex) {
+            java.util.logging.Logger.getLogger(V_Usuario.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+            java.util.logging.Logger.getLogger(V_Usuario.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        }
+        //</editor-fold>
+
+        /* Create and display the form */
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                new V_Usuario().setVisible(true);
+            }
+        });
+    }
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JMenuItem Menu_Eliminar;
+    private javax.swing.JMenuItem Menu_Guardar;
+    private javax.swing.JMenuItem Menu_Nuevo;
+    private javax.swing.JMenuItem Menu_Salir;
+    private javax.swing.JCheckBox checkBoxActivo;
+    private javax.swing.JComboBox<String> comboBoxAcceso;
+    private javax.swing.JComboBox<String> jComboBox2;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
+    private javax.swing.JMenu jMenu1;
+    private javax.swing.JMenuBar jMenuBar1;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel3;
+    private javax.swing.JPanel jPanel4;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JPopupMenu.Separator jSeparator1;
+    private javax.swing.JTable jTable1;
+    private javax.swing.JTextField jTextField3;
+    private javax.swing.JLabel labelImagen;
+    private javax.swing.JTable tableUsuarios;
+    private javax.swing.JTextField txt_Codigo;
+    private javax.swing.JTextField txt_Nombre;
+    private javax.swing.JPasswordField txt_Password;
+    // End of variables declaration//GEN-END:variables
+}
