@@ -4,12 +4,55 @@
  */
 package com.monituxpos.Ventanas;
 
+import com.monituxpos.Clases.Cliente;
+import com.monituxpos.Clases.Encriptador;
+import com.monituxpos.Clases.Util;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.Persistence;
+import jakarta.persistence.TypedQuery;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
+import javax.imageio.ImageIO;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JTable;
+import javax.swing.ListSelectionModel;
+import javax.swing.SwingConstants;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
+
 /**
  *
  * @author Miguel Cerrato
  */
 public class V_Clientes extends javax.swing.JFrame {
 
+     public int Secuencial_Usuario=1;//Cambiar esto
+    public int Secuencial_Empresa=1;//Cambiar esto
+    public int Secuencial;
+    
+      private byte[] imagen;
+
+public byte[] getImagen() {
+    return imagen;
+}
+
+public void setImagen(byte[] imagen) {
+    this.imagen = imagen;
+}
+    
+    
     /**
      * Creates new form V_Clientes
      */
@@ -26,22 +69,773 @@ public class V_Clientes extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        jLabel1 = new javax.swing.JLabel();
+        labelImagen = new javax.swing.JLabel();
+        jPanel4 = new javax.swing.JPanel();
+        jTextField3 = new javax.swing.JTextField();
+        jLabel6 = new javax.swing.JLabel();
+        jComboBox2 = new javax.swing.JComboBox<>();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        tableClientes = new javax.swing.JTable();
+        checkBoxActivo = new javax.swing.JCheckBox();
+        jLabel2 = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
+        jLabel4 = new javax.swing.JLabel();
+        jLabel5 = new javax.swing.JLabel();
+        jLabel7 = new javax.swing.JLabel();
+        txt_Codigo = new javax.swing.JTextField();
+        txt_Nombre = new javax.swing.JTextField();
+        txt_Telefono = new javax.swing.JTextField();
+        txt_Direccion = new javax.swing.JTextField();
+        txt_Email = new javax.swing.JTextField();
+        labelImagen1 = new javax.swing.JLabel();
+        jMenuBar1 = new javax.swing.JMenuBar();
+        jMenu1 = new javax.swing.JMenu();
+        Menu_Nuevo = new javax.swing.JMenuItem();
+        Menu_Guardar = new javax.swing.JMenuItem();
+        Menu_Eliminar = new javax.swing.JMenuItem();
+        jSeparator1 = new javax.swing.JPopupMenu.Separator();
+        Menu_Salir = new javax.swing.JMenuItem();
+
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setResizable(false);
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowOpened(java.awt.event.WindowEvent evt) {
+                formWindowOpened(evt);
+            }
+        });
+
+        jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
+        jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel1.setText("Clientes");
+
+        labelImagen.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        labelImagen.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                labelImagenMouseClicked(evt);
+            }
+        });
+
+        jTextField3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jTextField3ActionPerformed(evt);
+            }
+        });
+        jTextField3.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                jTextField3KeyReleased(evt);
+            }
+        });
+
+        jLabel6.setText("Buscar por:");
+
+        jComboBox2.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Nombre", "Telefono", "Codigo" }));
+
+        javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
+        jPanel4.setLayout(jPanel4Layout);
+        jPanel4Layout.setHorizontalGroup(
+            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel4Layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jLabel6)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jComboBox2, javax.swing.GroupLayout.PREFERRED_SIZE, 129, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(54, 54, 54)
+                .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, 134, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(19, 19, 19))
+        );
+        jPanel4Layout.setVerticalGroup(
+            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel4Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel6)
+                    .addComponent(jComboBox2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        tableClientes.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {},
+                {},
+                {},
+                {}
+            },
+            new String [] {
+
+            }
+        ));
+        tableClientes.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        tableClientes.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tableClientesMouseClicked(evt);
+            }
+        });
+        tableClientes.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                tableClientesKeyReleased(evt);
+            }
+        });
+        jScrollPane2.setViewportView(tableClientes);
+
+        checkBoxActivo.setText("Activo");
+
+        jLabel2.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        jLabel2.setText("Codigo:");
+
+        jLabel3.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        jLabel3.setText("Nombre:");
+
+        jLabel4.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        jLabel4.setText("Telefono:");
+
+        jLabel5.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        jLabel5.setText("Direccion:");
+
+        jLabel7.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        jLabel7.setText("Email:");
+
+        labelImagen1.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        labelImagen1.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                labelImagen1MouseClicked(evt);
+            }
+        });
+
+        jMenu1.setText("Opciones");
+
+        Menu_Nuevo.setText("Nuevo");
+        Menu_Nuevo.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                Menu_NuevoActionPerformed(evt);
+            }
+        });
+        jMenu1.add(Menu_Nuevo);
+
+        Menu_Guardar.setText("Guardar");
+        Menu_Guardar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                Menu_GuardarActionPerformed(evt);
+            }
+        });
+        jMenu1.add(Menu_Guardar);
+
+        Menu_Eliminar.setText("Eliminar");
+        Menu_Eliminar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                Menu_EliminarActionPerformed(evt);
+            }
+        });
+        jMenu1.add(Menu_Eliminar);
+        jMenu1.add(jSeparator1);
+
+        Menu_Salir.setText("Salir");
+        Menu_Salir.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                Menu_SalirActionPerformed(evt);
+            }
+        });
+        jMenu1.add(Menu_Salir);
+
+        jMenuBar1.add(jMenu1);
+
+        setJMenuBar(jMenuBar1);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 391, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, 397, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel2, javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addComponent(jLabel3, javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addComponent(jLabel4, javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addComponent(jLabel5, javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addComponent(jLabel7, javax.swing.GroupLayout.Alignment.TRAILING))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(txt_Codigo, javax.swing.GroupLayout.PREFERRED_SIZE, 199, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(txt_Direccion)
+                                    .addComponent(txt_Telefono)
+                                    .addComponent(txt_Nombre)
+                                    .addComponent(txt_Email, javax.swing.GroupLayout.DEFAULT_SIZE, 200, Short.MAX_VALUE)))
+                            .addComponent(checkBoxActivo))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(labelImagen, javax.swing.GroupLayout.PREFERRED_SIZE, 124, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(52, 52, 52)
+                                .addComponent(labelImagen1, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)))))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 403, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 300, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(labelImagen, javax.swing.GroupLayout.PREFERRED_SIZE, 131, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(labelImagen1, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel2)
+                            .addComponent(txt_Codigo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel3)
+                            .addComponent(txt_Nombre, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel4)
+                            .addComponent(txt_Telefono, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel5)
+                            .addComponent(txt_Direccion, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel7)
+                            .addComponent(txt_Email, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(9, 9, 9)
+                        .addComponent(checkBoxActivo)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 152, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void Menu_NuevoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Menu_NuevoActionPerformed
+
+        Secuencial=0;
+        txt_Codigo.setText("");
+        txt_Nombre.setText("");
+        txt_Direccion.setText("");
+        txt_Telefono.setText("");
+        txt_Email.setText("");
+        checkBoxActivo.setSelected(true);
+        labelImagen.setIcon(null);
+
+        // TODO add your handling code here:
+    }//GEN-LAST:event_Menu_NuevoActionPerformed
+
+    private void Menu_GuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Menu_GuardarActionPerformed
+
+
+        //**********************************************************
+
+// Obtener imagen como byte[]
+byte[] imagenBytes = null;
+Icon icono = labelImagen.getIcon();
+if (icono instanceof ImageIcon) {
+    Image imagen = ((ImageIcon) icono).getImage();
+    BufferedImage copia = new BufferedImage(imagen.getWidth(null), imagen.getHeight(null), BufferedImage.TYPE_INT_RGB);
+    Graphics2D g2d = copia.createGraphics();
+    g2d.drawImage(imagen, 0, 0, null);
+    g2d.dispose();
+
+    imagenBytes = Util.comprimirImagen(copia, 100f); // Calidad ajustable
+}
+
+// Validaciones comunes
+if (txt_Nombre.getText().isBlank()) {
+    //MenuPrincipal.MSG.show("El nombre del cliente no puede estar vacío.", "Error");
+    return;
+}
+if (txt_Codigo.getText().isBlank()) {
+    //MenuPrincipal.MSG.show("El código del cliente no puede estar vacío.", "Error");
+    return;
+}
+if (txt_Email.getText().isBlank()) {
+    //MenuPrincipal.MSG.show("El email del cliente no puede estar vacío.", "Error");
+    return;
+}
+
+EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
+EntityManager em = emf.createEntityManager();
+
+if (Secuencial != 0) {
+    // MODO EDICIÓN
+    Cliente cliente = em.find(Cliente.class, Secuencial);
+    if (cliente != null) {
+        em.getTransaction().begin();
+        cliente.setSecuencialEmpresa(Secuencial_Empresa);
+        cliente.setNombre(txt_Nombre.getText());
+        cliente.setCodigo(txt_Codigo.getText());
+        cliente.setTelefono(txt_Telefono.getText());
+        cliente.setDireccion(txt_Direccion.getText());
+        cliente.setEmail(txt_Email.getText());
+        cliente.setActivo(checkBoxActivo.isSelected());
+        if (imagenBytes != null) {
+            cliente.setImagen(imagenBytes);
+        }
+        em.getTransaction().commit();
+
+        // Util.registrarActividad(Secuencial_Usuario, "Ha modificado al cliente: " + cliente.getNombre(), Secuencial_Empresa);
+        // MenuPrincipal.MSG.show("Cliente actualizado correctamente.", "Éxito");
+    }
+} else {
+    // MODO CREACIÓN
+    Cliente cliente = new Cliente();
+    cliente.setSecuencialEmpresa(Secuencial_Empresa);
+    cliente.setNombre(txt_Nombre.getText());
+    cliente.setCodigo(txt_Codigo.getText());
+    cliente.setTelefono(txt_Telefono.getText());
+    cliente.setDireccion(txt_Direccion.getText());
+    cliente.setEmail(txt_Email.getText());
+    cliente.setActivo(true);
+    cliente.setImagen(imagenBytes);
+
+    try {
+        em.getTransaction().begin();
+        em.persist(cliente);
+        em.getTransaction().commit();
+
+        // MenuPrincipal.MSG.show("Cliente creado correctamente.", "Éxito");
+        // Util.registrarActividad(Secuencial_Usuario, "Ha creado al cliente: " + cliente.getNombre(), Secuencial_Empresa);
+    } catch (Exception e) {
+        // MenuPrincipal.MSG.show("Error al crear cliente: Ya existe o los datos proporcionados no son válidos.", "Error");
+        em.getTransaction().rollback();
+        return;
+    }
+}
+
+em.close();
+emf.close();
+
+cargarDatos(); // Refresca la vista
+dispose();             // Cierra el formulario actual
+
+//**********************************************************
+
+        
+        
+        
+    }//GEN-LAST:event_Menu_GuardarActionPerformed
+
+    private void Menu_EliminarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Menu_EliminarActionPerformed
+
+        int res = JOptionPane.showConfirmDialog(null, "¿Está seguro de eliminar este cliente?", "Confirmación", JOptionPane.YES_NO_OPTION);
+
+if (res == JOptionPane.YES_OPTION) {
+    try {
+        // Liberar imagen actual
+        Icon icono = labelImagen.getIcon();
+        if (icono instanceof ImageIcon) {
+            ((ImageIcon) icono).getImage().flush(); // Libera recursos
+        }
+        labelImagen.setIcon(null);
+        imagen = null; // Variable de clase si la usas
+
+    } catch (Exception e) {
+        // Silenciar errores de liberación de imagen
+    }
+
+    EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
+    EntityManager em = emf.createEntityManager();
+
+    try {
+        Cliente cliente = em.createQuery(
+            "SELECT c FROM Cliente c WHERE c.secuencial = :secuencial AND c.secuencialEmpresa = :empresa", Cliente.class)
+        .setParameter("secuencial", this.Secuencial)
+        .setParameter("empresa", Secuencial_Empresa)
+        .getResultStream()
+        .findFirst()
+        .orElse(null);
+
+        if (cliente != null) {
+            // Si tiene imagen, la mostramos antes de eliminar
+            if (cliente.getImagen() != null && cliente.getImagen().length > 0) {
+                try (ByteArrayInputStream bis = new ByteArrayInputStream(cliente.getImagen())) {
+                    BufferedImage img = ImageIO.read(bis);
+                    labelImagen.setIcon(new ImageIcon(img));
+                } catch (IOException ex) {
+                    labelImagen.setIcon(null);
+                }
+            } else {
+                labelImagen.setIcon(null);
+            }
+
+            // Eliminar cliente
+            em.getTransaction().begin();
+            em.remove(cliente);
+            em.getTransaction().commit();
+
+            //Util.registrarActividad(Secuencial_Usuario, "Ha eliminado al cliente: " + cliente.getNombre(), Secuencial_Empresa);
+            JOptionPane.showMessageDialog(null, "Cliente eliminado correctamente", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+            cargarDatos(); // Refrescar tabla
+        }
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(null, "Error al eliminar cliente: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+    } finally {
+        em.close();
+        emf.close();
+    }
+}
+
+        
+        
+    }//GEN-LAST:event_Menu_EliminarActionPerformed
+
+    private void Menu_SalirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Menu_SalirActionPerformed
+
+        this.dispose();
+        // TODO add your handling code here:
+    }//GEN-LAST:event_Menu_SalirActionPerformed
+
+    private void labelImagenMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_labelImagenMouseClicked
+
+        /*
+        try {
+            String imagenSeleccionada = Util.abrirDialogoSeleccionFilename();
+
+            if (imagenSeleccionada != null && !imagenSeleccionada.trim().isEmpty()) {
+                File archivoImagen = new File(imagenSeleccionada);
+
+                if (archivoImagen.exists() && archivoImagen.isFile()) {
+                    // Cargar imagen para mostrar en el JLabel
+                    Image imagenCargada = Util.cargarImagenLocal(imagenSeleccionada);
+                    labelImagen.setIcon(new ImageIcon(imagenCargada));
+
+                    // Convertir a byte[] para guardar
+                    BufferedImage buffered = ImageIO.read(archivoImagen);
+                    if (buffered != null) {
+                        ByteArrayOutputStream ms = new ByteArrayOutputStream();
+                        ImageIO.write(buffered, "png", ms);
+                        imagen = ms.toByteArray();
+                    } else {
+                        imagen = null; // Imagen no válida
+                        System.err.println("Formato de imagen no soportado.");
+                    }
+                } else {
+                    imagen = null;
+                    System.err.println("Archivo no encontrado o invalido: " + imagenSeleccionada);
+                }
+            }
+        } catch (IOException e) {
+            imagen = null;
+            e.printStackTrace(); // Para depuración
+            // VMenuPrincipal.MSG.showMSG("No se pudo cargar la imagen seleccionada.", "Error");
+        }
+
+        */
+
+        try {
+            String imagenSeleccionada = Util.abrirDialogoSeleccionFilename();
+
+            if (imagenSeleccionada != null && !imagenSeleccionada.trim().isEmpty()) {
+                File archivoImagen = new File(imagenSeleccionada);
+
+                if (archivoImagen.exists() && archivoImagen.isFile()) {
+                    // Cargar imagen como BufferedImage
+                    BufferedImage buffered = ImageIO.read(archivoImagen);
+
+                    if (buffered != null) {
+                        // Redimensionar al tamaño del JLabel
+                        int ancho = labelImagen.getWidth();
+                        int alto = labelImagen.getHeight();
+
+                        Image imagenEscalada = buffered.getScaledInstance(ancho, alto, Image.SCALE_SMOOTH);
+
+                        // Mostrar imagen redimensionada en el JLabel
+                        labelImagen.setIcon(new ImageIcon(imagenEscalada));
+
+                        // Convertir imagen original (no escalada) a byte[] para guardar
+                        ByteArrayOutputStream ms = new ByteArrayOutputStream();
+                        ImageIO.write(buffered, "png", ms);
+                        imagen = ms.toByteArray();
+                    } else {
+                        imagen = null;
+                        System.err.println("Formato de imagen no soportado.");
+                    }
+                } else {
+                    imagen = null;
+                    System.err.println("Archivo no encontrado o inválido: " + imagenSeleccionada);
+                }
+            }
+        } catch (IOException e) {
+            imagen = null;
+            e.printStackTrace();
+            // VMenuPrincipal.MSG.showMSG("No se pudo cargar la imagen seleccionada.", "Error");
+        }
+
+        // TODO add your handling code here:
+    }//GEN-LAST:event_labelImagenMouseClicked
+
+    private void jTextField3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField3ActionPerformed
+
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jTextField3ActionPerformed
+
+    private void jTextField3KeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextField3KeyReleased
+
+        Filtrar(jComboBox2.getSelectedItem().toString().toLowerCase(), jTextField3.getText()); // Llama al método Filtrar con el valor del TextBox
+
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jTextField3KeyReleased
+
+    
+    
+    private void Filtrar(String campo, String valor) {
+
+    tableClientes.removeAll();
+
+    // Crear modelo si la tabla está vacía
+    DefaultTableModel model = (DefaultTableModel) tableClientes.getModel();
+    if (tableClientes.getColumnCount() == 0) {
+        model.setColumnIdentifiers(new String[] { "S", "Codigo", "Nombre", "Teléfono", "Email", "Activo" });
+
+        // Ajustar anchos
+        tableClientes.getColumnModel().getColumn(0).setPreferredWidth(20);  // S
+        tableClientes.getColumnModel().getColumn(1).setPreferredWidth(80);  // Código
+        tableClientes.getColumnModel().getColumn(2).setPreferredWidth(120); // Nombre
+        tableClientes.getColumnModel().getColumn(3).setPreferredWidth(100); // Teléfono
+        tableClientes.getColumnModel().getColumn(4).setPreferredWidth(150); // Email
+    }
+
+    // Limpiar filas existentes
+    model.setRowCount(0);
+
+    // Conectar con JPA y filtrar clientes
+    EntityManager em = Persistence.createEntityManagerFactory("MonituxPU").createEntityManager();
+    try {
+        String jpql = "SELECT c FROM Cliente c WHERE c.secuencialEmpresa = :empresa AND LOWER(FUNCTION('REPLACE', FUNCTION('LOWER', c." + campo + "), ' ', '')) LIKE :valor";
+        List<Cliente> clientes = em.createQuery(jpql, Cliente.class)
+            .setParameter("empresa", Secuencial_Empresa)
+            .setParameter("valor", "%" + valor.toLowerCase().replace(" ", "") + "%")
+            .getResultList();
+
+        for (Cliente c : clientes) {
+            model.addRow(new Object[] {
+                c.getSecuencial(),
+                c.getCodigo(),
+                c.getNombre(),
+                c.getTelefono(),
+                c.getDireccion(),
+                c.getEmail(),
+                c.getActivo() ? "Sí" : "No"
+            });
+        }
+
+        tableClientes.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        if (tableClientes.getRowCount() > 0) {
+            tableClientes.setRowSelectionInterval(0, 0);
+        }
+
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(null, "Error al filtrar clientes: " + e.getMessage());
+        System.err.println(e.getMessage());
+    } finally {
+        em.close();
+    }
+}
+
+    
+    
+    
+    
+    private void tableClientesMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tableClientesMouseClicked
+
+     
+        try {
+    int rowIndex = tableClientes.getSelectedRow();
+    if (rowIndex < 0) return; // No hay fila seleccionada
+
+    DefaultTableModel model = (DefaultTableModel) tableClientes.getModel();
+
+    // Asignar valores si existen
+    Object secuencialObj = model.getValueAt(rowIndex, 0); // Columna "S"
+    if (secuencialObj != null) {
+        this.Secuencial = Integer.parseInt(secuencialObj.toString());
+    }
+
+    txt_Codigo.setText(getCellValue(model, rowIndex, 1));   // "Código"
+    txt_Nombre.setText(getCellValue(model, rowIndex, 2));   // "Nombre"
+    txt_Telefono.setText(getCellValue(model, rowIndex, 3)); // "Teléfono"
+    txt_Direccion.setText(getCellValue(model, rowIndex, 4));// "Dirección"
+    txt_Email.setText(getCellValue(model, rowIndex, 5));    // "Email"
+
+    String activo = getCellValue(model, rowIndex, 6);       // "Activo"
+    checkBoxActivo.setSelected("Sí".equalsIgnoreCase(activo));
+
+    // Cargar imagen desde la base de datos
+    try (EntityManager em = Persistence.createEntityManagerFactory("MonituxPU").createEntityManager()) {
+        Cliente cliente = em.createQuery(
+            "SELECT c FROM Cliente c WHERE c.secuencial = :secuencial AND c.secuencialEmpresa = :empresa", Cliente.class)
+            .setParameter("secuencial", this.Secuencial)
+            .setParameter("empresa", Secuencial_Empresa)
+            .getResultStream()
+            .findFirst()
+            .orElse(null);
+
+        if (cliente != null && cliente.getImagen() != null && cliente.getImagen().length > 0) {
+            try (ByteArrayInputStream bis = new ByteArrayInputStream(cliente.getImagen())) {
+                BufferedImage img = ImageIO.read(bis);
+                labelImagen.setIcon(new ImageIcon(img));
+            } catch (IOException ex) {
+                labelImagen.setIcon(null);
+            }
+        } else {
+            labelImagen.setIcon(null);
+        }
+    }
+
+} catch (Exception ex) {
+    labelImagen.setIcon(null);
+    ex.printStackTrace(); // Para depuración
+}
+
+
+
+        
+      
+    }//GEN-LAST:event_tableClientesMouseClicked
+
+    private void tableClientesKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tableClientesKeyReleased
+       
+     
+        try {
+    int rowIndex = tableClientes.getSelectedRow();
+    if (rowIndex < 0) return; // No hay fila seleccionada
+
+    DefaultTableModel model = (DefaultTableModel) tableClientes.getModel();
+
+    // Asignar valores si existen
+    Object secuencialObj = model.getValueAt(rowIndex, 0); // Columna "S"
+    if (secuencialObj != null) {
+        this.Secuencial = Integer.parseInt(secuencialObj.toString());
+    }
+
+    txt_Codigo.setText(getCellValue(model, rowIndex, 1));   // "Código"
+    txt_Nombre.setText(getCellValue(model, rowIndex, 2));   // "Nombre"
+    txt_Telefono.setText(getCellValue(model, rowIndex, 3)); // "Teléfono"
+    txt_Direccion.setText(getCellValue(model, rowIndex, 4));// "Dirección"
+    txt_Email.setText(getCellValue(model, rowIndex, 5));    // "Email"
+
+    String activo = getCellValue(model, rowIndex, 6);       // "Activo"
+    checkBoxActivo.setSelected("Sí".equalsIgnoreCase(activo));
+
+    // Cargar imagen desde la base de datos
+    try (EntityManager em = Persistence.createEntityManagerFactory("MonituxPU").createEntityManager()) {
+        Cliente cliente = em.createQuery(
+            "SELECT c FROM Cliente c WHERE c.secuencial = :secuencial AND c.secuencialEmpresa = :empresa", Cliente.class)
+            .setParameter("secuencial", this.Secuencial)
+            .setParameter("empresa", Secuencial_Empresa)
+            .getResultStream()
+            .findFirst()
+            .orElse(null);
+
+        if (cliente != null && cliente.getImagen() != null && cliente.getImagen().length > 0) {
+            try (ByteArrayInputStream bis = new ByteArrayInputStream(cliente.getImagen())) {
+                BufferedImage img = ImageIO.read(bis);
+                labelImagen.setIcon(new ImageIcon(img));
+            } catch (IOException ex) {
+                labelImagen.setIcon(null);
+            }
+        } else {
+            labelImagen.setIcon(null);
+        }
+    }
+
+} catch (Exception ex) {
+    labelImagen.setIcon(null);
+    ex.printStackTrace(); // Para depuración
+}
+
+
+        
+        }
+
+        // Método auxiliar para obtener valor seguro de celda
+        private String getCellValue(DefaultTableModel model, int row, int col) {
+            Object value = model.getValueAt(row, col);
+            return value != null ? value.toString() : "";
+
+    }//GEN-LAST:event_tableClientesKeyReleased
+
+    private void labelImagen1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_labelImagen1MouseClicked
+        // TODO add your handling code here:
+    }//GEN-LAST:event_labelImagen1MouseClicked
+
+    private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
+
+        setTitle("Monitux-POS v." + "");//V_Menu_Principal.VER);
+
+// Asigna el secuencial del usuario
+
+
+        
+   cargarDatos();
+        
+
+        // TODO add your handling code here:
+    }//GEN-LAST:event_formWindowOpened
+
+    
+   private void cargarDatos() {
+    // Limpiar tabla
+    DefaultTableModel model = new DefaultTableModel(
+        new String[] { "S", "Codigo", "Nombre", "Telefono", "Direccion", "Email", "Activo" }, 0
+    ) {
+        @Override
+        public boolean isCellEditable(int row, int column) {
+            return false;
+        }
+    };
+    tableClientes.setModel(model);
+    tableClientes.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+    // Obtener EntityManager
+    EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
+    EntityManager em = emf.createEntityManager();
+
+    try {
+        // Consulta JPA
+        TypedQuery<Cliente> query = em.createQuery(
+            "SELECT c FROM Cliente c WHERE c.secuencialEmpresa = :secuencial", Cliente.class);
+        query.setParameter("secuencial", Secuencial_Empresa);
+
+        List<Cliente> clientes = query.getResultList();
+
+        for (Cliente item : clientes) {
+            model.addRow(new Object[] {
+                item.getSecuencial(),
+                item.getCodigo(),
+                item.getNombre(),
+                item.getTelefono(),
+                item.getDireccion(),
+                item.getEmail(),
+                item.getActivo()? "Sí" : "No"
+            });
+        }
+    } catch (Exception e) {
+      //  JOptionPane.showMessageDialog(null, "Error al cargar clientes: " + e.getMessage());
+    } finally {
+        em.close();
+        emf.close();
+    }
+}
+
+    
+    
     /**
      * @param args the command line arguments
      */
@@ -78,5 +872,32 @@ public class V_Clientes extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JMenuItem Menu_Eliminar;
+    private javax.swing.JMenuItem Menu_Guardar;
+    private javax.swing.JMenuItem Menu_Nuevo;
+    private javax.swing.JMenuItem Menu_Salir;
+    private javax.swing.JCheckBox checkBoxActivo;
+    private javax.swing.JComboBox<String> jComboBox2;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel7;
+    private javax.swing.JMenu jMenu1;
+    private javax.swing.JMenuBar jMenuBar1;
+    private javax.swing.JPanel jPanel4;
+    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JPopupMenu.Separator jSeparator1;
+    private javax.swing.JTextField jTextField3;
+    private javax.swing.JLabel labelImagen;
+    private javax.swing.JLabel labelImagen1;
+    private javax.swing.JTable tableClientes;
+    private javax.swing.JTextField txt_Codigo;
+    private javax.swing.JTextField txt_Direccion;
+    private javax.swing.JTextField txt_Email;
+    private javax.swing.JTextField txt_Nombre;
+    private javax.swing.JTextField txt_Telefono;
     // End of variables declaration//GEN-END:variables
 }

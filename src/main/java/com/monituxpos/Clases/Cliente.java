@@ -17,8 +17,9 @@ public class Cliente {
     private String direccion;
     private String email;
 
-    @Lob
-    private byte[] imagen;
+   @Lob
+@Column(name = "imagen", columnDefinition = "LONGBLOB")
+private byte[] imagen;
 
     private Boolean activo;
 

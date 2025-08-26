@@ -269,7 +269,6 @@ public void setImagen(byte[] imagen) {
             }
         });
 
-        jLabel1.setBackground(new java.awt.Color(102, 255, 51));
         jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel1.setText("Usuarios");
@@ -504,7 +503,7 @@ public void setImagen(byte[] imagen) {
 setTitle("Monitux-POS v." + "");//V_Menu_Principal.VER);
 
 // Asigna el secuencial del usuario
-Secuencial_Usuario = 1;//V_Menu_Principal.Secuencial_Usuario;
+
 
 //// Oculta o muestra el botón de eliminar según el rol
 //if (!"Administrador".equals(V_Menu_Principal.Acceso_Usuario)) {
