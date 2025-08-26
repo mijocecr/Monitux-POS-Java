@@ -24,11 +24,16 @@ import javax.activation.FileDataSource;
 import javax.activation.DataHandler;
 
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 
 import java.util.Hashtable;
+import java.util.Iterator;
 import javax.imageio.ImageIO;
+import javax.imageio.ImageWriteParam;
+import javax.imageio.ImageWriter;
+import javax.imageio.stream.ImageOutputStream;
 import javax.swing.JFileChooser;
 
 
@@ -176,8 +181,44 @@ public class Util {
     
     //Fin Cargar Imagen Local
     
-    
+ //Comprimir Imagen
+     
+       public static byte[] comprimirImagen(BufferedImage imagenOriginal, float calidad) {
+        if (imagenOriginal == null) return null;
 
+        try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
+             ImageOutputStream ios = ImageIO.createImageOutputStream(baos)) {
+
+            // Buscar el codec JPEG
+            Iterator<ImageWriter> writers = ImageIO.getImageWritersByFormatName("jpeg");
+            if (!writers.hasNext()) {
+                throw new IllegalStateException("No se encontró el codec JPEG.");
+            }
+
+            ImageWriter writer = writers.next();
+            writer.setOutput(ios);
+
+            // Configurar parámetros de compresión
+            ImageWriteParam param = writer.getDefaultWriteParam();
+            if (param.canWriteCompressed()) {
+                param.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
+                param.setCompressionQuality(calidad / 100f); // Convertir de 0–100 a 0.0–1.0
+            }
+
+            // Escribir la imagen comprimida
+            writer.write(null, new javax.imageio.IIOImage(imagenOriginal, null, null), param);
+            writer.dispose();
+
+            return baos.toByteArray();
+
+        } catch (IOException e) {
+            throw new RuntimeException("Error al comprimir la imagen", e);
+        }
+    } 
+       
+     
+     
+// Fin Comprimir Imagen     
 
     //Generar Codigo QR
     public static BufferedImage generarCodigoQR(int secuencial, String codigo, int secuencialEmpresa) {

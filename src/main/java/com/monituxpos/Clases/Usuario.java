@@ -18,8 +18,10 @@ public class Usuario {
     @Column(nullable = false)
     private String password;
 
-    @Lob
-    private byte[] imagen; // Imagen binaria
+   @Lob
+@Column(name = "imagen", columnDefinition = "LONGBLOB")
+private byte[] imagen;
+
 
     @Column(nullable = false)
     private String acceso;

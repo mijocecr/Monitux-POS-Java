@@ -12,6 +12,8 @@ import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -22,6 +24,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import javax.imageio.ImageIO;
+import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
@@ -267,7 +270,7 @@ public void setImagen(byte[] imagen) {
         });
 
         jLabel1.setBackground(new java.awt.Color(102, 255, 51));
-        jLabel1.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
+        jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel1.setText("Usuarios");
 
@@ -431,16 +434,36 @@ public void setImagen(byte[] imagen) {
         jMenu1.setText("Opciones");
 
         Menu_Nuevo.setText("Nuevo");
+        Menu_Nuevo.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                Menu_NuevoActionPerformed(evt);
+            }
+        });
         jMenu1.add(Menu_Nuevo);
 
         Menu_Guardar.setText("Guardar");
+        Menu_Guardar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                Menu_GuardarActionPerformed(evt);
+            }
+        });
         jMenu1.add(Menu_Guardar);
 
         Menu_Eliminar.setText("Eliminar");
+        Menu_Eliminar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                Menu_EliminarActionPerformed(evt);
+            }
+        });
         jMenu1.add(Menu_Eliminar);
         jMenu1.add(jSeparator1);
 
         Menu_Salir.setText("Salir");
+        Menu_Salir.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                Menu_SalirActionPerformed(evt);
+            }
+        });
         jMenu1.add(Menu_Salir);
 
         jMenuBar1.add(jMenu1);
@@ -475,7 +498,7 @@ public void setImagen(byte[] imagen) {
 
     private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
         
-
+        
         
         // Establece el título del formulario
 setTitle("Monitux-POS v." + "");//V_Menu_Principal.VER);
@@ -592,7 +615,7 @@ if (tableUsuarios.getRowCount() > 0) {
         // Cargar imagen desde la base de datos
         try (EntityManager em = Persistence.createEntityManagerFactory("MonituxPU").createEntityManager()) {
             Usuario usuario = em.createQuery(
-                "SELECT u FROM Usuario u WHERE u.secuencial = :secuencial AND u.secuencialEmpresa = :empresa", Usuario.class)
+                "SELECT u FROM Usuario u WHERE u.secuencial = :secuencial AND u.secuencial_empresa = :empresa", Usuario.class)
                 .setParameter("secuencial", this.Secuencial)
                 .setParameter("empresa", Secuencial_Empresa)
                 .getResultStream()
@@ -665,7 +688,7 @@ private String getCellValue(DefaultTableModel model, int row, int col) {
         // Cargar imagen desde la base de datos
         try (EntityManager em = Persistence.createEntityManagerFactory("MonituxPU").createEntityManager()) {
             Usuario usuario = em.createQuery(
-                "SELECT u FROM Usuario u WHERE u.secuencial = :secuencial AND u.secuencialEmpresa = :empresa", Usuario.class)
+                "SELECT u FROM Usuario u WHERE u.secuencial = :secuencial AND u.secuencial_empresa = :empresa", Usuario.class)
                 .setParameter("secuencial", this.Secuencial)
                 .setParameter("empresa", Secuencial_Empresa)
                 .getResultStream()
@@ -778,6 +801,177 @@ try {
 
         // TODO add your handling code here:
     }//GEN-LAST:event_labelImagenMouseClicked
+
+    private void Menu_NuevoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Menu_NuevoActionPerformed
+
+        Secuencial=0;
+        txt_Codigo.setText("");
+        txt_Nombre.setText("");
+        txt_Password.setText("");
+        checkBoxActivo.setSelected(true);
+        labelImagen.setIcon(null);
+        
+        
+        
+        // TODO add your handling code here:
+    }//GEN-LAST:event_Menu_NuevoActionPerformed
+
+    private void Menu_GuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Menu_GuardarActionPerformed
+
+
+        //**********************************************************
+         
+        // Obtener imagen como byte[]
+byte[] imagenBytes = null;
+Icon icono = labelImagen.getIcon();
+if (icono instanceof ImageIcon) {
+    Image imagen = ((ImageIcon) icono).getImage();
+    BufferedImage copia = new BufferedImage(imagen.getWidth(null), imagen.getHeight(null), BufferedImage.TYPE_INT_RGB);
+    Graphics2D g2d = copia.createGraphics();
+    g2d.drawImage(imagen, 0, 0, null);
+    g2d.dispose();
+
+    imagenBytes = Util.comprimirImagen(copia, 100f); // Calidad ajustable
+}
+
+// Validaciones comunes
+if (txt_Nombre.getText().isBlank()) {
+    //MenuPrincipal.MSG.show("El nombre del usuario no puede estar vacío.", "Error");
+    return;
+}
+if (txt_Codigo.getText().isBlank()) {
+    //MenuPrincipal.MSG.show("El código de usuario no puede estar vacío.", "Error");
+    return;
+}
+if (txt_Password.getText().isBlank()) {
+    //MenuPrincipal.MSG.show("El password no puede estar vacío.", "Error");
+    return;
+}
+
+EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
+EntityManager em = emf.createEntityManager();
+
+if (Secuencial != 0) {
+    // MODO EDICIÓN
+    Usuario usuario = em.find(Usuario.class, Secuencial);
+    if (usuario != null) {
+        em.getTransaction().begin();
+        usuario.setSecuencialEmpresa(Secuencial_Empresa);
+        usuario.setNombre(txt_Nombre.getText());
+        usuario.setCodigo(txt_Codigo.getText());
+        usuario.setPassword(Encriptador.encriptar(txt_Password.getText()));
+        usuario.setAcceso(comboBoxAcceso.getSelectedItem() != null ? comboBoxAcceso.getSelectedItem().toString() : "Sin Tipo");
+        usuario.setActivo(checkBoxActivo.isSelected());
+        if (imagenBytes != null) {
+            usuario.setImagen(imagenBytes);
+        }
+        em.getTransaction().commit();
+
+       // Util.registrarActividad(Secuencial_Usuario, "Ha modificado al usuario: " + usuario.getNombre(), Secuencial_Empresa);
+       // MenuPrincipal.MSG.show("Usuario actualizado correctamente.", "Éxito");
+    }
+} else {
+    // MODO CREACIÓN
+    if (comboBoxAcceso.getSelectedIndex() == -1) {
+        //MenuPrincipal.MSG.show("Debe seleccionar un acceso de usuario.", "Error");
+        return;
+    }
+
+    Usuario usuario = new Usuario();
+    usuario.setSecuencialEmpresa(Secuencial_Empresa);
+    usuario.setNombre(txt_Nombre.getText());
+    usuario.setCodigo(txt_Codigo.getText());
+    usuario.setPassword(Encriptador.encriptar(txt_Password.getText()));
+    usuario.setAcceso(comboBoxAcceso.getSelectedItem() != null ? comboBoxAcceso.getSelectedItem().toString() : "Sin Tipo");
+    usuario.setActivo(true);
+    usuario.setImagen(imagenBytes);
+
+    try {
+        em.getTransaction().begin();
+        em.persist(usuario);
+        em.getTransaction().commit();
+
+       // MenuPrincipal.MSG.show("Usuario creado correctamente.", "Éxito");
+        //Util.registrarActividad(Secuencial_Usuario, "Ha creado al usuario: " + usuario.getNombre(), Secuencial_Empresa);
+    } catch (Exception e) {
+       // MenuPrincipal.MSG.show("Error al crear usuario: Ya existe o los datos proporcionados no son válidos.", "Error");
+        em.getTransaction().rollback();
+        return;
+    }
+}
+
+em.close();
+emf.close();
+
+cargarDatos(); // Refresca la vista
+dispose();     // Cierra el formulario actual
+
+        
+        
+        
+          
+        //**********************************************************
+
+
+        // TODO add your handling code here:
+    }//GEN-LAST:event_Menu_GuardarActionPerformed
+
+    private void Menu_EliminarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Menu_EliminarActionPerformed
+
+
+        
+        int res = JOptionPane.showConfirmDialog(null, "¿Está seguro de eliminar este usuario?", "Confirmación", JOptionPane.YES_NO_OPTION);
+
+if (res == JOptionPane.YES_OPTION) {
+    try {
+        Icon icono = labelImagen.getIcon();
+        if (icono instanceof ImageIcon) {
+            ((ImageIcon) icono).getImage().flush(); // Libera recursos
+        }
+        labelImagen.setIcon(null);
+        imagen = null; // Variable de clase si la usas
+    } catch (Exception e) {
+        // Silenciar errores de liberación de imagen
+    }
+
+    EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
+    EntityManager em = emf.createEntityManager();
+
+    try {
+        Usuario usuario = em.createQuery(
+            "SELECT u FROM Usuario u WHERE u.secuencial = :id AND u.secuencial_empresa = :empresa", Usuario.class)
+            .setParameter("id", this.Secuencial)
+            .setParameter("empresa", Secuencial_Empresa)
+            .getResultStream()
+            .findFirst()
+            .orElse(null);
+
+        if (usuario != null) {
+            em.getTransaction().begin();
+            em.remove(usuario);
+            em.getTransaction().commit();
+
+            //Util.registrarActividad(Secuencial_Usuario, "Ha eliminado al usuario: " + usuario.getNombre(), Secuencial_Empresa);
+            JOptionPane.showMessageDialog(null, "Usuario eliminado correctamente", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+            cargarDatos();
+        }
+    } finally {
+        em.close();
+        emf.close();
+    }
+}
+
+
+
+
+        // TODO add your handling code here:
+    }//GEN-LAST:event_Menu_EliminarActionPerformed
+
+    private void Menu_SalirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Menu_SalirActionPerformed
+
+        this.dispose();
+        // TODO add your handling code here:
+    }//GEN-LAST:event_Menu_SalirActionPerformed
 
     
     
