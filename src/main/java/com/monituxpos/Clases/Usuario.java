@@ -3,98 +3,98 @@ package com.monituxpos.Clases;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "usuarios")
+@Table(name = "Usuarios")
 public class Usuario {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int secuencial;
+    private int Secuencial;
 
     @Column(nullable = false)
-    private String codigo;
+    private String Codigo;
 
-    private String nombre;
+    private String Nombre;
 
     @Column(nullable = false)
-    private String password;
+    private String Password;
 
    @Lob
-@Column(name = "imagen", columnDefinition = "LONGBLOB")
-private byte[] imagen;
+@Column(name = "Imagen", columnDefinition = "LONGBLOB")
+private byte[] Imagen;
 
 
     @Column(nullable = false)
-    private String acceso;
+    private String Acceso;
 
     @Column(nullable = false)
-    private boolean activo;
+    private boolean Activo;
 
-    @Column(name = "secuencial_empresa", nullable = false)
-    private int secuencial_empresa;
-
-    // Getters y setters
+    @Column(name = "Secuencial_Empresa", nullable = false)
+    private int Secuencial_Empresa;
 
     public int getSecuencial() {
-        return secuencial;
+        return Secuencial;
     }
 
-    public void setSecuencial(int secuencial) {
-        this.secuencial = secuencial;
+    public void setSecuencial(int Secuencial) {
+        this.Secuencial = Secuencial;
     }
 
     public String getCodigo() {
-        return codigo;
+        return Codigo;
     }
 
-    public void setCodigo(String codigo) {
-        this.codigo = codigo;
+    public void setCodigo(String Codigo) {
+        this.Codigo = Codigo;
     }
 
     public String getNombre() {
-        return nombre;
+        return Nombre;
     }
 
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
+    public void setNombre(String Nombre) {
+        this.Nombre = Nombre;
     }
 
     public String getPassword() {
-        return password;
+        return Password;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
+    public void setPassword(String Password) {
+        this.Password = Password;
     }
 
     public byte[] getImagen() {
-        return imagen;
+        return Imagen;
     }
 
-    public void setImagen(byte[] imagen) {
-        this.imagen = imagen;
+    public void setImagen(byte[] Imagen) {
+        this.Imagen = Imagen;
     }
 
     public String getAcceso() {
-        return acceso;
+        return Acceso;
     }
 
-    public void setAcceso(String acceso) {
-        this.acceso = acceso;
+    public void setAcceso(String Acceso) {
+        this.Acceso = Acceso;
     }
 
     public boolean isActivo() {
-        return activo;
+        return Activo;
     }
 
-    public void setActivo(boolean activo) {
-        this.activo = activo;
+    public void setActivo(boolean Activo) {
+        this.Activo = Activo;
     }
 
-    public int getSecuencialEmpresa() {
-        return secuencial_empresa;
+    public int getSecuencial_Empresa() {
+        return Secuencial_Empresa;
     }
 
-    public void setSecuencialEmpresa(int secuencialEmpresa) {
-        this.secuencial_empresa = secuencialEmpresa;
+    public void setSecuencial_Empresa(int Secuencial_Empresa) {
+        this.Secuencial_Empresa = Secuencial_Empresa;
     }
+
+   
 }

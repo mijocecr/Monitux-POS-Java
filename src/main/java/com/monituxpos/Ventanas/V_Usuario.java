@@ -112,8 +112,8 @@ public void setImagen(byte[] imagen) {
     EntityManager em = Persistence.createEntityManagerFactory("MonituxPU").createEntityManager();
     try {
         List<Usuario> usuarios = em.createQuery(
-            "SELECT u FROM Usuario u WHERE u.secuencial_empresa = :empresa", Usuario.class)
-            .setParameter("empresa", 1)
+            "SELECT u FROM Usuario u WHERE u.Secuencial_Empresa = :empresa", Usuario.class)
+            .setParameter("empresa", Secuencial_Empresa)
             .getResultList();
 
         for (Usuario u : usuarios) {
@@ -320,6 +320,11 @@ public void setImagen(byte[] imagen) {
                 tableUsuariosMouseClicked(evt);
             }
         });
+        tableUsuarios.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
+            public void propertyChange(java.beans.PropertyChangeEvent evt) {
+                tableUsuariosPropertyChange(evt);
+            }
+        });
         tableUsuarios.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyReleased(java.awt.event.KeyEvent evt) {
                 tableUsuariosKeyReleased(evt);
@@ -327,6 +332,7 @@ public void setImagen(byte[] imagen) {
         });
         jScrollPane2.setViewportView(tableUsuarios);
 
+        labelImagen.setToolTipText("Click para escoger imagen.");
         labelImagen.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
         labelImagen.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -439,7 +445,6 @@ public void setImagen(byte[] imagen) {
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel4)
                             .addComponent(txt_Password, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                 .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
@@ -598,7 +603,7 @@ if (tableUsuarios.getRowCount() > 0) {
     private void jTextField3KeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextField3KeyReleased
 
 
-         Filtrar(jComboBox2.getSelectedItem().toString().toLowerCase(), jTextField3.getText()); // Llama al método Filtrar con el valor del TextBox
+         Filtrar(jComboBox2.getSelectedItem().toString(), jTextField3.getText()); // Llama al método Filtrar con el valor del TextBox
         
         // TODO add your handling code here:
     }//GEN-LAST:event_jTextField3KeyReleased
@@ -644,7 +649,7 @@ if (tableUsuarios.getRowCount() > 0) {
         // Cargar imagen desde la base de datos
         try (EntityManager em = Persistence.createEntityManagerFactory("MonituxPU").createEntityManager()) {
             Usuario usuario = em.createQuery(
-                "SELECT u FROM Usuario u WHERE u.secuencial = :secuencial AND u.secuencial_empresa = :empresa", Usuario.class)
+                "SELECT u FROM Usuario u WHERE u.Secuencial = :secuencial AND u.Secuencial_Empresa = :empresa", Usuario.class)
                 .setParameter("secuencial", this.Secuencial)
                 .setParameter("empresa", Secuencial_Empresa)
                 .getResultStream()
@@ -669,6 +674,74 @@ if (tableUsuarios.getRowCount() > 0) {
     }
 }
 
+    
+    private void Cargar_Datos_Fila_Actual(){
+    
+              
+        
+    try {
+        int rowIndex = tableUsuarios.getSelectedRow();
+        if (rowIndex < 0) return; // No hay fila seleccionada
+
+        DefaultTableModel model = (DefaultTableModel) tableUsuarios.getModel();
+
+        // Asignar valores si existen
+        Object secuencialObj = model.getValueAt(rowIndex, 0); // Columna "S"
+        if (secuencialObj != null) {
+            this.Secuencial = Integer.parseInt(secuencialObj.toString());
+        }
+
+        txt_Codigo.setText(getCellValue(model, rowIndex, 1)); // "Código"
+        txt_Nombre.setText(getCellValue(model, rowIndex, 2)); // "Nombre"
+
+        String password = getCellValue(model, rowIndex, 5); // "Password"
+        if (password != null && !password.isEmpty()) {
+            txt_Password.setText(Encriptador.desencriptar(password));
+        }
+
+        String acceso = getCellValue(model, rowIndex, 3); // "Acceso"
+        if (acceso != null) {
+            for (int i = 0; i < comboBoxAcceso.getItemCount(); i++) {
+                Object item = comboBoxAcceso.getItemAt(i);
+                if (item != null && item.toString().contains(acceso)) {
+                    comboBoxAcceso.setSelectedIndex(i);
+                    break;
+                }
+            }
+        }
+
+        String activo = getCellValue(model, rowIndex, 4); // "Activo"
+        checkBoxActivo.setSelected("Sí".equalsIgnoreCase(activo));
+
+        // Cargar imagen desde la base de datos
+        try (EntityManager em = Persistence.createEntityManagerFactory("MonituxPU").createEntityManager()) {
+            Usuario usuario = em.createQuery(
+                "SELECT u FROM Usuario u WHERE u.Secuencial = :secuencial AND u.Secuencial_Empresa = :empresa", Usuario.class)
+                .setParameter("secuencial", this.Secuencial)
+                .setParameter("empresa", Secuencial_Empresa)
+                .getResultStream()
+                .findFirst()
+                .orElse(null);
+
+            if (usuario != null && usuario.getImagen() != null && usuario.getImagen().length > 0) {
+                try (ByteArrayInputStream bis = new ByteArrayInputStream(usuario.getImagen())) {
+                    BufferedImage img = ImageIO.read(bis);
+                    labelImagen.setIcon(new ImageIcon(img));
+                } catch (IOException ex) {
+                    labelImagen.setIcon(null);
+                }
+            } else {
+                labelImagen.setIcon(null);
+            }
+        }
+
+    } catch (Exception ex) {
+        labelImagen.setIcon(null);
+        ex.printStackTrace(); // Para depuración
+    }
+    
+    }
+    
     
   // Método auxiliar para obtener valor seguro de celda
 private String getCellValue(DefaultTableModel model, int row, int col) {
@@ -718,7 +791,7 @@ private String getCellValue(DefaultTableModel model, int row, int col) {
         // Cargar imagen desde la base de datos
         try (EntityManager em = Persistence.createEntityManagerFactory("MonituxPU").createEntityManager()) {
             Usuario usuario = em.createQuery(
-                "SELECT u FROM Usuario u WHERE u.secuencial = :secuencial AND u.secuencial_empresa = :empresa", Usuario.class)
+                "SELECT u FROM Usuario u WHERE u.Secuencial = :secuencial AND u.Secuencial_Empresa = :empresa", Usuario.class)
                 .setParameter("secuencial", this.Secuencial)
                 .setParameter("empresa", Secuencial_Empresa)
                 .getResultStream()
@@ -866,15 +939,15 @@ if (icono instanceof ImageIcon) {
 
 // Validaciones comunes
 if (txt_Nombre.getText().isBlank()) {
-    //MenuPrincipal.MSG.show("El nombre del usuario no puede estar vacío.", "Error");
+    JOptionPane.showMessageDialog(null,"El nombre del usuario no puede estar vacío.");
     return;
 }
 if (txt_Codigo.getText().isBlank()) {
-    //MenuPrincipal.MSG.show("El código de usuario no puede estar vacío.", "Error");
+    JOptionPane.showMessageDialog(null,"El código de usuario no puede estar vacío.");
     return;
 }
 if (txt_Password.getText().isBlank()) {
-    //MenuPrincipal.MSG.show("El password no puede estar vacío.", "Error");
+    JOptionPane.showMessageDialog(null,"El password no puede estar vacío.");
     return;
 }
 
@@ -886,7 +959,7 @@ if (Secuencial != 0) {
     Usuario usuario = em.find(Usuario.class, Secuencial);
     if (usuario != null) {
         em.getTransaction().begin();
-        usuario.setSecuencialEmpresa(Secuencial_Empresa);
+        usuario.setSecuencial_Empresa(Secuencial_Empresa);
         usuario.setNombre(txt_Nombre.getText());
         usuario.setCodigo(txt_Codigo.getText());
         usuario.setPassword(Encriptador.encriptar(txt_Password.getText()));
@@ -897,18 +970,18 @@ if (Secuencial != 0) {
         }
         em.getTransaction().commit();
 
-       // Util.registrarActividad(Secuencial_Usuario, "Ha modificado al usuario: " + usuario.getNombre(), Secuencial_Empresa);
-       // MenuPrincipal.MSG.show("Usuario actualizado correctamente.", "Éxito");
+        Util.registrarActividad(Secuencial_Usuario, "Ha modificado al usuario: " + usuario.getNombre(), Secuencial_Empresa);
+       JOptionPane.showMessageDialog(null,"Usuario actualizado correctamente.");
     }
 } else {
     // MODO CREACIÓN
     if (comboBoxAcceso.getSelectedIndex() == -1) {
-        //MenuPrincipal.MSG.show("Debe seleccionar un acceso de usuario.", "Error");
+        JOptionPane.showMessageDialog(null,"Debe seleccionar un acceso de usuario.");
         return;
     }
 
     Usuario usuario = new Usuario();
-    usuario.setSecuencialEmpresa(Secuencial_Empresa);
+    usuario.setSecuencial_Empresa(Secuencial_Empresa);
     usuario.setNombre(txt_Nombre.getText());
     usuario.setCodigo(txt_Codigo.getText());
     usuario.setPassword(Encriptador.encriptar(txt_Password.getText()));
@@ -921,10 +994,10 @@ if (Secuencial != 0) {
         em.persist(usuario);
         em.getTransaction().commit();
 
-       // MenuPrincipal.MSG.show("Usuario creado correctamente.", "Éxito");
-        //Util.registrarActividad(Secuencial_Usuario, "Ha creado al usuario: " + usuario.getNombre(), Secuencial_Empresa);
+       JOptionPane.showMessageDialog(null,"Usuario creado correctamente.");
+        Util.registrarActividad(Secuencial_Usuario, "Ha creado al usuario: " + usuario.getNombre(), Secuencial_Empresa);
     } catch (Exception e) {
-       // MenuPrincipal.MSG.show("Error al crear usuario: Ya existe o los datos proporcionados no son válidos.", "Error");
+       JOptionPane.showMessageDialog(null,"Error al crear usuario: Ya existe o los datos proporcionados no son válidos.");
         em.getTransaction().rollback();
         return;
     }
@@ -933,7 +1006,7 @@ if (Secuencial != 0) {
 em.close();
 emf.close();
 
-cargarDatos(); // Refresca la vista
+
 dispose();     // Cierra el formulario actual
 
         
@@ -981,14 +1054,15 @@ if (res == JOptionPane.YES_OPTION) {
             em.remove(usuario);
             em.getTransaction().commit();
 
-            //Util.registrarActividad(Secuencial_Usuario, "Ha eliminado al usuario: " + usuario.getNombre(), Secuencial_Empresa);
+            Util.registrarActividad(Secuencial_Usuario, "Ha eliminado al usuario: " + usuario.getNombre(), Secuencial_Empresa);
             JOptionPane.showMessageDialog(null, "Usuario eliminado correctamente", "Éxito", JOptionPane.INFORMATION_MESSAGE);
-            cargarDatos();
+            dispose();
         }
     } finally {
         em.close();
         emf.close();
     }
+    
 }
 
 
@@ -1006,6 +1080,13 @@ if (res == JOptionPane.YES_OPTION) {
     private void labelImagen1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_labelImagen1MouseClicked
         // TODO add your handling code here:
     }//GEN-LAST:event_labelImagen1MouseClicked
+
+    private void tableUsuariosPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_tableUsuariosPropertyChange
+
+    
+
+        // TODO add your handling code here:
+    }//GEN-LAST:event_tableUsuariosPropertyChange
 
     
     
@@ -1041,21 +1122,32 @@ if (res == JOptionPane.YES_OPTION) {
     // Conectar con JPA y filtrar usuarios
     EntityManager em = Persistence.createEntityManagerFactory("MonituxPU").createEntityManager();
     try {
-        String jpql = "SELECT u FROM Usuario u WHERE u.secuencial_empresa = :empresa AND LOWER(FUNCTION('REPLACE', FUNCTION('LOWER', u." + campo + "), ' ', '')) LIKE :valor";
+       String jpql = "SELECT u FROM Usuario u WHERE u.Secuencial_Empresa = :empresa AND FUNCTION('REPLACE', u." + campo + ", ' ', '') LIKE :valor";
+
         List<Usuario> usuarios = em.createQuery(jpql, Usuario.class)
             .setParameter("empresa", Secuencial_Empresa)
-            .setParameter("valor", "%" + valor.toLowerCase().replace(" ", "") + "%")
+            .setParameter("valor", "%" + valor.replace(" ", "") + "%")
             .getResultList();
 
-        for (Usuario u : usuarios) {
+//        for (Usuario u : usuarios) {
+//            model.addRow(new Object[] {
+//                u.getSecuencial(),
+//                u.getCodigo(),
+//                u.getNombre(),
+//                u.getAcceso(),
+//                u.isActivo() ? "Sí" : "No"
+//            });
+
+for (Usuario u : usuarios) {
             model.addRow(new Object[] {
-                u.getSecuencial(),
-                u.getCodigo(),
-                u.getNombre(),
-                u.getAcceso(),
-                u.isActivo() ? "Sí" : "No"
+                u.getSecuencial(), u.getCodigo(), u.getNombre(),
+                u.getAcceso(), u.isActivo() ? "Sí" : "No",
+                u.getPassword(), u.getImagen()
             });
         }
+
+
+        
 
         tableUsuarios.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         if (tableUsuarios.getRowCount() > 0) {

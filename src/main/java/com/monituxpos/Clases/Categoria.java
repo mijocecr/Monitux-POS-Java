@@ -3,61 +3,61 @@ package com.monituxpos.Clases;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "categorias")
+@Table(name = "Categorias")
 public class Categoria {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int secuencial;
+    private int Secuencial;
 
-    private String nombre;
-    private String descripcion;
+    private String Nombre;
+    private String Descripcion;
 
     @Lob
-    private byte[] imagen;
+    private byte[] Imagen;
 
-    @Column(name = "secuencial_empresa", nullable = false)
-    private int secuencialEmpresa;
-
-    // Getters y setters
+    @Column(name = "Secuencial_Empresa", nullable = false)
+    private int Secuencial_Empresa;
 
     public int getSecuencial() {
-        return secuencial;
+        return Secuencial;
     }
 
-    public void setSecuencial(int secuencial) {
-        this.secuencial = secuencial;
+    public void setSecuencial(int Secuencial) {
+        this.Secuencial = Secuencial;
     }
 
     public String getNombre() {
-        return nombre;
+        return Nombre;
     }
 
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
+    public void setNombre(String Nombre) {
+        this.Nombre = Nombre;
     }
 
     public String getDescripcion() {
-        return descripcion;
+        return Descripcion;
     }
 
-    public void setDescripcion(String descripcion) {
-        this.descripcion = descripcion;
+    public void setDescripcion(String Descripcion) {
+        this.Descripcion = Descripcion;
     }
 
     public byte[] getImagen() {
-        return imagen;
+        return Imagen;
     }
 
-    public void setImagen(byte[] imagen) {
-        this.imagen = imagen;
+    public void setImagen(byte[] Imagen) {
+        this.Imagen = Imagen;
     }
 
-    public int getSecuencialEmpresa() {
-        return secuencialEmpresa;
+    public int getSecuencial_Empresa() {
+        return Secuencial_Empresa;
     }
 
-    public void setSecuencialEmpresa(int secuencialEmpresa) {
-        this.secuencialEmpresa = secuencialEmpresa;
+    public void setSecuencial_Empresa(int Secuencial_Empresa) {
+        this.Secuencial_Empresa = Secuencial_Empresa;
     }
+
+   
 }

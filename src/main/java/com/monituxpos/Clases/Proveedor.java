@@ -4,108 +4,108 @@ package com.monituxpos.Clases;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "proveedores")
+@Table(name = "Proveedores")
 public class Proveedor {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int secuencial;
+    private int Secuencial;
 
-    private String nombre;
-    private String telefono;
-    private String direccion;
-    private String email;
-    private String contacto;
-    private String tipo;
+    private String Nombre;
+    private String Telefono;
+    private String Direccion;
+    private String Email;
+    private String Contacto;
+    private String Tipo;
 
      @Lob
-@Column(name = "imagen", columnDefinition = "LONGBLOB")
-private byte[] imagen;
+@Column(name = "Imagen", columnDefinition = "LONGBLOB")
+private byte[] Imagen;
 
-    private Boolean activo = true;
+    private Boolean Activo = true;
 
-    @Column(name = "secuencial_empresa", nullable = false)
-    private int secuencialEmpresa;
-
-    // Getters y setters
+    @Column(name = "Secuencial_Empresa", nullable = false)
+    private int Secuencial_Empresa;
 
     public int getSecuencial() {
-        return secuencial;
+        return Secuencial;
     }
 
-    public void setSecuencial(int secuencial) {
-        this.secuencial = secuencial;
+    public void setSecuencial(int Secuencial) {
+        this.Secuencial = Secuencial;
     }
 
     public String getNombre() {
-        return nombre;
+        return Nombre;
     }
 
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
+    public void setNombre(String Nombre) {
+        this.Nombre = Nombre;
     }
 
     public String getTelefono() {
-        return telefono;
+        return Telefono;
     }
 
-    public void setTelefono(String telefono) {
-        this.telefono = telefono;
+    public void setTelefono(String Telefono) {
+        this.Telefono = Telefono;
     }
 
     public String getDireccion() {
-        return direccion;
+        return Direccion;
     }
 
-    public void setDireccion(String direccion) {
-        this.direccion = direccion;
+    public void setDireccion(String Direccion) {
+        this.Direccion = Direccion;
     }
 
     public String getEmail() {
-        return email;
+        return Email;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public void setEmail(String Email) {
+        this.Email = Email;
     }
 
     public String getContacto() {
-        return contacto;
+        return Contacto;
     }
 
-    public void setContacto(String contacto) {
-        this.contacto = contacto;
+    public void setContacto(String Contacto) {
+        this.Contacto = Contacto;
     }
 
     public String getTipo() {
-        return tipo;
+        return Tipo;
     }
 
-    public void setTipo(String tipo) {
-        this.tipo = tipo;
+    public void setTipo(String Tipo) {
+        this.Tipo = Tipo;
     }
 
     public byte[] getImagen() {
-        return imagen;
+        return Imagen;
     }
 
-    public void setImagen(byte[] imagen) {
-        this.imagen = imagen;
+    public void setImagen(byte[] Imagen) {
+        this.Imagen = Imagen;
     }
 
     public Boolean getActivo() {
-        return activo;
+        return Activo;
     }
 
-    public void setActivo(Boolean activo) {
-        this.activo = activo;
+    public void setActivo(Boolean Activo) {
+        this.Activo = Activo;
     }
 
-    public int getSecuencialEmpresa() {
-        return secuencialEmpresa;
+    public int getSecuencial_Empresa() {
+        return Secuencial_Empresa;
     }
 
-    public void setSecuencialEmpresa(int secuencialEmpresa) {
-        this.secuencialEmpresa = secuencialEmpresa;
+    public void setSecuencial_Empresa(int Secuencial_Empresa) {
+        this.Secuencial_Empresa = Secuencial_Empresa;
     }
+
+   
 }

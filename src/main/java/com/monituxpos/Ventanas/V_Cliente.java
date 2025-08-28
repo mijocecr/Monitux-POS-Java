@@ -141,6 +141,7 @@ public void setImagen(byte[] imagen) {
         checkBoxActivo.setForeground(new java.awt.Color(255, 255, 255));
         checkBoxActivo.setText("Activo");
 
+        labelImagen.setToolTipText("Click para escoger imagen.");
         labelImagen.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
         labelImagen.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -393,15 +394,15 @@ if (icono instanceof ImageIcon) {
 
 // Validaciones comunes
 if (txt_Nombre.getText().isBlank()) {
-    //MenuPrincipal.MSG.show("El nombre del cliente no puede estar vacío.", "Error");
+    JOptionPane.showMessageDialog(null,"El nombre del cliente no puede estar vacío.");
     return;
 }
 if (txt_Codigo.getText().isBlank()) {
-    //MenuPrincipal.MSG.show("El código del cliente no puede estar vacío.", "Error");
+    JOptionPane.showMessageDialog(null,"El código del cliente no puede estar vacío.");
     return;
 }
 if (txt_Email.getText().isBlank()) {
-    //MenuPrincipal.MSG.show("El email del cliente no puede estar vacío.", "Error");
+    JOptionPane.showMessageDialog(null,"El email del cliente no puede estar vacío.");
     return;
 }
 
@@ -413,7 +414,7 @@ if (Secuencial != 0) {
     Cliente cliente = em.find(Cliente.class, Secuencial);
     if (cliente != null) {
         em.getTransaction().begin();
-        cliente.setSecuencialEmpresa(Secuencial_Empresa);
+        cliente.setSecuencial_Empresa(Secuencial_Empresa);
         cliente.setNombre(txt_Nombre.getText());
         cliente.setCodigo(txt_Codigo.getText());
         cliente.setTelefono(txt_Telefono.getText());
@@ -425,13 +426,13 @@ if (Secuencial != 0) {
         }
         em.getTransaction().commit();
 
-        // Util.registrarActividad(Secuencial_Usuario, "Ha modificado al cliente: " + cliente.getNombre(), Secuencial_Empresa);
-        // MenuPrincipal.MSG.show("Cliente actualizado correctamente.", "Éxito");
+         Util.registrarActividad(Secuencial_Usuario, "Ha modificado al cliente: " + cliente.getNombre(), Secuencial_Empresa);
+        JOptionPane.showMessageDialog(null,"Cliente actualizado correctamente.");
     }
 } else {
     // MODO CREACIÓN
     Cliente cliente = new Cliente();
-    cliente.setSecuencialEmpresa(Secuencial_Empresa);
+    cliente.setSecuencial_Empresa(Secuencial_Empresa);
     cliente.setNombre(txt_Nombre.getText());
     cliente.setCodigo(txt_Codigo.getText());
     cliente.setTelefono(txt_Telefono.getText());
@@ -445,10 +446,10 @@ if (Secuencial != 0) {
         em.persist(cliente);
         em.getTransaction().commit();
 
-        // MenuPrincipal.MSG.show("Cliente creado correctamente.", "Éxito");
-        // Util.registrarActividad(Secuencial_Usuario, "Ha creado al cliente: " + cliente.getNombre(), Secuencial_Empresa);
+        JOptionPane.showMessageDialog(null,"Cliente creado correctamente.");
+         Util.registrarActividad(Secuencial_Usuario, "Ha creado al cliente: " + cliente.getNombre(), Secuencial_Empresa);
     } catch (Exception e) {
-        // MenuPrincipal.MSG.show("Error al crear cliente: Ya existe o los datos proporcionados no son válidos.", "Error");
+         JOptionPane.showMessageDialog(null,"Error al crear cliente: Ya existe o los datos proporcionados no son válidos.");
         em.getTransaction().rollback();
         return;
     }
@@ -457,7 +458,7 @@ if (Secuencial != 0) {
 em.close();
 emf.close();
 
-cargarDatos(); // Refresca la vista
+
 dispose();             // Cierra el formulario actual
 
 //**********************************************************
@@ -490,7 +491,7 @@ if (res == JOptionPane.YES_OPTION) {
 
     try {
         Cliente cliente = em.createQuery(
-            "SELECT c FROM Cliente c WHERE c.secuencial = :secuencial AND c.secuencialEmpresa = :empresa", Cliente.class)
+            "SELECT c FROM Cliente c WHERE c.Secuencial = :secuencial AND c.Secuencial_Empresa = :empresa", Cliente.class)
         .setParameter("secuencial", this.Secuencial)
         .setParameter("empresa", Secuencial_Empresa)
         .getResultStream()
@@ -515,9 +516,9 @@ if (res == JOptionPane.YES_OPTION) {
             em.remove(cliente);
             em.getTransaction().commit();
 
-            //Util.registrarActividad(Secuencial_Usuario, "Ha eliminado al cliente: " + cliente.getNombre(), Secuencial_Empresa);
+            Util.registrarActividad(Secuencial_Usuario, "Ha eliminado al cliente: " + cliente.getNombre(), Secuencial_Empresa);
             JOptionPane.showMessageDialog(null, "Cliente eliminado correctamente", "Éxito", JOptionPane.INFORMATION_MESSAGE);
-            cargarDatos(); // Refrescar tabla
+            this.dispose();
         }
     } catch (Exception e) {
         JOptionPane.showMessageDialog(null, "Error al eliminar cliente: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
@@ -539,40 +540,7 @@ if (res == JOptionPane.YES_OPTION) {
 
     private void labelImagenMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_labelImagenMouseClicked
 
-        /*
-        try {
-            String imagenSeleccionada = Util.abrirDialogoSeleccionFilename();
-
-            if (imagenSeleccionada != null && !imagenSeleccionada.trim().isEmpty()) {
-                File archivoImagen = new File(imagenSeleccionada);
-
-                if (archivoImagen.exists() && archivoImagen.isFile()) {
-                    // Cargar imagen para mostrar en el JLabel
-                    Image imagenCargada = Util.cargarImagenLocal(imagenSeleccionada);
-                    labelImagen.setIcon(new ImageIcon(imagenCargada));
-
-                    // Convertir a byte[] para guardar
-                    BufferedImage buffered = ImageIO.read(archivoImagen);
-                    if (buffered != null) {
-                        ByteArrayOutputStream ms = new ByteArrayOutputStream();
-                        ImageIO.write(buffered, "png", ms);
-                        imagen = ms.toByteArray();
-                    } else {
-                        imagen = null; // Imagen no válida
-                        System.err.println("Formato de imagen no soportado.");
-                    }
-                } else {
-                    imagen = null;
-                    System.err.println("Archivo no encontrado o invalido: " + imagenSeleccionada);
-                }
-            }
-        } catch (IOException e) {
-            imagen = null;
-            e.printStackTrace(); // Para depuración
-            // VMenuPrincipal.MSG.showMSG("No se pudo cargar la imagen seleccionada.", "Error");
-        }
-
-        */
+     
 
         try {
             String imagenSeleccionada = Util.abrirDialogoSeleccionFilename();
@@ -623,7 +591,7 @@ if (res == JOptionPane.YES_OPTION) {
 
     private void jTextField3KeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextField3KeyReleased
 
-        Filtrar(jComboBox2.getSelectedItem().toString().toLowerCase(), jTextField3.getText()); // Llama al método Filtrar con el valor del TextBox
+        Filtrar(jComboBox2.getSelectedItem().toString(), jTextField3.getText()); // Llama al método Filtrar con el valor del TextBox
 
         // TODO add your handling code here:
     }//GEN-LAST:event_jTextField3KeyReleased
@@ -653,10 +621,12 @@ if (res == JOptionPane.YES_OPTION) {
     // Conectar con JPA y filtrar clientes
     EntityManager em = Persistence.createEntityManagerFactory("MonituxPU").createEntityManager();
     try {
-        String jpql = "SELECT c FROM Cliente c WHERE c.secuencialEmpresa = :empresa AND LOWER(FUNCTION('REPLACE', FUNCTION('LOWER', c." + campo + "), ' ', '')) LIKE :valor";
-        List<Cliente> clientes = em.createQuery(jpql, Cliente.class)
+       // String jpql = "SELECT c FROM Cliente c WHERE c.Secuencial_Empresa = :empresa AND LOWER(FUNCTION('REPLACE', FUNCTION('LOWER', c." + campo + "), ' ', '')) LIKE :valor";
+       String jpql = "SELECT c FROM Cliente c WHERE c.Secuencial_Empresa = :empresa AND FUNCTION('REPLACE', c." + campo + ", ' ', '') LIKE :valor";
+ 
+       List<Cliente> clientes = em.createQuery(jpql, Cliente.class)
             .setParameter("empresa", Secuencial_Empresa)
-            .setParameter("valor", "%" + valor.toLowerCase().replace(" ", "") + "%")
+            .setParameter("valor", "%" + valor.replace(" ", "") + "%")
             .getResultList();
 
         for (Cliente c : clientes) {
@@ -715,8 +685,8 @@ if (res == JOptionPane.YES_OPTION) {
     // Cargar imagen desde la base de datos
     try (EntityManager em = Persistence.createEntityManagerFactory("MonituxPU").createEntityManager()) {
         Cliente cliente = em.createQuery(
-            "SELECT c FROM Cliente c WHERE c.secuencial = :secuencial AND c.secuencialEmpresa = :empresa", Cliente.class)
-            .setParameter("secuencial", this.Secuencial)
+            "SELECT c FROM Cliente c WHERE c.Secuencial = :Secuencial AND c.Secuencial_Empresa = :empresa", Cliente.class)
+            .setParameter("Secuencial", this.Secuencial)
             .setParameter("empresa", Secuencial_Empresa)
             .getResultStream()
             .findFirst()
@@ -773,8 +743,8 @@ if (res == JOptionPane.YES_OPTION) {
     // Cargar imagen desde la base de datos
     try (EntityManager em = Persistence.createEntityManagerFactory("MonituxPU").createEntityManager()) {
         Cliente cliente = em.createQuery(
-            "SELECT c FROM Cliente c WHERE c.secuencial = :secuencial AND c.secuencialEmpresa = :empresa", Cliente.class)
-            .setParameter("secuencial", this.Secuencial)
+            "SELECT c FROM Cliente c WHERE c.Secuencial = :Secuencial AND c.Secuencial_Empresa = :empresa", Cliente.class)
+            .setParameter("Secuencial", this.Secuencial)
             .setParameter("empresa", Secuencial_Empresa)
             .getResultStream()
             .findFirst()
@@ -830,8 +800,8 @@ if (res == JOptionPane.YES_OPTION) {
     // Cargar imagen desde la base de datos
     try (EntityManager em = Persistence.createEntityManagerFactory("MonituxPU").createEntityManager()) {
         Cliente cliente = em.createQuery(
-            "SELECT c FROM Cliente c WHERE c.secuencial = :secuencial AND c.secuencialEmpresa = :empresa", Cliente.class)
-            .setParameter("secuencial", this.Secuencial)
+            "SELECT c FROM Cliente c WHERE c.Secuencial = :Secuencial AND c.Secuencial_Empresa = :empresa", Cliente.class)
+            .setParameter("Secuencial", this.Secuencial)
             .setParameter("empresa", Secuencial_Empresa)
             .getResultStream()
             .findFirst()
@@ -903,7 +873,7 @@ primera_carga();
 
     try {
         List<Cliente> lista = em.createQuery(
-            "SELECT c FROM Cliente c WHERE c.secuencialEmpresa = :empresa", Cliente.class)
+            "SELECT c FROM Cliente c WHERE c.Secuencial_Empresa = :empresa", Cliente.class)
             .setParameter("empresa", Secuencial_Empresa)
             .getResultList();
 

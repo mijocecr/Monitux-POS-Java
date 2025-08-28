@@ -5,68 +5,68 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 @Entity
-@Table(name = "actividades")
+@Table(name = "Actividades")
 public class Actividad {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int secuencial;
+    private int Secuencial;
 
-    @Column(name = "secuencial_usuario", nullable = false)
-    private int secuencialUsuario;
+    @Column(name = "Secuencial_Usuario", nullable = false)
+    private int Secuencial_Usuario;
 
     @Column(nullable = false)
-    private String fecha;
+    private String Fecha;
 
-    private String descripcion;
+    private String Descripcion;
 
-    @Column(name = "secuencial_empresa", nullable = false)
-    private int secuencialEmpresa;
+    @Column(name = "Secuencial_Empresa", nullable = false)
+    private int Secuencial_Empresa;
 
     // Constructor con inicialización de fecha
     public Actividad() {
-        this.fecha = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy hh:mm:ss a"));
+        this.Fecha = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy hh:mm:ss a"));
     }
-
-    // Getters y setters
 
     public int getSecuencial() {
-        return secuencial;
+        return Secuencial;
     }
 
-    public void setSecuencial(int secuencial) {
-        this.secuencial = secuencial;
+    public void setSecuencial(int Secuencial) {
+        this.Secuencial = Secuencial;
     }
 
-    public int getSecuencialUsuario() {
-        return secuencialUsuario;
+    public int getSecuencial_Usuario() {
+        return Secuencial_Usuario;
     }
 
-    public void setSecuencialUsuario(int secuencialUsuario) {
-        this.secuencialUsuario = secuencialUsuario;
+    public void setSecuencial_Usuario(int Secuencial_Usuario) {
+        this.Secuencial_Usuario = Secuencial_Usuario;
     }
 
     public String getFecha() {
-        return fecha;
+        return Fecha;
     }
 
-    public void setFecha(String fecha) {
-        this.fecha = fecha;
+    public void setFecha(String Fecha) {
+        this.Fecha = Fecha;
     }
 
     public String getDescripcion() {
-        return descripcion;
+        return Descripcion;
     }
 
-    public void setDescripcion(String descripcion) {
-        this.descripcion = descripcion;
+    public void setDescripcion(String Descripcion) {
+        this.Descripcion = Descripcion;
     }
 
-    public int getSecuencialEmpresa() {
-        return secuencialEmpresa;
+    public int getSecuencial_Empresa() {
+        return Secuencial_Empresa;
     }
 
-    public void setSecuencialEmpresa(int secuencialEmpresa) {
-        this.secuencialEmpresa = secuencialEmpresa;
+    public void setSecuencial_Empresa(int Secuencial_Empresa) {
+        this.Secuencial_Empresa = Secuencial_Empresa;
     }
+
+   
 }

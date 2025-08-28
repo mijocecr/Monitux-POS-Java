@@ -1,11 +1,15 @@
 package com.monituxpos.Clases;
 
 
+
 import com.google.zxing.*;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.client.j2se.MatrixToImageConfig;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.Persistence;
 import java.awt.Image;
 import java.util.Properties;
 import javax.mail.Authenticator;
@@ -35,7 +39,10 @@ import javax.imageio.ImageWriteParam;
 import javax.imageio.ImageWriter;
 import javax.imageio.stream.ImageOutputStream;
 import javax.swing.JFileChooser;
-
+import com.monituxpos.Clases.*;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import javax.swing.JOptionPane;
 
 public class Util {
 
@@ -251,4 +258,80 @@ public class Util {
         }
     }
 //Fin Generar Codigo QR
+    
+    
+    public static void registrarActividad(int secuencialUsuario, String descripcion, int secuencialEmpresa) {
+    EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
+    EntityManager em = emf.createEntityManager();
+
+    try {
+        Actividad actividad = new Actividad();
+        actividad.setSecuencial_Usuario(secuencialUsuario);
+        actividad.setSecuencial_Empresa(secuencialEmpresa);
+        actividad.setDescripcion(descripcion);
+
+        em.getTransaction().begin();
+        em.persist(actividad);
+        em.getTransaction().commit();
+
+    } catch (Exception e) {
+        e.printStackTrace(); // Puedes mostrar un JOptionPane si lo prefieres
+    } finally {
+        em.close();
+        emf.close();
+    }
+}
+
+    
+    
+    public static void registrarMovimientoKardex(
+    int secuencialProducto, double existencia,
+    String descripcion, double cantidadUnidades,
+    double costo, double venta,
+    String movimiento, int secuencialEmpresa
+) {
+    try {
+        if (cantidadUnidades < 0 || costo < 0 || venta < 0) {
+            throw new IllegalArgumentException("Valores inválidos para movimiento de inventario.");
+        }
+
+        double saldoNuevo = movimiento.equals("Entrada")
+            ? existencia + cantidadUnidades
+            : existencia - cantidadUnidades;
+
+        Kardex kardex = new Kardex();
+        kardex.setSecuencial_Empresa(secuencialEmpresa);
+        kardex.setSecuencial_Producto(secuencialProducto);
+        kardex.setDescripcion(descripcion);
+        kardex.setCantidad(cantidadUnidades);
+        kardex.setCosto(costo);
+        kardex.setVenta(venta);
+        kardex.setMovimiento(movimiento);
+        kardex.setSaldo(saldoNuevo);
+        kardex.setCosto_Total(Math.round(cantidadUnidades * costo * 100.0) / 100.0);
+        kardex.setVenta_Total(Math.round(cantidadUnidades * venta * 100.0) / 100.0);
+        kardex.setFecha(LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+
+        EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
+        EntityManager em = emf.createEntityManager();
+
+        em.getTransaction().begin();
+        em.persist(kardex);
+        em.getTransaction().commit();
+
+        em.close();
+        emf.close();
+
+    } catch (Exception ex) {
+        JOptionPane.showMessageDialog(null,"Error al registrar movimiento en Kardex:\n" + ex.getMessage());
+    }
+}
+
+    
+    
+    
+    
+    
+    
+    
 }//Fin Clase

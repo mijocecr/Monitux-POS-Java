@@ -118,6 +118,7 @@ public void setImagen(byte[] imagen) {
 
         jPanel1.setBackground(new java.awt.Color(35, 32, 40));
 
+        labelImagen.setToolTipText("Click para escoger imagen.");
         labelImagen.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
         labelImagen.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -414,19 +415,19 @@ if (icono instanceof ImageIcon) {
 
 // Validaciones comunes
 if (txt_Nombre.getText().isBlank()) {
-    //MenuPrincipal.MSG.show("El nombre del proveedor no puede estar vacío.", "Error");
+    JOptionPane.showMessageDialog(null,"El nombre del proveedor no puede estar vacío.");
     return;
 }
 if (txt_Telefono.getText().isBlank()) {
-    //MenuPrincipal.MSG.show("El teléfono no puede estar vacío.", "Error");
+    JOptionPane.showMessageDialog(null,"El teléfono no puede estar vacío.");
     return;
 }
 if (txt_Contacto.getText().isBlank()) {
-    //MenuPrincipal.MSG.show("El contacto no puede estar vacío.", "Error");
+    JOptionPane.showMessageDialog(null,"El contacto no puede estar vacío.");
     return;
 }
 if (combo_Tipo.getSelectedIndex() == -1) {
-    //MenuPrincipal.MSG.show("Debe seleccionar un tipo de proveedor.", "Error");
+    JOptionPane.showMessageDialog(null,"Debe seleccionar un tipo de proveedor.");
     return;
 }
 
@@ -438,7 +439,7 @@ if (Secuencial != 0) {
     Proveedor proveedor = em.find(Proveedor.class, Secuencial);
     if (proveedor != null) {
         em.getTransaction().begin();
-        proveedor.setSecuencialEmpresa(Secuencial_Empresa);
+        proveedor.setSecuencial_Empresa(Secuencial_Empresa);
         proveedor.setNombre(txt_Nombre.getText());
         proveedor.setTelefono(txt_Telefono.getText());
         proveedor.setDireccion(txt_Direccion.getText());
@@ -451,13 +452,13 @@ if (Secuencial != 0) {
         }
         em.getTransaction().commit();
 
-        // Util.registrarActividad(Secuencial_Usuario, "Ha modificado al proveedor: " + proveedor.getNombre(), Secuencial_Empresa);
-        // MenuPrincipal.MSG.show("Proveedor actualizado correctamente.", "Éxito");
+         Util.registrarActividad(Secuencial_Usuario, "Ha modificado al proveedor: " + proveedor.getNombre(), Secuencial_Empresa);
+        JOptionPane.showMessageDialog(null,"Proveedor actualizado correctamente.");
     }
 } else {
     // MODO CREACIÓN
     Proveedor proveedor = new Proveedor();
-    proveedor.setSecuencialEmpresa(Secuencial_Empresa);
+    proveedor.setSecuencial_Empresa(Secuencial_Empresa);
     proveedor.setNombre(txt_Nombre.getText());
     proveedor.setTelefono(txt_Telefono.getText());
     proveedor.setDireccion(txt_Direccion.getText());
@@ -472,10 +473,10 @@ if (Secuencial != 0) {
         em.persist(proveedor);
         em.getTransaction().commit();
 
-        // MenuPrincipal.MSG.show("Proveedor creado correctamente.", "Éxito");
-        // Util.registrarActividad(Secuencial_Usuario, "Ha creado al proveedor: " + proveedor.getNombre(), Secuencial_Empresa);
+        JOptionPane.showMessageDialog(null,"Proveedor creado correctamente.");
+         Util.registrarActividad(Secuencial_Usuario, "Ha creado al proveedor: " + proveedor.getNombre(), Secuencial_Empresa);
     } catch (Exception e) {
-        // MenuPrincipal.MSG.show("Error al crear proveedor: Ya existe o los datos proporcionados no son válidos.", "Error");
+        JOptionPane.showMessageDialog(null,"Error al crear proveedor: Ya existe o los datos proporcionados no son válidos.");
         em.getTransaction().rollback();
         return;
     }
@@ -484,7 +485,7 @@ if (Secuencial != 0) {
 em.close();
 emf.close();
 
-cargarDatos(); // Refresca la vista
+
 dispose();     // Cierra el formulario actual
 
 //**********************************************************
@@ -512,7 +513,7 @@ dispose();     // Cierra el formulario actual
 
     try {
         List<Proveedor> lista = em.createQuery(
-            "SELECT p FROM Proveedor p WHERE p.secuencialEmpresa = :empresa", Proveedor.class)
+            "SELECT p FROM Proveedor p WHERE p.Secuencial_Empresa = :empresa", Proveedor.class)
             .setParameter("empresa", Secuencial_Empresa)
             .getResultList();
 
@@ -585,8 +586,8 @@ if (res == JOptionPane.YES_OPTION) {
 
     try {
         Proveedor proveedor = em.createQuery(
-            "SELECT p FROM Proveedor p WHERE p.secuencial = :secuencial AND p.secuencialEmpresa = :empresa", Proveedor.class)
-        .setParameter("secuencial", this.Secuencial)
+            "SELECT p FROM Proveedor p WHERE p.Secuencial = :Secuencial AND p.Secuencial_Empresa = :empresa", Proveedor.class)
+        .setParameter("Secuencial", this.Secuencial)
         .setParameter("empresa", Secuencial_Empresa)
         .getResultStream()
         .findFirst()
@@ -610,9 +611,9 @@ if (res == JOptionPane.YES_OPTION) {
             em.remove(proveedor);
             em.getTransaction().commit();
 
-            // Util.registrarActividad(Secuencial_Usuario, "Ha eliminado al proveedor: " + proveedor.getNombre(), Secuencial_Empresa);
+             Util.registrarActividad(Secuencial_Usuario, "Ha eliminado al proveedor: " + proveedor.getNombre(), Secuencial_Empresa);
             JOptionPane.showMessageDialog(null, "Proveedor eliminado correctamente", "Éxito", JOptionPane.INFORMATION_MESSAGE);
-            cargarDatos(); // Refrescar tabla
+            this.dispose();
         }
     } catch (Exception e) {
         JOptionPane.showMessageDialog(null, "Error al eliminar proveedor: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
@@ -640,7 +641,7 @@ if (res == JOptionPane.YES_OPTION) {
 
     private void jTextField3KeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextField3KeyReleased
 
-        Filtrar(jComboBox2.getSelectedItem().toString().toLowerCase(), jTextField3.getText()); // Llama al método Filtrar con el valor del TextBox
+        Filtrar(jComboBox2.getSelectedItem().toString(), jTextField3.getText()); // Llama al método Filtrar con el valor del TextBox
 
         // TODO add your handling code here:
     }//GEN-LAST:event_jTextField3KeyReleased
@@ -670,7 +671,8 @@ if (res == JOptionPane.YES_OPTION) {
     // Conectar con JPA y filtrar proveedores
     EntityManager em = Persistence.createEntityManagerFactory("MonituxPU").createEntityManager();
     try {
-        String jpql = "SELECT p FROM Proveedor p WHERE p.secuencialEmpresa = :empresa AND LOWER(FUNCTION('REPLACE', FUNCTION('LOWER', p." + campo + "), ' ', '')) LIKE :valor";
+        String jpql = "SELECT p FROM Proveedor p WHERE p.Secuencial_Empresa = :empresa AND FUNCTION('REPLACE', p." + campo + ", ' ', '') LIKE :valor";
+
         List<Proveedor> proveedores = em.createQuery(jpql, Proveedor.class)
             .setParameter("empresa", Secuencial_Empresa)
             .setParameter("valor", "%" + valor.toLowerCase().replace(" ", "") + "%")
@@ -786,7 +788,7 @@ combo_Tipo.setSelectedItem(getCellValue(model, rowIndex, 7));
     // Cargar imagen desde la base de datos
     try (EntityManager em = Persistence.createEntityManagerFactory("MonituxPU").createEntityManager()) {
         Proveedor proveedor = em.createQuery(
-            "SELECT p FROM Proveedor p WHERE p.secuencial = :secuencial AND p.secuencialEmpresa = :empresa", Proveedor.class)
+            "SELECT p FROM Proveedor p WHERE p.Secuencial = :secuencial AND p.Secuencial_Empresa = :empresa", Proveedor.class)
         .setParameter("secuencial", this.Secuencial)
         .setParameter("empresa", Secuencial_Empresa)
         .getResultStream()
@@ -816,7 +818,7 @@ combo_Tipo.setSelectedItem(getCellValue(model, rowIndex, 7));
     }//GEN-LAST:event_tableProveedoresMouseClicked
 
     
-    private void primera_carga(){
+    public void primera_carga(){
     
               
         try {
@@ -848,8 +850,8 @@ combo_Tipo.setSelectedItem(getCellValue(model, rowIndex, 7));
     // Cargar imagen desde la base de datos
     try (EntityManager em = Persistence.createEntityManagerFactory("MonituxPU").createEntityManager()) {
         Proveedor proveedor = em.createQuery(
-            "SELECT p FROM Proveedor p WHERE p.secuencial = :secuencial AND p.secuencialEmpresa = :empresa", Proveedor.class)
-        .setParameter("secuencial", this.Secuencial)
+            "SELECT p FROM Proveedor p WHERE p.Secuencial = :Secuencial AND p.Secuencial_Empresa = :empresa", Proveedor.class)
+        .setParameter("Secuencial", this.Secuencial)
         .setParameter("empresa", Secuencial_Empresa)
         .getResultStream()
         .findFirst()
@@ -910,7 +912,7 @@ combo_Tipo.setSelectedItem(getCellValue(model, rowIndex, 7));
     // Cargar imagen desde la base de datos
     try (EntityManager em = Persistence.createEntityManagerFactory("MonituxPU").createEntityManager()) {
         Proveedor proveedor = em.createQuery(
-            "SELECT p FROM Proveedor p WHERE p.secuencial = :secuencial AND p.secuencialEmpresa = :empresa", Proveedor.class)
+            "SELECT p FROM Proveedor p WHERE p.Secuencial = :secuencial AND p.Secuencial_Empresa = :empresa", Proveedor.class)
         .setParameter("secuencial", this.Secuencial)
         .setParameter("empresa", Secuencial_Empresa)
         .getResultStream()
