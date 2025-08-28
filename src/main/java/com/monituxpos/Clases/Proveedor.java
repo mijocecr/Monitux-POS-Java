@@ -18,8 +18,9 @@ public class Proveedor {
     private String contacto;
     private String tipo;
 
-    @Lob
-    private byte[] imagen;
+     @Lob
+@Column(name = "imagen", columnDefinition = "LONGBLOB")
+private byte[] imagen;
 
     private Boolean activo = true;
 

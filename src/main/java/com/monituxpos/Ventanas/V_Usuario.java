@@ -12,6 +12,7 @@ import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
@@ -26,12 +27,14 @@ import java.util.List;
 import javax.imageio.ImageIO;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 
@@ -64,8 +67,7 @@ public void setImagen(byte[] imagen) {
         initComponents();
     }
 
-    
-    
+   
     private void cargarDatos() {
     // Modelo no editable
     DefaultTableModel model = new DefaultTableModel(
@@ -77,6 +79,13 @@ public void setImagen(byte[] imagen) {
         }
     };
     tableUsuarios.setModel(model);
+    tableUsuarios.setAutoResizeMode(JTable.AUTO_RESIZE_OFF); // Scroll horizontal
+
+    // Estilo visual profesional
+    tableUsuarios.setRowHeight(24);
+    tableUsuarios.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 14));
+    tableUsuarios.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+    tableUsuarios.setGridColor(Color.LIGHT_GRAY);
 
     // Efecto zebra + centrado
     tableUsuarios.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
@@ -118,6 +127,19 @@ public void setImagen(byte[] imagen) {
         if (tableUsuarios.getRowCount() > 0) {
             tableUsuarios.setRowSelectionInterval(0, 0);
         }
+
+        // Ajustar ancho de columnas automáticamente
+        TableColumnModel columnModel = tableUsuarios.getColumnModel();
+        for (int col = 0; col < tableUsuarios.getColumnCount(); col++) {
+            int ancho = 75;
+            for (int fila = 0; fila < tableUsuarios.getRowCount(); fila++) {
+                TableCellRenderer renderer = tableUsuarios.getCellRenderer(fila, col);
+                Component comp = tableUsuarios.prepareRenderer(renderer, fila, col);
+                ancho = Math.max(comp.getPreferredSize().width + 10, ancho);
+            }
+            columnModel.getColumn(col).setPreferredWidth(ancho);
+        }
+
     } catch (Exception e) {
         JOptionPane.showMessageDialog(null, "Error al cargar datos: " + e.getMessage());
     } finally {
@@ -127,87 +149,71 @@ public void setImagen(byte[] imagen) {
 
     
     
+//    private void cargarDatos() {
+//    // Modelo no editable
+//    DefaultTableModel model = new DefaultTableModel(
+//        new String[] { "S", "Codigo", "Nombre", "Acceso", "Activo", "Password", "Imagen" }, 0
+//    ) {
+//        @Override
+//        public boolean isCellEditable(int row, int column) {
+//            return false;
+//        }
+//    };
+//    tableUsuarios.setModel(model);
+//
+//    // Efecto zebra + centrado
+//    tableUsuarios.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
+//        @Override
+//        public Component getTableCellRendererComponent(JTable table, Object value,
+//                boolean isSelected, boolean hasFocus, int row, int column) {
+//
+//            Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+//            setHorizontalAlignment(SwingConstants.CENTER);
+//            c.setBackground(isSelected ? table.getSelectionBackground() :
+//                (row % 2 == 0 ? Color.WHITE : new Color(224, 224, 224)));
+//            return c;
+//        }
+//    });
+//
+//    // Ocultar columnas sensibles
+//    for (int i = 5; i <= 6; i++) {
+//        tableUsuarios.getColumnModel().getColumn(i).setMinWidth(0);
+//        tableUsuarios.getColumnModel().getColumn(i).setMaxWidth(0);
+//        tableUsuarios.getColumnModel().getColumn(i).setWidth(0);
+//    }
+//
+//    // Cargar datos desde JPA
+//    EntityManager em = Persistence.createEntityManagerFactory("MonituxPU").createEntityManager();
+//    try {
+//        List<Usuario> usuarios = em.createQuery(
+//            "SELECT u FROM Usuario u WHERE u.secuencial_empresa = :empresa", Usuario.class)
+//            .setParameter("empresa", 1)
+//            .getResultList();
+//
+//        for (Usuario u : usuarios) {
+//            model.addRow(new Object[] {
+//                u.getSecuencial(), u.getCodigo(), u.getNombre(),
+//                u.getAcceso(), u.isActivo() ? "Sí" : "No",
+//                u.getPassword(), u.getImagen()
+//            });
+//        }
+//
+//        if (tableUsuarios.getRowCount() > 0) {
+//            tableUsuarios.setRowSelectionInterval(0, 0);
+//        }
+//    } catch (Exception e) {
+//        JOptionPane.showMessageDialog(null, "Error al cargar datos: " + e.getMessage());
+//    } finally {
+//        em.close();
+//    }
+//}
+//
+//    
     
     
     
     
-    /*
-    private void cargarDatos() {
-    // Crear modelo no editable con columnas definidas
-    DefaultTableModel model = new DefaultTableModel(
-        new String[] { "S", "Codigo", "Nombre", "Acceso", "Activo", "Password", "Imagen" }, 0
-    ) {
-        @Override
-        public boolean isCellEditable(int row, int column) {
-            return false;
-        }
-    };
-
-    // Asignar modelo a la tabla
-    tableUsuarios.setModel(model);
-
-    // Configurar selección y navegación
-    tableUsuarios.setEnabled(true);
-    tableUsuarios.setRowSelectionAllowed(true);
-    tableUsuarios.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-    tableUsuarios.requestFocusInWindow();
-
-    // Centrar contenido
-    DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
-    centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
-    tableUsuarios.setDefaultRenderer(Object.class, centerRenderer);
-
-    // Ocultar columnas sensibles
-    TableColumnModel columnModel = tableUsuarios.getColumnModel();
-    for (int i = 5; i <= 6; i++) {
-        columnModel.getColumn(i).setMinWidth(0);
-        columnModel.getColumn(i).setMaxWidth(0);
-        columnModel.getColumn(i).setWidth(0);
-    }
-
-    // Ajustar anchos
-    columnModel.getColumn(0).setPreferredWidth(30);
-    columnModel.getColumn(1).setPreferredWidth(80);
-    columnModel.getColumn(2).setPreferredWidth(120);
-    columnModel.getColumn(3).setPreferredWidth(100);
-    columnModel.getColumn(4).setPreferredWidth(60);
-
-    // Cargar datos desde JPA
-    EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
-    EntityManager em = emf.createEntityManager();
-
-    try {
-        List<Usuario> usuarios = em.createQuery(
-            "SELECT u FROM Usuario u WHERE u.secuencialEmpresa = :empresa", Usuario.class)
-            .setParameter("empresa", 1)
-            .getResultList();
-
-        for (Usuario item : usuarios) {
-            model.addRow(new Object[] {
-                item.getSecuencial(),
-                item.getCodigo(),
-                item.getNombre(),
-                item.getAcceso(),
-                item.isActivo() ? "Sí" : "No",
-                item.getPassword(),
-                item.getImagen()
-            });
-        }
-
-        // Seleccionar la primera fila automáticamente
-        if (tableUsuarios.getRowCount() > 0) {
-            tableUsuarios.setRowSelectionInterval(0, 0);
-        }
-
-    } catch (Exception e) {
-        JOptionPane.showMessageDialog(null, "Error al cargar datos: " + e.getMessage());
-    } finally {
-        em.close();
-        emf.close();
-    }
-}
-
-  */
+   
     
     /**
      * This method is called from within the constructor to initialize the form.
@@ -335,81 +341,8 @@ public void setImagen(byte[] imagen) {
             }
         });
 
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addGap(6, 6, 6)
-                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addGroup(jPanel1Layout.createSequentialGroup()
-                                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                            .addComponent(jLabel3, javax.swing.GroupLayout.Alignment.TRAILING)
-                                            .addComponent(jLabel2, javax.swing.GroupLayout.Alignment.TRAILING))
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                            .addComponent(txt_Codigo, javax.swing.GroupLayout.DEFAULT_SIZE, 172, Short.MAX_VALUE)
-                                            .addComponent(txt_Nombre)))
-                                    .addGroup(jPanel1Layout.createSequentialGroup()
-                                        .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 47, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                            .addComponent(checkBoxActivo)
-                                            .addComponent(comboBoxAcceso, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                        .addComponent(labelImagen1))))
-                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addComponent(jLabel4)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(txt_Password)))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(labelImagen, javax.swing.GroupLayout.PREFERRED_SIZE, 121, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(14, 14, 14))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 362, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(8, 8, 8))))
-        );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(12, 12, 12)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel2)
-                            .addComponent(txt_Codigo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(txt_Nombre, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel3))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel4)
-                            .addComponent(txt_Password, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                                    .addComponent(jLabel5)
-                                    .addGap(7, 7, 7))
-                                .addComponent(comboBoxAcceso, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addGap(1, 1, 1)
-                                .addComponent(labelImagen1, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(checkBoxActivo))
-                    .addComponent(labelImagen, javax.swing.GroupLayout.PREFERRED_SIZE, 128, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 163, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
-        );
-
         jPanel4.setBackground(new java.awt.Color(35, 32, 40));
+        jPanel4.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255)));
 
         jTextField3.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -434,9 +367,9 @@ public void setImagen(byte[] imagen) {
                 .addComponent(jLabel6)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jComboBox2, javax.swing.GroupLayout.PREFERRED_SIZE, 129, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(45, 45, 45)
-                .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(42, 42, 42))
+                .addGap(38, 38, 38)
+                .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, 113, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(56, 56, 56))
         );
         jPanel4Layout.setVerticalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -449,8 +382,86 @@ public void setImagen(byte[] imagen) {
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(jPanel1Layout.createSequentialGroup()
+                                        .addGap(6, 6, 6)
+                                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addComponent(jLabel3, javax.swing.GroupLayout.Alignment.TRAILING)
+                                            .addComponent(jLabel2, javax.swing.GroupLayout.Alignment.TRAILING)))
+                                    .addComponent(jLabel4))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(txt_Nombre)
+                                    .addComponent(txt_Codigo)
+                                    .addComponent(txt_Password)))
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addGap(0, 5, Short.MAX_VALUE)
+                                .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 47, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(checkBoxActivo)
+                                    .addComponent(comboBoxAcceso, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(labelImagen1)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(labelImagen, javax.swing.GroupLayout.PREFERRED_SIZE, 121, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(14, 14, 14))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                            .addComponent(jPanel4, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 362, Short.MAX_VALUE)
+                            .addComponent(jScrollPane2, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGap(12, 12, 12)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel2)
+                            .addComponent(txt_Codigo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(txt_Nombre, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel3))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel4)
+                            .addComponent(txt_Password, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                                    .addComponent(jLabel5)
+                                    .addGap(7, 7, 7))
+                                .addComponent(comboBoxAcceso, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addGap(1, 1, 1)
+                                .addComponent(labelImagen1, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(checkBoxActivo))
+                    .addComponent(labelImagen, javax.swing.GroupLayout.PREFERRED_SIZE, 128, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 163, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
         jMenu1.setText("Opciones");
 
+        Menu_Nuevo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/page_white.png"))); // NOI18N
         Menu_Nuevo.setText("Nuevo");
         Menu_Nuevo.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -459,6 +470,7 @@ public void setImagen(byte[] imagen) {
         });
         jMenu1.add(Menu_Nuevo);
 
+        Menu_Guardar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/disk.png"))); // NOI18N
         Menu_Guardar.setText("Guardar");
         Menu_Guardar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -467,6 +479,7 @@ public void setImagen(byte[] imagen) {
         });
         jMenu1.add(Menu_Guardar);
 
+        Menu_Eliminar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/exclamation.png"))); // NOI18N
         Menu_Eliminar.setText("Eliminar");
         Menu_Eliminar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -476,6 +489,7 @@ public void setImagen(byte[] imagen) {
         jMenu1.add(Menu_Eliminar);
         jMenu1.add(jSeparator1);
 
+        Menu_Salir.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/door_out.png"))); // NOI18N
         Menu_Salir.setText("Salir");
         Menu_Salir.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -492,25 +506,19 @@ public void setImagen(byte[] imagen) {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, 376, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
         );
 
         pack();
@@ -518,7 +526,7 @@ public void setImagen(byte[] imagen) {
 
     private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
         
-        
+        this.getContentPane().setBackground(Color.black);
         
         // Establece el título del formulario
 setTitle("Monitux-POS v." + "");//V_Menu_Principal.VER);
@@ -536,10 +544,11 @@ setTitle("Monitux-POS v." + "");//V_Menu_Principal.VER);
 // Limpia la tabla
 DefaultTableModel model = (DefaultTableModel) tableUsuarios.getModel();
 model.setRowCount(0);
-
+this.setLocationRelativeTo(null);
 // Carga los datos
 cargarDatos();
-primera_carga();
+//primera_carga();
+
 // Centra el contenido de las celdas
 DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
 centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
@@ -661,74 +670,7 @@ if (tableUsuarios.getRowCount() > 0) {
 }
 
     
-    
-    private void primera_carga(){
-    
-            
-    try {
-        int rowIndex = 0;
-       
-
-        DefaultTableModel model = (DefaultTableModel) tableUsuarios.getModel();
-
-        // Asignar valores si existen
-        Object secuencialObj = model.getValueAt(rowIndex, 0); // Columna "S"
-        if (secuencialObj != null) {
-            this.Secuencial = Integer.parseInt(secuencialObj.toString());
-        }
-
-        txt_Codigo.setText(getCellValue(model, rowIndex, 1)); // "Código"
-        txt_Nombre.setText(getCellValue(model, rowIndex, 2)); // "Nombre"
-
-        String password = getCellValue(model, rowIndex, 5); // "Password"
-        if (password != null && !password.isEmpty()) {
-            txt_Password.setText(Encriptador.desencriptar(password));
-        }
-
-        String acceso = getCellValue(model, rowIndex, 3); // "Acceso"
-        if (acceso != null) {
-            for (int i = 0; i < comboBoxAcceso.getItemCount(); i++) {
-                Object item = comboBoxAcceso.getItemAt(i);
-                if (item != null && item.toString().contains(acceso)) {
-                    comboBoxAcceso.setSelectedIndex(i);
-                    break;
-                }
-            }
-        }
-
-        String activo = getCellValue(model, rowIndex, 4); // "Activo"
-        checkBoxActivo.setSelected("Sí".equalsIgnoreCase(activo));
-
-        // Cargar imagen desde la base de datos
-        try (EntityManager em = Persistence.createEntityManagerFactory("MonituxPU").createEntityManager()) {
-            Usuario usuario = em.createQuery(
-                "SELECT u FROM Usuario u WHERE u.secuencial = :secuencial AND u.secuencial_empresa = :empresa", Usuario.class)
-                .setParameter("secuencial", this.Secuencial)
-                .setParameter("empresa", Secuencial_Empresa)
-                .getResultStream()
-                .findFirst()
-                .orElse(null);
-
-            if (usuario != null && usuario.getImagen() != null && usuario.getImagen().length > 0) {
-                try (ByteArrayInputStream bis = new ByteArrayInputStream(usuario.getImagen())) {
-                    BufferedImage img = ImageIO.read(bis);
-                    labelImagen.setIcon(new ImageIcon(img));
-                } catch (IOException ex) {
-                    labelImagen.setIcon(null);
-                }
-            } else {
-                labelImagen.setIcon(null);
-            }
-        }
-
-    } catch (Exception ex) {
-        labelImagen.setIcon(null);
-        ex.printStackTrace(); // Para depuración
-    }
-    
-    
-    }
-// Método auxiliar para obtener valor seguro de celda
+  // Método auxiliar para obtener valor seguro de celda
 private String getCellValue(DefaultTableModel model, int row, int col) {
     Object value = model.getValueAt(row, col);
     return value != null ? value.toString() : "";
