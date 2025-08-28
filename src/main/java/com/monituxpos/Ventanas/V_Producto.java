@@ -35,6 +35,7 @@ import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerDateModel;
+import javax.swing.WindowConstants;
 
 /**
  *
@@ -73,48 +74,125 @@ public void setImagen(byte[] imagen) {
     }
 
     
+//    
+//    public V_Producto(boolean esNuevo, Producto vistaProducto) {
+//    this.esNuevo = esNuevo;
+//    initComponents(); // Método de inicialización de la interfaz
+//
+//    if (!esNuevo) {
+//        txt_Cantidad.setEnabled(false);
+//        txt_Codigo.setText(vistaProducto.getCodigo());
+//        txt_Descripcion.setText(vistaProducto.getDescripcion());
+//        txt_Cantidad.setText(String.valueOf(vistaProducto.getCantidad()));
+//        txt_PrecioCosto.setText(String.valueOf(vistaProducto.getPrecio_Costo()));
+//        txt_PrecioVenta.setText(String.valueOf(vistaProducto.getPrecio_Venta()));
+//        txt_Marca.setText(vistaProducto.getMarca() != null ? vistaProducto.getMarca() : "");
+//        txt_bc.setText(vistaProducto.getCodigo_Barra());
+//        txt_CodigoFabricante.setText(vistaProducto.getCodigo_Fabricante() != null ? vistaProducto.getCodigo_Fabricante() : "");
+//        DateTimeFormatter formatterr = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+//        LocalDate fecha_caducidad = LocalDate.parse(vistaProducto.getFecha_Caducidad(), formatterr);
+//        datePicker1.setDate(fecha_caducidad);
+//        Secuencial = vistaProducto.getSecuencial();
+//        Secuencial_Proveedor = vistaProducto.getSecuencial_Proveedor();
+//        Secuencial_Categoria = vistaProducto.getSecuencial_Categoria();
+//        txt_ExistenciaMinima.setText(String.valueOf(vistaProducto.getExistencia_Minima()));
+//        jCheckBox1.setSelected(vistaProducto.isExpira());
+//        jComboBox3.setSelectedItem(vistaProducto.getTipo());
+//        jComboBox3.setEnabled(false);
+//
+//        if (vistaProducto.isExpira() && vistaProducto.getFecha_Caducidad() != null) {
+//            jCheckBox1.setSelected(true);
+//            try {
+//                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+//                LocalDate fecha = LocalDate.parse(vistaProducto.getFecha_Caducidad(), formatter);
+//                datePicker1.setDate(fecha);
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//                JOptionPane.showMessageDialog(null, e.getMessage());
+//            }
+//        }
+//
+//        llenar_Combo_Proveedor();
+//        llenar_Combo_Categoria();
+//
+//        imagen = vistaProducto.getImagen(); // byte[]
+//
+//        if (imagen != null) {
+//            try {
+//                ByteArrayInputStream bis = new ByteArrayInputStream(imagen);
+//                BufferedImage imagenCargada = ImageIO.read(bis);
+//                labelImagen.setIcon(new ImageIcon(imagenCargada));
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//        } else {
+//            labelImagen.setIcon(null);
+//        }
+//    } else {
+//        Secuencial = -1;
+//    }
+//}
+
+    
+    
+    
+    
+    
+    //**********************************
+    
+    
     
     public V_Producto(boolean esNuevo, Producto vistaProducto) {
     this.esNuevo = esNuevo;
-    initComponents(); // Método de inicialización de la interfaz
+    initComponents(); // Inicializa la interfaz
 
-    if (!esNuevo) {
+    if (!esNuevo && vistaProducto != null) {
         txt_Cantidad.setEnabled(false);
-        txt_Codigo.setText(vistaProducto.getCodigo());
-        txt_Descripcion.setText(vistaProducto.getDescripcion());
+
+        // Asignación segura de campos
+        txt_Codigo.setText(valueOrEmpty(vistaProducto.getCodigo()));
+        txt_Descripcion.setText(valueOrEmpty(vistaProducto.getDescripcion()));
         txt_Cantidad.setText(String.valueOf(vistaProducto.getCantidad()));
         txt_PrecioCosto.setText(String.valueOf(vistaProducto.getPrecio_Costo()));
         txt_PrecioVenta.setText(String.valueOf(vistaProducto.getPrecio_Venta()));
-        txt_Marca.setText(vistaProducto.getMarca() != null ? vistaProducto.getMarca() : "");
-        txt_bc.setText(vistaProducto.getCodigo_Barra());
-        txt_CodigoFabricante.setText(vistaProducto.getCodigo_Fabricante() != null ? vistaProducto.getCodigo_Fabricante() : "");
-        DateTimeFormatter formatterr = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-        LocalDate fecha_caducidad = LocalDate.parse(vistaProducto.getFecha_Caducidad(), formatterr);
-        datePicker1.setDate(fecha_caducidad);
-        Secuencial = vistaProducto.getSecuencial();
-        Secuencial_Proveedor = vistaProducto.getSecuencial_Proveedor();
-        Secuencial_Categoria = vistaProducto.getSecuencial_Categoria();
+        txt_Marca.setText(valueOrEmpty(vistaProducto.getMarca()));
+        txt_bc.setText(valueOrEmpty(vistaProducto.getCodigo_Barra()));
+        txt_CodigoFabricante.setText(valueOrEmpty(vistaProducto.getCodigo_Fabricante()));
         txt_ExistenciaMinima.setText(String.valueOf(vistaProducto.getExistencia_Minima()));
-        jCheckBox1.setSelected(vistaProducto.isExpira());
-        jComboBox3.setSelectedItem(vistaProducto.getTipo());
-        jComboBox3.setEnabled(false);
 
-        if (vistaProducto.isExpira() && vistaProducto.getFecha_Caducidad() != null) {
-            jCheckBox1.setSelected(true);
+        // Fecha de caducidad segura
+        if (vistaProducto.isExpira() && vistaProducto.getFecha_Caducidad() != null && !vistaProducto.getFecha_Caducidad().isEmpty()) {
             try {
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
                 LocalDate fecha = LocalDate.parse(vistaProducto.getFecha_Caducidad(), formatter);
                 datePicker1.setDate(fecha);
+                jCheckBox1.setSelected(true);
             } catch (Exception e) {
                 e.printStackTrace();
+                JOptionPane.showMessageDialog(null, "Fecha inválida: " + vistaProducto.getFecha_Caducidad());
             }
+        } else {
+            jCheckBox1.setSelected(false);
+            datePicker1.setDate(null);
         }
 
+        // Tipo de producto
+        if (vistaProducto.getTipo() != null && jComboBox3.getItemCount() > 0) {
+            jComboBox3.setSelectedItem(vistaProducto.getTipo());
+        }
+        jComboBox3.setEnabled(false);
+
+        // Identificadores
+        Secuencial = vistaProducto.getSecuencial();
+        Secuencial_Proveedor = vistaProducto.getSecuencial_Proveedor();
+        Secuencial_Categoria = vistaProducto.getSecuencial_Categoria();
+
+        // Combos
         llenar_Combo_Proveedor();
         llenar_Combo_Categoria();
 
-        imagen = vistaProducto.getImagen(); // byte[]
-
+        // Imagen
+        imagen = vistaProducto.getImagen();
         if (imagen != null) {
             try {
                 ByteArrayInputStream bis = new ByteArrayInputStream(imagen);
@@ -122,6 +200,7 @@ public void setImagen(byte[] imagen) {
                 labelImagen.setIcon(new ImageIcon(imagenCargada));
             } catch (IOException e) {
                 e.printStackTrace();
+                labelImagen.setIcon(null);
             }
         } else {
             labelImagen.setIcon(null);
@@ -131,8 +210,15 @@ public void setImagen(byte[] imagen) {
     }
 }
 
+// Método auxiliar para evitar nulos
+private String valueOrEmpty(String valor) {
+    return valor != null ? valor : "";
+}
+
     
     
+    
+    //**********************************
     
     
     
@@ -513,6 +599,11 @@ public void setImagen(byte[] imagen) {
 
         jMenuItem3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/award_star_gold_2.png"))); // NOI18N
         jMenuItem3.setText("Categoria");
+        jMenuItem3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem3ActionPerformed(evt);
+            }
+        });
         jMenu2.add(jMenuItem3);
 
         jMenu1.add(jMenu2);
@@ -840,7 +931,87 @@ public void setImagen(byte[] imagen) {
     }//GEN-LAST:event_Menu_SalirActionPerformed
 
     private void Menu_EliminarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Menu_EliminarActionPerformed
+//**********************************************
 
+int res = JOptionPane.showConfirmDialog(
+    null,
+    "¿Está seguro de eliminar este producto?",
+    "Confirmación",
+    JOptionPane.YES_NO_OPTION
+);
+
+if (res == JOptionPane.YES_OPTION) {
+    try {
+        // Inicializar conexión JPA
+        EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
+        EntityManager em = emf.createEntityManager();
+
+        // Liberar imágenes si existen
+        if (labelImagen.getIcon() != null) {
+            ((ImageIcon) labelImagen.getIcon()).getImage().flush();
+            labelImagen.setIcon(null);
+        }
+        if (label_bc.getIcon() != null) {
+            ((ImageIcon) label_bc.getIcon()).getImage().flush();
+            label_bc.setIcon(null);
+        }
+        if (label_qr.getIcon() != null) {
+            ((ImageIcon) label_qr.getIcon()).getImage().flush();
+            label_qr.setIcon(null);
+        }
+
+        // Buscar producto por secuencial
+        Producto producto = em.createQuery(
+            "SELECT p FROM Producto p WHERE p.Secuencial = :Secuencial", Producto.class)
+            .setParameter("Secuencial", this.Secuencial)
+            .getResultStream().findFirst().orElse(null);
+
+        if (producto != null) {
+            Util.registrarActividad(
+                Secuencial_Usuario,
+                "Ha eliminado el producto: " + producto.getCodigo(),
+                Secuencial_Empresa
+            );
+
+            if (!"Servicio".equals(producto.getTipo())) {
+                Util.registrarMovimientoKardex(
+                    producto.getSecuencial(),
+                    producto.getCantidad(),
+                    producto.getDescripcion(),
+                    producto.getCantidad(),
+                    producto.getPrecio_Costo(),
+                    producto.getPrecio_Venta(),
+                    "Salida",
+                    Secuencial_Empresa
+                );
+            }
+
+            em.getTransaction().begin();
+            em.remove(em.contains(producto) ? producto : em.merge(producto));
+            em.getTransaction().commit();
+
+            JOptionPane.showMessageDialog(null,"Producto eliminado correctamente.");
+
+//            if (OnProductoEditado != null) {
+//                OnProductoEditado.run();
+//            }
+
+            this.dispose();
+        } else {
+            JOptionPane.showMessageDialog(null,"El producto no existe en la base de datos.");
+        }
+
+        em.close();
+        emf.close();
+    } catch (Exception ex) {
+        // Manejo silencioso del error
+        ex.printStackTrace(); // Puedes quitar esto si prefieres que no se muestre nada
+    }
+}
+
+
+
+//**********************************************
     }//GEN-LAST:event_Menu_EliminarActionPerformed
 
     private void Menu_GuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Menu_GuardarActionPerformed
@@ -1057,6 +1228,46 @@ try {
     private void labelImagen1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_labelImagen1MouseClicked
         // TODO add your handling code here:
     }//GEN-LAST:event_labelImagen1MouseClicked
+
+    private void jMenuItem3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem3ActionPerformed
+
+        // Crear producto de prueba
+Producto pro = new Producto();
+pro.setSecuencial(2);
+pro.setCantidad(10);
+pro.setCodigo("22100");
+pro.setDescripcion("Prueba");
+pro.setCodigo_Barra("22100500");
+pro.setSecuencial_Proveedor(2);
+pro.setSecuencial_Categoria(1);
+pro.setSecuencial_Empresa(1);
+pro.setPrecio_Costo(200);
+pro.setExistencia_Minima(2);
+pro.setPrecio_Venta(500);
+pro.setTipo("Producto");
+
+// Simular que el producto expira con fecha válida
+pro.setExpira(true);
+pro.setFecha_Caducidad("28/08/2025"); // formato dd/MM/yyyy
+
+// Validar que el combo tiene el tipo antes de seleccionarlo
+if (jComboBox3.getItemCount() > 0 && pro.getTipo() != null) {
+    jComboBox3.setSelectedItem(pro.getTipo());
+}
+
+// Abrir ventana V_Producto en modo edición
+V_Producto x = new V_Producto(false, pro);
+x.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+x.setVisible(true);
+
+// Cierre automático para pruebas (opcional)
+//Timer timer = new Timer(5000, e -> x.dispose()); // Cierra en 5 segundos
+//timer.setRepeats(false);
+//timer.start();
+
+        
+        
+    }//GEN-LAST:event_jMenuItem3ActionPerformed
 
     /**
      * @param args the command line arguments
