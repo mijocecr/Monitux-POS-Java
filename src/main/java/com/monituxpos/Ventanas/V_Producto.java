@@ -381,6 +381,7 @@ private String valueOrEmpty(String valor) {
         jLabel13.setForeground(new java.awt.Color(255, 255, 255));
 
         txt_Descripcion.setColumns(20);
+        txt_Descripcion.setLineWrap(true);
         txt_Descripcion.setRows(5);
         jScrollPane1.setViewportView(txt_Descripcion);
 

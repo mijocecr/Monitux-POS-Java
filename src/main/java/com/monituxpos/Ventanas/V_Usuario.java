@@ -407,18 +407,21 @@ public void setImagen(byte[] imagen) {
                                     .addComponent(jLabel4))
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(txt_Password)
                                     .addComponent(txt_Nombre)
-                                    .addComponent(txt_Codigo)
-                                    .addComponent(txt_Password)))
+                                    .addComponent(txt_Codigo)))
                             .addGroup(jPanel1Layout.createSequentialGroup()
                                 .addGap(0, 5, Short.MAX_VALUE)
                                 .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 47, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(checkBoxActivo)
-                                    .addComponent(comboBoxAcceso, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(labelImagen1)))
+                                    .addGroup(jPanel1Layout.createSequentialGroup()
+                                        .addComponent(checkBoxActivo)
+                                        .addGap(110, 110, 110))
+                                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                                        .addComponent(comboBoxAcceso, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(labelImagen1)))))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(labelImagen, javax.swing.GroupLayout.PREFERRED_SIZE, 121, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(14, 14, 14))
@@ -445,17 +448,18 @@ public void setImagen(byte[] imagen) {
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel4)
                             .addComponent(txt_Password, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                                    .addComponent(jLabel5)
-                                    .addGap(7, 7, 7))
-                                .addComponent(comboBoxAcceso, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addGap(1, 1, 1)
-                                .addComponent(labelImagen1, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(checkBoxActivo))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                    .addComponent(comboBoxAcceso, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(jLabel5))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(checkBoxActivo))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(labelImagen1, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(20, 20, 20))))
                     .addComponent(labelImagen, javax.swing.GroupLayout.PREFERRED_SIZE, 128, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 163, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -531,6 +535,8 @@ public void setImagen(byte[] imagen) {
 
     private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
         
+       
+        this.setLocationRelativeTo(null);
         this.getContentPane().setBackground(Color.black);
         
         // Establece el título del formulario
@@ -552,7 +558,7 @@ model.setRowCount(0);
 this.setLocationRelativeTo(null);
 // Carga los datos
 cargarDatos();
-//primera_carga();
+primera_carga();
 
 // Centra el contenido de las celdas
 DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
@@ -749,6 +755,80 @@ private String getCellValue(DefaultTableModel model, int row, int col) {
     return value != null ? value.toString() : "";
         
     }//GEN-LAST:event_tableUsuariosKeyReleased
+
+
+ private void primera_carga(){
+ 
+     
+         
+          try {
+        int rowIndex = 0;
+        
+
+        DefaultTableModel model = (DefaultTableModel) tableUsuarios.getModel();
+
+        // Asignar valores si existen
+        Object secuencialObj = model.getValueAt(rowIndex, 0); // Columna "S"
+        if (secuencialObj != null) {
+            this.Secuencial = Integer.parseInt(secuencialObj.toString());
+        }
+
+        txt_Codigo.setText(getCellValue(model, rowIndex, 1)); // "Código"
+        txt_Nombre.setText(getCellValue(model, rowIndex, 2)); // "Nombre"
+
+        String password = getCellValue(model, rowIndex, 5); // "Password"
+        if (password != null && !password.isEmpty()) {
+            txt_Password.setText(Encriptador.desencriptar(password));
+        }
+
+        String acceso = getCellValue(model, rowIndex, 3); // "Acceso"
+        if (acceso != null) {
+            for (int i = 0; i < comboBoxAcceso.getItemCount(); i++) {
+                Object item = comboBoxAcceso.getItemAt(i);
+                if (item != null && item.toString().contains(acceso)) {
+                    comboBoxAcceso.setSelectedIndex(i);
+                    break;
+                }
+            }
+        }
+
+        String activo = getCellValue(model, rowIndex, 4); // "Activo"
+        checkBoxActivo.setSelected("Sí".equalsIgnoreCase(activo));
+
+        // Cargar imagen desde la base de datos
+        try (EntityManager em = Persistence.createEntityManagerFactory("MonituxPU").createEntityManager()) {
+            Usuario usuario = em.createQuery(
+                "SELECT u FROM Usuario u WHERE u.Secuencial = :secuencial AND u.Secuencial_Empresa = :empresa", Usuario.class)
+                .setParameter("secuencial", this.Secuencial)
+                .setParameter("empresa", Secuencial_Empresa)
+                .getResultStream()
+                .findFirst()
+                .orElse(null);
+
+            if (usuario != null && usuario.getImagen() != null && usuario.getImagen().length > 0) {
+                try (ByteArrayInputStream bis = new ByteArrayInputStream(usuario.getImagen())) {
+                    BufferedImage img = ImageIO.read(bis);
+                    labelImagen.setIcon(new ImageIcon(img));
+                } catch (IOException ex) {
+                    labelImagen.setIcon(null);
+                }
+            } else {
+                labelImagen.setIcon(null);
+            }
+        }
+
+    } catch (Exception ex) {
+        labelImagen.setIcon(null);
+        ex.printStackTrace(); // Para depuración
+    }
+        
+        
+ 
+ 
+ }
+
+
+
 
     private void tableUsuariosMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tableUsuariosMouseClicked
 
