@@ -114,6 +114,9 @@ public class Miniatura_Producto extends JPanel {
         imagenLabel = new JLabel(imagenRedimensionada);
         
         codigoLabel = new JLabel(producto.getCodigo());
+        codigoLabel.setHorizontalAlignment(SwingConstants.CENTER);
+
+        codigoLabel.setFont(new Font("Arial", Font.BOLD, 12)); // Puedes cambiar "Arial" y el tamaño si lo deseas
         marcaLabel = new JLabel("Marca: " + producto.getMarca());
         precioLabel = new JLabel("Precio: " + producto.getPrecio_Venta());
        // checkBoxSeleccionado = new JCheckBox("En lista");

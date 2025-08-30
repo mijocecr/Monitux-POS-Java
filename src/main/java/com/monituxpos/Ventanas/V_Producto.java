@@ -18,6 +18,8 @@ import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -325,6 +327,15 @@ private String valueOrEmpty(String valor) {
         jLabel3.setText("Cantidad:");
         jLabel3.setForeground(new java.awt.Color(255, 255, 255));
 
+        txt_Cantidad.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                txt_CantidadKeyPressed(evt);
+            }
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                txt_CantidadKeyReleased(evt);
+            }
+        });
+
         jLabel4.setText("Marca:");
         jLabel4.setForeground(new java.awt.Color(255, 255, 255));
 
@@ -363,11 +374,38 @@ private String valueOrEmpty(String valor) {
         jLabel8.setText("Precio Costo:");
         jLabel8.setForeground(new java.awt.Color(255, 255, 255));
 
+        txt_PrecioCosto.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                txt_PrecioCostoKeyPressed(evt);
+            }
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                txt_PrecioCostoKeyReleased(evt);
+            }
+        });
+
         jLabel9.setText("Precio Venta:");
         jLabel9.setForeground(new java.awt.Color(255, 255, 255));
 
+        txt_PrecioVenta.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                txt_PrecioVentaKeyPressed(evt);
+            }
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                txt_PrecioVentaKeyReleased(evt);
+            }
+        });
+
         jLabel10.setText("Existencia Minima:");
         jLabel10.setForeground(new java.awt.Color(255, 255, 255));
+
+        txt_ExistenciaMinima.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                txt_ExistenciaMinimaKeyPressed(evt);
+            }
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                txt_ExistenciaMinimaKeyReleased(evt);
+            }
+        });
 
         jLabel11.setText("Tipo:");
         jLabel11.setForeground(new java.awt.Color(255, 255, 255));
@@ -1274,6 +1312,129 @@ x.setVisible(true);
         
         
     }//GEN-LAST:event_jMenuItem3ActionPerformed
+
+    private void txt_CantidadKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txt_CantidadKeyReleased
+
+
+
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txt_CantidadKeyReleased
+
+    private void txt_PrecioCostoKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txt_PrecioCostoKeyReleased
+
+   
+
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txt_PrecioCostoKeyReleased
+
+    private void txt_PrecioVentaKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txt_PrecioVentaKeyReleased
+
+
+    
+
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txt_PrecioVentaKeyReleased
+
+    private void txt_ExistenciaMinimaKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txt_ExistenciaMinimaKeyReleased
+
+    
+        
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txt_ExistenciaMinimaKeyReleased
+
+    private void txt_CantidadKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txt_CantidadKeyPressed
+
+
+        
+
+        txt_Cantidad.addKeyListener(new KeyAdapter() {
+    @Override
+    public void keyTyped(KeyEvent e) {
+        char c = e.getKeyChar();
+
+        // Permitir solo dígitos, retroceso y punto
+        if (!Character.isDigit(c) && c != '.' && c != '\b') {
+            e.consume(); // Bloquea el carácter
+        }
+
+        // Solo un punto decimal permitido
+        if (c == '.' && txt_Cantidad.getText().contains(".")) {
+            e.consume(); // Bloquea el segundo punto
+        }
+    }
+});
+
+
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txt_CantidadKeyPressed
+
+    private void txt_PrecioCostoKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txt_PrecioCostoKeyPressed
+     
+        
+        txt_PrecioCosto.addKeyListener(new KeyAdapter() {
+    @Override
+    public void keyTyped(KeyEvent e) {
+        char c = e.getKeyChar();
+
+        // Permitir solo dígitos, retroceso y punto
+        if (!Character.isDigit(c) && c != '.' && c != '\b') {
+            e.consume(); // Bloquea el carácter
+        }
+
+        // Solo un punto decimal permitido
+        if (c == '.' && txt_PrecioCosto.getText().contains(".")) {
+            e.consume(); // Bloquea el segundo punto
+        }
+    }
+});
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txt_PrecioCostoKeyPressed
+
+    private void txt_PrecioVentaKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txt_PrecioVentaKeyPressed
+       
+        
+        txt_PrecioVenta.addKeyListener(new KeyAdapter() {
+    @Override
+    public void keyTyped(KeyEvent e) {
+        char c = e.getKeyChar();
+
+        // Permitir solo dígitos, retroceso y punto
+        if (!Character.isDigit(c) && c != '.' && c != '\b') {
+            e.consume(); // Bloquea el carácter
+        }
+
+        // Solo un punto decimal permitido
+        if (c == '.' && txt_PrecioVenta.getText().contains(".")) {
+            e.consume(); // Bloquea el segundo punto
+        }
+    }
+});
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txt_PrecioVentaKeyPressed
+
+    private void txt_ExistenciaMinimaKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txt_ExistenciaMinimaKeyPressed
+
+            
+        
+            txt_ExistenciaMinima.addKeyListener(new KeyAdapter() {
+    @Override
+    public void keyTyped(KeyEvent e) {
+        char c = e.getKeyChar();
+
+        // Permitir solo dígitos, retroceso y punto
+        if (!Character.isDigit(c) && c != '.' && c != '\b') {
+            e.consume(); // Bloquea el carácter
+        }
+
+        // Solo un punto decimal permitido
+        if (c == '.' && txt_ExistenciaMinima.getText().contains(".")) {
+            e.consume(); // Bloquea el segundo punto
+        }
+    }
+});
+
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txt_ExistenciaMinimaKeyPressed
 
     /**
      * @param args the command line arguments

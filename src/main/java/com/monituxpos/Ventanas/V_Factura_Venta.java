@@ -10,6 +10,7 @@ import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -32,6 +33,7 @@ import javax.swing.table.DefaultTableModel;
 public class V_Factura_Venta extends javax.swing.JPanel {
 
       public int Secuencial_Usuario=1;//Cambiar esto
+      public int Secuencial_Cliente;//Cambiar esto
     public int Secuencial_Empresa=1;//Cambiar esto
     public int Secuencial;
     
@@ -55,7 +57,7 @@ public final Map<String, SelectorCantidad> selectoresCantidad = new HashMap<>();
      
         EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
 EntityManager em = emf.createEntityManager();
-
+llenar_Combo_Cliente();
 cargarItems(Secuencial_Empresa, contenedor, contenedor_selector, em);
              
              
@@ -93,7 +95,7 @@ cargarItems(Secuencial_Empresa, contenedor, contenedor_selector, em);
         jButton3 = new javax.swing.JButton();
         jPanel2 = new javax.swing.JPanel();
         jLabel5 = new javax.swing.JLabel();
-        jComboBox2 = new javax.swing.JComboBox<>();
+        comboCliente = new javax.swing.JComboBox<>();
         jTextField2 = new javax.swing.JTextField();
         jLabel6 = new javax.swing.JLabel();
         jLabel7 = new javax.swing.JLabel();
@@ -112,9 +114,9 @@ cargarItems(Secuencial_Empresa, contenedor, contenedor_selector, em);
         jLabel14 = new javax.swing.JLabel();
         jLabel15 = new javax.swing.JLabel();
         jLabel16 = new javax.swing.JLabel();
-        jTextField3 = new javax.swing.JTextField();
-        jTextField4 = new javax.swing.JTextField();
-        jTextField5 = new javax.swing.JTextField();
+        lbl_otrosCargos = new javax.swing.JTextField();
+        lbl_impuesto = new javax.swing.JTextField();
+        lbl_descuento = new javax.swing.JTextField();
         jLabel17 = new javax.swing.JLabel();
         jLabel18 = new javax.swing.JLabel();
         lbl_subTotal = new javax.swing.JLabel();
@@ -262,7 +264,12 @@ cargarItems(Secuencial_Empresa, contenedor, contenedor_selector, em);
         jLabel5.setForeground(new java.awt.Color(255, 255, 255));
         jPanel2.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(13, 30, -1, -1));
 
-        jPanel2.add(jComboBox2, new org.netbeans.lib.awtextra.AbsoluteConstraints(59, 25, 221, -1));
+        comboCliente.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                comboClienteMouseClicked(evt);
+            }
+        });
+        jPanel2.add(comboCliente, new org.netbeans.lib.awtextra.AbsoluteConstraints(59, 25, 221, -1));
         jPanel2.add(jTextField2, new org.netbeans.lib.awtextra.AbsoluteConstraints(310, 25, 85, -1));
 
         jLabel6.setText("Telefono:");
@@ -340,34 +347,45 @@ cargarItems(Secuencial_Empresa, contenedor, contenedor_selector, em);
         jLabel16.setForeground(new java.awt.Color(255, 255, 255));
         jPanel2.add(jLabel16, new org.netbeans.lib.awtextra.AbsoluteConstraints(154, 468, -1, -1));
 
-        jTextField3.setBackground(new java.awt.Color(0, 168, 107));
-        jTextField3.addActionListener(new java.awt.event.ActionListener() {
+        lbl_otrosCargos.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        lbl_otrosCargos.setBackground(new java.awt.Color(0, 168, 107));
+        lbl_otrosCargos.setForeground(Color.BLUE); // Cambia el texto a azul
+        lbl_otrosCargos.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jTextField3ActionPerformed(evt);
+                lbl_otrosCargosActionPerformed(evt);
             }
         });
-        jTextField3.addKeyListener(new java.awt.event.KeyAdapter() {
+        lbl_otrosCargos.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyReleased(java.awt.event.KeyEvent evt) {
-                jTextField3KeyReleased(evt);
+                lbl_otrosCargosKeyReleased(evt);
             }
         });
-        jPanel2.add(jTextField3, new org.netbeans.lib.awtextra.AbsoluteConstraints(98, 425, 90, -1));
+        jPanel2.add(lbl_otrosCargos, new org.netbeans.lib.awtextra.AbsoluteConstraints(98, 425, 80, -1));
 
-        jTextField4.setBackground(new java.awt.Color(0, 168, 107));
-        jTextField4.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyReleased(java.awt.event.KeyEvent evt) {
-                jTextField4KeyReleased(evt);
+        lbl_impuesto.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        lbl_impuesto.setForeground(Color.BLUE); // Cambia el texto a azul
+        lbl_impuesto.setBackground(new java.awt.Color(0, 168, 107));
+        lbl_impuesto.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                lbl_impuestoActionPerformed(evt);
             }
         });
-        jPanel2.add(jTextField4, new org.netbeans.lib.awtextra.AbsoluteConstraints(98, 463, 50, -1));
+        lbl_impuesto.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                lbl_impuestoKeyReleased(evt);
+            }
+        });
+        jPanel2.add(lbl_impuesto, new org.netbeans.lib.awtextra.AbsoluteConstraints(98, 463, 50, -1));
 
-        jTextField5.setBackground(new java.awt.Color(0, 168, 107));
-        jTextField5.addKeyListener(new java.awt.event.KeyAdapter() {
+        lbl_descuento.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        lbl_descuento.setForeground(Color.BLUE); // Cambia el texto a azul
+        lbl_descuento.setBackground(new java.awt.Color(0, 168, 107));
+        lbl_descuento.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyReleased(java.awt.event.KeyEvent evt) {
-                jTextField5KeyReleased(evt);
+                lbl_descuentoKeyReleased(evt);
             }
         });
-        jPanel2.add(jTextField5, new org.netbeans.lib.awtextra.AbsoluteConstraints(97, 501, 50, -1));
+        jPanel2.add(lbl_descuento, new org.netbeans.lib.awtextra.AbsoluteConstraints(97, 501, 50, -1));
 
         jLabel17.setText("Impuesto:");
         jLabel17.setForeground(new java.awt.Color(255, 255, 255));
@@ -380,12 +398,12 @@ cargarItems(Secuencial_Empresa, contenedor, contenedor_selector, em);
         lbl_subTotal.setText("0");
         lbl_subTotal.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
         lbl_subTotal.setForeground(new java.awt.Color(255, 255, 0));
-        jPanel2.add(lbl_subTotal, new org.netbeans.lib.awtextra.AbsoluteConstraints(244, 356, 160, -1));
+        jPanel2.add(lbl_subTotal, new org.netbeans.lib.awtextra.AbsoluteConstraints(244, 356, 150, -1));
 
         lbl_total.setText("0");
         lbl_total.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
         lbl_total.setForeground(new java.awt.Color(255, 255, 0));
-        jPanel2.add(lbl_total, new org.netbeans.lib.awtextra.AbsoluteConstraints(244, 387, 160, -1));
+        jPanel2.add(lbl_total, new org.netbeans.lib.awtextra.AbsoluteConstraints(244, 387, 150, -1));
 
         add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(431, 50, 400, 560));
 
@@ -417,7 +435,7 @@ cargarItems(Secuencial_Empresa, contenedor, contenedor_selector, em);
                 jLabel3MouseMoved(evt);
             }
         });
-        add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(112, 494, 313, -1));
+        add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(115, 494, 310, -1));
 
         jButton4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/database_refresh.png"))); // NOI18N
         jButton4.setText("<html><b>Reset</b><br>Factura</html>");
@@ -489,7 +507,7 @@ public void cargarItems(int secuencialEmpresa, JPanel contenedor, JPanel contene
               contenedor_selector.setLayout(new GridLayout(0, 1, 5, 5)); // 4 columnas, filas dinámicas
     
 
-    //contenedor.removeAll();
+    contenedor.removeAll();
     contenedor_selector.removeAll();
     listaDeItems.clear();
     selectoresCantidad.clear();
@@ -757,15 +775,35 @@ if (invocador instanceof Miniatura_Producto) {
 
     private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
 
-   
-         // Reiniciar visualmente
-    DefaultTableModel modeloTabla = (DefaultTableModel) jTable1.getModel();
-    modeloTabla.setRowCount(0); // Limpiar JTable
+        //*********************************
+        
+        
+        
+        total = 0;
+    subTotal = 0;
+//    impuesto = 0;
+//    descuento = 0;
+//    otrosCargos = 0;
 
+    // Reiniciar visualmente
+  DefaultTableModel modeloTabla = new DefaultTableModel(
+    new Object[]{"Código", "Descripción", "Cantidad", "Precio", "Total", "Secuencial"}, 0
+) {
+    @Override
+    public boolean isCellEditable(int row, int column) {
+        return false; // Solo lectura
+    }
+};
+
+jTable1.setModel(modeloTabla);
+jTable1.setRowHeight(24); // Altura de fila
+jTable1.setFont(new Font("Arial", Font.PLAIN, 13)); // Fuente legible
+jTable1.setGridColor(Color.LIGHT_GRAY); // Líneas suaves
+jTable1.setShowGrid(true); // Mostrar líneas
+
+    
     lbl_subTotal.setText("0.00");
     lbl_total.setText("0.00");
-
-    double subTotal = 0.0;
 
     // Actualizar cantidades desde los selectores
     for (Component comp : contenedor_selector.getComponents()) {
@@ -773,7 +811,7 @@ if (invocador instanceof Miniatura_Producto) {
             String codigo = selector.getCodigo();
             if (listaDeItems.containsKey(codigo)) {
                 Miniatura_Producto item = listaDeItems.get(codigo);
-                item.cantidadSelecccion = selector.getCantidadSeleccionada(); // ✅ Usamos solo cantidadSelecccion
+                item.cantidadSelecccion = selector.getCantidadSeleccionada();
             }
         }
     }
@@ -782,7 +820,7 @@ if (invocador instanceof Miniatura_Producto) {
     for (String clave : listaDeItems.keySet()) {
         Miniatura_Producto item = listaDeItems.get(clave);
 
-        if (item.cantidadSelecccion != 0) { // ✅ Validamos con cantidadSelecccion
+        if (item.cantidadSelecccion != 0) {
             double cantidad = item.cantidadSelecccion;
             double precio = item.producto.getPrecio_Venta();
             double totalItem = cantidad * precio;
@@ -797,10 +835,7 @@ if (invocador instanceof Miniatura_Producto) {
             });
 
             subTotal += totalItem;
-            lbl_subTotal.setText(String.format("%.2f", subTotal));
 
-            // Si tienes lógica adicional para impuestos, descuentos, etc., puedes llamarla aquí
-             ActualizarNumeros();
         } else {
             JOptionPane.showMessageDialog(
                 null,
@@ -812,21 +847,26 @@ if (invocador instanceof Miniatura_Producto) {
         }
     }
 
-    // Actualizar total final si lo calculas aparte
-    lbl_total.setText(String.format("%.2f", subTotal)); // o con impuestos si aplican
+    // Actualizar totales
+    ActualizarNumeros();
+        
+        
+        //********************************
         
         
         
     }//GEN-LAST:event_jButton6ActionPerformed
 
     
-    private void ActualizarNumeros() {
-    // Calcular el total
-    total = subTotal + impuesto + otrosCargos - descuento;
+ private void ActualizarNumeros() {
+      jLabel3.setText(String.valueOf(listaDeItems.size()));
+     total = subTotal + impuesto + otrosCargos - descuento;
 
-    // Actualizar los labels con formato de dos decimales
-    lbl_total.setText(String.format("%.2f", total));
     lbl_subTotal.setText(String.format("%.2f", subTotal));
+    //lbl_impuesto.setText(String.format("%.2f", impuesto));
+    lbl_otrosCargos.setText(String.format("%.2f", otrosCargos));
+    //lbl_descuento.setText(String.format("%.2f", descuento));
+    lbl_total.setText(String.format("%.2f", total));
 }
 
     
@@ -855,6 +895,45 @@ if (invocador instanceof Miniatura_Producto) {
         // TODO add your handling code here:
     }//GEN-LAST:event_jButton2ActionPerformed
 
+    
+    
+    public void llenar_Combo_Cliente() {
+    comboCliente.removeAllItems(); // Limpiar combo
+
+    EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
+    EntityManager em = emf.createEntityManager();
+
+    try {
+        List<Cliente> clientes = em.createQuery(
+            "SELECT c FROM Cliente c WHERE c.Activo = true AND c.Secuencial_Empresa = :empresa", Cliente.class)
+            .setParameter("empresa", Secuencial_Empresa)
+            .getResultList();
+
+        if (Secuencial != -1) {
+            for (Cliente c : clientes) {
+                comboCliente.addItem(c.getSecuencial() + " - " + c.getNombre());
+            }
+
+            for (int i = 0; i < comboCliente.getItemCount(); i++) {
+                String item = comboCliente.getItemAt(i);
+                if (item.contains(String.valueOf(this.Secuencial_Cliente))) {
+                    comboCliente.setSelectedItem(item);
+                    break;
+                }
+            }
+        }
+
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(null, "Error al cargar clientes: " + e.getMessage());
+    } finally {
+        em.close();
+        emf.close();
+    }
+}
+
+    
+    
+    
     private void jLabel4MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel4MouseClicked
 
      
@@ -863,26 +942,75 @@ if (invocador instanceof Miniatura_Producto) {
         // TODO add your handling code here:
     }//GEN-LAST:event_jLabel4MouseClicked
 
-    private void jTextField3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField3ActionPerformed
+    private void lbl_otrosCargosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_lbl_otrosCargosActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jTextField3ActionPerformed
+    }//GEN-LAST:event_lbl_otrosCargosActionPerformed
 
-    private void jTextField3KeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextField3KeyReleased
+    private void lbl_otrosCargosKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_lbl_otrosCargosKeyReleased
+
+        if (lbl_otrosCargos.getText().trim().isEmpty()) {
+    otrosCargos = 0.00;
+} else {
+    try {
+        otrosCargos = Double.parseDouble(lbl_otrosCargos.getText().trim());
+    } catch (NumberFormatException e) {
+        otrosCargos = 0.00; // Si hay error al convertir, se establece en 0.00
+    }
+}
 
         // TODO add your handling code here:
-    }//GEN-LAST:event_jTextField3KeyReleased
+    }//GEN-LAST:event_lbl_otrosCargosKeyReleased
 
-    private void jTextField4KeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextField4KeyReleased
+    private void lbl_impuestoKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_lbl_impuestoKeyReleased
 
+        
+        if (lbl_impuesto.getText().trim().isEmpty()) {
+    impuesto = 0.00;
+} else {
+    try {
+        impuesto = Double.parseDouble(lbl_impuesto.getText().trim());
+        impuesto = (impuesto / 100) * subTotal; // Convertir el porcentaje a decimal
+    } catch (NumberFormatException e) {
+        impuesto = 0.00; // Si hay un error al convertir, se establece en 0.00
+    }
+}
+
+        
         // TODO add your handling code here:
-    }//GEN-LAST:event_jTextField4KeyReleased
+    }//GEN-LAST:event_lbl_impuestoKeyReleased
 
-    private void jTextField5KeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextField5KeyReleased
-       // TODO add your handling code here:
-    }//GEN-LAST:event_jTextField5KeyReleased
+    private void lbl_descuentoKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_lbl_descuentoKeyReleased
+
+
+if (lbl_descuento.getText().trim().isEmpty()) {
+    descuento = 0.00;
+} else {
+    try {
+        descuento = Double.parseDouble(lbl_descuento.getText().trim());
+        descuento = (descuento / 100) * subTotal; // Convertir el porcentaje a decimal
+    } catch (NumberFormatException e) {
+        descuento = 0.00; // Si hay un error al convertir, se establece en 0.00
+    }
+}
+        
+
+// TODO add your handling code here:
+    }//GEN-LAST:event_lbl_descuentoKeyReleased
+
+    private void comboClienteMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_comboClienteMouseClicked
+
+        llenar_Combo_Cliente();
+        
+        // TODO add your handling code here:
+    }//GEN-LAST:event_comboClienteMouseClicked
+
+    private void lbl_impuestoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_lbl_impuestoActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_lbl_impuestoActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JComboBox<String> comboCliente;
     private javax.swing.JPanel contenedor;
     private javax.swing.JPanel contenedor_selector;
     private com.github.lgooddatepicker.components.DatePicker datePicker1;
@@ -895,7 +1023,6 @@ if (invocador instanceof Miniatura_Producto) {
     private javax.swing.JButton jButton7;
     private javax.swing.JButton jButton8;
     private javax.swing.JComboBox<String> jComboBox1;
-    private javax.swing.JComboBox<String> jComboBox2;
     private javax.swing.JComboBox<String> jComboBox3;
     private javax.swing.JComboBox<String> jComboBox4;
     private javax.swing.JLabel jLabel1;
@@ -935,9 +1062,9 @@ if (invocador instanceof Miniatura_Producto) {
     private javax.swing.JTable jTable1;
     private javax.swing.JTextField jTextField1;
     private javax.swing.JTextField jTextField2;
-    private javax.swing.JTextField jTextField3;
-    private javax.swing.JTextField jTextField4;
-    private javax.swing.JTextField jTextField5;
+    private javax.swing.JTextField lbl_descuento;
+    private javax.swing.JTextField lbl_impuesto;
+    private javax.swing.JTextField lbl_otrosCargos;
     private javax.swing.JLabel lbl_subTotal;
     private javax.swing.JLabel lbl_total;
     private javax.swing.JPopupMenu menu_contextual;

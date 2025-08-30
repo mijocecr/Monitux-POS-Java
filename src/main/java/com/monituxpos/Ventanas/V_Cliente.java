@@ -839,6 +839,12 @@ if (res == JOptionPane.YES_OPTION) {
         // TODO add your handling code here:
     }//GEN-LAST:event_labelImagen1MouseClicked
 
+    
+    
+    
+    
+    
+    
     private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
 
         this.getContentPane().setBackground(Color.black);
