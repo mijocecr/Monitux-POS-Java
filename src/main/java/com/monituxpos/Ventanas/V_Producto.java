@@ -871,6 +871,11 @@ private String valueOrEmpty(String valor) {
         llenar_Combo_Proveedor();
         llenar_Combo_Categoria();
      
+          setTitle("Monitux-POS v." + "");//V_Menu_Principal.VER);
+
+
+
+
         
         
         // TODO add your handling code here:

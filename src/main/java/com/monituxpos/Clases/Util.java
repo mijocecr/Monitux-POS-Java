@@ -42,6 +42,8 @@ import javax.swing.JFileChooser;
 import com.monituxpos.Clases.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import javax.swing.ImageIcon;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 
 public class Util {
@@ -283,6 +285,19 @@ public class Util {
 }
 
     
+     
+    public static void redimensionarImagenEnLabel(JLabel label, ImageIcon imagenOriginal, int ancho, int alto) {
+    if (imagenOriginal != null) {
+        Image imagenEscalada = imagenOriginal.getImage().getScaledInstance(ancho, alto, Image.SCALE_SMOOTH);
+        ImageIcon imagenRedimensionada = new ImageIcon(imagenEscalada);
+        label.setIcon(imagenRedimensionada);
+    } else {
+        label.setIcon(null); // o puedes asignar una imagen por defecto
+    }
+}
+    
+    
+    
     
     public static void registrarMovimientoKardex(
     int secuencialProducto, double existencia,
@@ -328,8 +343,8 @@ public class Util {
 }
 
     
-    
-    
+   
+
     
     
     
