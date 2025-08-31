@@ -10,8 +10,10 @@ import jakarta.persistence.*;
 @Entity
 public class Comentario {
 
-    @Id
-    private int Secuencial;
+@Id
+@GeneratedValue(strategy = GenerationType.IDENTITY)
+private int Secuencial;
+
 
     private int Secuencial_Factura_C;
     private int Secuencial_Factura_V;

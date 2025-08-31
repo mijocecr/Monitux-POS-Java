@@ -8,22 +8,30 @@ import com.monituxpos.Clases.*;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
+import jakarta.persistence.TypedQuery;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
 import javax.swing.table.DefaultTableModel;
 
 /**
@@ -57,8 +65,8 @@ public final Map<String, SelectorCantidad> selectoresCantidad = new HashMap<>();
      
         EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
 EntityManager em = emf.createEntityManager();
-llenar_Combo_Cliente();
-cargarItems(Secuencial_Empresa, contenedor, contenedor_selector, em);
+llenarComboCliente();
+        V_Factura_Venta.this.cargarItems(Secuencial_Empresa, contenedor, contenedor_selector, em);
              
              
         });
@@ -132,33 +140,69 @@ cargarItems(Secuencial_Empresa, contenedor, contenedor_selector, em);
         jLabel11 = new javax.swing.JLabel();
         jScrollPane3 = new javax.swing.JScrollPane();
         contenedor_selector = new javax.swing.JPanel();
+        icono_carga = new javax.swing.JLabel();
 
         jMenu1.setText("Imagen");
 
         jMenuItem1.setText("Local");
+        jMenuItem1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem1ActionPerformed(evt);
+            }
+        });
         jMenu1.add(jMenuItem1);
 
         jMenuItem2.setText("Web");
+        jMenuItem2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem2ActionPerformed(evt);
+            }
+        });
         jMenu1.add(jMenuItem2);
 
         jMenuItem3.setText("Hacer Foto");
+        jMenuItem3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem3ActionPerformed(evt);
+            }
+        });
         jMenu1.add(jMenuItem3);
 
         menu_contextual.add(jMenu1);
 
         jMenuItem7.setText("Comentario");
+        jMenuItem7.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem7ActionPerformed(evt);
+            }
+        });
         menu_contextual.add(jMenuItem7);
 
         jMenu3.setText("Producto");
 
         jMenuItem4.setText("Agregar Unidades");
+        jMenuItem4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem4ActionPerformed(evt);
+            }
+        });
         jMenu3.add(jMenuItem4);
 
         jMenuItem5.setText("Retirar Unidades");
+        jMenuItem5.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem5ActionPerformed(evt);
+            }
+        });
         jMenu3.add(jMenuItem5);
         jMenu3.add(jSeparator1);
 
         jMenuItem6.setText("Ver Producto");
+        jMenuItem6.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem6ActionPerformed(evt);
+            }
+        });
         jMenu3.add(jMenuItem6);
 
         menu_contextual.add(jMenu3);
@@ -188,6 +232,12 @@ cargarItems(Secuencial_Empresa, contenedor, contenedor_selector, em);
         jPanel1.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255)));
 
         jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Codigo", "Descripcion", "Marca", "Codigo_Barra" }));
+
+        jTextField1.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                jTextField1KeyReleased(evt);
+            }
+        });
 
         jLabel1.setText("Buscar Por:");
         jLabel1.setForeground(new java.awt.Color(255, 255, 255));
@@ -270,9 +320,16 @@ cargarItems(Secuencial_Empresa, contenedor, contenedor_selector, em);
             }
         });
         jPanel2.add(comboCliente, new org.netbeans.lib.awtextra.AbsoluteConstraints(59, 25, 221, -1));
+
+        jTextField2.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                jTextField2KeyReleased(evt);
+            }
+        });
         jPanel2.add(jTextField2, new org.netbeans.lib.awtextra.AbsoluteConstraints(310, 25, 85, -1));
 
         jLabel6.setText("Telefono:");
+        jLabel6.setForeground(new java.awt.Color(102, 0, 204));
         jPanel2.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(310, 6, -1, -1));
 
         jLabel7.setText("Tipo de Venta:");
@@ -348,7 +405,8 @@ cargarItems(Secuencial_Empresa, contenedor, contenedor_selector, em);
         jPanel2.add(jLabel16, new org.netbeans.lib.awtextra.AbsoluteConstraints(154, 468, -1, -1));
 
         lbl_otrosCargos.setHorizontalAlignment(javax.swing.JTextField.CENTER);
-        lbl_otrosCargos.setBackground(new java.awt.Color(0, 168, 107));
+        lbl_otrosCargos.setBackground(new java.awt.Color(0, 204, 204));
+        lbl_otrosCargos.setBorder(null);
         lbl_otrosCargos.setForeground(Color.BLUE); // Cambia el texto a azul
         lbl_otrosCargos.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -360,11 +418,12 @@ cargarItems(Secuencial_Empresa, contenedor, contenedor_selector, em);
                 lbl_otrosCargosKeyReleased(evt);
             }
         });
-        jPanel2.add(lbl_otrosCargos, new org.netbeans.lib.awtextra.AbsoluteConstraints(98, 425, 80, -1));
+        jPanel2.add(lbl_otrosCargos, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 430, 80, -1));
 
         lbl_impuesto.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         lbl_impuesto.setForeground(Color.BLUE); // Cambia el texto a azul
-        lbl_impuesto.setBackground(new java.awt.Color(0, 168, 107));
+        lbl_impuesto.setBackground(new java.awt.Color(0, 204, 204));
+        lbl_impuesto.setBorder(null);
         lbl_impuesto.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 lbl_impuestoActionPerformed(evt);
@@ -375,17 +434,18 @@ cargarItems(Secuencial_Empresa, contenedor, contenedor_selector, em);
                 lbl_impuestoKeyReleased(evt);
             }
         });
-        jPanel2.add(lbl_impuesto, new org.netbeans.lib.awtextra.AbsoluteConstraints(98, 463, 50, -1));
+        jPanel2.add(lbl_impuesto, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 470, 50, -1));
 
         lbl_descuento.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         lbl_descuento.setForeground(Color.BLUE); // Cambia el texto a azul
-        lbl_descuento.setBackground(new java.awt.Color(0, 168, 107));
+        lbl_descuento.setBackground(new java.awt.Color(0, 204, 204));
+        lbl_descuento.setBorder(null);
         lbl_descuento.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyReleased(java.awt.event.KeyEvent evt) {
                 lbl_descuentoKeyReleased(evt);
             }
         });
-        jPanel2.add(lbl_descuento, new org.netbeans.lib.awtextra.AbsoluteConstraints(97, 501, 50, -1));
+        jPanel2.add(lbl_descuento, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 510, 50, -1));
 
         jLabel17.setText("Impuesto:");
         jLabel17.setForeground(new java.awt.Color(255, 255, 255));
@@ -494,6 +554,10 @@ cargarItems(Secuencial_Empresa, contenedor, contenedor_selector, em);
         jScrollPane3.setViewportView(contenedor_selector);
 
         add(jScrollPane3, new org.netbeans.lib.awtextra.AbsoluteConstraints(158, 520, 189, 90));
+
+        icono_carga.setIcon(new javax.swing.ImageIcon(getClass().getResource("/gifs/spinner1-r.gif"))); // NOI18N
+        icono_carga.setVisible(false);
+        add(icono_carga, new org.netbeans.lib.awtextra.AbsoluteConstraints(790, 10, -1, -1));
     }// </editor-fold>//GEN-END:initComponents
 
     
@@ -502,7 +566,7 @@ cargarItems(Secuencial_Empresa, contenedor, contenedor_selector, em);
  
 public void cargarItems(int secuencialEmpresa, JPanel contenedor, JPanel contenedor_selector, EntityManager entityManager) {
 
-    
+    icono_carga.setVisible(true);
     contenedor.setLayout(new GridLayout(0, 3, 5, 5)); // 4 columnas, filas dinámicas
               contenedor_selector.setLayout(new GridLayout(0, 1, 5, 5)); // 4 columnas, filas dinámicas
     
@@ -522,6 +586,7 @@ public void cargarItems(int secuencialEmpresa, JPanel contenedor, JPanel contene
         ImageIcon imagenIcon = producto.getImagen() != null && producto.getImagen().length > 0
             ? new ImageIcon(producto.getImagen())
             : new ImageIcon("C:\\Users\\Miguel Cerrato\\Documents\\NetBeansProjects\\Experimento\\src\\experimento\\test.png");
+//ImageIcon icono = new ImageIcon(getClass().getResource("/icons/no-image-icon-10.png"));
 
        
         Miniatura_Producto miniatura = new Miniatura_Producto(producto);
@@ -577,7 +642,113 @@ miniatura.addMouseListener(new MouseAdapter() {
     }
 });
 
-          
+if (miniatura.cargarComentario()!=null){
+
+ //miniatura.setToolTipText(miniatura.cargarComentario());
+ 
+ 
+ miniatura.setToolTipText("<html><b>" + miniatura.producto.getDescripcion() + "</b><br>"+miniatura.cargarComentario()+"</html>");
+ 
+ //<html><b>Actualizar</b><br>Detalle</html>
+}else{
+
+    miniatura.setToolTipText("<html><b>" + miniatura.producto.getDescripcion() + "</b><br></html>");
+ 
+}
+
+        contenedor.add(miniatura);
+    }
+
+    contenedor.revalidate();
+    contenedor.repaint();
+    
+    icono_carga.setVisible(false);
+    
+}
+
+    
+
+
+public void cargarItemsFiltrados(
+    int secuencialEmpresa,
+    JComboBox<String> comboFiltro,
+    JTextField campoValorFiltro,
+    JPanel contenedor,
+    JPanel contenedor_selector,
+    EntityManager entityManager
+) {
+    contenedor.setLayout(new GridLayout(0, 3, 5, 5));
+    contenedor_selector.setLayout(new GridLayout(0, 1, 5, 5));
+
+    contenedor.removeAll();
+    //contenedor_selector.removeAll();
+    //listaDeItems.clear();
+   // selectoresCantidad.clear();
+
+    String campoFiltro = (String) comboFiltro.getSelectedItem(); // Ej: "tipoProducto"
+    String valorFiltro = campoValorFiltro.getText();             // Ej: "Electrónica"
+
+    String jpql = "SELECT p FROM Producto p WHERE p.Secuencial_Empresa = :empresa";
+    boolean aplicarFiltro = campoFiltro != null && !campoFiltro.trim().isEmpty()
+                         && valorFiltro != null && !valorFiltro.trim().isEmpty();
+
+    if (aplicarFiltro) {
+        jpql += " AND LOWER(p." + campoFiltro + ") LIKE :valorFiltro";
+    }
+
+    TypedQuery<Producto> query = entityManager.createQuery(jpql, Producto.class);
+    query.setParameter("empresa", secuencialEmpresa);
+    if (aplicarFiltro) {
+        query.setParameter("valorFiltro", "%" + valorFiltro.toLowerCase() + "%");
+    }
+
+    List<Producto> productos = query.getResultList();
+
+    for (Producto producto : productos) {
+        ImageIcon imagenIcon = (producto.getImagen() != null && producto.getImagen().length > 0)
+            ? new ImageIcon(producto.getImagen())
+            : new ImageIcon("C:\\Users\\Miguel Cerrato\\Documents\\NetBeansProjects\\Experimento\\src\\experimento\\test.png");
+
+        Miniatura_Producto miniatura = new Miniatura_Producto(producto);
+
+        miniatura.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                SelectorCantidad selector = selectoresCantidad.computeIfAbsent(
+                    producto.getCodigo(),
+                    codigo -> {
+                        SelectorCantidad nuevo = new SelectorCantidad(codigo);
+                        nuevo.setCantidad(0);
+                        return nuevo;
+                    }
+                );
+
+                if (!listaDeItems.containsKey(producto.getCodigo())) {
+                    listaDeItems.put(producto.getCodigo(), miniatura);
+                    if (!Arrays.asList(contenedor_selector.getComponents()).contains(selector)) {
+                        contenedor_selector.add(selector);
+                    }
+                }
+
+                contenedor_selector.revalidate();
+                contenedor_selector.repaint();
+            }
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+                if (e.isPopupTrigger()) {
+                    menu_contextual.show(e.getComponent(), e.getX(), e.getY());
+                }
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                if (e.isPopupTrigger()) {
+                    menu_contextual.show(e.getComponent(), e.getX(), e.getY());
+                }
+            }
+        });
+
         contenedor.add(miniatura);
     }
 
@@ -585,7 +756,11 @@ miniatura.addMouseListener(new MouseAdapter() {
     contenedor.repaint();
 }
 
-    
+
+
+
+
+
     
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
 
@@ -664,17 +839,46 @@ miniatura.addMouseListener(new MouseAdapter() {
         // TODO add your handling code here:
     }//GEN-LAST:event_jButton1ActionPerformed
 
-    public void cargar_items(){
-    
+   // public void cargarItems(){
+//    icono_carga.setVisible(true);
+//        
+//         contenedor_selector.setLayout(new GridLayout(0, 1, 5, 5)); // 4 columnas, filas dinámicas
+//        EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
+//EntityManager em = emf.createEntityManager();
+//
+//cargarItems(Secuencial_Empresa, contenedor, contenedor_selector, em);
+//      icono_carga.setVisible(false);
         
-         contenedor_selector.setLayout(new GridLayout(0, 1, 5, 5)); // 4 columnas, filas dinámicas
-        EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
-EntityManager em = emf.createEntityManager();
 
-cargarItems(Secuencial_Empresa, contenedor, contenedor_selector, em);
-      
-        
-    }
+  //  }
+    
+    
+    
+    public void cargarItems() {
+    icono_carga.setVisible(true); // Mostrar ícono de carga
+
+    SwingWorker<Void, Void> worker = new SwingWorker<>() {
+        @Override
+        protected Void doInBackground() {
+            EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
+            EntityManager em = emf.createEntityManager();
+            cargarItems(Secuencial_Empresa, contenedor, contenedor_selector, em);
+            em.close();
+            emf.close();
+            return null;
+        }
+
+        @Override
+        protected void done() {
+            icono_carga.setVisible(false); // Ocultar ícono de carga
+            revalidate();
+            repaint();
+        }
+    };
+
+    worker.execute(); // Ejecutar en segundo plano
+}
+
     
     
     private void formComponentShown(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_formComponentShown
@@ -684,11 +888,70 @@ cargarItems(Secuencial_Empresa, contenedor, contenedor_selector, em);
     }//GEN-LAST:event_formComponentShown
 
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
-     // TODO add your handling code here:
+
+        icono_carga.setVisible(true);
+        int x = JOptionPane.showConfirmDialog(null, "¿Está seguro de que desea limpiar la factura?", "Confirmación", JOptionPane.YES_NO_OPTION);
+
+if (x == JOptionPane.NO_OPTION) {
+    icono_carga.setVisible(false);
+    return; // Si el usuario selecciona "No", no se limpia la factura
+    
+}
+
+limpiarFactura(); // Llama al método para limpiar la factura
+
+icono_carga.setVisible(false);
+// TODO add your handling code here:
     }//GEN-LAST:event_jButton4ActionPerformed
 
-    
-    
+   private void limpiarFactura() {
+    // 1. Resetear selección de cliente
+    llenarComboCliente();
+    lbl_total.setText("0.0");
+    lbl_subTotal.setText("0.0");
+    comboCliente.setSelectedIndex(-1);
+
+    // 2. Limpiar contenedores visuales
+    contenedor.removeAll();
+    contenedor_selector.removeAll();
+
+    // 3. Limpiar listas de datos
+    listaDeItems.clear();
+    selectoresCantidad.clear();
+
+    // 4. Reiniciar valores numéricos
+    total = 0;
+    subTotal = 0;
+    impuesto = 0;
+    descuento = 0;
+    otrosCargos=0;
+
+    // 5. Limpiar etiquetas
+    lbl_otrosCargos.setText("");
+    lbl_impuesto.setText("");
+    lbl_descuento.setText("");
+
+    // 6. Resetear combos y botones
+    jComboBox3.setSelectedIndex(0);
+    jComboBox4.setSelectedIndex(0);
+    jButton3.setEnabled(true);
+
+    // 7. Crear y asignar nuevo modelo de tabla
+    DefaultTableModel modeloTabla = new DefaultTableModel(
+        new Object[]{"Código", "Descripción", "Cantidad", "Precio", "Total", "SP"}, 0
+    ) {
+        @Override
+        public boolean isCellEditable(int row, int column) {
+            return false; // Solo lectura
+        }
+    };
+
+    jTable1.setModel(modeloTabla); // Asignar el modelo a la tabla
+
+    // 8. Recargar items disponibles
+    cargarItems();
+}
+
     
     public void Eliminar_Item_Selector() {
     List<Component> paraEliminar = new ArrayList<>();
@@ -752,16 +1015,39 @@ Eliminar_Item_Selector();
         Component invocador = menu_contextual.getInvoker();
 if (invocador instanceof Miniatura_Producto) {
     Miniatura_Producto miniatura = (Miniatura_Producto) invocador;
-    ImageIcon imagen = miniatura.imagenRedimensionada;
-
-    JOptionPane.showMessageDialog(
-        null,
-        new JLabel(imagen),
-        "Imagen del producto",
-        JOptionPane.PLAIN_MESSAGE
-    );
+   
     
-    JOptionPane.showMessageDialog(invocador, miniatura.codigoLabel.getText());
+    byte[] datosImagen = miniatura.producto.getImagen(); // suponiendo que devuelve byte[]
+
+ImageIcon imagen = null;
+
+if (datosImagen != null && datosImagen.length > 0) {
+    try {
+        ByteArrayInputStream bis = new ByteArrayInputStream(datosImagen);
+        BufferedImage bufferedImage = ImageIO.read(bis);
+        imagen = new ImageIcon(bufferedImage);
+    } catch (IOException e) {
+        e.printStackTrace();
+        // Puedes cargar una imagen por defecto si falla
+        imagen = new ImageIcon(getClass().getResource("/icons/no-image-icon-10.png"));
+    }
+} else {
+    // Imagen por defecto si no hay datos
+    imagen = new ImageIcon(getClass().getResource("/icons/no-image-icon-10.png"));
+}
+
+    
+    
+
+    try {
+    V_Vista_Ampliada v_Vista_Ampliada = new V_Vista_Ampliada(miniatura.producto.getCodigo(), 
+            miniatura.producto.getDescripcion(), imagen);
+    v_Vista_Ampliada.setVisible(true);
+} catch (Exception e) {
+    JOptionPane.showMessageDialog(null, "Error al cargar la vista ampliada.", "Error", JOptionPane.ERROR_MESSAGE);
+}
+
+    
 }
 
 
@@ -787,7 +1073,7 @@ if (invocador instanceof Miniatura_Producto) {
 
     // Reiniciar visualmente
   DefaultTableModel modeloTabla = new DefaultTableModel(
-    new Object[]{"Código", "Descripción", "Cantidad", "Precio", "Total", "Secuencial"}, 0
+    new Object[]{"Código", "Descripción", "Cantidad", "Precio", "Total", "SP"}, 0
 ) {
     @Override
     public boolean isCellEditable(int row, int column) {
@@ -897,7 +1183,7 @@ jTable1.setShowGrid(true); // Mostrar líneas
 
     
     
-    public void llenar_Combo_Cliente() {
+    public void llenarComboCliente() {
     comboCliente.removeAllItems(); // Limpiar combo
 
     EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
@@ -956,6 +1242,8 @@ jTable1.setShowGrid(true); // Mostrar líneas
     } catch (NumberFormatException e) {
         otrosCargos = 0.00; // Si hay error al convertir, se establece en 0.00
     }
+    
+    
 }
 
         // TODO add your handling code here:
@@ -973,6 +1261,8 @@ jTable1.setShowGrid(true); // Mostrar líneas
     } catch (NumberFormatException e) {
         impuesto = 0.00; // Si hay un error al convertir, se establece en 0.00
     }
+    
+     
 }
 
         
@@ -991,6 +1281,8 @@ if (lbl_descuento.getText().trim().isEmpty()) {
     } catch (NumberFormatException e) {
         descuento = 0.00; // Si hay un error al convertir, se establece en 0.00
     }
+    
+     
 }
         
 
@@ -999,7 +1291,7 @@ if (lbl_descuento.getText().trim().isEmpty()) {
 
     private void comboClienteMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_comboClienteMouseClicked
 
-        llenar_Combo_Cliente();
+        llenarComboCliente();
         
         // TODO add your handling code here:
     }//GEN-LAST:event_comboClienteMouseClicked
@@ -1008,12 +1300,195 @@ if (lbl_descuento.getText().trim().isEmpty()) {
         // TODO add your handling code here:
     }//GEN-LAST:event_lbl_impuestoActionPerformed
 
+    private void jTextField1KeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextField1KeyReleased
+
+          EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
+EntityManager em = emf.createEntityManager();
+cargarItemsFiltrados(Secuencial_Empresa,jComboBox1,jTextField1,contenedor,contenedor_selector,em);
+        
+        /*
+        btnFiltrar.addActionListener(e -> {
+    cargarItemsFiltrados(secuencialEmpresa, comboFiltro, contenedor, contenedor_selector, entityManager);
+});
+
+        */
+        
+        
+        
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jTextField1KeyReleased
+
+    private void jTextField2KeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextField2KeyReleased
+        // TODO add your handling code here:
+        
+        
+        // Limpiar el JComboBox
+comboCliente.removeAllItems();
+
+// Crear el EntityManager
+EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
+EntityManager entityManager = emf.createEntityManager();
+
+// Asegurar que la base de datos esté lista (opcional en JPA estándar)
+// No hay equivalente directo a EnsureCreated, pero puedes validar con lógica propia si lo necesitas
+
+// Obtener texto del filtro
+String textoTelefono = jTextField2.getText(); // textBox2 es un JTextField
+
+// Consulta JPA para clientes activos cuyo teléfono contiene el texto
+List<Cliente> clientes = entityManager.createQuery(
+    "SELECT c FROM Cliente c WHERE c.Activo = true AND c.Secuencial_Empresa = :empresa AND LOWER(c.Telefono) LIKE :telefono",
+    Cliente.class
+)
+.setParameter("empresa", Secuencial_Empresa)
+.setParameter("telefono", "%" + textoTelefono.toLowerCase() + "%")
+.getResultList();
+
+// Agregar resultados al JComboBox
+for (Cliente item : clientes) {
+    String texto = item.getSecuencial() + " - " + item.getNombre();
+    comboCliente.addItem(texto);
+    comboCliente.setSelectedItem(texto); // Esto selecciona el último cliente encontrado
+}
+
+        
+        
+    }//GEN-LAST:event_jTextField2KeyReleased
+
+    private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem2ActionPerformed
+
+
+        
+                   
+        Component invocador = menu_contextual.getInvoker();
+if (invocador instanceof Miniatura_Producto) {
+    Miniatura_Producto miniatura = (Miniatura_Producto) invocador;
+        
+    miniatura.actualizarImagenWeb();
+    cargarItems();
+ 
+}
+        
+        
+
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jMenuItem2ActionPerformed
+
+    private void jMenuItem7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem7ActionPerformed
+
+
+        
+        Component invocador = menu_contextual.getInvoker();
+if (invocador instanceof Miniatura_Producto) {
+    Miniatura_Producto miniatura = (Miniatura_Producto) invocador;
+    
+miniatura.Agregar_Comentario(miniatura.getComentario());
+
+cargarItems();
+    
+}
+
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jMenuItem7ActionPerformed
+
+    private void jMenuItem4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem4ActionPerformed
+
+             
+        Component invocador = menu_contextual.getInvoker();
+if (invocador instanceof Miniatura_Producto) {
+    Miniatura_Producto miniatura = (Miniatura_Producto) invocador;
+    
+miniatura.actualizarProductoAgregarUnidades();
+
+cargarItems();
+}
+        
+        
+
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jMenuItem4ActionPerformed
+
+    
+   
+    
+    
+    private void jMenuItem5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem5ActionPerformed
+
+
+                
+        Component invocador = menu_contextual.getInvoker();
+if (invocador instanceof Miniatura_Producto) {
+    Miniatura_Producto miniatura = (Miniatura_Producto) invocador;
+    
+miniatura.actualizarProductoRetirarUnidades();
+
+cargarItems();
+}
+        
+
+
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jMenuItem5ActionPerformed
+
+    private void jMenuItem6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem6ActionPerformed
+
+
+        
+             
+        Component invocador = menu_contextual.getInvoker();
+if (invocador instanceof Miniatura_Producto) {
+    Miniatura_Producto miniatura = (Miniatura_Producto) invocador;
+        
+        V_Producto form = new V_Producto(false, miniatura.producto);
+form.setOnProductoEditado(() -> cargarItems());
+form.setVisible(true);
+}
+
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jMenuItem6ActionPerformed
+
+    private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
+
+
+              
+        Component invocador = menu_contextual.getInvoker();
+if (invocador instanceof Miniatura_Producto) {
+    Miniatura_Producto miniatura = (Miniatura_Producto) invocador;
+        
+    miniatura.actualizarImagenLocal();
+    cargarItems();
+ 
+}
+        
+
+
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jMenuItem1ActionPerformed
+
+    private void jMenuItem3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem3ActionPerformed
+
+
+                        
+        Component invocador = menu_contextual.getInvoker();
+if (invocador instanceof Miniatura_Producto) {
+    Miniatura_Producto miniatura = (Miniatura_Producto) invocador;
+        
+    miniatura.actualizarImagenCamara();
+    cargarItems();
+ 
+}
+
+
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jMenuItem3ActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JComboBox<String> comboCliente;
     private javax.swing.JPanel contenedor;
     private javax.swing.JPanel contenedor_selector;
     private com.github.lgooddatepicker.components.DatePicker datePicker1;
+    public javax.swing.JLabel icono_carga;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;

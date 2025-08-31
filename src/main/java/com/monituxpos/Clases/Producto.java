@@ -259,4 +259,8 @@ private byte[] Imagen;
     public void setSecuencial_Empresa(int Secuencial_Empresa) {
         this.Secuencial_Empresa = Secuencial_Empresa;
     }
+    
+    
+    
+    
 }

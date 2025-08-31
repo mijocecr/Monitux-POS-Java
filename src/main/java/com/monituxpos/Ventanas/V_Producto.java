@@ -65,6 +65,30 @@ public void setImagen(byte[] imagen) {
 }
 
     
+
+ 
+//********************************************
+    
+
+    private Runnable onProductoEditado;
+
+   
+
+    public void setOnProductoEditado(Runnable listener) {
+        this.onProductoEditado = listener;
+    }
+
+    // Llama esto cuando el producto se edite correctamente
+    public void notificarEdicion() {
+        if (onProductoEditado != null) {
+            onProductoEditado.run();
+        }
+    }
+
+
+    //********************************************
+
+
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(V_Producto.class.getName());
 
@@ -75,77 +99,11 @@ public void setImagen(byte[] imagen) {
         initComponents();
     }
 
-    
-//    
-//    public V_Producto(boolean esNuevo, Producto vistaProducto) {
-//    this.esNuevo = esNuevo;
-//    initComponents(); // Método de inicialización de la interfaz
-//
-//    if (!esNuevo) {
-//        txt_Cantidad.setEnabled(false);
-//        txt_Codigo.setText(vistaProducto.getCodigo());
-//        txt_Descripcion.setText(vistaProducto.getDescripcion());
-//        txt_Cantidad.setText(String.valueOf(vistaProducto.getCantidad()));
-//        txt_PrecioCosto.setText(String.valueOf(vistaProducto.getPrecio_Costo()));
-//        txt_PrecioVenta.setText(String.valueOf(vistaProducto.getPrecio_Venta()));
-//        txt_Marca.setText(vistaProducto.getMarca() != null ? vistaProducto.getMarca() : "");
-//        txt_bc.setText(vistaProducto.getCodigo_Barra());
-//        txt_CodigoFabricante.setText(vistaProducto.getCodigo_Fabricante() != null ? vistaProducto.getCodigo_Fabricante() : "");
-//        DateTimeFormatter formatterr = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-//        LocalDate fecha_caducidad = LocalDate.parse(vistaProducto.getFecha_Caducidad(), formatterr);
-//        datePicker1.setDate(fecha_caducidad);
-//        Secuencial = vistaProducto.getSecuencial();
-//        Secuencial_Proveedor = vistaProducto.getSecuencial_Proveedor();
-//        Secuencial_Categoria = vistaProducto.getSecuencial_Categoria();
-//        txt_ExistenciaMinima.setText(String.valueOf(vistaProducto.getExistencia_Minima()));
-//        jCheckBox1.setSelected(vistaProducto.isExpira());
-//        jComboBox3.setSelectedItem(vistaProducto.getTipo());
-//        jComboBox3.setEnabled(false);
-//
-//        if (vistaProducto.isExpira() && vistaProducto.getFecha_Caducidad() != null) {
-//            jCheckBox1.setSelected(true);
-//            try {
-//                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-//                LocalDate fecha = LocalDate.parse(vistaProducto.getFecha_Caducidad(), formatter);
-//                datePicker1.setDate(fecha);
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//                JOptionPane.showMessageDialog(null, e.getMessage());
-//            }
-//        }
-//
-//        llenar_Combo_Proveedor();
-//        llenar_Combo_Categoria();
-//
-//        imagen = vistaProducto.getImagen(); // byte[]
-//
-//        if (imagen != null) {
-//            try {
-//                ByteArrayInputStream bis = new ByteArrayInputStream(imagen);
-//                BufferedImage imagenCargada = ImageIO.read(bis);
-//                labelImagen.setIcon(new ImageIcon(imagenCargada));
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-//        } else {
-//            labelImagen.setIcon(null);
-//        }
-//    } else {
-//        Secuencial = -1;
-//    }
-//}
-
-    
-    
-    
-    
-    
-    //**********************************
-    
-    
+ 
     
     public V_Producto(boolean esNuevo, Producto vistaProducto) {
     this.esNuevo = esNuevo;
+
     initComponents(); // Inicializa la interfaz
 
     if (!esNuevo && vistaProducto != null) {
@@ -193,13 +151,18 @@ public void setImagen(byte[] imagen) {
         llenar_Combo_Proveedor();
         llenar_Combo_Categoria();
 
-        // Imagen
+        // Imagen redimensionada
         imagen = vistaProducto.getImagen();
         if (imagen != null) {
             try {
                 ByteArrayInputStream bis = new ByteArrayInputStream(imagen);
                 BufferedImage imagenCargada = ImageIO.read(bis);
-                labelImagen.setIcon(new ImageIcon(imagenCargada));
+
+                int ancho = labelImagen.getWidth();
+                int alto = labelImagen.getHeight();
+
+                Image imagenEscalada = imagenCargada.getScaledInstance(ancho, alto, Image.SCALE_SMOOTH);
+                labelImagen.setIcon(new ImageIcon(imagenEscalada));
             } catch (IOException e) {
                 e.printStackTrace();
                 labelImagen.setIcon(null);
@@ -220,7 +183,90 @@ private String valueOrEmpty(String valor) {
     
     
     
-    //**********************************
+//    //**********************************
+//    
+//    
+//    
+//    public V_Producto(boolean esNuevo, Producto vistaProducto) {
+//    this.esNuevo = esNuevo;
+//    
+//    initComponents(); // Inicializa la interfaz
+//
+//    if (!esNuevo && vistaProducto != null) {
+//        
+//        
+//        txt_Cantidad.setEnabled(false);
+//
+//        // Asignación segura de campos
+//        txt_Codigo.setText(valueOrEmpty(vistaProducto.getCodigo()));
+//        txt_Descripcion.setText(valueOrEmpty(vistaProducto.getDescripcion()));
+//        txt_Cantidad.setText(String.valueOf(vistaProducto.getCantidad()));
+//        txt_PrecioCosto.setText(String.valueOf(vistaProducto.getPrecio_Costo()));
+//        txt_PrecioVenta.setText(String.valueOf(vistaProducto.getPrecio_Venta()));
+//        txt_Marca.setText(valueOrEmpty(vistaProducto.getMarca()));
+//        txt_bc.setText(valueOrEmpty(vistaProducto.getCodigo_Barra()));
+//        txt_CodigoFabricante.setText(valueOrEmpty(vistaProducto.getCodigo_Fabricante()));
+//        txt_ExistenciaMinima.setText(String.valueOf(vistaProducto.getExistencia_Minima()));
+//
+//        // Fecha de caducidad segura
+//        if (vistaProducto.isExpira() && vistaProducto.getFecha_Caducidad() != null && !vistaProducto.getFecha_Caducidad().isEmpty()) {
+//            try {
+//                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+//                LocalDate fecha = LocalDate.parse(vistaProducto.getFecha_Caducidad(), formatter);
+//                datePicker1.setDate(fecha);
+//                jCheckBox1.setSelected(true);
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//                JOptionPane.showMessageDialog(null, "Fecha inválida: " + vistaProducto.getFecha_Caducidad());
+//            }
+//        } else {
+//            jCheckBox1.setSelected(false);
+//            datePicker1.setDate(null);
+//        }
+//
+//        // Tipo de producto
+//        if (vistaProducto.getTipo() != null && jComboBox3.getItemCount() > 0) {
+//            jComboBox3.setSelectedItem(vistaProducto.getTipo());
+//        }
+//        jComboBox3.setEnabled(false);
+//
+//        // Identificadores
+//        Secuencial = vistaProducto.getSecuencial();
+//        Secuencial_Proveedor = vistaProducto.getSecuencial_Proveedor();
+//        Secuencial_Categoria = vistaProducto.getSecuencial_Categoria();
+//
+//        // Combos
+//        llenar_Combo_Proveedor();
+//        llenar_Combo_Categoria();
+//
+//        // Imagen
+//        imagen = vistaProducto.getImagen();
+//        if (imagen != null) {
+//            try {
+//                ByteArrayInputStream bis = new ByteArrayInputStream(imagen);
+//                BufferedImage imagenCargada = ImageIO.read(bis);
+//                labelImagen.setIcon(new ImageIcon(imagenCargada));
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//                labelImagen.setIcon(null);
+//            }
+//        } else {
+//            labelImagen.setIcon(null);
+//        }
+//    } else {
+//        Secuencial = -1;
+//    }
+//}
+//
+//// Método auxiliar para evitar nulos
+//private String valueOrEmpty(String valor) {
+//    return valor != null ? valor : "";
+//}
+//
+//    
+//    
+//    
+//    //**********************************
     
     
     
@@ -622,6 +668,11 @@ private String valueOrEmpty(String valor) {
         jLabel1.setOpaque(true);
 
         jMenu1.setText("Opciones");
+        jMenu1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenu1ActionPerformed(evt);
+            }
+        });
 
         jMenu2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/bricks.png"))); // NOI18N
         jMenu2.setText("Registrar");
@@ -842,14 +893,9 @@ private String valueOrEmpty(String valor) {
         // TODO add your handling code here:
     }//GEN-LAST:event_labelImagenMouseClicked
 
-    private void label_qrMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_label_qrMouseClicked
-        // TODO add your handling code here:
-    }//GEN-LAST:event_label_qrMouseClicked
-
-    private void txt_bcKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txt_bcKeyReleased
-
-       
-        if (!txt_bc.getText().isBlank()) {
+    private void Dibujar_Codigos(){
+    
+               if (!txt_bc.getText().isBlank()) {
     String mensajeQR = "Codigo: " + txt_Codigo.getText() +
                        "\nDescripcion: " + txt_Descripcion.getText() +
                        "\nPrecio Venta: " + txt_PrecioVenta.getText() +
@@ -880,6 +926,16 @@ private String valueOrEmpty(String valor) {
 }
 
         
+    
+    }
+    
+    private void label_qrMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_label_qrMouseClicked
+        // TODO add your handling code here:
+    }//GEN-LAST:event_label_qrMouseClicked
+
+    private void txt_bcKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txt_bcKeyReleased
+
+   Dibujar_Codigos();
 
         // TODO add your handling code here:
     }//GEN-LAST:event_txt_bcKeyReleased
@@ -911,6 +967,7 @@ private String valueOrEmpty(String valor) {
      
           setTitle("Monitux-POS v." + "");//V_Menu_Principal.VER);
 
+          Dibujar_Codigos();
 
 
 
@@ -1036,9 +1093,9 @@ if (res == JOptionPane.YES_OPTION) {
 
             JOptionPane.showMessageDialog(null,"Producto eliminado correctamente.");
 
-//            if (OnProductoEditado != null) {
-//                OnProductoEditado.run();
-//            }
+             if (onProductoEditado != null) {
+    onProductoEditado.run();
+}
 
             this.dispose();
         } else {
@@ -1061,162 +1118,327 @@ if (res == JOptionPane.YES_OPTION) {
     private void Menu_GuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Menu_GuardarActionPerformed
 
         
+        //****************************************************************
         
         
         
         
-        
-        
-        
-        //*****************************************************************
-        
-        
-        EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
-EntityManager em = emf.createEntityManager();
+         EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
+    EntityManager em = emf.createEntityManager();
 
-try {
-    // Validaciones iniciales
-    boolean esServicio = "Servicio".equals(jComboBox3.getSelectedItem());
-    boolean tipoSeleccionado = jComboBox3.getSelectedIndex() != -1;
-    boolean proveedorValido = comboProveedor.getSelectedItem() != null;
-    boolean categoriaValida = comboCategoria.getSelectedItem() != null;
+    try {
+        boolean esServicio = "Servicio".equals(jComboBox3.getSelectedItem());
+        boolean tipoSeleccionado = jComboBox3.getSelectedIndex() != -1;
+        boolean proveedorValido = comboProveedor.getSelectedItem() != null;
+        boolean categoriaValida = comboCategoria.getSelectedItem() != null;
 
-    if (!tipoSeleccionado) {
-       // V_Menu_Principal.MSG.showMSG("Debe seleccionar un tipo de producto válido.", "Error");
-        return;
-    }
+        if (!tipoSeleccionado || (!esServicio && (!proveedorValido || !categoriaValida))) {
+            return;
+        }
 
-    if (!esServicio && (!proveedorValido || !categoriaValida)) {
-       // V_Menu_Principal.MSG.showMSG("Debe seleccionar un proveedor y una categoría válidos.", "Error");
-        return;
-    }
+        Producto productoExistente = em.createQuery(
+            "SELECT p FROM Producto p WHERE p.Secuencial = :secuencial AND p.Secuencial_Empresa = :empresa", Producto.class)
+            .setParameter("secuencial", this.Secuencial)
+            .setParameter("empresa", Secuencial_Empresa)
+            .getResultStream().findFirst().orElse(null);
 
-    // Verificar si ya existe el producto
-    Producto productoExistente = em.createQuery(
-        "SELECT p FROM Producto p WHERE p.Codigo = :codigo AND p.Secuencial_Empresa = :empresa", Producto.class)
-        .setParameter("codigo", txt_Codigo.getText())
-        .setParameter("empresa",Secuencial_Empresa)
-        .getResultStream().findFirst().orElse(null);
+        boolean esNuevo = productoExistente == null;
+        Producto producto = esNuevo ? new Producto() : productoExistente;
 
-    boolean esNuevo = productoExistente == null;
-    Producto producto = esNuevo ? new Producto() : productoExistente;
+        producto.setSecuencial_Empresa(Secuencial_Empresa);
+        producto.setCodigo(txt_Codigo.getText());
+        producto.setDescripcion(txt_Descripcion.getText());
+        producto.setMarca(txt_Marca.getText());
+        producto.setCodigo_Barra(txt_bc.getText());
+        producto.setCodigo_Fabricante(txt_CodigoFabricante.getText());
+        producto.setTipo(jComboBox3.getSelectedItem().toString());
+        producto.setExpira(jCheckBox1.isSelected());
 
-    // Asignar datos
-    producto.setSecuencial_Empresa(Secuencial_Empresa);
-    producto.setCodigo(txt_Codigo.getText());
-    producto.setDescripcion(txt_Descripcion.getText());
-    producto.setMarca(txt_Marca.getText());
-    producto.setCodigo_Barra(txt_bc.getText());
-    producto.setCodigo_Fabricante(txt_CodigoFabricante.getText());
-    producto.setTipo(jComboBox3.getSelectedItem().toString());
-    producto.setExpira(jCheckBox1.isSelected());
+        if (jCheckBox1.isSelected()) {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+            producto.setFecha_Caducidad(datePicker1.getDate().format(formatter));
+        } else {
+            producto.setFecha_Caducidad(null);
+        }
 
-    if (jCheckBox1.isSelected()) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-        producto.setFecha_Caducidad(datePicker1.getDate().format(formatter));
-    } else {
-        producto.setFecha_Caducidad(null);
-    }
+        double precioVenta = Double.parseDouble(txt_PrecioVenta.getText().replace(',', '.'));
+        double precioCosto = Double.parseDouble(txt_PrecioCosto.getText().replace(',', '.'));
+        producto.setPrecio_Venta(precioVenta);
+        producto.setPrecio_Costo(precioCosto);
 
-    double precioVenta = Double.parseDouble(txt_PrecioVenta.getText().replace(',', '.'));
-    double precioCosto = Double.parseDouble(txt_PrecioCosto.getText().replace(',', '.'));
-    producto.setPrecio_Venta(precioVenta);
-    producto.setPrecio_Costo(precioCosto);
+        double cantidadAnterior = producto.getCantidad();
 
-    double cantidadAnterior = producto.getCantidad();
+        if (!esServicio) {
+            double cantidad = Double.parseDouble(txt_Cantidad.getText().replace(',', '.'));
+            producto.setCantidad(cantidad);
 
-    if (!esServicio) {
-        double cantidad = Double.parseDouble(txt_Cantidad.getText().replace(',', '.'));
-        producto.setCantidad(cantidad);
+            double existenciaMinima = Double.parseDouble(txt_ExistenciaMinima.getText().replace(',', '.'));
+            producto.setExistencia_Minima(existenciaMinima);
 
-        double existenciaMinima = Double.parseDouble(txt_ExistenciaMinima.getText().replace(',', '.'));
-        producto.setExistencia_Minima(existenciaMinima);
-
-        int secuencialCategoria = Integer.parseInt(comboCategoria.getSelectedItem().toString().split("-")[0].trim());
-        int secuencialProveedor = Integer.parseInt(comboProveedor.getSelectedItem().toString().split("-")[0].trim());
-        producto.setSecuencial_Categoria(secuencialCategoria);
-        producto.setSecuencial_Proveedor(secuencialProveedor);
-    } else {
-        producto.setCantidad(0);
-        producto.setExistencia_Minima(0);
-        producto.setSecuencial_Categoria(0);
-        producto.setSecuencial_Proveedor(0);
-    }
-
-    em.getTransaction().begin();
-    if (esNuevo) {
-        em.persist(producto);
-    }
-    em.getTransaction().commit();
-
-    em.refresh(producto);
-
-    // Guardar imagen comprimida si existe
-    if (labelImagen.getIcon() != null) {
-        Image imagenOriginal = ((ImageIcon) labelImagen.getIcon()).getImage();
-        BufferedImage imagenCopia = new BufferedImage(imagenOriginal.getWidth(null), imagenOriginal.getHeight(null), BufferedImage.TYPE_INT_RGB);
-        Graphics2D g2d = imagenCopia.createGraphics();
-        g2d.drawImage(imagenOriginal, 0, 0, null);
-        g2d.dispose();
-
-        byte[] imagenComprimida = Util.comprimirImagen(imagenCopia, 50L);
-        producto.setImagen(imagenComprimida);
+            int secuencialCategoria = Integer.parseInt(comboCategoria.getSelectedItem().toString().split("-")[0].trim());
+            int secuencialProveedor = Integer.parseInt(comboProveedor.getSelectedItem().toString().split("-")[0].trim());
+            producto.setSecuencial_Categoria(secuencialCategoria);
+            producto.setSecuencial_Proveedor(secuencialProveedor);
+        } else {
+            producto.setCantidad(0);
+            producto.setExistencia_Minima(0);
+            producto.setSecuencial_Categoria(0);
+            producto.setSecuencial_Proveedor(0);
+        }
 
         em.getTransaction().begin();
-        em.merge(producto);
-        em.getTransaction().commit();
-    }
-
-    if (!esServicio) {
-        double diferencia = producto.getCantidad() - cantidadAnterior;
-
         if (esNuevo) {
-            Util.registrarMovimientoKardex(
-                producto.getSecuencial(),
-                0,
-                producto.getDescripcion(),
-                producto.getCantidad(),
-                producto.getPrecio_Costo(),
-                producto.getPrecio_Venta(),
-                "Entrada",
-                producto.getSecuencial_Empresa()
-            );
-        } else if (diferencia != 0) {
-            String tipoMovimiento = diferencia > 0 ? "Entrada" : "Salida";
-
-            Util.registrarMovimientoKardex(
-                producto.getSecuencial(),
-                cantidadAnterior,
-                producto.getDescripcion(),
-                Math.abs(diferencia),
-                producto.getPrecio_Costo(),
-                producto.getPrecio_Venta(),
-                tipoMovimiento,
-                producto.getSecuencial_Empresa()
-            );
+            em.persist(producto);
         }
+        em.getTransaction().commit();
+
+        em.refresh(producto);
+
+        // ✅ Guardar imagen original si existe
+        if (imagen != null && imagen.length > 0) {
+            producto.setImagen(imagen);
+
+            em.getTransaction().begin();
+            em.merge(producto);
+            em.getTransaction().commit();
+        }
+
+        if (!esServicio) {
+            double diferencia = producto.getCantidad() - cantidadAnterior;
+
+            if (esNuevo) {
+                Util.registrarMovimientoKardex(
+                    producto.getSecuencial(),
+                    0,
+                    producto.getDescripcion(),
+                    producto.getCantidad(),
+                    producto.getPrecio_Costo(),
+                    producto.getPrecio_Venta(),
+                    "Entrada",
+                    producto.getSecuencial_Empresa()
+                );
+            } else if (diferencia != 0) {
+                String tipoMovimiento = diferencia > 0 ? "Entrada" : "Salida";
+
+                Util.registrarMovimientoKardex(
+                    producto.getSecuencial(),
+                    cantidadAnterior,
+                    producto.getDescripcion(),
+                    Math.abs(diferencia),
+                    producto.getPrecio_Costo(),
+                    producto.getPrecio_Venta(),
+                    tipoMovimiento,
+                    producto.getSecuencial_Empresa()
+                );
+            }
+        }
+
+        JOptionPane.showMessageDialog(null, esNuevo ? "Producto creado correctamente." : "Producto actualizado correctamente.");
+        Util.registrarActividad(Secuencial_Usuario, "Ha " + (esNuevo ? "creado" : "modificado") + " el producto: " + producto.getCodigo(), producto.getSecuencial_Empresa());
+
+        if (onProductoEditado != null) {
+            onProductoEditado.run();
+        }
+
+        this.dispose();
+
+    } catch (Exception ex) {
+        JOptionPane.showMessageDialog(null, "Error al guardar el producto: " + ex.getMessage());
+    } finally {
+        em.close();
+        emf.close();
     }
-
-    JOptionPane.showMessageDialog(null,esNuevo ? "Producto creado correctamente." : "Producto actualizado correctamente.");
-    Util.registrarActividad(Secuencial_Usuario, "Ha " + (esNuevo ? "creado" : "modificado") + " el producto: " + producto.getCodigo(), producto.getSecuencial_Empresa());
-
-    this.dispose();
-  //  if (OnProductoEditado != null) {
-  //      OnProductoEditado.run();
-  //  }
-
-} catch (Exception ex) {
-    JOptionPane.showMessageDialog(null,"Error al guardar el producto: " + ex.getMessage());
-} finally {
-    em.close();
-    emf.close();
-}
-
+        
+        
+        
+        
         
         
         //*****************************************************************
-        
-        
+//        
+//        
+//        EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
+//EntityManager em = emf.createEntityManager();
+//
+//try {
+//    // Validaciones iniciales
+//    boolean esServicio = "Servicio".equals(jComboBox3.getSelectedItem());
+//    boolean tipoSeleccionado = jComboBox3.getSelectedIndex() != -1;
+//    boolean proveedorValido = comboProveedor.getSelectedItem() != null;
+//    boolean categoriaValida = comboCategoria.getSelectedItem() != null;
+//
+//    if (!tipoSeleccionado) {
+//       // V_Menu_Principal.MSG.showMSG("Debe seleccionar un tipo de producto válido.", "Error");
+//        return;
+//    }
+//
+//    if (!esServicio && (!proveedorValido || !categoriaValida)) {
+//       // V_Menu_Principal.MSG.showMSG("Debe seleccionar un proveedor y una categoría válidos.", "Error");
+//        return;
+//    }
+//
+//    // Verificar si ya existe el producto
+//    Producto productoExistente = em.createQuery(
+//        "SELECT p FROM Producto p WHERE p.Secuencial = :secuencial AND p.Secuencial_Empresa = :empresa", Producto.class)
+//        .setParameter("secuencial", this.Secuencial)
+//        .setParameter("empresa",Secuencial_Empresa)
+//        .getResultStream().findFirst().orElse(null);
+//
+//    boolean esNuevo = productoExistente == null;
+//    Producto producto = esNuevo ? new Producto() : productoExistente;
+//
+//    // Asignar datos
+//    producto.setSecuencial_Empresa(Secuencial_Empresa);
+//    producto.setCodigo(txt_Codigo.getText());
+//    producto.setDescripcion(txt_Descripcion.getText());
+//    producto.setMarca(txt_Marca.getText());
+//    producto.setCodigo_Barra(txt_bc.getText());
+//    producto.setCodigo_Fabricante(txt_CodigoFabricante.getText());
+//    producto.setTipo(jComboBox3.getSelectedItem().toString());
+//    producto.setExpira(jCheckBox1.isSelected());
+//
+//    if (jCheckBox1.isSelected()) {
+//        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+//        producto.setFecha_Caducidad(datePicker1.getDate().format(formatter));
+//    } else {
+//        producto.setFecha_Caducidad(null);
+//    }
+//
+//    double precioVenta = Double.parseDouble(txt_PrecioVenta.getText().replace(',', '.'));
+//    double precioCosto = Double.parseDouble(txt_PrecioCosto.getText().replace(',', '.'));
+//    producto.setPrecio_Venta(precioVenta);
+//    producto.setPrecio_Costo(precioCosto);
+//
+//    double cantidadAnterior = producto.getCantidad();
+//
+//    if (!esServicio) {
+//        double cantidad = Double.parseDouble(txt_Cantidad.getText().replace(',', '.'));
+//        producto.setCantidad(cantidad);
+//
+//        double existenciaMinima = Double.parseDouble(txt_ExistenciaMinima.getText().replace(',', '.'));
+//        producto.setExistencia_Minima(existenciaMinima);
+//
+//        int secuencialCategoria = Integer.parseInt(comboCategoria.getSelectedItem().toString().split("-")[0].trim());
+//        int secuencialProveedor = Integer.parseInt(comboProveedor.getSelectedItem().toString().split("-")[0].trim());
+//        producto.setSecuencial_Categoria(secuencialCategoria);
+//        producto.setSecuencial_Proveedor(secuencialProveedor);
+//    } else {
+//        producto.setCantidad(0);
+//        producto.setExistencia_Minima(0);
+//        producto.setSecuencial_Categoria(0);
+//        producto.setSecuencial_Proveedor(0);
+//    }
+//
+//    em.getTransaction().begin();
+//    if (esNuevo) {
+//        em.persist(producto);
+//    }
+//    em.getTransaction().commit();
+//
+//    em.refresh(producto);
+//
+////    // Guardar imagen comprimida si existe
+////    if (labelImagen.getIcon() != null) {
+////        Image imagenOriginal = ((ImageIcon) labelImagen.getIcon()).getImage();
+////        BufferedImage imagenCopia = new BufferedImage(imagenOriginal.getWidth(null), imagenOriginal.getHeight(null), BufferedImage.TYPE_INT_RGB);
+////        Graphics2D g2d = imagenCopia.createGraphics();
+////        g2d.drawImage(imagenOriginal, 0, 0, null);
+////        g2d.dispose();
+////
+////        byte[] imagenComprimida = Util.comprimirImagen(imagenCopia, 50L);
+////        producto.setImagen(imagenComprimida);
+////
+////        em.getTransaction().begin();
+////        em.merge(producto);
+////        em.getTransaction().commit();
+////    }
+//
+//
+//
+//if (labelImagen.getIcon() != null) {
+//    Image imagenOriginal = ((ImageIcon) labelImagen.getIcon()).getImage();
+//    BufferedImage imagenCopia = new BufferedImage(
+//        imagenOriginal.getWidth(null),
+//        imagenOriginal.getHeight(null),
+//        BufferedImage.TYPE_INT_RGB
+//    );
+//
+//    Graphics2D g2d = imagenCopia.createGraphics();
+//    g2d.drawImage(imagenOriginal, 0, 0, null);
+//    g2d.dispose();
+//
+//    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+//    try {
+//        ImageIO.write(imagenCopia, "png", baos); // Guarda como PNG sin compresión personalizada
+//        byte[] imagenBytes = baos.toByteArray();
+//        producto.setImagen(imagenBytes);
+//
+//        em.getTransaction().begin();
+//        em.merge(producto);
+//        em.getTransaction().commit();
+//    } catch (IOException e) {
+//        e.printStackTrace();
+//    }
+//}
+//
+//
+//
+//    if (!esServicio) {
+//        double diferencia = producto.getCantidad() - cantidadAnterior;
+//
+//        if (esNuevo) {
+//            Util.registrarMovimientoKardex(
+//                producto.getSecuencial(),
+//                0,
+//                producto.getDescripcion(),
+//                producto.getCantidad(),
+//                producto.getPrecio_Costo(),
+//                producto.getPrecio_Venta(),
+//                "Entrada",
+//                producto.getSecuencial_Empresa()
+//            );
+//        } else if (diferencia != 0) {
+//            String tipoMovimiento = diferencia > 0 ? "Entrada" : "Salida";
+//
+//            Util.registrarMovimientoKardex(
+//                producto.getSecuencial(),
+//                cantidadAnterior,
+//                producto.getDescripcion(),
+//                Math.abs(diferencia),
+//                producto.getPrecio_Costo(),
+//                producto.getPrecio_Venta(),
+//                tipoMovimiento,
+//                producto.getSecuencial_Empresa()
+//            );
+//        }
+//    }
+//
+//    JOptionPane.showMessageDialog(null,esNuevo ? "Producto creado correctamente." : "Producto actualizado correctamente.");
+//    Util.registrarActividad(Secuencial_Usuario, "Ha " + (esNuevo ? "creado" : "modificado") + " el producto: " + producto.getCodigo(), producto.getSecuencial_Empresa());
+//
+//    
+//    if (onProductoEditado != null) {
+//    onProductoEditado.run();
+//}
+//    
+//    
+//    this.dispose();
+//  //  if (OnProductoEditado != null) {
+//  //      OnProductoEditado.run();
+//  //  }
+//
+//} catch (Exception ex) {
+//    JOptionPane.showMessageDialog(null,"Error al guardar el producto: " + ex.getMessage());
+//} finally {
+//    em.close();
+//    emf.close();
+//}
+//
+//        
+//        
+//        //*****************************************************************
+//        
+//        
         
     }//GEN-LAST:event_Menu_GuardarActionPerformed
 
@@ -1270,6 +1492,46 @@ try {
     }//GEN-LAST:event_jCheckBox1StateChanged
 
     private void labelImagen1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_labelImagen1MouseClicked
+
+
+        // Abrir ventana de captura
+V_Captura_Imagen ventanaCamara = new V_Captura_Imagen(Secuencial, "Capturando...");
+ventanaCamara.setModal(true);
+ventanaCamara.setVisible(true);
+
+// Obtener imagen capturada
+BufferedImage imagenCapturada = V_Captura_Imagen.getImagen();
+
+if (imagenCapturada != null) {
+    // Liberar imagen anterior si existe
+    if (labelImagen.getIcon() != null) {
+        labelImagen.setIcon(null);
+    }
+
+    // Mostrar imagen redimensionada en JLabel
+    Image imagenEscalada = imagenCapturada.getScaledInstance(
+        labelImagen.getWidth(),
+        labelImagen.getHeight(),
+        Image.SCALE_SMOOTH
+    );
+    labelImagen.setIcon(new ImageIcon(imagenEscalada));
+
+    // Convertir a byte[] (sin compresión personalizada)
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    try {
+        ImageIO.write(imagenCapturada, "png", baos); // Usa "jpg" si deseas compresión
+        imagen = baos.toByteArray(); // Variable byte[] para guardar la imagen
+    } catch (IOException e) {
+        e.printStackTrace();
+        JOptionPane.showMessageDialog(null, "Error al procesar la imagen capturada.", "Error", JOptionPane.ERROR_MESSAGE);
+    }
+
+} else {
+    JOptionPane.showMessageDialog(null, "No se pudo capturar la imagen.", "Error", JOptionPane.ERROR_MESSAGE);
+}
+
+
+
         // TODO add your handling code here:
     }//GEN-LAST:event_labelImagen1MouseClicked
 
@@ -1435,6 +1697,13 @@ x.setVisible(true);
 
         // TODO add your handling code here:
     }//GEN-LAST:event_txt_ExistenciaMinimaKeyPressed
+
+    private void jMenu1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenu1ActionPerformed
+
+        Dibujar_Codigos();
+
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jMenu1ActionPerformed
 
     /**
      * @param args the command line arguments

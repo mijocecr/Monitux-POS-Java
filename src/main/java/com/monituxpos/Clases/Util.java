@@ -40,6 +40,7 @@ import javax.imageio.ImageWriter;
 import javax.imageio.stream.ImageOutputStream;
 import javax.swing.JFileChooser;
 import com.monituxpos.Clases.*;
+import java.net.URL;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import javax.swing.ImageIcon;
@@ -296,7 +297,10 @@ public class Util {
     }
 }
     
-    
+    public static BufferedImage cargarImagenDesdeUrl(String url) throws IOException {
+    return ImageIO.read(new URL(url));
+}
+
     
     
     public static void registrarMovimientoKardex(
