@@ -346,7 +346,7 @@ cargarItems();
 
         jLabel6.setText("Telefono:");
         jLabel6.setForeground(new java.awt.Color(102, 0, 204));
-        jPanel2.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 10, 50, -1));
+        jPanel2.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(310, 10, 50, -1));
 
         jLabel7.setText("Tipo de Venta:");
         jLabel7.setForeground(new java.awt.Color(255, 255, 255));
@@ -638,10 +638,11 @@ cargarItems();
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel4)
-                    .addComponent(jLabel11)
-                    .addComponent(icono_carga, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(icono_carga, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jLabel4)
+                        .addComponent(jLabel11)))
                 .addGap(12, 12, 12)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jPanel1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -1331,7 +1332,7 @@ jTable1.setShowGrid(true); // Mostrar líneas
     private void jLabel4MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel4MouseClicked
 
      
-        
+      
 
         // TODO add your handling code here:
     }//GEN-LAST:event_jLabel4MouseClicked
@@ -1772,10 +1773,7 @@ dialogo.setVisible(true);
     private void jButton7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton7ActionPerformed
       
         //*************************************************************
-        
- 
-
-
+   
 icono_carga.setVisible(true);
 ActualizarNumeros();
 
@@ -1897,62 +1895,6 @@ try {
 }
 
     
-    
-
-    FacturaCompletaPDF_Venta factura = new FacturaCompletaPDF_Venta();
-    factura.setSecuencial(venta.getSecuencial());
-    factura.setCliente(comboCliente.getSelectedItem().toString().split("-")[1].trim());
-    factura.setTipoVenta(venta.getTipo());
-    factura.setMetodoPago(venta.getForma_Pago());
-    factura.setFecha(venta.getFecha());
-    factura.setItems(ObtenerItemsDesdeGrid(jTable1));
-    factura.setISV(venta.getImpuesto());
-    factura.setOtrosCargos(venta.getOtros_Cargos());
-    factura.setDescuento(venta.getDescuento());
-
-    byte[] pdfBytes = factura.GeneratePdfToBytes();
-    venta.setDocumento(pdfBytes);
-    em.merge(venta);
-
-    Cliente destinatarioCliente = em.find(Cliente.class, venta.getSecuencial_Cliente());
-    String destinatario = destinatarioCliente != null ? destinatarioCliente.getEmail() : null;
-
-    if (destinatario != null && !destinatario.isBlank()) {
-        Util.EnviarCorreoConPdfBytes(
-            "monitux.pos@gmail.com",
-            destinatario,
-            "Nombre Empresa - Comprobante",
-            "Gracias por su compra. Adjunto tiene su comprobante.",
-            pdfBytes,
-            "smtp.gmail.com",
-            587,
-            "monitux.pos",
-            "ffeg qqnx zaij otmb"
-        );
-    }
-
-    em.getTransaction().commit();
-
-    JOptionPane.showMessageDialog(
-        null,
-        "Credito".equals(venta.getTipo())
-            ? "Venta al crédito registrada correctamente.\n\nRecuerde que debe cobrar la cuenta pendiente antes de la fecha de vencimiento."
-            : "Venta registrada correctamente.",
-        "Éxito",
-        JOptionPane.INFORMATION_MESSAGE
-    );
-
-    Util.registrarActividad(
-        Secuencial_Usuario,
-        "Ha registrado una venta" + ("Credito".equals(venta.getTipo()) ? " al crédito" : "") +
-        ", factura: " + venta.getSecuencial() + ", por un valor de: " + venta.getTotal() + " Lps",
-        Secuencial_Empresa
-    );
-
-    
-    
-
-
 // Cálculo de cambio
 if (jCheckBox1.isSelected()) {
     String recibido = JOptionPane.showInputDialog(
@@ -1995,6 +1937,70 @@ if (jCheckBox1.isSelected()) {
 
 
     
+    
+    JOptionPane.showMessageDialog(
+        null,
+        "Credito".equals(venta.getTipo())
+            ? "Venta al crédito registrada correctamente.\n\nRecuerde que debe cobrar la cuenta pendiente antes de la fecha de vencimiento."
+            : "Venta registrada correctamente.",
+        "Éxito",
+        JOptionPane.INFORMATION_MESSAGE
+    );
+    
+
+    FacturaCompletaPDF_Venta factura = new FacturaCompletaPDF_Venta();
+    factura.setSecuencial(venta.getSecuencial());
+    factura.setCliente(comboCliente.getSelectedItem().toString().split("-")[1].trim());
+    factura.setTipoVenta(venta.getTipo());
+    factura.setMetodoPago(venta.getForma_Pago());
+    factura.setFecha(venta.getFecha());
+    factura.setItems(ObtenerItemsDesdeGrid(jTable1));
+    factura.setISV(venta.getImpuesto());
+    factura.setOtrosCargos(venta.getOtros_Cargos());
+    factura.setDescuento(venta.getDescuento());
+
+    byte[] pdfBytes = factura.GeneratePdfToBytes();
+    venta.setDocumento(pdfBytes);
+    em.merge(venta);
+
+    
+
+
+V_Visor_Factura visor = new V_Visor_Factura();
+visor.setDocumentoEnBytes(pdfBytes);
+visor.setTitulo("Factura de Venta No. " + factura.getSecuencial());
+visor.mostrar();
+
+
+    
+    Cliente destinatarioCliente = em.find(Cliente.class, venta.getSecuencial_Cliente());
+    String destinatario = destinatarioCliente != null ? destinatarioCliente.getEmail() : null;
+
+    if (destinatario != null && !destinatario.isBlank()) {
+        Util.EnviarCorreoConPdfBytes(
+            "monitux.pos@gmail.com",
+            destinatario,
+            "Nombre Empresa - Comprobante",
+            "Gracias por su compra. Adjunto tiene su comprobante.",
+            pdfBytes,
+            "smtp.gmail.com",
+            587,
+            "monitux.pos",
+            "ffeg qqnx zaij otmb"
+        );
+    }
+
+    em.getTransaction().commit();
+
+    
+
+    Util.registrarActividad(
+        Secuencial_Usuario,
+        "Ha registrado una venta" + ("Credito".equals(venta.getTipo()) ? " al crédito" : "") +
+        ", factura: " + venta.getSecuencial() + ", por un valor de: " + venta.getTotal() + " Lps",
+        Secuencial_Empresa
+    );
+
     
     limpiarFactura();
 

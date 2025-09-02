@@ -20,6 +20,7 @@ public class V_Menu_Principal extends javax.swing.JFrame {
     public static String Nombre_Empresa;
     public static String Telefono_Empresa;
     public static String Direccion_Empresa;
+    public static String Email;
 
     public static int getSecuencial_Empresa() {
         return Secuencial_Empresa;
@@ -72,6 +73,16 @@ public class V_Menu_Principal extends javax.swing.JFrame {
   
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(V_Menu_Principal.class.getName());
+
+    public static String getEmail() {
+        return Email;
+    }
+
+    public static void setEmail(String Email) {
+        V_Menu_Principal.Email = Email;
+    }
+
+   
 
     /**
      * Creates new form V_Menu_Principal
@@ -229,6 +240,7 @@ public class V_Menu_Principal extends javax.swing.JFrame {
 
     private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
 
+        this.setLocationRelativeTo(null);
         this.getContentPane().setBackground(Color.black);
         
         //Bloque de variables de prueba

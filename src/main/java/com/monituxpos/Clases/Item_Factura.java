@@ -18,6 +18,17 @@ public class Item_Factura {
     private int Cantidad;
     private double Precio;
 
+    public Item_Factura() {
+    }
+
+    
+    Item_Factura(String a001, String producto_A, int i, double d) {
+        this.Codigo= a001;
+        this.Descripcion= producto_A;
+        this.Cantidad=i;
+        this.Precio=d; //quitar constructor
+    }
+
     public int getSecuencial() {
         return Secuencial;
     }

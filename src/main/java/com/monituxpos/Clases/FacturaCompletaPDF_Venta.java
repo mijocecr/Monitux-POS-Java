@@ -13,6 +13,7 @@ import java.io.ByteArrayOutputStream;
 import java.text.DecimalFormat;
 import java.util.List;
 import com.lowagie.text.Document;
+import com.monituxpos.Ventanas.V_Menu_Principal;
 import java.awt.Color;
 import java.util.List;
 
@@ -145,9 +146,9 @@ public class FacturaCompletaPDF_Venta {
 
         PdfPCell empresaCell = new PdfPCell();
         empresaCell.setBorder(Rectangle.NO_BORDER);
-        empresaCell.addElement(new Paragraph("Nombre Empresa", titleFont));
-        empresaCell.addElement(new Paragraph("Dirección Empresa", normalFont));
-        empresaCell.addElement(new Paragraph("Tel: Telefono Empresa | Email Empresa", normalFont));
+        empresaCell.addElement(new Paragraph(V_Menu_Principal.getNombre_Empresa(), titleFont));
+        empresaCell.addElement(new Paragraph(V_Menu_Principal.getDireccion_Empresa(), normalFont));
+        empresaCell.addElement(new Paragraph(V_Menu_Principal.getTelefono_Empresa()+" | "+V_Menu_Principal.getEmail(), normalFont));
         headerTable.addCell(empresaCell);
 
         PdfPCell facturaCell = new PdfPCell();

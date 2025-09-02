@@ -40,9 +40,14 @@ import javax.imageio.ImageWriter;
 import javax.imageio.stream.ImageOutputStream;
 import javax.swing.JFileChooser;
 import com.monituxpos.Clases.*;
+
+import com.monituxpos.Ventanas.VisorPDFBox;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import javax.mail.util.ByteArrayDataSource;
 import javax.swing.ImageIcon;
@@ -50,6 +55,7 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 
 public class Util {
 
@@ -563,6 +569,17 @@ public class Util {
     return result.toString().toUpperCase();
 }
 
+     
+     
+ //******************************
+     
+    
+     
+  
+ //******************************    
+     
+     
+     
      
     
 }//Fin Clase
