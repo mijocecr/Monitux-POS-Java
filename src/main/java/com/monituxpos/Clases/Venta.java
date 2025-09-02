@@ -11,10 +11,16 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 @Entity
+
+
+
+@Table(name = "Ventas")
 public class Venta {
 
     @Id
-    private int Secuencial;
+@GeneratedValue(strategy = GenerationType.IDENTITY)
+private int Secuencial;
+
 
     private int Secuencial_Cliente = 0;
     private int Secuencial_Usuario = 0;
@@ -23,17 +29,20 @@ public class Venta {
     private String Tipo = "Contado";
     private String Forma_Pago = "Efectivo";
 
-    private Double Total = 0.0;
-    private Double Otros_Cargos = 0.0;
-    private Double Descuento = 0.0;
-    private Double Impuesto = 0.0;
-    private Double Gran_Total = 0.0;
+    private double Total = 0.0;
+    private double Otros_Cargos = 0.0;
+    private double Descuento = 0.0;
+    private double Impuesto = 0.0;
+    private double Gran_Total = 0.0;
 
     private int Secuencial_Empresa = 0;
 
     // 📄 Nuevo campo para almacenar el documento PDF
     @Lob
+    @Column(name = "Documento", columnDefinition = "LONGBLOB")
     private byte[] Documento;
+    
+ 
 
     // Getters y Setters (opcional, si usas frameworks como JPA o necesitas acceso externo)
     public int getSecuencial() {

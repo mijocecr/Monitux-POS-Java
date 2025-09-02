@@ -11,10 +11,16 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
 @Entity
+
+
+
+@Table(name = "Ventas_Detalles")
 public class Venta_Detalle {
 
     @Id
-    private int Secuencial = 0;
+@GeneratedValue(strategy = GenerationType.IDENTITY)
+private int Secuencial;
+
 
     private int Secuencial_Factura = 0;
     private int Secuencial_Cliente = 0;
@@ -25,9 +31,9 @@ public class Venta_Detalle {
     private String Codigo = ""; // Código del producto
     private String Descripcion = "";
 
-    private Double Cantidad = 0.0;
-    private Double Precio = 0.0;
-    private Double Total = 0.0;
+    private double Cantidad = 0.0;
+    private double Precio = 0.0;
+    private double Total = 0.0;
 
     private String Tipo; // Puede ser Producto o Servicio
 

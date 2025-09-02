@@ -20,171 +20,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import javax.imageio.ImageIO;
-//
-//public class Miniatura_Producto extends JPanel {
-//
-//    public JLabel cantidadLabel;
-//    public Producto producto;
-//    public JLabel imagenLabel;
-//    public JLabel codigoLabel;
-//    public JLabel marcaLabel;
-//    public JLabel precioLabel;
-//    public JPanel infoPanel;
-//    public ImageIcon imagenRedimensionada;
-//    public double cantidadSelecccion;
-//    public int cantidadSelecccionItem;
-//
-//
-//
-//    public JLabel getImagenLabel() {
-//        return imagenLabel;
-//    }
-//
-//    public void setImagenLabel(JLabel imagenLabel) {
-//        this.imagenLabel = imagenLabel;
-//    }
-//
-//    public JLabel getCodigoLabel() {
-//        return codigoLabel;
-//    }
-//
-//    public void setCodigoLabel(JLabel codigoLabel) {
-//        this.codigoLabel = codigoLabel;
-//    }
-//
-//    
-//    
-//      public JLabel getMarcaLabel() {
-//        return marcaLabel;
-//    }
-//
-//    public void setMarcaLabel(JLabel marcaLabel) {
-//        this.marcaLabel = marcaLabel;
-//    }
-//    
-//    
-//    public JLabel getCantidadLabel() {
-//        return cantidadLabel;
-//    }
-//
-//    public void setCantidadLabel(JLabel cantidadLabel) {
-//        this.cantidadLabel = cantidadLabel;
-//    }
-//
-//    public JLabel getPrecioLabel() {
-//        return precioLabel;
-//    }
-//
-//    public void setPrecioLabel(JLabel precioLabel) {
-//        this.precioLabel = precioLabel;
-//    }
-//
-//    public JPanel getInfoPanel() {
-//        return infoPanel;
-//    }
-//
-//    public void setInfoPanel(JPanel infoPanel) {
-//        this.infoPanel = infoPanel;
-//    }
-//
-//    public ImageIcon getImagenRedimensionada() {
-//        return imagenRedimensionada;
-//    }
-//
-//    public void setImagenRedimensionada(ImageIcon imagenRedimensionada) {
-//        this.imagenRedimensionada = imagenRedimensionada;
-//    }
-//
-//    public double getCantidadSelecccion() {
-//        return cantidadSelecccion;
-//    }
-//
-//    public void setCantidadSelecccion(double cantidadSelecccion) {
-//        this.cantidadSelecccion = cantidadSelecccion;
-//    }
-//
-//    public Miniatura_Producto(Producto producto) {
-//        this.producto = producto;
-//        setLayout(new BorderLayout());
-//
-//        int ancho = 120;
-//        int alto = 110;
-//
-//        try {
-//            byte[] datosImagen = producto.getImagen();
-//            if (datosImagen != null && datosImagen.length > 0) {
-//                ByteArrayInputStream bis = new ByteArrayInputStream(datosImagen);
-//                BufferedImage bufferedImage = ImageIO.read(bis);
-//                Image imagenEscalada = bufferedImage.getScaledInstance(ancho, alto, Image.SCALE_SMOOTH);
-//                imagenRedimensionada = new ImageIcon(imagenEscalada);
-//            } else {
-//                imagenRedimensionada = new ImageIcon(getClass().getResource("/icons/no-image-icon-10.png"));
-//            }
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            imagenRedimensionada = new ImageIcon(); // fallback
-//        }
-//
-//        imagenLabel = new JLabel(imagenRedimensionada);
-//        
-//        codigoLabel = new JLabel(producto.getCodigo());
-//        codigoLabel.setHorizontalAlignment(SwingConstants.CENTER);
-//
-//        codigoLabel.setFont(new Font("Arial", Font.BOLD, 12)); // Puedes cambiar "Arial" y el tamaño si lo deseas
-//        marcaLabel = new JLabel("Marca: " + producto.getMarca());
-//        precioLabel = new JLabel("Precio: " + producto.getPrecio_Venta());
-//        cantidadLabel = new JLabel("Stock: " + producto.getCantidad()+"   [Min: "+producto.getExistencia_Minima()+"]");
-//
-//        infoPanel = new JPanel(new GridLayout(4, 1));
-//        infoPanel.add(codigoLabel);
-//        infoPanel.add(marcaLabel);
-//        infoPanel.add(precioLabel);
-//       infoPanel.add(cantidadLabel);
-//
-//        add(imagenLabel, BorderLayout.CENTER);
-//        add(infoPanel, BorderLayout.SOUTH);
-//        infoPanel.setBackground(Color.white);
-//        setBorder(BorderFactory.createLineBorder(Color.GRAY));
-//
-//        actualizarColor(producto.getCantidad());
-//    }
-//
-//  
-//    public void actualizarColor(double cantidadActual) {
-//    // Si el producto es de tipo "Servicio", fondo blanco
-//    if ("Servicio".equalsIgnoreCase(producto.getTipo())) {
-//        setBackground(Color.WHITE);
-//        repaint();
-//        return;
-//    }
-//
-//    // Si no es servicio, aplicar lógica de existencia mínima
-//    double existenciaMinima = producto.getExistencia_Minima();
-//
-//    if (cantidadActual < existenciaMinima) {
-//        setBackground(new Color(255, 102, 102)); // rojo suave
-//        infoPanel.setBackground(new Color(255, 102, 102));
-//    } else if (cantidadActual > existenciaMinima) {
-//        setBackground(new Color(144, 238, 144)); // verde claro
-//    
-//        infoPanel.setBackground(new Color(144, 238, 144));
-//        
-//    } else {
-//        setBackground(new Color(255, 255, 153)); // amarillo pastel
-//         infoPanel.setBackground(new Color(255, 255, 153));
-//    }
-//
-//    repaint();
-//}
-//
-//    
-//
-//    public Producto getProducto() {
-//        return producto;
-//    }
-//
-//  
-//}
+
 public class Miniatura_Producto extends JPanel {
 
     public JLabel cantidadLabel;
@@ -198,10 +34,168 @@ public class Miniatura_Producto extends JPanel {
     public double cantidadSelecccion;
     public int cantidadSelecccionItem;
     public double unidadesAgregar;
+    
+    public double Cantidad;
 
+    public double getCantidad() {
+        return Cantidad;
+    }
+
+    public void setCantidad(double Cantidad) {
+        this.Cantidad = Cantidad;
+    }
+    
+    
     public double unidadesRetirar;
     
     public int Secuencial_Usuario=1;//Cambiar Esto
+    public int Secuencial_Empresa;
+    public int Secuencial_Proveedor;
+    public int Secuencial_Categoria;
+    public String Codigo;
+    public String Codigo_Fabricante;
+    public String Marca;
+    public String Codigo_Barra;
+    public String Descripcion;
+    public String Tipo;
+public byte[] Imagen;
+public boolean Expira;
+
+    public boolean isExpira() {
+        return Expira;
+    }
+
+    public void setExpira(boolean Expira) {
+        this.Expira = Expira;
+    }
+
+    public byte[] getImagen() {
+        return Imagen;
+    }
+
+    public void setImagen(byte[] Imagen) {
+        this.Imagen = Imagen;
+    }
+    public String getTipo() {
+        return Tipo;
+    }
+
+    public void setTipo(String Tipo) {
+        this.Tipo = Tipo;
+    }
+    
+public String Fecha_Caducidad;
+
+    public String getFecha_Caducidad() {
+        return Fecha_Caducidad;
+    }
+
+    public void setFecha_Caducidad(String Fecha_Caducidad) {
+        this.Fecha_Caducidad = Fecha_Caducidad;
+    }
+    public int Secuencial;
+
+    public int getSecuencial() {
+        return Secuencial;
+    }
+
+    public void setSecuencial(int Secuencial) {
+        this.Secuencial = Secuencial;
+    }
+    
+    public int getSecuencial_Empresa() {
+        return Secuencial_Empresa;
+    }
+
+    public void setSecuencial_Empresa(int Secuencial_Empresa) {
+        this.Secuencial_Empresa = Secuencial_Empresa;
+    }
+
+    public int getSecuencial_Proveedor() {
+        return Secuencial_Proveedor;
+    }
+
+    public void setSecuencial_Proveedor(int Secuencial_Proveedor) {
+        this.Secuencial_Proveedor = Secuencial_Proveedor;
+    }
+
+    public int getSecuencial_Categoria() {
+        return Secuencial_Categoria;
+    }
+
+    public void setSecuencial_Categoria(int Secuencial_Categoria) {
+        this.Secuencial_Categoria = Secuencial_Categoria;
+    }
+
+    public String getCodigo() {
+        return Codigo;
+    }
+
+    public void setCodigo(String Codigo) {
+        this.Codigo = Codigo;
+    }
+
+    public String getCodigo_Fabricante() {
+        return Codigo_Fabricante;
+    }
+
+    public void setCodigo_Fabricante(String Codigo_Fabricante) {
+        this.Codigo_Fabricante = Codigo_Fabricante;
+    }
+
+    public String getMarca() {
+        return Marca;
+    }
+
+    public void setMarca(String Marca) {
+        this.Marca = Marca;
+    }
+
+    public String getCodigo_Barra() {
+        return Codigo_Barra;
+    }
+
+    public void setCodigo_Barra(String Codigo_Barra) {
+        this.Codigo_Barra = Codigo_Barra;
+    }
+
+    public String getDescripcion() {
+        return Descripcion;
+    }
+
+    public void setDescripcion(String Descripcion) {
+        this.Descripcion = Descripcion;
+    }
+
+    public Double getPrecio_Venta() {
+        return Precio_Venta;
+    }
+
+    public void setPrecio_Venta(Double Precio_Venta) {
+        this.Precio_Venta = Precio_Venta;
+    }
+
+    public Double getPrecio_Costo() {
+        return Precio_Costo;
+    }
+
+    public void setPrecio_Costo(Double Precio_Costo) {
+        this.Precio_Costo = Precio_Costo;
+    }
+
+    public Double getExistencia_Minima() {
+        return Existencia_Minima;
+    }
+
+    public void setExistencia_Minima(Double Existencia_Minima) {
+        this.Existencia_Minima = Existencia_Minima;
+    }
+    public Double Precio_Venta;
+    public Double Precio_Costo;
+    public Double Existencia_Minima;
+    
+    
+    
     
     public Miniatura_Producto(Producto producto) {
         this.producto = producto;
@@ -253,6 +247,10 @@ public class Miniatura_Producto extends JPanel {
         actualizarColor(producto.getCantidad());
     }
 
+    public Miniatura_Producto() {
+       
+    }
+
     public void actualizarColor(double cantidadActual) {
         if ("Servicio".equalsIgnoreCase(producto.getTipo())) {
             setBackground(Color.WHITE);
@@ -274,6 +272,14 @@ public class Miniatura_Producto extends JPanel {
         }
 
         repaint();
+    }
+
+    public int getSecuencial_Usuario() {
+        return Secuencial_Usuario;
+    }
+
+    public void setSecuencial_Usuario(int Secuencial_Usuario) {
+        this.Secuencial_Usuario = Secuencial_Usuario;
     }
 
     public Producto getProducto() {
@@ -300,7 +306,7 @@ public class Miniatura_Producto extends JPanel {
     public void setInfoPanel(JPanel infoPanel) { this.infoPanel = infoPanel; }
     public ImageIcon getImagenRedimensionada() { return imagenRedimensionada; }
     public void setImagenRedimensionada(ImageIcon imagenRedimensionada) { this.imagenRedimensionada = imagenRedimensionada; }
-    public double getCantidadSelecccion() { return cantidadSelecccion; }
+    public int getCantidadSelecccion() { return (int) cantidadSelecccion; }
     public void setCantidadSelecccionItem(int cantidadSelecccionItem) { this.cantidadSelecccionItem = cantidadSelecccionItem; }
     public String comentario;
     
@@ -801,6 +807,12 @@ public class Miniatura_Producto extends JPanel {
     }
 }
 
+ 
+
+   
+  
+    
+   
     
     
     

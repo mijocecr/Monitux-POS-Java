@@ -69,8 +69,8 @@ public class SelectorCantidad extends JPanel {
     private JLabel labelCodigo;
     public JSpinner spinnerCantidad;
     private JCheckBox checkBoxSeleccionado;
-
-    public SelectorCantidad(String codigoProducto) {
+public String codigo;
+    public SelectorCantidad(String codigoProducto,int cantidad) {
         setLayout(new BorderLayout());
         setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
         setBackground(Color.WHITE);
@@ -86,6 +86,8 @@ public class SelectorCantidad extends JPanel {
         SpinnerNumberModel model = new SpinnerNumberModel(1.0, 0.0, 1000.0, 1);
         spinnerCantidad = new JSpinner(model);
         spinnerCantidad.setPreferredSize(new Dimension(70, 25));
+        spinnerCantidad.setValue(cantidad);
+        
 
         // ✅ Checkbox de selección
         checkBoxSeleccionado = new JCheckBox("Quitar");
@@ -123,4 +125,9 @@ public class SelectorCantidad extends JPanel {
     public void setSeleccionado(boolean seleccionado) {
         checkBoxSeleccionado.setSelected(seleccionado);
     }
+
+   public void setCodigo(String codigo) {
+    this.codigo = codigo;
+}
+
 }

@@ -47,10 +47,10 @@ public class V_Producto extends javax.swing.JFrame {
     
     
     
-    public int Secuencial_Usuario=1;//Cambiar esto
-    public int Secuencial_Empresa=1;//Cambiar esto
-    public int Secuencial_Proveedor=1;//Cambiar esto
-    public int Secuencial_Categoria=1;//Cambiar esto
+    public int Secuencial_Usuario=V_Menu_Principal.getSecuencial_Usuario();
+    public int Secuencial_Empresa=V_Menu_Principal.getSecuencial_Empresa();
+    public int Secuencial_Proveedor;
+    public int Secuencial_Categoria;
     public int Secuencial;
     public boolean esNuevo;
     

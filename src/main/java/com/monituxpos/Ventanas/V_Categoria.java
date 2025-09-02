@@ -44,8 +44,8 @@ public class V_Categoria extends javax.swing.JFrame {
     
     
     
-       public int Secuencial_Usuario=1;//Cambiar esto
-    public int Secuencial_Empresa=1;//Cambiar esto
+       public int Secuencial_Usuario= V_Menu_Principal.getSecuencial_Usuario();
+    public int Secuencial_Empresa= V_Menu_Principal.getSecuencial_Empresa();//Cambiar esto
     public int Secuencial;
     
       private byte[] imagen;
@@ -598,6 +598,48 @@ public void setImagen(byte[] imagen) {
     
     
     private void labelImagen1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_labelImagen1MouseClicked
+
+
+        
+
+        // Abrir ventana de captura
+V_Captura_Imagen ventanaCamara = new V_Captura_Imagen(Secuencial, "Capturando...");
+ventanaCamara.setModal(true);
+ventanaCamara.setVisible(true);
+
+// Obtener imagen capturada
+BufferedImage imagenCapturada = V_Captura_Imagen.getImagen();
+
+if (imagenCapturada != null) {
+    // Liberar imagen anterior si existe
+    if (labelImagen.getIcon() != null) {
+        labelImagen.setIcon(null);
+    }
+
+    // Mostrar imagen redimensionada en JLabel
+    Image imagenEscalada = imagenCapturada.getScaledInstance(
+        labelImagen.getWidth(),
+        labelImagen.getHeight(),
+        Image.SCALE_SMOOTH
+    );
+    labelImagen.setIcon(new ImageIcon(imagenEscalada));
+
+    // Convertir a byte[] (sin compresión personalizada)
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    try {
+        ImageIO.write(imagenCapturada, "png", baos); // Usa "jpg" si deseas compresión
+        imagen = baos.toByteArray(); // Variable byte[] para guardar la imagen
+    } catch (IOException e) {
+        e.printStackTrace();
+        JOptionPane.showMessageDialog(null, "Error al procesar la imagen capturada.", "Error", JOptionPane.ERROR_MESSAGE);
+    }
+
+} else {
+    JOptionPane.showMessageDialog(null, "No se pudo capturar la imagen.", "Error", JOptionPane.ERROR_MESSAGE);
+}
+
+
+
         // TODO add your handling code here:
     }//GEN-LAST:event_labelImagen1MouseClicked
 

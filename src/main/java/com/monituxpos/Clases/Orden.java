@@ -9,10 +9,15 @@ package com.monituxpos.Clases;
 import jakarta.persistence.*;
 
 @Entity
+
+
+@Table(name = "Ordenes")
 public class Orden {
 
-    @Id
-    private int Secuencial;
+  @Id
+@GeneratedValue(strategy = GenerationType.IDENTITY)
+private int Secuencial;
+
 
     private int Secuencial_Proveedor = 0;
     private int Secuencial_Usuario = 0;

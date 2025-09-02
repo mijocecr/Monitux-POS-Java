@@ -10,10 +10,16 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
 @Entity
+
+
+
+@Table(name = "Compras_Detalles")
 public class Compra_Detalle {
 
     @Id
-    private int Secuencial = 0;
+@GeneratedValue(strategy = GenerationType.IDENTITY)
+private int Secuencial;
+
 
     private int Secuencial_Factura = 0;
     private int Secuencial_Proveedor = 0;

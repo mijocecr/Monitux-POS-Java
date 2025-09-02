@@ -9,11 +9,18 @@ package com.monituxpos.Clases;
 import jakarta.persistence.*;
 
 @Entity
+
+
+@Table(name = "Cotizaciones_Detalles")
 public class Cotizacion_Detalle {
 
+  
     @Id
-    private int Secuencial;
+@GeneratedValue(strategy = GenerationType.IDENTITY)
+@Column(name = "Secuencial")
+private int Secuencial;
 
+    
     private int Secuencial_Cotizacion = 0;
     private int Secuencial_Usuario = 0;
     private int Secuencial_Cliente = 0;

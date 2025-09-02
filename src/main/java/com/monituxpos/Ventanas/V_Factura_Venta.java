@@ -18,8 +18,15 @@ import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,9 +36,11 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
+import javax.swing.Timer;
 import javax.swing.table.DefaultTableModel;
 
 /**
@@ -40,9 +49,11 @@ import javax.swing.table.DefaultTableModel;
  */
 public class V_Factura_Venta extends javax.swing.JPanel {
 
-      public int Secuencial_Usuario=1;//Cambiar esto
-      public int Secuencial_Cliente;//Cambiar esto
-    public int Secuencial_Empresa=1;//Cambiar esto
+    
+      
+      public int Secuencial_Usuario=V_Menu_Principal.getSecuencial_Usuario();
+      public int Secuencial_Cliente;
+    public int Secuencial_Empresa=V_Menu_Principal.getSecuencial_Empresa();
     public int Secuencial;
     
     
@@ -52,8 +63,8 @@ double otrosCargos = 0.0;
 double impuesto = 0.0;
 double descuento = 0.0;
     
-       public final Map<String, Miniatura_Producto> listaDeItems = new HashMap<>();
-public final Map<String, SelectorCantidad> selectoresCantidad = new HashMap<>();
+       public static final Map<String, Miniatura_Producto> listaDeItems = new HashMap<>();
+       public static final Map<String, SelectorCantidad> selectoresCantidad = new HashMap<>();
 
     
     /**
@@ -66,7 +77,11 @@ public final Map<String, SelectorCantidad> selectoresCantidad = new HashMap<>();
         EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
 EntityManager em = emf.createEntityManager();
 llenarComboCliente();
-        V_Factura_Venta.this.cargarItems(Secuencial_Empresa, contenedor, contenedor_selector, em);
+
+cargarItems();
+ jLabel9.setVisible(false);
+    datePicker1.setVisible(false);
+// V_Factura_Venta.this.cargarItems(Secuencial_Empresa, contenedor, contenedor_selector, em);
              
              
         });
@@ -129,6 +144,7 @@ llenarComboCliente();
         jLabel18 = new javax.swing.JLabel();
         lbl_subTotal = new javax.swing.JLabel();
         lbl_total = new javax.swing.JLabel();
+        jCheckBox1 = new javax.swing.JCheckBox();
         jScrollPane1 = new javax.swing.JScrollPane();
         contenedor = new javax.swing.JPanel();
         jLabel2 = new javax.swing.JLabel();
@@ -226,7 +242,6 @@ llenarComboCliente();
                 formComponentShown(evt);
             }
         });
-        setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jPanel1.setBackground(new java.awt.Color(11, 8, 20));
         jPanel1.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255)));
@@ -268,8 +283,6 @@ llenarComboCliente();
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(6, 50, -1, -1));
-
         jButton1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/box_down.png"))); // NOI18N
         jButton1.setText("<html><b>Nuevo</b><br><i>Producto</i></html>");
         jButton1.setBackground(new java.awt.Color(11, 8, 20));
@@ -282,7 +295,6 @@ llenarComboCliente();
                 jButton1ActionPerformed(evt);
             }
         });
-        add(jButton1, new org.netbeans.lib.awtextra.AbsoluteConstraints(201, 52, 70, 92));
 
         jButton2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/group.png"))); // NOI18N
         jButton2.setText("<html><b>Gestionar</b><br><i>Cliente</i></html>");
@@ -296,7 +308,6 @@ llenarComboCliente();
                 jButton2ActionPerformed(evt);
             }
         });
-        add(jButton2, new org.netbeans.lib.awtextra.AbsoluteConstraints(277, 52, 70, 92));
 
         jButton3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/page_white_put.png"))); // NOI18N
         jButton3.setText("<html><b>Importar</b><br><i>Cotizacion</i></html>");
@@ -305,9 +316,14 @@ llenarComboCliente();
         jButton3.setForeground(new java.awt.Color(255, 255, 255));
         jButton3.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         jButton3.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        add(jButton3, new org.netbeans.lib.awtextra.AbsoluteConstraints(353, 52, 72, 92));
+        jButton3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton3ActionPerformed(evt);
+            }
+        });
 
         jPanel2.setBackground(new java.awt.Color(0, 168, 107));
+        jPanel2.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255)));
         jPanel2.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jLabel5.setText("Cliente:");
@@ -330,7 +346,7 @@ llenarComboCliente();
 
         jLabel6.setText("Telefono:");
         jLabel6.setForeground(new java.awt.Color(102, 0, 204));
-        jPanel2.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(310, 6, -1, -1));
+        jPanel2.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 10, 50, -1));
 
         jLabel7.setText("Tipo de Venta:");
         jLabel7.setForeground(new java.awt.Color(255, 255, 255));
@@ -348,9 +364,24 @@ llenarComboCliente();
         jPanel2.add(datePicker1, new org.netbeans.lib.awtextra.AbsoluteConstraints(190, 80, -1, -1));
 
         jComboBox3.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Contado", "Credito" }));
+        jComboBox3.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                jComboBox3ItemStateChanged(evt);
+            }
+        });
+        jComboBox3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jComboBox3ActionPerformed(evt);
+            }
+        });
         jPanel2.add(jComboBox3, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 80, 93, -1));
 
         jComboBox4.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Efectivo", "Tarjeta", "Otro", "Ninguno" }));
+        jComboBox4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jComboBox4ActionPerformed(evt);
+            }
+        });
         jPanel2.add(jComboBox4, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 130, 93, -1));
 
         jLabel10.setText("Detalle:");
@@ -374,13 +405,23 @@ llenarComboCliente();
         jButton7.setBackground(new java.awt.Color(11, 8, 20));
         jButton7.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255)));
         jButton7.setForeground(new java.awt.Color(0, 255, 0));
-        jPanel2.add(jButton7, new org.netbeans.lib.awtextra.AbsoluteConstraints(319, 458, 72, 85));
+        jButton7.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton7ActionPerformed(evt);
+            }
+        });
+        jPanel2.add(jButton7, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 440, 72, 85));
 
         jButton8.setText("<html><b>Generar</b><br>Cotizacion</html>");
         jButton8.setBackground(new java.awt.Color(11, 8, 20));
         jButton8.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255)));
         jButton8.setForeground(new java.awt.Color(255, 255, 0));
-        jPanel2.add(jButton8, new org.netbeans.lib.awtextra.AbsoluteConstraints(235, 458, 72, 85));
+        jButton8.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton8ActionPerformed(evt);
+            }
+        });
+        jPanel2.add(jButton8, new org.netbeans.lib.awtextra.AbsoluteConstraints(240, 440, 72, 85));
 
         jLabel12.setText("Sub-Total:");
         jLabel12.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
@@ -465,7 +506,9 @@ llenarComboCliente();
         lbl_total.setForeground(new java.awt.Color(255, 255, 0));
         jPanel2.add(lbl_total, new org.netbeans.lib.awtextra.AbsoluteConstraints(244, 387, 150, -1));
 
-        add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(431, 50, 400, 560));
+        jCheckBox1.setForeground(new java.awt.Color(255, 255, 255));
+        jCheckBox1.setText("Calcular Cambio");
+        jPanel2.add(jCheckBox1, new org.netbeans.lib.awtextra.AbsoluteConstraints(190, 120, 120, -1));
 
         jScrollPane1.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
         jScrollPane1.setBackground(new java.awt.Color(35, 32, 40));
@@ -481,11 +524,8 @@ llenarComboCliente();
         contenedor.setLayout(new java.awt.GridBagLayout());
         jScrollPane1.setViewportView(contenedor);
 
-        add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(6, 156, 419, 332));
-
         jLabel2.setText("Productos en Lista:");
         jLabel2.setForeground(new java.awt.Color(255, 255, 255));
-        add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(6, 497, -1, -1));
 
         jLabel3.setText("0");
         jLabel3.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
@@ -495,7 +535,6 @@ llenarComboCliente();
                 jLabel3MouseMoved(evt);
             }
         });
-        add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(115, 494, 310, -1));
 
         jButton4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/database_refresh.png"))); // NOI18N
         jButton4.setText("<html><b>Reset</b><br>Factura</html>");
@@ -509,7 +548,6 @@ llenarComboCliente();
                 jButton4ActionPerformed(evt);
             }
         });
-        add(jButton4, new org.netbeans.lib.awtextra.AbsoluteConstraints(6, 520, 70, 90));
 
         jButton5.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/delete1.png"))); // NOI18N
         jButton5.setText("<html><b>Quitar</b><br>Elemento</html>");
@@ -523,18 +561,19 @@ llenarComboCliente();
                 jButton5ActionPerformed(evt);
             }
         });
-        add(jButton5, new org.netbeans.lib.awtextra.AbsoluteConstraints(82, 520, 70, 90));
 
+        jButton6.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/lightning_go.png"))); // NOI18N
         jButton6.setText("<html><b>Actualizar</b><br>Detalle</html>");
         jButton6.setBackground(new java.awt.Color(11, 8, 20));
-        jButton6.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255)));
+        jButton6.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 51, 255)));
         jButton6.setForeground(new java.awt.Color(255, 255, 255));
+        jButton6.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        jButton6.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
         jButton6.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton6ActionPerformed(evt);
             }
         });
-        add(jButton6, new org.netbeans.lib.awtextra.AbsoluteConstraints(353, 520, 72, 90));
 
         jLabel4.setText("Registrar Venta");
         jLabel4.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
@@ -544,20 +583,89 @@ llenarComboCliente();
                 jLabel4MouseClicked(evt);
             }
         });
-        add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(550, 10, -1, -1));
 
         jLabel11.setText("Mecanica: Señale Producto -> Click -> Cantidad -> Actualizar Detalle");
         jLabel11.setForeground(new java.awt.Color(255, 255, 0));
-        add(jLabel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(6, 19, 419, -1));
 
         contenedor_selector.setBackground(new java.awt.Color(35, 32, 45));
         jScrollPane3.setViewportView(contenedor_selector);
 
-        add(jScrollPane3, new org.netbeans.lib.awtextra.AbsoluteConstraints(158, 520, 189, 90));
-
         icono_carga.setIcon(new javax.swing.ImageIcon(getClass().getResource("/gifs/spinner1-r.gif"))); // NOI18N
         icono_carga.setVisible(false);
-        add(icono_carga, new org.netbeans.lib.awtextra.AbsoluteConstraints(790, 10, -1, -1));
+
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
+        this.setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addGap(10, 10, 10)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jLabel11, javax.swing.GroupLayout.PREFERRED_SIZE, 419, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(121, 121, 121)
+                        .addComponent(jLabel4)
+                        .addGap(63, 63, 63)
+                        .addComponent(icono_carga, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(5, 5, 5)
+                                .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 72, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 420, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addComponent(jLabel2)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addComponent(jButton4, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(jButton5, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 189, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jButton6, javax.swing.GroupLayout.PREFERRED_SIZE, 72, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, 400, javax.swing.GroupLayout.PREFERRED_SIZE))))
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel4)
+                    .addComponent(jLabel11)
+                    .addComponent(icono_carga, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(12, 12, 12)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jPanel1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jButton1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 94, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jButton2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 94, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jButton3, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 94, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 343, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel2)
+                    .addComponent(jLabel3))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jButton6, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jScrollPane3, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jButton5, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jButton4, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap())
+            .addGroup(layout.createSequentialGroup()
+                .addGap(50, 50, 50)
+                .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGap(6, 6, 6))
+        );
     }// </editor-fold>//GEN-END:initComponents
 
     
@@ -598,7 +706,7 @@ public void cargarItems(int secuencialEmpresa, JPanel contenedor, JPanel contene
                 SelectorCantidad selector = selectoresCantidad.computeIfAbsent(
                     producto.getCodigo(),
                     codigo -> {
-                        SelectorCantidad nuevo = new SelectorCantidad(codigo);
+                        SelectorCantidad nuevo = new SelectorCantidad(codigo,0);
                         nuevo.setCantidad(0);
                         
                         return nuevo;
@@ -717,7 +825,7 @@ public void cargarItemsFiltrados(
                 SelectorCantidad selector = selectoresCantidad.computeIfAbsent(
                     producto.getCodigo(),
                     codigo -> {
-                        SelectorCantidad nuevo = new SelectorCantidad(codigo);
+                        SelectorCantidad nuevo = new SelectorCantidad(codigo,0);
                         nuevo.setCantidad(0);
                         return nuevo;
                     }
@@ -1062,7 +1170,7 @@ if (datosImagen != null && datosImagen.length > 0) {
     private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
 
         //*********************************
-        
+     
         
         
         total = 0;
@@ -1073,7 +1181,7 @@ if (datosImagen != null && datosImagen.length > 0) {
 
     // Reiniciar visualmente
   DefaultTableModel modeloTabla = new DefaultTableModel(
-    new Object[]{"Código", "Descripción", "Cantidad", "Precio", "Total", "SP"}, 0
+    new Object[]{"Codigo", "Descripcion", "Cantidad", "Precio", "Total", "SP"}, 0
 ) {
     @Override
     public boolean isCellEditable(int row, int column) {
@@ -1319,39 +1427,14 @@ cargarItemsFiltrados(Secuencial_Empresa,jComboBox1,jTextField1,contenedor,conten
     }//GEN-LAST:event_jTextField1KeyReleased
 
     private void jTextField2KeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextField2KeyReleased
-        // TODO add your handling code here:
+   
         
+Util.llenarComboClientePorTelefono(comboCliente, jTextField2, Secuencial_Empresa);
+        if (jTextField2.getText()==""){
         
-        // Limpiar el JComboBox
-comboCliente.removeAllItems();
-
-// Crear el EntityManager
-EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
-EntityManager entityManager = emf.createEntityManager();
-
-// Asegurar que la base de datos esté lista (opcional en JPA estándar)
-// No hay equivalente directo a EnsureCreated, pero puedes validar con lógica propia si lo necesitas
-
-// Obtener texto del filtro
-String textoTelefono = jTextField2.getText(); // textBox2 es un JTextField
-
-// Consulta JPA para clientes activos cuyo teléfono contiene el texto
-List<Cliente> clientes = entityManager.createQuery(
-    "SELECT c FROM Cliente c WHERE c.Activo = true AND c.Secuencial_Empresa = :empresa AND LOWER(c.Telefono) LIKE :telefono",
-    Cliente.class
-)
-.setParameter("empresa", Secuencial_Empresa)
-.setParameter("telefono", "%" + textoTelefono.toLowerCase() + "%")
-.getResultList();
-
-// Agregar resultados al JComboBox
-for (Cliente item : clientes) {
-    String texto = item.getSecuencial() + " - " + item.getNombre();
-    comboCliente.addItem(texto);
-    comboCliente.setSelectedItem(texto); // Esto selecciona el último cliente encontrado
-}
-
-        
+            Util.llenarComboCliente(comboCliente, Secuencial_Empresa);
+            
+        }
         
     }//GEN-LAST:event_jTextField2KeyReleased
 
@@ -1482,6 +1565,536 @@ if (invocador instanceof Miniatura_Producto) {
         // TODO add your handling code here:
     }//GEN-LAST:event_jMenuItem3ActionPerformed
 
+    
+    private double redondear(double valor) {
+    return Math.round(valor * 100.0) / 100.0;
+}
+
+    
+    
+    private void jButton8ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton8ActionPerformed
+
+        
+        
+
+//***********************************************
+
+icono_carga.setVisible(true); // Mostrar el PictureBox mientras se procesa la cotización
+
+ActualizarNumeros(); // Actualizar los números en los labels correspondientes
+
+// Validaciones previas
+if (listaDeItems == null || listaDeItems.isEmpty()) {
+    JOptionPane.showMessageDialog(null,
+        "No hay items seleccionados para registrar la cotización.",
+        "Error",
+        JOptionPane.ERROR_MESSAGE);
+    icono_carga.setVisible(false);
+    return;
+}
+
+Object clienteSeleccionadoObj = comboCliente.getSelectedItem();
+if (comboCliente.getSelectedIndex() == -1 || clienteSeleccionadoObj == null) {
+    JOptionPane.showMessageDialog(null,
+        "Debe seleccionar un cliente para registrar la cotización.",
+        "Error",
+        JOptionPane.ERROR_MESSAGE);
+    icono_carga.setVisible(false);
+    return;
+}
+
+if (total <= 0) {
+    JOptionPane.showMessageDialog(null,
+        "El total de la cotización debe ser mayor a cero.",
+        "Error",
+        JOptionPane.ERROR_MESSAGE);
+    icono_carga.setVisible(false);
+    return;
+}
+
+// Inicializar JPA
+EntityManagerFactory emf = null;
+EntityManager em = null;
+
+try {
+    emf = Persistence.createEntityManagerFactory("MonituxPU");
+    em = emf.createEntityManager();
+    em.getTransaction().begin();
+
+    // Crear cotización
+    Cotizacion cotizacion = new Cotizacion();
+
+    String clienteId = clienteSeleccionadoObj.toString().split("-")[0].trim();
+    cotizacion.setSecuencial_Empresa(Secuencial_Empresa);
+    cotizacion.setSecuencial_Cliente(Integer.parseInt(clienteId));
+    cotizacion.setSecuencial_Usuario(Secuencial_Usuario);
+    cotizacion.setFecha(LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy hh:mm:ss a")));
+    cotizacion.setTotal(subTotal);
+    cotizacion.setGran_Total(total);
+    cotizacion.setDescuento(descuento);
+    cotizacion.setImpuesto(impuesto);
+    cotizacion.setOtros_Cargos(otrosCargos);
+
+    em.persist(cotizacion);
+
+    // Crear detalles
+    for (Miniatura_Producto pro : listaDeItems.values()) {
+        Cotizacion_Detalle detalle = new Cotizacion_Detalle();
+
+        detalle.setSecuencial_Empresa(Secuencial_Empresa);
+        detalle.setSecuencial_Cotizacion(cotizacion.getSecuencial());
+        detalle.setSecuencial_Cliente(cotizacion.getSecuencial_Cliente());
+        detalle.setSecuencial_Usuario(cotizacion.getSecuencial_Usuario());
+        detalle.setFecha(cotizacion.getFecha());
+
+        detalle.setSecuencial_Producto(pro.producto.getSecuencial());
+        detalle.setCodigo(pro.producto.getCodigo());
+        detalle.setDescripcion(pro.producto.getDescripcion());
+        detalle.setCantidad((double) pro.getCantidadSelecccion());
+        detalle.setPrecio(redondear(pro.producto.getPrecio_Venta()));
+        detalle.setTotal(redondear(pro.getCantidadSelecccion() * pro.producto.getPrecio_Venta()));
+        detalle.setTipo(pro.producto.getTipo());
+
+        em.persist(detalle);
+    }
+
+    em.getTransaction().commit();
+
+    JOptionPane.showMessageDialog(null,
+        "Cotización registrada correctamente.",
+        "Éxito",
+        JOptionPane.INFORMATION_MESSAGE);
+
+    Util.registrarActividad(Secuencial_Usuario,
+        String.format("Ha registrado una cotización según Número: %d\nPor un valor de: %.2f",
+            cotizacion.getSecuencial(), total),
+        Secuencial_Empresa);
+
+    limpiarFactura();
+
+} catch (Exception e) {
+    if (em != null && em.getTransaction().isActive()) {
+        em.getTransaction().rollback();
+    }
+    JOptionPane.showMessageDialog(null,
+        "Error al registrar la cotización: " + e.getMessage(),
+        "Error",
+        JOptionPane.ERROR_MESSAGE);
+} finally {
+    if (em != null) em.close();
+    if (emf != null) emf.close();
+    icono_carga.setVisible(false); // Ocultar el PictureBox después de procesar la cotización
+}
+
+//***********************************************
+
+    }//GEN-LAST:event_jButton8ActionPerformed
+
+    //******************************************
+    public  void importarCotizacion(Map<String, Double> lista, String cliente) {
+    comboCliente.setSelectedItem(cliente); // Seleccionar cliente en el comboBox
+
+    EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
+    EntityManager em = emf.createEntityManager();
+
+    try {
+        for (Map.Entry<String, Double> itemC : lista.entrySet()) {
+            String codigo = itemC.getKey();
+            Double cantidadSeleccionada = itemC.getValue();
+
+            List<Producto> productos = em.createQuery(
+                "SELECT p FROM Producto p WHERE p.Codigo = :codigo AND p.Secuencial_Empresa = :empresa",
+                Producto.class)
+                .setParameter("codigo", codigo)
+                .setParameter("empresa", Secuencial_Empresa)
+                .getResultList();
+
+            for (Producto item : productos) {
+                Miniatura_Producto miniatura = new Miniatura_Producto(item);
+
+                
+               
+                miniatura.setCantidadSelecccion(cantidadSeleccionada != null ? cantidadSeleccionada : 0.0);
+               
+                
+
+                var selector = new SelectorCantidad(miniatura.producto.getCodigo(),miniatura.getCantidadSelecccion());
+                selector.setCodigo(miniatura.producto.getCodigo());
+                selector.setCantidad(miniatura.getCantidadSelecccion());
+
+                if (listaDeItems.containsKey(miniatura.producto.getCodigo())) {
+                    listaDeItems.remove(miniatura.producto.getCodigo());
+                    listaDeItems.put(miniatura.producto.getCodigo(), miniatura);
+
+                    double nuevaCantidad = listaDeItems.get(selector.getCodigo()).getCantidadSelecccion();
+                    selector.setCantidad(nuevaCantidad);
+                } else {
+                    listaDeItems.put(miniatura.producto.getCodigo(), miniatura);
+                    contenedor_selector.add(selector); // Agregar al FlowLayoutPanel
+                }
+            }
+        }
+
+        jButton6.doClick(); // Simular clic en el botón
+
+    } catch (Exception e) {
+        e.printStackTrace();
+    } finally {
+        em.close();
+        emf.close();
+    }
+    
+    
+    
+    
+}
+
+    //******************************************
+    
+  
+    
+    
+    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+
+ V_Importar_Cotizacion dialogo = new V_Importar_Cotizacion();
+dialogo.onAceptar = () -> {
+    importarCotizacion(dialogo.getLista(), dialogo.getClienteSeleccionado());
+    jLabel3.setText(String.valueOf(listaDeItems.size()));
+    jButton3.setEnabled(false);
+    icono_carga.setVisible(false);
+};
+
+dialogo.setVisible(true);
+
+
+    }//GEN-LAST:event_jButton3ActionPerformed
+
+    private void jButton7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton7ActionPerformed
+      
+        //*************************************************************
+        
+ 
+
+
+icono_carga.setVisible(true);
+ActualizarNumeros();
+
+if (listaDeItems.isEmpty()) {
+    JOptionPane.showMessageDialog(null, "No hay items seleccionados para registrar la venta.", "Error", JOptionPane.ERROR_MESSAGE);
+    return;
+}
+
+if (comboCliente.getSelectedIndex() == -1 ||
+    jComboBox3.getSelectedIndex() == -1 ||
+    jComboBox4.getSelectedIndex() == -1) {
+    JOptionPane.showMessageDialog(null, "Debe completar todos los campos obligatorios.", "Error", JOptionPane.ERROR_MESSAGE);
+    return;
+}
+
+if (total <= 0) {
+    JOptionPane.showMessageDialog(null, "El total de la venta debe ser mayor a cero.", "Error", JOptionPane.ERROR_MESSAGE);
+    return;
+}
+
+EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
+EntityManager em = emf.createEntityManager();
+
+try {
+    em.getTransaction().begin();
+
+    Venta venta = new Venta();
+    venta.setSecuencial_Empresa(Secuencial_Empresa);
+    venta.setSecuencial_Cliente(Integer.parseInt(comboCliente.getSelectedItem().toString().split("-")[0].trim()));
+    venta.setSecuencial_Usuario(Secuencial_Usuario);
+    venta.setFecha(new SimpleDateFormat("dd/MM/yyyy hh:mm:ss a").format(new Date()));
+    venta.setTipo(jComboBox3.getSelectedItem().toString());
+    venta.setForma_Pago(jComboBox4.getSelectedItem().toString());
+    venta.setTotal(redondear(subTotal));
+    venta.setGran_Total(redondear(total));
+    venta.setImpuesto(impuesto);
+    venta.setOtros_Cargos(otrosCargos);
+    venta.setDescuento(descuento);
+
+    em.persist(venta);
+
+    for (Miniatura_Producto pro : listaDeItems.values()) {
+        Venta_Detalle detalle = new Venta_Detalle();
+        detalle.setSecuencial_Empresa(venta.getSecuencial_Empresa());
+        detalle.setSecuencial_Factura(venta.getSecuencial());
+        detalle.setSecuencial_Cliente(venta.getSecuencial_Cliente());
+        detalle.setSecuencial_Usuario(venta.getSecuencial_Usuario());
+        detalle.setFecha(venta.getFecha());
+        detalle.setSecuencial_Producto(pro.producto.getSecuencial());
+        detalle.setCodigo(pro.producto.getCodigo());
+        detalle.setDescripcion(pro.producto.getDescripcion());
+        detalle.setCantidad((double) pro.getCantidadSelecccion());
+        detalle.setPrecio(redondear(pro.producto.getPrecio_Venta()));
+        detalle.setTotal(redondear(pro.getCantidadSelecccion() * pro.producto.getPrecio_Venta()));
+        detalle.setTipo(pro.getTipo());
+
+        em.persist(detalle);
+
+        if (!"Servicio".equals(detalle.getTipo())) {
+            Util.registrarMovimientoKardex(
+                pro.producto.getSecuencial(),
+                pro.producto.getCantidad(),
+                pro.producto.getDescripcion(),
+                pro.getCantidadSelecccion(),
+                pro.producto.getPrecio_Costo(),
+                pro.producto.getPrecio_Venta(),
+                "Salida",
+                Secuencial_Empresa
+            );
+
+            Producto producto = em.find(Producto.class, pro.producto.getSecuencial());
+            if (producto != null) {
+                producto.setCantidad(pro.getCantidad() - pro.getCantidadSelecccion());
+                em.merge(producto);
+            }
+        }
+    }
+
+   
+    if ("Credito".equals(venta.getTipo())) {
+    Cuentas_Cobrar cuenta = new Cuentas_Cobrar();
+    cuenta.setSecuencial_Empresa(venta.getSecuencial_Empresa());
+    cuenta.setSecuencial_Factura(venta.getSecuencial());
+    cuenta.setSecuencial_Cliente(venta.getSecuencial_Cliente());
+    cuenta.setSecuencial_Usuario(venta.getSecuencial_Usuario());
+    cuenta.setFecha(venta.getFecha());
+    cuenta.setTotal(redondear(total));
+    cuenta.setSaldo(redondear(total));
+    cuenta.setPagado(0.0);
+
+    LocalDate fechaVencimiento = datePicker1.getDate();
+    if (fechaVencimiento != null) {
+        // Convertir LocalDate a java.util.Date
+        Date fechaConvertida = java.sql.Date.valueOf(fechaVencimiento);
+        String fechaFormateada = new SimpleDateFormat("dd/MM/yyyy").format(fechaConvertida);
+        cuenta.setFecha_Vencimiento(fechaFormateada);
+    } else {
+        JOptionPane.showMessageDialog(null, "Debe seleccionar una fecha de vencimiento válida.", "Error", JOptionPane.ERROR_MESSAGE);
+        return;
+    }
+
+    cuenta.setDescuento(venta.getDescuento());
+    cuenta.setOtros_Cargos(venta.getOtros_Cargos());
+    cuenta.setImpuesto(venta.getImpuesto());
+    cuenta.setGran_Total(venta.getGran_Total());
+
+    em.persist(cuenta);
+} else {
+    Ingreso ingreso = new Ingreso();
+    ingreso.setSecuencial_Empresa(venta.getSecuencial_Empresa());
+    ingreso.setSecuencial_Factura(venta.getSecuencial());
+    ingreso.setSecuencial_Usuario(venta.getSecuencial_Usuario());
+    ingreso.setFecha(venta.getFecha());
+    ingreso.setTotal(redondear(total));
+    ingreso.setTipo_Ingreso(venta.getForma_Pago());
+    ingreso.setDescripcion("Venta según Factura: " + venta.getSecuencial());
+
+    em.persist(ingreso);
+}
+
+    
+    
+
+    FacturaCompletaPDF_Venta factura = new FacturaCompletaPDF_Venta();
+    factura.setSecuencial(venta.getSecuencial());
+    factura.setCliente(comboCliente.getSelectedItem().toString().split("-")[1].trim());
+    factura.setTipoVenta(venta.getTipo());
+    factura.setMetodoPago(venta.getForma_Pago());
+    factura.setFecha(venta.getFecha());
+    factura.setItems(ObtenerItemsDesdeGrid(jTable1));
+    factura.setISV(venta.getImpuesto());
+    factura.setOtrosCargos(venta.getOtros_Cargos());
+    factura.setDescuento(venta.getDescuento());
+
+    byte[] pdfBytes = factura.GeneratePdfToBytes();
+    venta.setDocumento(pdfBytes);
+    em.merge(venta);
+
+    Cliente destinatarioCliente = em.find(Cliente.class, venta.getSecuencial_Cliente());
+    String destinatario = destinatarioCliente != null ? destinatarioCliente.getEmail() : null;
+
+    if (destinatario != null && !destinatario.isBlank()) {
+        Util.EnviarCorreoConPdfBytes(
+            "monitux.pos@gmail.com",
+            destinatario,
+            "Nombre Empresa - Comprobante",
+            "Gracias por su compra. Adjunto tiene su comprobante.",
+            pdfBytes,
+            "smtp.gmail.com",
+            587,
+            "monitux.pos",
+            "ffeg qqnx zaij otmb"
+        );
+    }
+
+    em.getTransaction().commit();
+
+    JOptionPane.showMessageDialog(
+        null,
+        "Credito".equals(venta.getTipo())
+            ? "Venta al crédito registrada correctamente.\n\nRecuerde que debe cobrar la cuenta pendiente antes de la fecha de vencimiento."
+            : "Venta registrada correctamente.",
+        "Éxito",
+        JOptionPane.INFORMATION_MESSAGE
+    );
+
+    Util.registrarActividad(
+        Secuencial_Usuario,
+        "Ha registrado una venta" + ("Credito".equals(venta.getTipo()) ? " al crédito" : "") +
+        ", factura: " + venta.getSecuencial() + ", por un valor de: " + venta.getTotal() + " Lps",
+        Secuencial_Empresa
+    );
+
+    
+    
+
+
+// Cálculo de cambio
+if (jCheckBox1.isSelected()) {
+    String recibido = JOptionPane.showInputDialog(
+        null,
+        "Escriba la cantidad en números del dinero recibido por esta venta.",
+        "Cálculo del Cambio",
+        JOptionPane.QUESTION_MESSAGE
+    );
+
+    if (recibido != null && !recibido.trim().isEmpty()) {
+        try {
+            double monto = Double.parseDouble(recibido.trim());
+            double cambio = monto - total;
+
+            String mensaje;
+            if (cambio >= 0) {
+                mensaje = "El Cambio a favor del Cliente es: " + cambio + "\n\n" +
+                          Util.convertNumberToWords((long) cambio) + " Lps";
+            } else {
+                mensaje = "Falta Dinero: " + Math.abs(cambio) + "\n\n" +
+                          Util.convertNumberToWords((long) Math.abs(cambio)) + " Lps";
+            }
+
+            JOptionPane.showMessageDialog(
+                null,
+                mensaje,
+                "Ventas",
+                JOptionPane.INFORMATION_MESSAGE
+            );
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(
+                null,
+                "Error: Solo se permiten números.",
+                "Ventas",
+                JOptionPane.ERROR_MESSAGE
+            );
+        }
+    }
+}
+
+
+    
+    
+    limpiarFactura();
+
+} catch (Exception ex) {
+    em.getTransaction().rollback();
+    JOptionPane.showMessageDialog(null, "Error al registrar la venta: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+    ex.printStackTrace();
+} finally {
+    em.close();
+    emf.close();
+    icono_carga.setVisible(false);
+}
+
+
+
+
+        //*************************************************************
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButton7ActionPerformed
+
+    private void jComboBox3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox3ActionPerformed
+
+        
+
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jComboBox3ActionPerformed
+
+    private void jComboBox3ItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_jComboBox3ItemStateChanged
+
+        if (jComboBox3.getSelectedIndex() == 1) {
+    jLabel9.setVisible(true);
+    datePicker1.setVisible(true);
+    jComboBox4.setSelectedItem("Ninguno");
+    jComboBox4.setEnabled(false);
+} else {
+    jLabel9.setVisible(false);
+    datePicker1.setVisible(false);
+    jComboBox4.setSelectedItem("Efectivo");
+    jComboBox4.setEnabled(true);
+}
+
+
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jComboBox3ItemStateChanged
+
+    private void jComboBox4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox4ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jComboBox4ActionPerformed
+
+    
+    public List<Item_Factura> ObtenerItemsDesdeGrid(JTable table) {
+    List<Item_Factura> lista = new ArrayList<>();
+
+    DefaultTableModel model = (DefaultTableModel) table.getModel();
+    int rowCount = model.getRowCount();
+
+    for (int i = 0; i < rowCount; i++) {
+        // Puedes omitir filas vacías si lo deseas
+        Object codigoObj = model.getValueAt(i, obtenerIndiceColumna(table, "Codigo"));
+        Object descripcionObj = model.getValueAt(i, obtenerIndiceColumna(table, "Descripcion"));
+        Object cantidadObj = model.getValueAt(i, obtenerIndiceColumna(table, "Cantidad"));
+        Object precioObj = model.getValueAt(i, obtenerIndiceColumna(table, "Precio"));
+
+       if (codigoObj != null && cantidadObj != null && precioObj != null) {
+    try {
+        Item_Factura item = new Item_Factura();
+        item.setCodigo(codigoObj.toString());
+        item.setDescripcion(descripcionObj != null ? descripcionObj.toString() : "");
+
+        // Manejo seguro de cantidad (puede venir como "1.0")
+        double cantidadDouble = Double.parseDouble(cantidadObj.toString());
+        item.setCantidad((int) cantidadDouble); // redondeo truncado
+
+        // Manejo seguro de precio
+        double precio = Double.parseDouble(precioObj.toString());
+        item.setPrecio(precio);
+
+        lista.add(item);
+    } catch (NumberFormatException ex) {
+        JOptionPane.showMessageDialog(null, "Error al convertir cantidad o precio: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+    }
+}
+
+    }
+
+    return lista;
+}
+
+    public int obtenerIndiceColumna(JTable table, String nombreColumna) {
+    for (int i = 0; i < table.getColumnCount(); i++) {
+        if (table.getColumnName(i).equalsIgnoreCase(nombreColumna)) {
+            return i;
+        }
+    }
+    return -1; // No encontrada
+}
+
+   
+    
+    
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JComboBox<String> comboCliente;
@@ -1497,6 +2110,7 @@ if (invocador instanceof Miniatura_Producto) {
     private javax.swing.JButton jButton6;
     private javax.swing.JButton jButton7;
     private javax.swing.JButton jButton8;
+    private javax.swing.JCheckBox jCheckBox1;
     private javax.swing.JComboBox<String> jComboBox1;
     private javax.swing.JComboBox<String> jComboBox3;
     private javax.swing.JComboBox<String> jComboBox4;

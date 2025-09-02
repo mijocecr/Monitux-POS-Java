@@ -43,9 +43,13 @@ import com.monituxpos.Clases.*;
 import java.net.URL;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
+import javax.mail.util.ByteArrayDataSource;
 import javax.swing.ImageIcon;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JTextField;
 
 public class Util {
 
@@ -86,7 +90,7 @@ public class Util {
     //Enviar Correo
 
 
-    public static void enviarCorreoConPdf(
+    public static void EnviarCorreoConPdf(
             String remitente,
             String destinatario,
             String asunto,
@@ -349,8 +353,216 @@ public class Util {
     
    
 
+    public static void llenarComboCliente(JComboBox<String> combo,int secuencial_Empresa) {
+    combo.removeAllItems(); // Limpiar combo
+
+    EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
+    EntityManager em = emf.createEntityManager();
+
+    try {
+        List<Cliente> clientes = em.createQuery(
+            "SELECT c FROM Cliente c WHERE c.Activo = true AND c.Secuencial_Empresa = :empresa", Cliente.class)
+            .setParameter("empresa", secuencial_Empresa)
+            .getResultList();
+
+        for (Cliente c : clientes) {
+            combo.addItem(c.getSecuencial() + " - " + c.getNombre());
+        }
+
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(null, "Error al cargar clientes: " + e.getMessage());
+    } finally {
+        em.close();
+        emf.close();
+    }
+}
+
+    
+    
+    public static void llenarComboProveedor(JComboBox<String> combo, int secuencial_Empresa) {
+    combo.removeAllItems(); // Limpiar combo
+
+    EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
+    EntityManager em = emf.createEntityManager();
+
+    try {
+        List<Proveedor> proveedores = em.createQuery(
+            "SELECT p FROM Proveedor p WHERE p.Activo = true AND p.Secuencial_Empresa = :empresa", Proveedor.class)
+            .setParameter("empresa", secuencial_Empresa)
+            .getResultList();
+
+        for (Proveedor p : proveedores) {
+            combo.addItem(p.getSecuencial() + " - " + p.getNombre());
+        }
+
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(null, "Error al cargar proveedores: " + e.getMessage());
+    } finally {
+        em.close();
+        emf.close();
+    }
+}
+
     
     
     
+    
+    public static void llenarComboClientePorTelefono(JComboBox<String> combo, JTextField campoTelefono, int secuencialEmpresa) {
+    combo.removeAllItems(); // Limpiar combo
+
+    EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
+    EntityManager em = emf.createEntityManager();
+
+    try {
+        String textoTelefono = campoTelefono.getText().trim().toLowerCase();
+
+        List<Cliente> clientes = em.createQuery(
+            "SELECT c FROM Cliente c WHERE c.Activo = true AND c.Secuencial_Empresa = :empresa AND LOWER(c.Telefono) LIKE :telefono",
+            Cliente.class
+        )
+        .setParameter("empresa", secuencialEmpresa)
+        .setParameter("telefono", "%" + textoTelefono + "%")
+        .getResultList();
+
+        for (Cliente item : clientes) {
+            String texto = item.getSecuencial() + " - " + item.getNombre();
+            combo.addItem(texto);
+            combo.setSelectedItem(texto); // Selecciona el último encontrado
+        }
+
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(null, "Error al filtrar clientes: " + e.getMessage());
+    } finally {
+        em.close();
+        emf.close();
+    }
+}
+
+    
+     public static void EnviarCorreoConPdfBytes(
+            String remitente,
+            String destinatario,
+            String asunto,
+            String cuerpo,
+            byte[] pdfBytes,
+            String smtpHost,
+            int smtpPort,
+            String usuario,
+            String contraseña) {
+
+        try {
+            // Configuración del servidor SMTP
+            Properties props = new Properties();
+            props.put("mail.smtp.auth", "true");
+            props.put("mail.smtp.starttls.enable", "true");
+            props.put("mail.smtp.host", smtpHost);
+            props.put("mail.smtp.port", String.valueOf(smtpPort));
+
+            // Autenticación
+            Session session = Session.getInstance(props, new Authenticator() {
+                protected PasswordAuthentication getPasswordAuthentication() {
+                    return new PasswordAuthentication(usuario, contraseña);
+                }
+            });
+
+            // Crear el mensaje
+            Message mensaje = new MimeMessage(session);
+            mensaje.setFrom(new InternetAddress(remitente));
+            mensaje.setRecipients(Message.RecipientType.TO, InternetAddress.parse(destinatario));
+            mensaje.setSubject(asunto);
+
+            // Parte del cuerpo
+            MimeBodyPart cuerpoTexto = new MimeBodyPart();
+            cuerpoTexto.setText(cuerpo, "utf-8");
+
+            // Parte del adjunto
+            MimeBodyPart adjunto = new MimeBodyPart();
+            DataSource fuente = new ByteArrayDataSource(pdfBytes, "application/pdf");
+            adjunto.setDataHandler(new DataHandler(fuente));
+            adjunto.setFileName("Factura.pdf");
+
+            // Combinar partes
+            Multipart multipart = new MimeMultipart();
+            multipart.addBodyPart(cuerpoTexto);
+            multipart.addBodyPart(adjunto);
+
+            mensaje.setContent(multipart);
+
+            // Enviar
+            Transport.send(mensaje);
+
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(null, "Error al enviar el correo: " + ex.getMessage(), "Correo", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+    
+     
+     
+     
+     public static String convertNumberToWords(long number) {
+    if (number == 0) return "cero";
+
+    if (number < 0) return "menos " + convertNumberToWords(-number);
+
+    StringBuilder result = new StringBuilder();
+
+    if (number >= 1_000_000_000) {
+        long milesDeMillones = number / 1_000_000_000;
+        result.append(convertNumberToWords(milesDeMillones)).append(" mil millones");
+        number %= 1_000_000_000;
+        if (number > 0) result.append(" ");
+    }
+
+    if (number >= 1_000_000) {
+        long millones = number / 1_000_000;
+        result.append(millones == 1 ? "un millón" : convertNumberToWords(millones) + " millones");
+        number %= 1_000_000;
+        if (number > 0) result.append(" ");
+    }
+
+    if (number >= 1000) {
+        long miles = number / 1000;
+        result.append(miles == 1 ? "mil" : convertNumberToWords(miles) + " mil");
+        number %= 1000;
+        if (number > 0) result.append(" ");
+    }
+
+    if (number >= 100) {
+        int centena = (int) (number / 100);
+        if (centena == 1 && number % 100 == 0) {
+            result.append("cien");
+        } else {
+            String[] centenas = {
+                "", "ciento", "doscientos", "trescientos", "cuatrocientos", "quinientos",
+                "seiscientos", "setecientos", "ochocientos", "novecientos"
+            };
+            result.append(centenas[centena]);
+        }
+        number %= 100;
+        if (number > 0) result.append(" ");
+    }
+
+    if (number >= 20) {
+        int decena = (int) (number / 10);
+        int unidad = (int) (number % 10);
+        String[] decenas = {
+            "", "", "veinte", "treinta", "cuarenta", "cincuenta", "sesenta",
+            "setenta", "ochenta", "noventa"
+        };
+        result.append(decenas[decena]);
+        if (unidad > 0) result.append(" y ").append(convertNumberToWords(unidad));
+    } else if (number > 0) {
+        String[] unidades = {
+            "", "uno", "dos", "tres", "cuatro", "cinco", "seis", "siete", "ocho", "nueve",
+            "diez", "once", "doce", "trece", "catorce", "quince", "dieciséis", "diecisiete",
+            "dieciocho", "diecinueve"
+        };
+        result.append(unidades[(int) number]);
+    }
+
+    return result.toString().toUpperCase();
+}
+
+     
     
 }//Fin Clase

@@ -10,10 +10,14 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 @Entity
+
+
+@Table(name = "Compras")
 public class Compra {
 
-    @Id
-    private int Secuencial;
+ @Id
+@GeneratedValue(strategy = GenerationType.IDENTITY)
+private int Secuencial;
 
     private int Secuencial_Proveedor = 0;
     private int Secuencial_Usuario = 0;
@@ -30,8 +34,11 @@ public class Compra {
 
     private int Secuencial_Empresa;
 
+  // 📄 Nuevo campo para almacenar el documento PDF
     @Lob
+    @Column(name = "Documento", columnDefinition = "LONGBLOB")
     private byte[] Documento;
+    
 
     // Getters y Setters
     public int getSecuencial() {
