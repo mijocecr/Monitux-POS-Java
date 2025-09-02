@@ -1019,6 +1019,7 @@ icono_carga.setVisible(false);
     lbl_total.setText("0.0");
     lbl_subTotal.setText("0.0");
     comboCliente.setSelectedIndex(-1);
+    comboCliente.setEnabled(true);
 
     // 2. Limpiar contenedores visuales
     contenedor.removeAll();
@@ -1694,7 +1695,7 @@ try {
     //******************************************
     public  void importarCotizacion(Map<String, Double> lista, String cliente) {
     comboCliente.setSelectedItem(cliente); // Seleccionar cliente en el comboBox
-
+comboCliente.setEnabled(false);
     EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
     EntityManager em = emf.createEntityManager();
 
