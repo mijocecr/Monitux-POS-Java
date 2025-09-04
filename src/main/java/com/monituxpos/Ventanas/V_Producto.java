@@ -1537,32 +1537,10 @@ if (imagenCapturada != null) {
 
     private void jMenuItem3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem3ActionPerformed
 
-        // Crear producto de prueba
-Producto pro = new Producto();
-pro.setSecuencial(2);
-pro.setCantidad(10);
-pro.setCodigo("22100");
-pro.setDescripcion("Prueba");
-pro.setCodigo_Barra("22100500");
-pro.setSecuencial_Proveedor(2);
-pro.setSecuencial_Categoria(1);
-pro.setSecuencial_Empresa(1);
-pro.setPrecio_Costo(200);
-pro.setExistencia_Minima(2);
-pro.setPrecio_Venta(500);
-pro.setTipo("Producto");
 
-// Simular que el producto expira con fecha válida
-pro.setExpira(true);
-pro.setFecha_Caducidad("28/08/2025"); // formato dd/MM/yyyy
-
-// Validar que el combo tiene el tipo antes de seleccionarlo
-if (jComboBox3.getItemCount() > 0 && pro.getTipo() != null) {
-    jComboBox3.setSelectedItem(pro.getTipo());
-}
 
 // Abrir ventana V_Producto en modo edición
-V_Producto x = new V_Producto(false, pro);
+V_Categoria x = new V_Categoria();
 x.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 x.setVisible(true);
 

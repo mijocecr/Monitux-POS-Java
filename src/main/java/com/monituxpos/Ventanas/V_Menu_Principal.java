@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingWorker;
@@ -41,7 +42,7 @@ public class V_Menu_Principal extends javax.swing.JFrame {
     public static String Telefono_Empresa;
     public static String Direccion_Empresa;
     public static String Email;
-    public static String URL_RSS;
+    public static String  URL_RSS;
 
     
             private Timer cintaTimer;
@@ -58,7 +59,8 @@ private List<String[]> titulares = new ArrayList<>();
     public static void setURL_RSS(String URL_RSS) {
         V_Menu_Principal.URL_RSS = URL_RSS;
     }
-public NoticiasRSS fuente= new NoticiasRSS();
+public NoticiasRSS fuente= new NoticiasRSS();//Esta linea es
+
     public static int getSecuencial_Empresa() {
         return Secuencial_Empresa;
     }
@@ -146,7 +148,7 @@ public NoticiasRSS fuente= new NoticiasRSS();
         @Override
         protected List<String[]> doInBackground() {
             NoticiasRSS fuente = new NoticiasRSS();
-            fuente.cargarTitularesRSS(null);
+            fuente.cargarTitularesRSS(URL_RSS);
             return fuente.getTitulares();
         }
 
@@ -257,13 +259,9 @@ titulares = fuente.getTitulares();
 iniciarCintaLED(lblTitular);
 
   
-        
-        
     }
     
  
-    
-
     
     private void mostrarSiguienteTitular(JLabel lblCinta) {
     if (titulares == null || titulares.isEmpty()) {
@@ -320,11 +318,6 @@ iniciarCintaLED(lblTitular);
 
     
     
-    private void cargarTitularesRSS() {
-    NoticiasRSS fuente = new NoticiasRSS();
-    fuente.cargarTitularesRSS(this.getURL_RSS());
-    titulares = fuente.getTitulares();
-}
 
     
 
@@ -340,6 +333,7 @@ iniciarCintaLED(lblTitular);
         jScrollPane1 = new javax.swing.JScrollPane();
         jPanel1 = new javax.swing.JPanel();
         jButton1 = new javax.swing.JButton();
+        jButton2 = new javax.swing.JButton();
         jPanel2 = new javax.swing.JPanel();
         lbl_Descripcion = new javax.swing.JLabel();
         lbl_Nombre_Empresa = new javax.swing.JLabel();
@@ -366,21 +360,32 @@ iniciarCintaLED(lblTitular);
             }
         });
 
+        jButton2.setText("Compras");
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(40, Short.MAX_VALUE))
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 118, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 118, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(47, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGap(197, 197, 197)
                 .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(447, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(391, Short.MAX_VALUE))
         );
 
         jScrollPane1.setViewportView(jPanel1);
@@ -430,9 +435,10 @@ iniciarCintaLED(lblTitular);
 
         lblTitular.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
         lblTitular.setForeground(new java.awt.Color(128, 255, 255));
-        lblTitular.setText("Bienvenido a Monitux-POS..!   (Edición JAVA) ");
+        lblTitular.setText("Bienvenido a Monitux-POS — Edición Java");
+        lblTitular.setToolTipText("");
         jPanel3.add(lblTitular);
-        lblTitular.setBounds(810, 0, 486, 40);
+        lblTitular.setBounds(810, 0, 456, 40);
 
         jScrollPane2.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         jScrollPane2.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
@@ -521,8 +527,7 @@ iniciarCintaLED(lblTitular);
         this.getContentPane().setBackground(Color.black);
         
         
-        fuente.cargarTitularesRSS(URL_RSS);
-        List<String[]> titulares = fuente.getTitulares();
+      
         //Bloque de variables de prueba
 //*********************************************
         this.setAcceso("Administrador");
@@ -531,14 +536,42 @@ iniciarCintaLED(lblTitular);
         this.setSecuencial_Usuario(1);
         this.setTelefono_Empresa("642883288");
         this.setNombre_Empresa("One Click Solutions");
+        this.setEmail("Empresa@gmail.com");
+        
         this.setMaxTitularesPorCiclo(20);
-        this.setURL_RSS("http://www.bbc.co.uk/mundo/ultimas_noticias/index.xml");
+       
 //***************************************************        
        lbl_Nombre_Empresa.setText(this.getNombre_Empresa());
-        
+          
+      
+    }//GEN-LAST:event_formWindowOpened
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+
+
+             
+        new SwingWorker<V_Factura_Compra, Void>() {
+    @Override
+    protected V_Factura_Compra doInBackground() {
+        // Esto se ejecuta fuera del EDT
+        return new V_Factura_Compra();
+    }
+
+    @Override
+    protected void done() {
+        try {
+            V_Factura_Compra form = get();
+            abrirVentana(form); // esto sí va en el EDT
+        } catch (Exception ex) {
+            System.out.println("Error al abrir ventana: " + ex.getMessage());
+        }
+    }
+}.execute();
+
+
 
         // TODO add your handling code here:
-    }//GEN-LAST:event_formWindowOpened
+    }//GEN-LAST:event_jButton2ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -600,6 +633,7 @@ public void abrirVentana(JPanel childPanel) {
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton2;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;

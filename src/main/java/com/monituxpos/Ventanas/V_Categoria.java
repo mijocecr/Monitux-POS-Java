@@ -16,6 +16,7 @@ import java.awt.Component;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -650,9 +651,15 @@ if (imagenCapturada != null) {
 
     private void jTextField3KeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextField3KeyReleased
 
-        Filtrar(jComboBox2.getSelectedItem().toString(), jTextField3.getText()); // Llama al método Filtrar con el valor del TextBox
 
-        // TODO add your handling code here:
+         if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
+        String filtroSeleccionado = jComboBox2.getSelectedItem().toString();
+        String valorFiltro = jTextField3.getText();
+
+        Filtrar(filtroSeleccionado, valorFiltro); // Ejecuta solo al presionar Enter
+    }
+        
+        
     }//GEN-LAST:event_jTextField3KeyReleased
 
     

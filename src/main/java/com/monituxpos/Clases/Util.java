@@ -445,6 +445,40 @@ public class Util {
 }
 
     
+    public static void llenarComboProveedorPorTelefono(JComboBox<String> combo, JTextField campoTelefono, int secuencialEmpresa) {
+    combo.removeAllItems(); // Limpiar combo
+
+    EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
+    EntityManager em = emf.createEntityManager();
+
+    try {
+        String textoTelefono = campoTelefono.getText().trim().toLowerCase();
+
+        List<Proveedor> proveedores = em.createQuery(
+            "SELECT p FROM Proveedor p WHERE p.Activo = true AND p.Secuencial_Empresa = :empresa AND LOWER(p.Telefono) LIKE :telefono",
+            Proveedor.class
+        )
+        .setParameter("empresa", secuencialEmpresa)
+        .setParameter("telefono", "%" + textoTelefono + "%")
+        .getResultList();
+
+        for (Proveedor item : proveedores) {
+            String texto = item.getSecuencial() + " - " + item.getNombre();
+            combo.addItem(texto);
+            combo.setSelectedItem(texto); // Selecciona el último encontrado
+        }
+
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(null, "Error al filtrar proveedores: " + e.getMessage());
+    } finally {
+        em.close();
+        emf.close();
+    }
+}
+
+    
+    
+    
      public static void EnviarCorreoConPdfBytes(
             String remitente,
             String destinatario,

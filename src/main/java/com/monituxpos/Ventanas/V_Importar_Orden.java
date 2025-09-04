@@ -7,6 +7,7 @@ package com.monituxpos.Ventanas;
 import com.monituxpos.Clases.Cotizacion;
 import com.monituxpos.Clases.Cotizacion_Detalle;
 import com.monituxpos.Clases.Orden;
+import com.monituxpos.Clases.Orden_Detalle;
 import com.monituxpos.Clases.SelectorCantidad;
 import com.monituxpos.Clases.Util;
 import jakarta.persistence.EntityManager;
@@ -29,17 +30,17 @@ import javax.swing.table.DefaultTableModel;
  *
  * @author Miguel Cerrato
  */
-public class V_Importar_Cotizacion extends javax.swing.JFrame {
+public class V_Importar_Orden extends javax.swing.JFrame {
     
     public int Secuencial_Empresa=V_Menu_Principal.getSecuencial_Empresa();
-    private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(V_Importar_Cotizacion.class.getName());
+    private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(V_Importar_Orden.class.getName());
 
     
     public int secuencial;
 
 public static Map<String, Double> lista = new HashMap<>();
 
-public static String clienteSeleccionado;
+public static String proveedorSeleccionado;
 
     
 
@@ -56,7 +57,7 @@ public Runnable onAceptar; // El callback
     /**
      * Creates new form V_Importar_Cotizacion
      */
-    public V_Importar_Cotizacion() {
+    public V_Importar_Orden() {
         initComponents();
         
         
@@ -86,7 +87,7 @@ public Runnable onAceptar; // El callback
     
     
 
-    public void configurarTablaCotizacion(JTable tabla) {
+    public void configurarTablaOrden(JTable tabla) {
     // Centrar contenido de las celdas
     DefaultTableCellRenderer centrado = new DefaultTableCellRenderer();
     centrado.setHorizontalAlignment(SwingConstants.CENTER);
@@ -139,7 +140,7 @@ public Runnable onAceptar; // El callback
 }
 
     
-  public void cargarDatosOrden(JTable tabla) {
+    public void cargarDatosOrden(JTable tabla) {
     // Limpiar la tabla
     DefaultTableModel modelo = (DefaultTableModel) tabla.getModel();
     modelo.setRowCount(0);
@@ -173,37 +174,35 @@ public Runnable onAceptar; // El callback
         emf.close();
     }
 }
-
-
-    
-    public void filtrarCotizacion(int secuencialCliente, JTable tablaCotizacion, JTable tablaDetalle) {
+  
+  public void filtrarOrden(int secuencialProveedor, JTable tablaOrden, JTable tablaDetalle) {
     // Verificar y configurar columnas si no existen
-    if (tablaCotizacion.getColumnCount() == 0) {
-        configurarTablaCotizacion(tablaCotizacion);
+    if (tablaOrden.getColumnCount() == 0) {
+        configurarTablaOrden(tablaOrden); // Asegúrate de tener este método definido para órdenes
     }
 
     // Limpiar tabla
-    DefaultTableModel modelo = (DefaultTableModel) tablaCotizacion.getModel();
+    DefaultTableModel modelo = (DefaultTableModel) tablaOrden.getModel();
     modelo.setRowCount(0);
 
     EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
     EntityManager em = emf.createEntityManager();
 
     try {
-        List<Cotizacion> cotizaciones = em.createQuery(
-            "SELECT c FROM Cotizacion c WHERE c.Secuencial_Cliente = :cliente AND c.Secuencial_Empresa = :empresa",
-            Cotizacion.class)
-            .setParameter("cliente", secuencialCliente)
+        List<Orden> ordenes = em.createQuery(
+            "SELECT o FROM Orden o WHERE o.Secuencial_Proveedor = :proveedor AND o.Secuencial_Empresa = :empresa",
+            Orden.class)
+            .setParameter("proveedor", secuencialProveedor)
             .setParameter("empresa", Secuencial_Empresa)
             .getResultList();
 
-        for (Cotizacion item : cotizaciones) {
+        for (Orden item : ordenes) {
             modelo.addRow(new Object[] {
                 item.getSecuencial(),
                 item.getFecha(),
                 item.getTotal(),
                 item.getGran_Total(),
-                item.getSecuencial_Cliente()
+                item.getSecuencial_Proveedor()
             });
         }
 
@@ -213,11 +212,11 @@ public Runnable onAceptar; // El callback
         }
 
         // Selección de fila completa
-        tablaCotizacion.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        tablaOrden.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
     } catch (Exception e) {
         JOptionPane.showMessageDialog(null,
-            "Error al filtrar cotizaciones: " + e.getMessage(),
+            "Error al filtrar órdenes de compra: " + e.getMessage(),
             "Error",
             JOptionPane.ERROR_MESSAGE);
     } finally {
@@ -228,7 +227,7 @@ public Runnable onAceptar; // El callback
 
     
     
-    public void filtrarDetalle(int secuencialCotizacion, JTable tablaDetalle) {
+    public void filtrarDetalle(int secuencialOrden, JTable tablaDetalle) {
     // Verificar y configurar columnas si no existen
     if (tablaDetalle.getColumnCount() == 0) {
         configurarTablaDetalle(tablaDetalle);
@@ -242,14 +241,14 @@ public Runnable onAceptar; // El callback
     EntityManager em = emf.createEntityManager();
 
     try {
-        List<Cotizacion_Detalle> detalles = em.createQuery(
-            "SELECT d FROM Cotizacion_Detalle d WHERE d.Secuencial_Cotizacion = :cotizacion AND d.Secuencial_Empresa = :empresa",
-            Cotizacion_Detalle.class)
-            .setParameter("cotizacion", secuencialCotizacion)
+        List<Orden_Detalle> detalles = em.createQuery(
+            "SELECT d FROM Orden_Detalle d WHERE d.Secuencial_Orden = :orden AND d.Secuencial_Empresa = :empresa",
+            Orden_Detalle.class)
+            .setParameter("orden", secuencialOrden)
             .setParameter("empresa", Secuencial_Empresa)
             .getResultList();
 
-        for (Cotizacion_Detalle item : detalles) {
+        for (Orden_Detalle item : detalles) {
             modelo.addRow(new Object[] {
                 item.getSecuencial(),
                 item.getCodigo(),
@@ -317,7 +316,7 @@ public Runnable onAceptar; // El callback
         jPanel1.setBackground(new java.awt.Color(35, 32, 45));
 
         jLabel2.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel2.setText("Cliente:");
+        jLabel2.setText("Proveedor:");
 
         jComboBox1.addItemListener(new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
@@ -337,7 +336,7 @@ public Runnable onAceptar; // El callback
         });
 
         jLabel3.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel3.setText("Cotizaciones:");
+        jLabel3.setText("Ordenes:");
 
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -394,34 +393,35 @@ public Runnable onAceptar; // El callback
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jLabel3)
-                .addGap(182, 182, 182))
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addContainerGap()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(186, 186, 186)
-                        .addComponent(jLabel4))
-                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                        .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
-                            .addComponent(jLabel2)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                            .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, 230, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                .addComponent(jTextField1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                                    .addComponent(jLabel6)
-                                    .addGap(21, 21, 21))))
-                        .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
-                            .addComponent(jButton1)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 168, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addContainerGap()
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 411, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 411, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addGap(186, 186, 186)
+                                .addComponent(jLabel4))
+                            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
+                                    .addComponent(jLabel2)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                    .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, 230, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                        .addComponent(jTextField1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                                            .addComponent(jLabel6)
+                                            .addGap(21, 21, 21))))
+                                .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
+                                    .addComponent(jButton1)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 168, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 411, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 411, javax.swing.GroupLayout.PREFERRED_SIZE)))))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(187, 187, 187)
+                        .addComponent(jLabel3)))
                 .addContainerGap(12, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
@@ -432,25 +432,24 @@ public Runnable onAceptar; // El callback
                         .addGap(10, 10, 10)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel2)
-                            .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(18, 18, 18))
+                            .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(jLabel6)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(1, 1, 1)))
+                        .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(7, 7, 7)
                 .addComponent(jLabel3)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 170, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 182, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGap(12, 12, 12)
                         .addComponent(jLabel4)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 170, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(0, 38, Short.MAX_VALUE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                    .addGroup(jPanel1Layout.createSequentialGroup()
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jButton2)
@@ -462,7 +461,7 @@ public Runnable onAceptar; // El callback
         jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
         jLabel1.setForeground(new java.awt.Color(255, 255, 255));
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel1.setText("Cotizaciones");
+        jLabel1.setText("Ordenes");
         jLabel1.setOpaque(true);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -491,14 +490,14 @@ public Runnable onAceptar; // El callback
 
     private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
 
-        configurarTablaCotizacion(jTable1);
+        configurarTablaOrden(jTable1);
 configurarTablaDetalle(jTable2);
  
          this.getContentPane().setBackground(Color.black);
         
         setTitle("Monitux-POS v." + "");//V_Menu_Principal.VER);
 
-Util.llenarComboCliente(jComboBox1, Secuencial_Empresa);
+Util.llenarComboProveedor(jComboBox1, Secuencial_Empresa);
 
 this.setLocationRelativeTo(null);
 
@@ -529,8 +528,8 @@ if (jComboBox1.getItemCount() > 0) {
 modelo.setRowCount(0);
         
         String seleccionado = jComboBox1.getSelectedItem().toString();
-int secuencialCliente = Integer.parseInt(seleccionado.split("-")[0].trim());
-filtrarCotizacion(secuencialCliente, jTable1, jTable2);
+int secuencialProveedor = Integer.parseInt(seleccionado.split("-")[0].trim());
+filtrarOrden(secuencialProveedor, jTable1, jTable2);
 
 
         
@@ -560,31 +559,31 @@ filtrarCotizacion(secuencialCliente, jTable1, jTable2);
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
 
-   
+        
         //***************************************************
-        lista.clear();
-V_Factura_Venta.listaDeItems.clear();
+lista.clear();
+V_Factura_Compra.listaDeItems.clear();
 
 if (jTable1.getRowCount() == 0) {
-    JOptionPane.showMessageDialog(null, "No hay cotizaciones disponibles para importar.", "Error", JOptionPane.ERROR_MESSAGE);
+    JOptionPane.showMessageDialog(null, "No hay órdenes disponibles para importar.", "Error", JOptionPane.ERROR_MESSAGE);
     return;
 }
 
 if (jTable2.getRowCount() == 0) {
-    JOptionPane.showMessageDialog(null, "Debe seleccionar una cotizacion.", "Error", JOptionPane.ERROR_MESSAGE);
+    JOptionPane.showMessageDialog(null, "Debe seleccionar una orden.", "Error", JOptionPane.ERROR_MESSAGE);
     return;
 }
 
 int opt = JOptionPane.showConfirmDialog(
     null,
-    "¿Desea importar la cotización seleccionada?\nAdvertencia: Esta se eliminará de los registros.",
-    "Importar Cotización",
+    "¿Desea importar la orden seleccionada?\nAdvertencia: Esta se eliminará de los registros.",
+    "Importar Orden",
     JOptionPane.YES_NO_OPTION,
     JOptionPane.WARNING_MESSAGE
 );
 
 if (opt == JOptionPane.YES_OPTION) {
-    clienteSeleccionado = jComboBox1.getSelectedItem().toString();
+    proveedorSeleccionado = jComboBox1.getSelectedItem().toString();
     lista.clear();
 
     DefaultTableModel modelo = (DefaultTableModel) jTable2.getModel();
@@ -609,30 +608,30 @@ if (opt == JOptionPane.YES_OPTION) {
     EntityManager em = emf.createEntityManager();
 
     try {
-        Cotizacion cotizacion = em.createQuery(
-            "SELECT c FROM Cotizacion c WHERE c.Secuencial = :secuencial AND c.Secuencial_Empresa = :empresa",
-            Cotizacion.class)
+        Orden orden = em.createQuery(
+            "SELECT o FROM Orden o WHERE o.Secuencial = :secuencial AND o.Secuencial_Empresa = :empresa",
+            Orden.class)
             .setParameter("secuencial", this.secuencial)
             .setParameter("empresa", Secuencial_Empresa)
             .getResultStream().findFirst().orElse(null);
 
-        if (cotizacion != null) {
+        if (orden != null) {
             em.getTransaction().begin();
-            em.remove(cotizacion);
+            em.remove(orden);
             em.getTransaction().commit();
         }
 
         EntityManager em2 = emf.createEntityManager();
-        List<Cotizacion_Detalle> detalles = em2.createQuery(
-            "SELECT d FROM Cotizacion_Detalle d WHERE d.Secuencial_Cotizacion = :cotizacion AND d.Secuencial_Empresa = :empresa",
-            Cotizacion_Detalle.class)
-            .setParameter("cotizacion", this.secuencial)
+        List<Orden_Detalle> detalles = em2.createQuery(
+            "SELECT d FROM Orden_Detalle d WHERE d.Secuencial_Orden = :orden AND d.Secuencial_Empresa = :empresa",
+            Orden_Detalle.class)
+            .setParameter("orden", this.secuencial)
             .setParameter("empresa", Secuencial_Empresa)
             .getResultList();
 
         if (!detalles.isEmpty()) {
             em2.getTransaction().begin();
-            for (Cotizacion_Detalle detalle : detalles) {
+            for (Orden_Detalle detalle : detalles) {
                 em2.remove(detalle);
             }
             em2.getTransaction().commit();
@@ -640,25 +639,26 @@ if (opt == JOptionPane.YES_OPTION) {
 
         em2.close();
 
-        JOptionPane.showMessageDialog(null, "Cotización importada correctamente.", "Importación Exitosa", JOptionPane.INFORMATION_MESSAGE);
-       
-         if (onAceptar != null) {
-        onAceptar.run(); // Ejecuta el callback
-    }
-        
+        JOptionPane.showMessageDialog(null, "Orden importada correctamente.", "Importación Exitosa", JOptionPane.INFORMATION_MESSAGE);
+
+        if (onAceptar != null) {
+            onAceptar.run(); // Ejecuta el callback
+        }
+
         this.dispose();
 
     } catch (Exception e) {
-        JOptionPane.showMessageDialog(null, "Error al importar cotización: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(null, "Error al importar orden: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         e.printStackTrace();
     } finally {
         em.close();
         emf.close();
     }
 }
+//***************************************************
 
-        //***************************************************
-
+        
+        
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void jComboBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox1ActionPerformed
@@ -679,15 +679,15 @@ if (opt == JOptionPane.YES_OPTION) {
     }
 
     public static void setLista(Map<String, Double> lista) {
-        V_Importar_Cotizacion.lista = lista;
+        V_Importar_Orden.lista = lista;
     }
 
-    public static String getClienteSeleccionado() {
-        return clienteSeleccionado;
+    public static String getProveedorSeleccionado() {
+        return proveedorSeleccionado;
     }
 
-    public static void setClienteSeleccionado(String clienteSeleccionado) {
-        V_Importar_Cotizacion.clienteSeleccionado = clienteSeleccionado;
+    public static void setProveedorSeleccionado(String clienteSeleccionado) {
+        V_Importar_Orden.proveedorSeleccionado = clienteSeleccionado;
     }
 
     
@@ -713,7 +713,7 @@ if (opt == JOptionPane.YES_OPTION) {
         //</editor-fold>
 
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(() -> new V_Importar_Cotizacion().setVisible(true));
+        java.awt.EventQueue.invokeLater(() -> new V_Importar_Orden().setVisible(true));
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

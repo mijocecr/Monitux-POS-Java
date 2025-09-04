@@ -30,9 +30,9 @@ private int Secuencial;
     private String Codigo = ""; // Código del producto
     private String Descripcion = "";
 
-    private Double Cantidad = 0.0;
-    private Double Precio = 0.0;
-    private Double Total = 0.0;
+    private double Cantidad = 0.0;
+    private double Precio = 0.0;
+    private double Total = 0.0;
 
     private String Tipo;
 

@@ -15,6 +15,7 @@ import java.awt.Component;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -101,7 +102,7 @@ public void setImagen(byte[] imagen) {
         jSeparator1 = new javax.swing.JPopupMenu.Separator();
         Menu_Salir = new javax.swing.JMenuItem();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setResizable(false);
         addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowOpened(java.awt.event.WindowEvent evt) {
@@ -641,9 +642,14 @@ if (res == JOptionPane.YES_OPTION) {
 
     private void jTextField3KeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextField3KeyReleased
 
-        Filtrar(jComboBox2.getSelectedItem().toString(), jTextField3.getText()); // Llama al método Filtrar con el valor del TextBox
+        
+         if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
+        String filtroSeleccionado = jComboBox2.getSelectedItem().toString();
+        String valorFiltro = jTextField3.getText();
 
-        // TODO add your handling code here:
+        Filtrar(filtroSeleccionado, valorFiltro); // Ejecuta solo al presionar Enter
+    }
+        
     }//GEN-LAST:event_jTextField3KeyReleased
 
     

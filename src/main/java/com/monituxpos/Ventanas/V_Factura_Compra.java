@@ -48,7 +48,7 @@ import javax.swing.table.DefaultTableModel;
  *
  * @author Miguel Cerrato
  */
-public class V_Factura_Venta extends javax.swing.JPanel {
+public class V_Factura_Compra extends javax.swing.JPanel {
 
     
       
@@ -71,15 +71,16 @@ double descuento = 0.0;
     /**
      * Creates new form V_Factura_Venta
      */
-    public V_Factura_Venta() {
+    public V_Factura_Compra() {
         
          SwingUtilities.invokeLater(() -> {
      
         EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
 EntityManager em = emf.createEntityManager();
-llenarComboCliente();
-
+Util.llenarComboCliente(comboProveedor,Secuencial);
+Util.llenarComboProveedor(comboProveedor, Secuencial_Empresa);
 cargarItems();
+
  jLabel9.setVisible(false);
     datePicker1.setVisible(false);
 // V_Factura_Venta.this.cargarItems(Secuencial_Empresa, contenedor, contenedor_selector, em);
@@ -119,7 +120,7 @@ cargarItems();
         jButton3 = new javax.swing.JButton();
         jPanel2 = new javax.swing.JPanel();
         jLabel5 = new javax.swing.JLabel();
-        comboCliente = new javax.swing.JComboBox<>();
+        comboProveedor = new javax.swing.JComboBox<>();
         jTextField2 = new javax.swing.JTextField();
         jLabel6 = new javax.swing.JLabel();
         jLabel7 = new javax.swing.JLabel();
@@ -145,7 +146,6 @@ cargarItems();
         jLabel18 = new javax.swing.JLabel();
         lbl_subTotal = new javax.swing.JLabel();
         lbl_total = new javax.swing.JLabel();
-        jCheckBox1 = new javax.swing.JCheckBox();
         jScrollPane1 = new javax.swing.JScrollPane();
         contenedor = new javax.swing.JPanel();
         jLabel2 = new javax.swing.JLabel();
@@ -277,11 +277,11 @@ cargarItems();
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jLabel1)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(12, 12, 12))
         );
 
         jButton1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/box_down.png"))); // NOI18N
@@ -297,8 +297,8 @@ cargarItems();
             }
         });
 
-        jButton2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/group.png"))); // NOI18N
-        jButton2.setText("<html><b>Gestionar</b><br><i>Cliente</i></html>");
+        jButton2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/lorry.png"))); // NOI18N
+        jButton2.setText("<html><b>Gestionar</b><br><i>Proveedor</i></html>");
         jButton2.setBackground(new java.awt.Color(11, 8, 20));
         jButton2.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255)));
         jButton2.setForeground(new java.awt.Color(255, 255, 255));
@@ -311,7 +311,7 @@ cargarItems();
         });
 
         jButton3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/page_white_put.png"))); // NOI18N
-        jButton3.setText("<html><b>Importar</b><br><i>Cotizacion</i></html>");
+        jButton3.setText("<html><b>Importar</b><br><i>Orden</i></html>");
         jButton3.setBackground(new java.awt.Color(11, 8, 20));
         jButton3.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255)));
         jButton3.setForeground(new java.awt.Color(255, 255, 255));
@@ -323,20 +323,20 @@ cargarItems();
             }
         });
 
-        jPanel2.setBackground(new java.awt.Color(0, 168, 107));
+        jPanel2.setBackground(new java.awt.Color(0, 102, 255));
         jPanel2.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255)));
         jPanel2.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        jLabel5.setText("Cliente:");
+        jLabel5.setText("Proveedor:");
         jLabel5.setForeground(new java.awt.Color(255, 255, 255));
         jPanel2.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(13, 30, -1, -1));
 
-        comboCliente.addMouseListener(new java.awt.event.MouseAdapter() {
+        comboProveedor.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                comboClienteMouseClicked(evt);
+                comboProveedorMouseClicked(evt);
             }
         });
-        jPanel2.add(comboCliente, new org.netbeans.lib.awtextra.AbsoluteConstraints(59, 25, 221, -1));
+        jPanel2.add(comboProveedor, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 25, 210, -1));
 
         jTextField2.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyReleased(java.awt.event.KeyEvent evt) {
@@ -346,7 +346,7 @@ cargarItems();
         jPanel2.add(jTextField2, new org.netbeans.lib.awtextra.AbsoluteConstraints(310, 25, 85, -1));
 
         jLabel6.setText("Telefono:");
-        jLabel6.setForeground(new java.awt.Color(102, 0, 204));
+        jLabel6.setForeground(new java.awt.Color(51, 255, 51));
         jPanel2.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(310, 10, 80, -1));
 
         jLabel7.setText("Tipo de Venta:");
@@ -361,7 +361,7 @@ cargarItems();
         jLabel9.setForeground(new java.awt.Color(255, 255, 255));
         jPanel2.add(jLabel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(190, 60, -1, -1));
 
-        datePicker1.setBackground(new java.awt.Color(0, 168, 107));
+        datePicker1.setBackground(new java.awt.Color(0, 102, 255));
         jPanel2.add(datePicker1, new org.netbeans.lib.awtextra.AbsoluteConstraints(190, 80, -1, -1));
 
         jComboBox3.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Contado", "Credito" }));
@@ -402,10 +402,10 @@ cargarItems();
 
         jPanel2.add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 170, 398, 183));
 
-        jButton7.setText("<html><b>Generar</b><br>Venta</html>");
+        jButton7.setText("<html><b>Generar</b><br>Compra</html>");
         jButton7.setBackground(new java.awt.Color(11, 8, 20));
         jButton7.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255)));
-        jButton7.setForeground(new java.awt.Color(0, 255, 0));
+        jButton7.setForeground(new java.awt.Color(0, 204, 255));
         jButton7.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton7ActionPerformed(evt);
@@ -413,7 +413,8 @@ cargarItems();
         });
         jPanel2.add(jButton7, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 440, 72, 85));
 
-        jButton8.setText("<html><b>Generar</b><br>Cotizacion</html>");
+        jButton8.setText("<html><b>Generar</b><br>Orden</html>");
+        jButton8.setActionCommand("<html><b>Generar</b><br>Orden</html>");
         jButton8.setBackground(new java.awt.Color(11, 8, 20));
         jButton8.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255)));
         jButton8.setForeground(new java.awt.Color(255, 255, 0));
@@ -510,11 +511,8 @@ cargarItems();
         lbl_total.setForeground(new java.awt.Color(255, 255, 0));
         jPanel2.add(lbl_total, new org.netbeans.lib.awtextra.AbsoluteConstraints(244, 387, 150, -1));
 
-        jCheckBox1.setForeground(new java.awt.Color(255, 255, 255));
-        jCheckBox1.setText("Calcular Cambio");
-        jPanel2.add(jCheckBox1, new org.netbeans.lib.awtextra.AbsoluteConstraints(190, 120, 120, -1));
-
         jScrollPane1.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+        jScrollPane1.setAutoscrolls(true);
         jScrollPane1.setBackground(new java.awt.Color(35, 32, 40));
         jScrollPane1.setHorizontalScrollBar(null);
 
@@ -525,7 +523,6 @@ cargarItems();
                 contenedorMouseMoved(evt);
             }
         });
-        contenedor.setLayout(new java.awt.GridBagLayout());
         jScrollPane1.setViewportView(contenedor);
 
         jLabel2.setText("Productos en Lista:");
@@ -579,9 +576,9 @@ cargarItems();
             }
         });
 
-        jLabel4.setText("Registrar Venta");
+        jLabel4.setText("Registrar Compra");
         jLabel4.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
-        jLabel4.setForeground(new java.awt.Color(0, 255, 0));
+        jLabel4.setForeground(new java.awt.Color(0, 204, 255));
         jLabel4.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 jLabel4MouseClicked(evt);
@@ -602,74 +599,75 @@ cargarItems();
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(9, 9, 9)
+                .addGap(10, 10, 10)
+                .addComponent(jLabel11, javax.swing.GroupLayout.PREFERRED_SIZE, 419, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(88, 88, 88)
+                .addComponent(jLabel4)
+                .addGap(82, 82, 82)
+                .addComponent(icono_carga, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addGroup(layout.createSequentialGroup()
+                .addGap(6, 6, 6)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel11, javax.swing.GroupLayout.PREFERRED_SIZE, 419, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(102, 102, 102)
-                        .addComponent(jLabel4)
-                        .addGap(96, 96, 96)
-                        .addComponent(icono_carga, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 0, Short.MAX_VALUE))
+                        .addGap(4, 4, 4)
+                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(6, 6, 6)
+                        .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(6, 6, 6)
+                        .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(6, 6, 6)
+                        .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 72, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 423, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                .addGroup(layout.createSequentialGroup()
-                                    .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addGap(6, 6, 6)
-                                    .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addGap(6, 6, 6)
-                                    .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addGap(6, 6, 6)
-                                    .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 72, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addGroup(layout.createSequentialGroup()
-                                    .addComponent(jButton4, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                    .addComponent(jButton5, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                    .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 189, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                    .addComponent(jButton6, javax.swing.GroupLayout.PREFERRED_SIZE, 72, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 420, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(jLabel2)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGap(1, 1, 1)
+                        .addComponent(jLabel2)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                .addContainerGap())
+                        .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(1, 1, 1)
+                        .addComponent(jButton4, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(6, 6, 6)
+                        .addComponent(jButton5, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(6, 6, 6)
+                        .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 189, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(6, 6, 6)
+                        .addComponent(jButton6, javax.swing.GroupLayout.PREFERRED_SIZE, 72, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(6, 6, 6)
+                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, 400, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(6, 6, 6)
+                .addGap(3, 3, 3)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(jLabel4)
-                        .addComponent(jLabel11))
-                    .addComponent(icono_carga, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(12, 12, 12)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(9, 9, 9)
+                        .addComponent(jLabel11, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jLabel4)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(7, 7, 7)
+                        .addComponent(icono_carga, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(6, 6, 6)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jButton1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 94, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jButton2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 94, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jButton3, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 94, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 341, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 92, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 92, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 92, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 92, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(6, 6, 6)
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 344, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(6, 6, 6)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel2)
                             .addComponent(jLabel3))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGap(6, 6, 6)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jButton5, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jButton4, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jButton5, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jButton6, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap())
+                    .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, 554, javax.swing.GroupLayout.PREFERRED_SIZE)))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -702,7 +700,7 @@ public void cargarItems(int secuencialEmpresa, JPanel contenedor, JPanel contene
 //ImageIcon icono = new ImageIcon(getClass().getResource("/icons/no-image-icon-10.png"));
 
        
-        Miniatura_Producto miniatura = new Miniatura_Producto(producto,false);
+        Miniatura_Producto miniatura = new Miniatura_Producto(producto,true);
 
       
         miniatura.addMouseListener(new MouseAdapter() {
@@ -814,7 +812,7 @@ public void cargarItemsFiltrados(
             : new ImageIcon(getClass().getResource("/icons/no-image-icon-10.png"));
 
 
-        Miniatura_Producto miniatura = new Miniatura_Producto(producto,false);
+        Miniatura_Producto miniatura = new Miniatura_Producto(producto,true);
 
         miniatura.addMouseListener(new MouseAdapter() {
             @Override
@@ -1014,11 +1012,11 @@ icono_carga.setVisible(false);
 
    private void limpiarFactura() {
     // 1. Resetear selección de cliente
-    llenarComboCliente();
+    Util.llenarComboProveedor(comboProveedor, Secuencial_Empresa);
     lbl_total.setText("0.0");
     lbl_subTotal.setText("0.0");
-    comboCliente.setSelectedIndex(-1);
-    comboCliente.setEnabled(true);
+    comboProveedor.setSelectedIndex(-1);
+    comboProveedor.setEnabled(true);
 
     // 2. Limpiar contenedores visuales
     contenedor.removeAll();
@@ -1163,6 +1161,11 @@ if (datosImagen != null && datosImagen.length > 0) {
         // TODO add your handling code here:
     }//GEN-LAST:event_jMenuItem8ActionPerformed
 
+    private void contenedorMouseMoved(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_contenedorMouseMoved
+        // TODO add your handling code here:
+        jLabel3.setText(String.valueOf(listaDeItems.size()));
+    }//GEN-LAST:event_contenedorMouseMoved
+
     private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
 
         //*********************************
@@ -1212,7 +1215,7 @@ jTable1.setShowGrid(true); // Mostrar líneas
 
         if (item.cantidadSelecccion != 0) {
             double cantidad = item.cantidadSelecccion;
-            double precio = item.producto.getPrecio_Venta();
+            double precio = item.producto.getPrecio_Costo();
             double totalItem = cantidad * precio;
 
             modeloTabla.addRow(new Object[] {
@@ -1277,7 +1280,7 @@ jTable1.setShowGrid(true); // Mostrar líneas
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
 
         
-         V_Cliente x = new V_Cliente();
+         V_Proveedor x = new V_Proveedor();
    
         x.setLocationRelativeTo(null);
         x.setVisible(true);
@@ -1287,40 +1290,7 @@ jTable1.setShowGrid(true); // Mostrar líneas
 
     
     
-    public void llenarComboCliente() {
-    comboCliente.removeAllItems(); // Limpiar combo
-
-    EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
-    EntityManager em = emf.createEntityManager();
-
-    try {
-        List<Cliente> clientes = em.createQuery(
-            "SELECT c FROM Cliente c WHERE c.Activo = true AND c.Secuencial_Empresa = :empresa", Cliente.class)
-            .setParameter("empresa", Secuencial_Empresa)
-            .getResultList();
-
-        if (Secuencial != -1) {
-            for (Cliente c : clientes) {
-                comboCliente.addItem(c.getSecuencial() + " - " + c.getNombre());
-            }
-
-            for (int i = 0; i < comboCliente.getItemCount(); i++) {
-                String item = comboCliente.getItemAt(i);
-                if (item.contains(String.valueOf(this.Secuencial_Cliente))) {
-                    comboCliente.setSelectedItem(item);
-                    break;
-                }
-            }
-        }
-
-    } catch (Exception e) {
-        JOptionPane.showMessageDialog(null, "Error al cargar clientes: " + e.getMessage());
-    } finally {
-        em.close();
-        emf.close();
-    }
-}
-
+   
     
     
     
@@ -1393,12 +1363,12 @@ if (lbl_descuento.getText().trim().isEmpty()) {
 // TODO add your handling code here:
     }//GEN-LAST:event_lbl_descuentoKeyReleased
 
-    private void comboClienteMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_comboClienteMouseClicked
+    private void comboProveedorMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_comboProveedorMouseClicked
 
-        llenarComboCliente();
+        Util.llenarComboProveedor(comboProveedor,Secuencial_Empresa);
         
         // TODO add your handling code here:
-    }//GEN-LAST:event_comboClienteMouseClicked
+    }//GEN-LAST:event_comboProveedorMouseClicked
 
     private void lbl_impuestoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_lbl_impuestoActionPerformed
         // TODO add your handling code here:
@@ -1423,10 +1393,10 @@ if (lbl_descuento.getText().trim().isEmpty()) {
     private void jTextField2KeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextField2KeyReleased
    
         if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
-        Util.llenarComboClientePorTelefono(comboCliente, jTextField2, Secuencial_Empresa);
+        Util.llenarComboProveedorPorTelefono(comboProveedor, jTextField2, Secuencial_Empresa);
 
         if (jTextField2.getText().trim().isEmpty()) {
-            Util.llenarComboCliente(comboCliente, Secuencial_Empresa);
+            Util.llenarComboProveedor(comboProveedor, Secuencial_Empresa);
         }
     }
         
@@ -1569,28 +1539,26 @@ if (invocador instanceof Miniatura_Producto) {
     private void jButton8ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton8ActionPerformed
 
         
+        //*******************************************
         
-
-//***********************************************
-
-icono_carga.setVisible(true); // Mostrar el PictureBox mientras se procesa la cotización
+        icono_carga.setVisible(true); // Mostrar el PictureBox mientras se procesa la orden
 
 ActualizarNumeros(); // Actualizar los números en los labels correspondientes
 
 // Validaciones previas
 if (listaDeItems == null || listaDeItems.isEmpty()) {
     JOptionPane.showMessageDialog(null,
-        "No hay items seleccionados para registrar la cotización.",
+        "No hay items seleccionados para registrar la orden de compra.",
         "Error",
         JOptionPane.ERROR_MESSAGE);
     icono_carga.setVisible(false);
     return;
 }
 
-Object clienteSeleccionadoObj = comboCliente.getSelectedItem();
-if (comboCliente.getSelectedIndex() == -1 || clienteSeleccionadoObj == null) {
+Object proveedorSeleccionadoObj = comboProveedor.getSelectedItem();
+if (comboProveedor.getSelectedIndex() == -1 || proveedorSeleccionadoObj == null) {
     JOptionPane.showMessageDialog(null,
-        "Debe seleccionar un cliente para registrar la cotización.",
+        "Debe seleccionar un proveedor para registrar la orden de compra.",
         "Error",
         JOptionPane.ERROR_MESSAGE);
     icono_carga.setVisible(false);
@@ -1599,7 +1567,7 @@ if (comboCliente.getSelectedIndex() == -1 || clienteSeleccionadoObj == null) {
 
 if (total <= 0) {
     JOptionPane.showMessageDialog(null,
-        "El total de la cotización debe ser mayor a cero.",
+        "El total de la orden debe ser mayor a cero.",
         "Error",
         JOptionPane.ERROR_MESSAGE);
     icono_carga.setVisible(false);
@@ -1615,38 +1583,38 @@ try {
     em = emf.createEntityManager();
     em.getTransaction().begin();
 
-    // Crear cotización
-    Cotizacion cotizacion = new Cotizacion();
+    // Crear orden
+    Orden orden = new Orden();
 
-    String clienteId = clienteSeleccionadoObj.toString().split("-")[0].trim();
-    cotizacion.setSecuencial_Empresa(Secuencial_Empresa);
-    cotizacion.setSecuencial_Cliente(Integer.parseInt(clienteId));
-    cotizacion.setSecuencial_Usuario(Secuencial_Usuario);
-    cotizacion.setFecha(LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy hh:mm:ss a")));
-    cotizacion.setTotal(subTotal);
-    cotizacion.setGran_Total(total);
-    cotizacion.setDescuento(descuento);
-    cotizacion.setImpuesto(impuesto);
-    cotizacion.setOtros_Cargos(otrosCargos);
+    String proveedorId = proveedorSeleccionadoObj.toString().split("-")[0].trim();
+    orden.setSecuencial_Empresa(Secuencial_Empresa);
+    orden.setSecuencial_Proveedor(Integer.parseInt(proveedorId));
+    orden.setSecuencial_Usuario(Secuencial_Usuario);
+    orden.setFecha(LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy hh:mm:ss a")));
+    orden.setTotal(subTotal);
+    orden.setGran_Total(total);
+    orden.setDescuento(descuento);
+    orden.setImpuesto(impuesto);
+    orden.setOtros_Cargos(otrosCargos);
 
-    em.persist(cotizacion);
+    em.persist(orden);
 
     // Crear detalles
     for (Miniatura_Producto pro : listaDeItems.values()) {
-        Cotizacion_Detalle detalle = new Cotizacion_Detalle();
+        Orden_Detalle detalle = new Orden_Detalle();
 
         detalle.setSecuencial_Empresa(Secuencial_Empresa);
-        detalle.setSecuencial_Cotizacion(cotizacion.getSecuencial());
-        detalle.setSecuencial_Cliente(cotizacion.getSecuencial_Cliente());
-        detalle.setSecuencial_Usuario(cotizacion.getSecuencial_Usuario());
-        detalle.setFecha(cotizacion.getFecha());
+        detalle.setSecuencial_Orden(orden.getSecuencial());
+        detalle.setSecuencial_Proveedor(orden.getSecuencial_Proveedor());
+        detalle.setSecuencial_Usuario(orden.getSecuencial_Usuario());
+        detalle.setFecha(orden.getFecha());
 
         detalle.setSecuencial_Producto(pro.producto.getSecuencial());
         detalle.setCodigo(pro.producto.getCodigo());
         detalle.setDescripcion(pro.producto.getDescripcion());
         detalle.setCantidad((double) pro.getCantidadSelecccion());
-        detalle.setPrecio(redondear(pro.producto.getPrecio_Venta()));
-        detalle.setTotal(redondear(pro.getCantidadSelecccion() * pro.producto.getPrecio_Venta()));
+        detalle.setPrecio(redondear(pro.producto.getPrecio_Costo())); // Asumiendo que usas precio de compra
+        detalle.setTotal(redondear(pro.getCantidadSelecccion() * pro.producto.getPrecio_Costo()));
         detalle.setTipo(pro.producto.getTipo());
 
         em.persist(detalle);
@@ -1655,13 +1623,13 @@ try {
     em.getTransaction().commit();
 
     JOptionPane.showMessageDialog(null,
-        "Cotización registrada correctamente.",
+        "Orden de compra registrada correctamente.",
         "Éxito",
         JOptionPane.INFORMATION_MESSAGE);
 
     Util.registrarActividad(Secuencial_Usuario,
-        String.format("Ha registrado una cotización según Número: %d\nPor un valor de: %.2f",
-            cotizacion.getSecuencial(), total),
+        String.format("Ha registrado una orden de compra según Número: %d\nPor un valor de: %.2f",
+            orden.getSecuencial(), total),
         Secuencial_Empresa);
 
     limpiarFactura();
@@ -1671,30 +1639,34 @@ try {
         em.getTransaction().rollback();
     }
     JOptionPane.showMessageDialog(null,
-        "Error al registrar la cotización: " + e.getMessage(),
+        "Error al registrar la orden de compra: " + e.getMessage(),
         "Error",
         JOptionPane.ERROR_MESSAGE);
 } finally {
     if (em != null) em.close();
     if (emf != null) emf.close();
-    icono_carga.setVisible(false); // Ocultar el PictureBox después de procesar la cotización
+    icono_carga.setVisible(false); // Ocultar el PictureBox después de procesar la orden
 }
 
-//***********************************************
-
+        
+        
+        
+        //*******************************************
+  
     }//GEN-LAST:event_jButton8ActionPerformed
 
-    //******************************************
-    public  void importarCotizacion(Map<String, Double> lista, String cliente) {
-    comboCliente.setSelectedItem(cliente); // Seleccionar cliente en el comboBox
-comboCliente.setEnabled(false);
+  //******************************************
+public void importarOrden(Map<String, Double> lista, String proveedor) {
+    comboProveedor.setSelectedItem(proveedor); // Seleccionar proveedor en el comboBox
+    comboProveedor.setEnabled(false);
+
     EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
     EntityManager em = emf.createEntityManager();
 
     try {
-        for (Map.Entry<String, Double> itemC : lista.entrySet()) {
-            String codigo = itemC.getKey();
-            Double cantidadSeleccionada = itemC.getValue();
+        for (Map.Entry<String, Double> itemO : lista.entrySet()) {
+            String codigo = itemO.getKey();
+            Double cantidadSeleccionada = itemO.getValue();
 
             List<Producto> productos = em.createQuery(
                 "SELECT p FROM Producto p WHERE p.Codigo = :codigo AND p.Secuencial_Empresa = :empresa",
@@ -1704,15 +1676,10 @@ comboCliente.setEnabled(false);
                 .getResultList();
 
             for (Producto item : productos) {
-                Miniatura_Producto miniatura = new Miniatura_Producto(item,false);
-
-                
-               
+                Miniatura_Producto miniatura = new Miniatura_Producto(item, false);
                 miniatura.setCantidadSelecccion(cantidadSeleccionada != null ? cantidadSeleccionada : 0.0);
-               
-                
 
-                var selector = new SelectorCantidad(miniatura.producto.getCodigo(),miniatura.getCantidadSelecccion());
+                SelectorCantidad selector = new SelectorCantidad(miniatura.producto.getCodigo(), miniatura.getCantidadSelecccion());
                 selector.setCodigo(miniatura.producto.getCodigo());
                 selector.setCantidad(miniatura.getCantidadSelecccion());
 
@@ -1729,7 +1696,7 @@ comboCliente.setEnabled(false);
             }
         }
 
-        jButton6.doClick(); // Simular clic en el botón
+        jButton6.doClick(); // Simular clic en el botón para actualizar vista
 
     } catch (Exception e) {
         e.printStackTrace();
@@ -1737,22 +1704,16 @@ comboCliente.setEnabled(false);
         em.close();
         emf.close();
     }
-    
-    
-    
-    
 }
+//******************************************
 
-    //******************************************
-    
-  
     
     
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
 
- V_Importar_Cotizacion dialogo = new V_Importar_Cotizacion();
+ V_Importar_Orden dialogo = new V_Importar_Orden();
 dialogo.onAceptar = () -> {
-    importarCotizacion(dialogo.getLista(), dialogo.getClienteSeleccionado());
+    importarOrden(dialogo.getLista(), dialogo.getProveedorSeleccionado());
     jLabel3.setText(String.valueOf(listaDeItems.size()));
     jButton3.setEnabled(false);
     icono_carga.setVisible(false);
@@ -1764,21 +1725,19 @@ dialogo.setVisible(true);
     }//GEN-LAST:event_jButton3ActionPerformed
 
     private void jButton7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton7ActionPerformed
-    
-        
-        
-        
+      
+  
         //*************************************************************
 
 icono_carga.setVisible(true);
 ActualizarNumeros();
 
 if (listaDeItems.isEmpty()) {
-    JOptionPane.showMessageDialog(null, "No hay items seleccionados para registrar la venta.", "Error", JOptionPane.ERROR_MESSAGE);
+    JOptionPane.showMessageDialog(null, "No hay items seleccionados para registrar la compra.", "Error", JOptionPane.ERROR_MESSAGE);
     return;
 }
 
-if (comboCliente.getSelectedIndex() == -1 ||
+if (comboProveedor.getSelectedIndex() == -1 ||
     jComboBox3.getSelectedIndex() == -1 ||
     jComboBox4.getSelectedIndex() == -1) {
     JOptionPane.showMessageDialog(null, "Debe completar todos los campos obligatorios.", "Error", JOptionPane.ERROR_MESSAGE);
@@ -1786,7 +1745,7 @@ if (comboCliente.getSelectedIndex() == -1 ||
 }
 
 if (total <= 0) {
-    JOptionPane.showMessageDialog(null, "El total de la venta debe ser mayor a cero.", "Error", JOptionPane.ERROR_MESSAGE);
+    JOptionPane.showMessageDialog(null, "El total de la compra debe ser mayor a cero.", "Error", JOptionPane.ERROR_MESSAGE);
     return;
 }
 
@@ -1796,66 +1755,66 @@ EntityManager em = emf.createEntityManager();
 try {
     em.getTransaction().begin();
 
-    Venta venta = new Venta();
-    venta.setSecuencial_Empresa(Secuencial_Empresa);
-    venta.setSecuencial_Cliente(Integer.parseInt(comboCliente.getSelectedItem().toString().split("-")[0].trim()));
-    venta.setSecuencial_Usuario(Secuencial_Usuario);
-    venta.setFecha(new SimpleDateFormat("dd/MM/yyyy hh:mm:ss a").format(new Date()));
-    venta.setTipo(jComboBox3.getSelectedItem().toString());
-    venta.setForma_Pago(jComboBox4.getSelectedItem().toString());
-    venta.setTotal(redondear(subTotal));
-    venta.setGran_Total(redondear(total));
-    venta.setImpuesto(impuesto);
-    venta.setOtros_Cargos(otrosCargos);
-    venta.setDescuento(descuento);
+    Compra compra = new Compra();
+    compra.setSecuencial_Empresa(Secuencial_Empresa);
+    compra.setSecuencial_Proveedor(Integer.parseInt(comboProveedor.getSelectedItem().toString().split("-")[0].trim()));
+    compra.setSecuencial_Usuario(Secuencial_Usuario);
+    compra.setFecha(new SimpleDateFormat("dd/MM/yyyy hh:mm:ss a").format(new Date()));
+    compra.setTipo(jComboBox3.getSelectedItem().toString());
+    compra.setForma_Pago(jComboBox4.getSelectedItem().toString());
+    compra.setTotal(redondear(subTotal));
+    compra.setGran_Total(redondear(total));
+    compra.setImpuesto(impuesto);
+    compra.setOtros_Cargos(otrosCargos);
+    compra.setDescuento(descuento);
 
-    em.persist(venta);
+    em.persist(compra);
 
     for (Miniatura_Producto pro : listaDeItems.values()) {
-        Venta_Detalle detalle = new Venta_Detalle();
-        detalle.setSecuencial_Empresa(venta.getSecuencial_Empresa());
-        detalle.setSecuencial_Factura(venta.getSecuencial());
-        detalle.setSecuencial_Cliente(venta.getSecuencial_Cliente());
-        detalle.setSecuencial_Usuario(venta.getSecuencial_Usuario());
-        detalle.setFecha(venta.getFecha());
+        Compra_Detalle detalle = new Compra_Detalle();
+        detalle.setSecuencial_Empresa(compra.getSecuencial_Empresa());
+        detalle.setSecuencial_Factura(compra.getSecuencial());
+        detalle.setSecuencial_Proveedor(compra.getSecuencial_Proveedor());
+        detalle.setSecuencial_Usuario(compra.getSecuencial_Usuario());
+        detalle.setFecha(compra.getFecha());
         detalle.setSecuencial_Producto(pro.producto.getSecuencial());
         detalle.setCodigo(pro.producto.getCodigo());
         detalle.setDescripcion(pro.producto.getDescripcion());
         detalle.setCantidad((double) pro.getCantidadSelecccion());
-        detalle.setPrecio(redondear(pro.producto.getPrecio_Venta()));
-        detalle.setTotal(redondear(pro.getCantidadSelecccion() * pro.producto.getPrecio_Venta()));
+        detalle.setPrecio(redondear(pro.producto.getPrecio_Costo()));
+        detalle.setTotal(redondear(pro.getCantidadSelecccion() * pro.producto.getPrecio_Costo()));
         detalle.setTipo(pro.getTipo());
 
         em.persist(detalle);
 
         if (!"Servicio".equals(detalle.getTipo())) {
-            // ✅ Corrección en Kardex
+            // ✅ Corrección en Kardex: registrar cantidad comprada y precio de compra
             Util.registrarMovimientoKardex(
                 pro.producto.getSecuencial(),
                 pro.getCantidadSelecccion(),
                 pro.producto.getDescripcion(),
                 pro.getCantidadSelecccion(),
                 pro.producto.getPrecio_Costo(),
-                pro.producto.getPrecio_Venta(),
-                "Salida",
+                pro.producto.getPrecio_Costo(),
+                "Entrada",
                 Secuencial_Empresa
             );
 
             Producto producto = em.find(Producto.class, pro.producto.getSecuencial());
             if (producto != null) {
-                producto.setCantidad(producto.getCantidad() - pro.getCantidadSelecccion()); // ✅ Usar cantidad actual desde BD
+                producto.setCantidad(producto.getCantidad() + pro.getCantidadSelecccion()); // ✅ Usar cantidad actual desde BD
                 em.merge(producto);
             }
         }
     }
 
-    if ("Credito".equals(venta.getTipo())) {
-        Cuentas_Cobrar cuenta = new Cuentas_Cobrar();
-        cuenta.setSecuencial_Empresa(venta.getSecuencial_Empresa());
-        cuenta.setSecuencial_Factura(venta.getSecuencial());
-        cuenta.setSecuencial_Cliente(venta.getSecuencial_Cliente());
-        cuenta.setSecuencial_Usuario(venta.getSecuencial_Usuario());
-        cuenta.setFecha(venta.getFecha());
+    if ("Credito".equals(compra.getTipo())) {
+        Cuentas_Pagar cuenta = new Cuentas_Pagar();
+        cuenta.setSecuencial_Empresa(compra.getSecuencial_Empresa());
+        cuenta.setSecuencial_Factura(compra.getSecuencial());
+        cuenta.setSecuencial_Proveedor(compra.getSecuencial_Proveedor());
+        cuenta.setSecuencial_Usuario(compra.getSecuencial_Usuario());
+        cuenta.setFecha(compra.getFecha());
         cuenta.setTotal(redondear(total));
         cuenta.setSaldo(redondear(total));
         cuenta.setPagado(0.0);
@@ -1870,92 +1829,63 @@ try {
             return;
         }
 
-        cuenta.setDescuento(venta.getDescuento());
-        cuenta.setOtros_Cargos(venta.getOtros_Cargos());
-        cuenta.setImpuesto(venta.getImpuesto());
-        cuenta.setGran_Total(venta.getGran_Total());
+        cuenta.setDescuento(compra.getDescuento());
+        cuenta.setOtros_Cargos(compra.getOtros_Cargos());
+        cuenta.setImpuesto(compra.getImpuesto());
+        cuenta.setGran_Total(compra.getGran_Total());
 
         em.persist(cuenta);
     } else {
-        Ingreso ingreso = new Ingreso();
-        ingreso.setSecuencial_Empresa(venta.getSecuencial_Empresa());
-        ingreso.setSecuencial_Factura(venta.getSecuencial());
-        ingreso.setSecuencial_Usuario(venta.getSecuencial_Usuario());
-        ingreso.setFecha(venta.getFecha());
-        ingreso.setTotal(redondear(total));
-        ingreso.setTipo_Ingreso(venta.getForma_Pago());
-        ingreso.setDescripcion("Venta según Factura: " + venta.getSecuencial());
+        Egreso egreso = new Egreso();
+        egreso.setSecuencial_Empresa(compra.getSecuencial_Empresa());
+        egreso.setSecuencial_Factura(compra.getSecuencial());
+        egreso.setSecuencial_Usuario(compra.getSecuencial_Usuario());
+        egreso.setFecha(compra.getFecha());
+        egreso.setTotal(redondear(total));
+        egreso.setTipo_Egreso(compra.getForma_Pago());
+        egreso.setDescripcion("Compra según Factura: " + compra.getSecuencial());
 
-        em.persist(ingreso);
-    }
-
-    if (jCheckBox1.isSelected()) {
-        String recibido = JOptionPane.showInputDialog(
-            null,
-            "Escriba la cantidad en números del dinero recibido por esta venta.",
-            "Cálculo del Cambio",
-            JOptionPane.QUESTION_MESSAGE
-        );
-
-        if (recibido != null && !recibido.trim().isEmpty()) {
-            try {
-                double monto = Double.parseDouble(recibido.trim());
-                double cambio = monto - total;
-
-                String mensaje;
-                if (cambio >= 0) {
-                    mensaje = "El Cambio a favor del Cliente es: " + cambio + "\n\n" +
-                              Util.convertNumberToWords((long) cambio) + " Lps";
-                } else {
-                    mensaje = "Falta Dinero: " + Math.abs(cambio) + "\n\n" +
-                              Util.convertNumberToWords((long) Math.abs(cambio)) + " Lps";
-                }
-
-                JOptionPane.showMessageDialog(null, mensaje, "Ventas", JOptionPane.INFORMATION_MESSAGE);
-            } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(null, "Error: Solo se permiten números.", "Ventas", JOptionPane.ERROR_MESSAGE);
-            }
-        }
+        em.persist(egreso);
     }
 
     JOptionPane.showMessageDialog(
         null,
-        "Credito".equals(venta.getTipo())
-            ? "Venta al crédito registrada correctamente.\n\nRecuerde que debe cobrar la cuenta pendiente antes de la fecha de vencimiento."
-            : "Venta registrada correctamente.",
+        "Credito".equals(compra.getTipo())
+            ? "Compra al crédito registrada correctamente.\n\nRecuerde que debe pagar la cuenta pendiente antes de la fecha de vencimiento."
+            : "Compra registrada correctamente.",
         "Éxito",
         JOptionPane.INFORMATION_MESSAGE
     );
 
-    FacturaCompletaPDF_Venta factura = new FacturaCompletaPDF_Venta();
-    factura.setSecuencial(venta.getSecuencial());
-    factura.setCliente(comboCliente.getSelectedItem().toString().split("-")[1].trim());
-    factura.setTipoVenta(venta.getTipo());
-    factura.setMetodoPago(venta.getForma_Pago());
-    factura.setFecha(venta.getFecha());
+    FacturaCompletaPDF_Compra factura = new FacturaCompletaPDF_Compra();
+    factura.setSecuencial(compra.getSecuencial());
+    factura.setProveedor(comboProveedor.getSelectedItem().toString().split("-")[1].trim());
+    factura.setTipoCompra(compra.getTipo());
+    factura.setMetodoPago(compra.getForma_Pago());
+    factura.setFecha(compra.getFecha());
     factura.setItems(ObtenerItemsDesdeGrid(jTable1));
-    factura.setISV(venta.getImpuesto());
-    factura.setOtrosCargos(venta.getOtros_Cargos());
-    factura.setDescuento(venta.getDescuento());
+    factura.setISV(compra.getImpuesto());
+    factura.setOtrosCargos(compra.getOtros_Cargos());
+    factura.setDescuento(compra.getDescuento());
 
     byte[] pdfBytes = factura.GeneratePdfToBytes();
-    venta.setDocumento(pdfBytes);
-    em.merge(venta);
+    compra.setDocumento(pdfBytes);
+    em.merge(compra);
 
     V_Visor_Factura visor = new V_Visor_Factura();
     visor.setDocumentoEnBytes(pdfBytes);
-    visor.setTitulo("Factura de Venta No. " + factura.getSecuencial());
+    visor.setTitulo("Factura de Compra No. " + factura.getSecuencial());
     visor.mostrar();
 
-    Cliente destinatarioCliente = em.find(Cliente.class, venta.getSecuencial_Cliente());
-    String destinatario = destinatarioCliente != null ? destinatarioCliente.getEmail() : null;
+    Proveedor destinatarioProveedor = em.find(Proveedor.class, compra.getSecuencial_Proveedor());
+    String destinatario = destinatarioProveedor != null ? destinatarioProveedor.getEmail() : null;
 
     if (destinatario != null && !destinatario.isBlank()) {
         Util.EnviarCorreoConPdfBytes(
             "monitux.pos@gmail.com",
             destinatario,
-            "Nombre Empresa - Comprobante",
-            "Gracias por su compra. Adjunto tiene su comprobante.",
+            "Nombre Empresa - Comprobante de Compra",
+            "Gracias por su atención. Adjunto tiene el comprobante de compra.",
             pdfBytes,
             "smtp.gmail.com",
             587,
@@ -1966,10 +1896,10 @@ try {
 
     em.getTransaction().commit();
 
-     Util.registrarActividad(
+    Util.registrarActividad(
         Secuencial_Usuario,
-        "Ha registrado una venta" + ("Credito".equals(venta.getTipo()) ? " al crédito" : "") +
-        ", factura: " + venta.getSecuencial() + ", por un valor de: " + venta.getTotal() + " Lps",
+        "Ha registrado una compra" + ("Credito".equals(compra.getTipo()) ? " al crédito" : "") +
+        ", factura: " + compra.getSecuencial() + ", por un valor de: " + compra.getTotal() + " Lps",
         Secuencial_Empresa
     );
 
@@ -1977,15 +1907,19 @@ try {
 
 } catch (Exception ex) {
     em.getTransaction().rollback();
-    JOptionPane.showMessageDialog(null, "Error al registrar la venta: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+    JOptionPane.showMessageDialog(null, "Error al registrar la compra: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
     ex.printStackTrace();
 } finally {
     em.close();
     emf.close();
     icono_carga.setVisible(false);
 }
-    
-    
+
+//*************************************************************
+
+        
+        
+        
         
         // TODO add your handling code here:
     }//GEN-LAST:event_jButton7ActionPerformed
@@ -2018,11 +1952,6 @@ try {
     private void jComboBox4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox4ActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_jComboBox4ActionPerformed
-
-    private void contenedorMouseMoved(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_contenedorMouseMoved
-        // TODO add your handling code here:
-        jLabel3.setText(String.valueOf(listaDeItems.size()));
-    }//GEN-LAST:event_contenedorMouseMoved
 
     
     public List<Item_Factura> ObtenerItemsDesdeGrid(JTable table) {
@@ -2077,7 +2006,7 @@ try {
     
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JComboBox<String> comboCliente;
+    private javax.swing.JComboBox<String> comboProveedor;
     private javax.swing.JPanel contenedor;
     private javax.swing.JPanel contenedor_selector;
     private com.github.lgooddatepicker.components.DatePicker datePicker1;
@@ -2090,7 +2019,6 @@ try {
     private javax.swing.JButton jButton6;
     private javax.swing.JButton jButton7;
     private javax.swing.JButton jButton8;
-    private javax.swing.JCheckBox jCheckBox1;
     private javax.swing.JComboBox<String> jComboBox1;
     private javax.swing.JComboBox<String> jComboBox3;
     private javax.swing.JComboBox<String> jComboBox4;

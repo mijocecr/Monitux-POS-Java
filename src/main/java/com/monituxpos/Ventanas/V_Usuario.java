@@ -16,6 +16,7 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
@@ -608,10 +609,12 @@ if (tableUsuarios.getRowCount() > 0) {
 
     private void jTextField3KeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextField3KeyReleased
 
+if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
+        String filtroSeleccionado = jComboBox2.getSelectedItem().toString();
+        String valorFiltro = jTextField3.getText();
 
-         Filtrar(jComboBox2.getSelectedItem().toString(), jTextField3.getText()); // Llama al método Filtrar con el valor del TextBox
-        
-        // TODO add your handling code here:
+        Filtrar(filtroSeleccionado, valorFiltro); // Ejecuta solo al presionar Enter
+    }
     }//GEN-LAST:event_jTextField3KeyReleased
 
     private void tableUsuariosKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tableUsuariosKeyReleased

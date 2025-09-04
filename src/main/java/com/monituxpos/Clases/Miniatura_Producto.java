@@ -197,7 +197,7 @@ public String Fecha_Caducidad;
     
     
     
-    public Miniatura_Producto(Producto producto) {
+    public Miniatura_Producto(Producto producto,boolean es_Compra) {
         this.producto = producto;
         setLayout(new BorderLayout());
 
@@ -230,7 +230,12 @@ public String Fecha_Caducidad;
         codigoLabel.setFont(new Font("Arial", Font.BOLD, 12));
 
         marcaLabel = new JLabel("Marca: " + producto.getMarca());
+        if(es_Compra==false){
         precioLabel = new JLabel("Precio: " + producto.getPrecio_Venta());
+        }else{
+        precioLabel = new JLabel("Precio: " + producto.getPrecio_Costo());
+        }
+        
         cantidadLabel = new JLabel("Stock: " + producto.getCantidad() + "   [Min: " + producto.getExistencia_Minima() + "]");
 
         infoPanel = new JPanel(new GridLayout(4, 1));
