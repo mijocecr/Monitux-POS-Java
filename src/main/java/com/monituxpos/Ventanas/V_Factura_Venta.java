@@ -11,8 +11,13 @@ import jakarta.persistence.Persistence;
 import jakarta.persistence.TypedQuery;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.GridLayout;
+import java.awt.Insets;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -525,7 +530,7 @@ cargarItems();
                 contenedorMouseMoved(evt);
             }
         });
-        contenedor.setLayout(new java.awt.GridBagLayout());
+        contenedor.setLayout(new java.awt.GridLayout());
         jScrollPane1.setViewportView(contenedor);
 
         jLabel2.setText("Productos en Lista:");
@@ -680,8 +685,10 @@ cargarItems();
 public void cargarItems(int secuencialEmpresa, JPanel contenedor, JPanel contenedor_selector, EntityManager entityManager) {
 
     icono_carga.setVisible(true);
-    contenedor.setLayout(new GridLayout(0, 3, 5, 5)); // 4 columnas, filas dinámicas
-              contenedor_selector.setLayout(new GridLayout(0, 1, 5, 5)); // 4 columnas, filas dinámicas
+    contenedor.setLayout(new GridLayout(0, 3, 5, 5)); // 3 columnas, filas dinámicas
+  
+  
+   contenedor_selector.setLayout(new GridLayout(0, 1, 5, 5)); // 4 columnas, filas dinámicas
     
 
     contenedor.removeAll();
@@ -704,6 +711,7 @@ public void cargarItems(int secuencialEmpresa, JPanel contenedor, JPanel contene
        
         Miniatura_Producto miniatura = new Miniatura_Producto(producto,false);
 
+        
       
         miniatura.addMouseListener(new MouseAdapter() {
             @Override
@@ -779,7 +787,101 @@ if (miniatura.cargarComentario()!=null){
     
 }
 
-public void cargarItemsFiltrados(
+
+
+public void cargar_Items(int secuencialEmpresa, JPanel contenedor, JPanel contenedor_selector, EntityManager entityManager) {
+    icono_carga.setVisible(true);
+
+    // Usamos GridBagLayout para evitar el ajuste automático de tamaño
+    contenedor.setLayout(new GridBagLayout());
+    contenedor_selector.setLayout(new GridLayout(0, 1, 5, 5)); // Selector puede seguir con GridLayout
+
+    contenedor.removeAll();
+    contenedor_selector.removeAll();
+    listaDeItems.clear();
+    selectoresCantidad.clear();
+
+    List<Producto> productos = entityManager
+        .createQuery("SELECT p FROM Producto p WHERE p.Secuencial_Empresa = :empresa", Producto.class)
+        .setParameter("empresa", secuencialEmpresa)
+        .getResultList();
+
+    GridBagConstraints gbc = new GridBagConstraints();
+    gbc.insets = new Insets(5, 5, 5, 5); // Espaciado entre miniaturas
+    gbc.fill = GridBagConstraints.NONE; // No expandir
+    gbc.anchor = GridBagConstraints.NORTHWEST;
+
+    int col = 0, row = 0;
+
+    for (Producto producto : productos) {
+        Miniatura_Producto miniatura = new Miniatura_Producto(producto, false);
+        miniatura.setPreferredSize(new Dimension(120, 170)); // Tamaño fijo para cada miniatura
+
+        miniatura.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                SelectorCantidad selector = selectoresCantidad.computeIfAbsent(
+                    producto.getCodigo(),
+                    codigo -> new SelectorCantidad(codigo, 0)
+                );
+
+                if (!listaDeItems.containsKey(producto.getCodigo())) {
+                    listaDeItems.put(producto.getCodigo(), miniatura);
+                    if (!Arrays.asList(contenedor_selector.getComponents()).contains(selector)) {
+                        contenedor_selector.add(selector);
+                    }
+                }
+
+                contenedor_selector.revalidate();
+                contenedor_selector.repaint();
+            }
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+                if (e.isPopupTrigger()) {
+                    menu_contextual.show(e.getComponent(), e.getX(), e.getY());
+                }
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                if (e.isPopupTrigger()) {
+                    menu_contextual.show(e.getComponent(), e.getX(), e.getY());
+                }
+            }
+        });
+
+        String comentario = miniatura.cargarComentario();
+        String descripcion = miniatura.producto.getDescripcion();
+        miniatura.setToolTipText(
+            comentario != null
+                ? "<html><b>" + descripcion + "</b><br>" + comentario + "</html>"
+                : "<html><b>" + descripcion + "</b><br></html>"
+        );
+
+        // Posicionamiento en la cuadrícula
+        gbc.gridx = col;
+        gbc.gridy = row;
+        contenedor.add(miniatura, gbc);
+
+        col++;
+        if (col == 3) {
+            col = 0;
+            row++;
+        }
+    }
+
+    contenedor.revalidate();
+    contenedor.repaint();
+    icono_carga.setVisible(false);
+}
+
+
+
+
+
+
+public void cargar_ItemsFiltrados( //este es el original
     int secuencialEmpresa,
     JComboBox<String> comboFiltro,
     JTextField campoValorFiltro,
@@ -790,6 +892,8 @@ public void cargarItemsFiltrados(
     icono_carga.setVisible(true);
 
     contenedor.setLayout(new GridLayout(0, 3, 5, 5));
+    
+
     contenedor_selector.setLayout(new GridLayout(0, 1, 5, 5));
     contenedor.removeAll();
 
@@ -858,6 +962,108 @@ public void cargarItemsFiltrados(
         miniatura.setToolTipText("<html><b>" + descripcion + "</b><br>" + (comentario != null ? comentario : "") + "</html>");
 
         contenedor.add(miniatura);
+    }
+
+    contenedor.revalidate();
+    contenedor.repaint();
+    icono_carga.setVisible(false);
+}
+
+
+
+public void cargarItemsFiltrados(
+    int secuencialEmpresa,
+    JComboBox<String> comboFiltro,
+    JTextField campoValorFiltro,
+    JPanel contenedor,
+    JPanel contenedor_selector,
+    EntityManager entityManager
+) {
+    icono_carga.setVisible(true);
+
+    // Usamos GridBagLayout para evitar el ajuste automático de tamaño
+    contenedor.setLayout(new GridBagLayout());
+    contenedor_selector.setLayout(new GridLayout(0, 1, 5, 5));
+    contenedor.removeAll();
+    contenedor_selector.removeAll();
+
+    String campoFiltro = (String) comboFiltro.getSelectedItem();
+    String valorFiltro = campoValorFiltro.getText();
+
+    boolean aplicarFiltro = campoFiltro != null && !campoFiltro.trim().isEmpty()
+                         && valorFiltro != null && !valorFiltro.trim().isEmpty();
+
+    String jpql = "SELECT p FROM Producto p WHERE p.Secuencial_Empresa = :empresa"
+                + (aplicarFiltro ? " AND LOWER(p." + campoFiltro + ") LIKE :valorFiltro" : "");
+
+    TypedQuery<Producto> query = entityManager.createQuery(jpql, Producto.class);
+    query.setParameter("empresa", secuencialEmpresa);
+    if (aplicarFiltro) {
+        query.setParameter("valorFiltro", "%" + valorFiltro.toLowerCase() + "%");
+    }
+
+    GridBagConstraints gbc = new GridBagConstraints();
+    gbc.insets = new Insets(5, 5, 5, 5); // Espaciado entre miniaturas
+    gbc.fill = GridBagConstraints.NONE; // No expandir
+    gbc.anchor = GridBagConstraints.NORTHWEST;
+
+    int col = 0, row = 0;
+
+    for (Producto producto : query.getResultList()) {
+        Miniatura_Producto miniatura = new Miniatura_Producto(producto, false);
+        miniatura.setPreferredSize(new Dimension(120, 170)); // Tamaño fijo
+
+        miniatura.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                SelectorCantidad selector = selectoresCantidad.computeIfAbsent(
+                    producto.getCodigo(),
+                    codigo -> new SelectorCantidad(codigo, 0)
+                );
+
+                selector.setCantidad(0);
+
+                if (!listaDeItems.containsKey(producto.getCodigo())) {
+                    listaDeItems.put(producto.getCodigo(), miniatura);
+
+                    if (!Arrays.asList(contenedor_selector.getComponents()).contains(selector)) {
+                        contenedor_selector.add(selector);
+                    }
+                }
+
+                contenedor_selector.revalidate();
+                contenedor_selector.repaint();
+            }
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+                if (e.isPopupTrigger()) {
+                    menu_contextual.show(e.getComponent(), e.getX(), e.getY());
+                }
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                if (e.isPopupTrigger()) {
+                    menu_contextual.show(e.getComponent(), e.getX(), e.getY());
+                }
+            }
+        });
+
+        String comentario = miniatura.cargarComentario();
+        String descripcion = miniatura.producto.getDescripcion();
+        miniatura.setToolTipText("<html><b>" + descripcion + "</b><br>" + (comentario != null ? comentario : "") + "</html>");
+
+        // Posicionamiento en la cuadrícula
+        gbc.gridx = col;
+        gbc.gridy = row;
+        contenedor.add(miniatura, gbc);
+
+        col++;
+        if (col == 3) {
+            col = 0;
+            row++;
+        }
     }
 
     contenedor.revalidate();
@@ -970,7 +1176,7 @@ public void cargarItemsFiltrados(
         protected Void doInBackground() {
             EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
             EntityManager em = emf.createEntityManager();
-            cargarItems(Secuencial_Empresa, contenedor, contenedor_selector, em);
+            cargar_Items(Secuencial_Empresa, contenedor, contenedor_selector, em);
             em.close();
             emf.close();
             return null;
