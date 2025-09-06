@@ -3,6 +3,9 @@
 <Form version="1.3" maxVersion="1.9" type="org.netbeans.modules.form.forminfo.JFrameFormInfo">
   <Properties>
     <Property name="defaultCloseOperation" type="int" value="3"/>
+    <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+      <Dimension value="[1048, 750]"/>
+    </Property>
   </Properties>
   <SyntheticProperties>
     <SyntheticProperty name="formSizePolicy" type="int" value="1"/>
@@ -33,7 +36,7 @@
                   <Group type="102" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="jScrollPane2" pref="902" max="32767" attributes="0"/>
+                          <Component id="jScrollPane2" max="32767" attributes="0"/>
                           <Component id="jPanel3" max="32767" attributes="0"/>
                       </Group>
                   </Group>
@@ -56,7 +59,7 @@
               <Component id="jPanel3" min="-2" pref="43" max="-2" attributes="0"/>
           </Group>
           <Group type="102" alignment="0" attributes="0">
-              <Component id="jScrollPane1" max="32767" attributes="0"/>
+              <Component id="jScrollPane1" pref="0" max="32767" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
       </Group>
@@ -94,14 +97,26 @@
                       <EmptySpace pref="7" max="32767" attributes="0"/>
                   </Group>
                   <Group type="102" attributes="0">
-                      <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="jLabel2" alignment="0" min="-2" pref="165" max="-2" attributes="0"/>
-                          <Component id="jLabel13" alignment="0" min="-2" pref="171" max="-2" attributes="0"/>
-                          <Component id="jLabel7" alignment="0" min="-2" pref="175" max="-2" attributes="0"/>
-                          <Component id="jLabel12" alignment="0" max="32767" attributes="0"/>
-                          <Component id="jLabel16" alignment="0" max="32767" attributes="0"/>
-                          <Component id="jLabel20" alignment="0" max="32767" attributes="0"/>
+                          <Group type="102" attributes="0">
+                              <EmptySpace min="-2" pref="20" max="-2" attributes="0"/>
+                              <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                                  <Component id="jLabel3" pref="101" max="32767" attributes="0"/>
+                                  <Component id="jLabel25" max="32767" attributes="0"/>
+                              </Group>
+                          </Group>
+                          <Component id="jLabel26" alignment="0" min="-2" pref="146" max="-2" attributes="0"/>
+                          <Group type="102" alignment="0" attributes="0">
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Group type="103" groupAlignment="0" attributes="0">
+                                  <Component id="jLabel20" min="-2" pref="150" max="-2" attributes="0"/>
+                                  <Component id="jLabel12" alignment="0" min="-2" pref="150" max="-2" attributes="0"/>
+                                  <Component id="jLabel16" alignment="0" min="-2" pref="150" max="-2" attributes="0"/>
+                                  <Component id="jLabel7" alignment="0" min="-2" pref="150" max="-2" attributes="0"/>
+                                  <Component id="jLabel13" alignment="0" min="-2" pref="150" max="-2" attributes="0"/>
+                                  <Component id="jLabel2" alignment="0" min="-2" pref="150" max="-2" attributes="0"/>
+                              </Group>
+                          </Group>
                       </Group>
                       <EmptySpace max="32767" attributes="0"/>
                   </Group>
@@ -110,7 +125,13 @@
             <DimensionLayout dim="1">
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" attributes="0">
-                      <EmptySpace min="-2" pref="157" max="-2" attributes="0"/>
+                      <EmptySpace min="-2" pref="7" max="-2" attributes="0"/>
+                      <Component id="jLabel25" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="jLabel3" min="-2" pref="120" max="-2" attributes="0"/>
+                      <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                      <Component id="jLabel26" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace min="-2" pref="15" max="-2" attributes="0"/>
                       <Component id="jLabel2" min="-2" pref="37" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="inicio_submenu" min="-2" max="-2" attributes="0"/>
@@ -753,6 +774,30 @@
                 </Component>
               </SubComponents>
             </Container>
+            <Component class="javax.swing.JLabel" name="jLabel3">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="jLabel3"/>
+                <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+                  <Border info="org.netbeans.modules.form.compat2.border.LineBorderInfo">
+                    <LineBorder>
+                      <Color PropertyName="color" blue="ff" green="ff" red="ff" type="rgb"/>
+                    </LineBorder>
+                  </Border>
+                </Property>
+              </Properties>
+            </Component>
+            <Component class="javax.swing.JLabel" name="jLabel25">
+              <Properties>
+                <Property name="horizontalAlignment" type="int" value="0"/>
+                <Property name="text" type="java.lang.String" value="Acceso"/>
+              </Properties>
+            </Component>
+            <Component class="javax.swing.JLabel" name="jLabel26">
+              <Properties>
+                <Property name="horizontalAlignment" type="int" value="0"/>
+                <Property name="text" type="java.lang.String" value="Miguel Josue Cerrato Cruz"/>
+              </Properties>
+            </Component>
           </SubComponents>
         </Container>
       </SubComponents>
@@ -767,33 +812,39 @@
       <Layout>
         <DimensionLayout dim="0">
           <Group type="103" groupAlignment="0" attributes="0">
-              <Group type="102" alignment="0" attributes="0">
+              <Group type="102" attributes="0">
                   <EmptySpace max="-2" attributes="0"/>
-                  <Component id="jScrollPane3" min="-2" pref="586" max="-2" attributes="0"/>
+                  <Component id="lbl_Descripcion" min="-2" pref="580" max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Group type="102" attributes="0">
-                          <EmptySpace max="-2" attributes="0"/>
-                          <Component id="lbl_Nombre_Empresa" max="32767" attributes="0"/>
-                          <EmptySpace max="-2" attributes="0"/>
+                          <EmptySpace min="-2" pref="12" max="-2" attributes="0"/>
+                          <Component id="lbl_Nombre_Empresa" pref="303" max="32767" attributes="0"/>
                       </Group>
                       <Group type="102" alignment="1" attributes="0">
                           <EmptySpace max="32767" attributes="0"/>
                           <Component id="lbl_version" min="-2" pref="105" max="-2" attributes="0"/>
-                          <EmptySpace min="-2" pref="97" max="-2" attributes="0"/>
                       </Group>
                   </Group>
+                  <EmptySpace max="-2" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
         <DimensionLayout dim="1">
           <Group type="103" groupAlignment="0" attributes="0">
               <Group type="102" attributes="0">
-                  <Component id="lbl_Nombre_Empresa" min="-2" max="-2" attributes="0"/>
-                  <EmptySpace max="-2" attributes="0"/>
-                  <Component id="lbl_version" min="-2" max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                      <Group type="102" attributes="0">
+                          <Component id="lbl_Nombre_Empresa" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace max="-2" attributes="0"/>
+                          <Component id="lbl_version" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                      <Group type="102" attributes="0">
+                          <EmptySpace min="3" pref="3" max="-2" attributes="0"/>
+                          <Component id="lbl_Descripcion" max="32767" attributes="0"/>
+                      </Group>
+                  </Group>
                   <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
               </Group>
-              <Component id="jScrollPane3" alignment="0" max="32767" attributes="0"/>
           </Group>
         </DimensionLayout>
       </Layout>
@@ -817,32 +868,18 @@
             </Property>
             <Property name="text" type="java.lang.String" value="Monitux-POS v.1.8"/>
           </Properties>
+          <Events>
+            <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="lbl_versionMouseClicked"/>
+          </Events>
         </Component>
-        <Container class="javax.swing.JScrollPane" name="jScrollPane3">
-          <AuxValues>
-            <AuxValue name="autoScrollPane" type="java.lang.Boolean" value="true"/>
-          </AuxValues>
-
-          <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
-          <SubComponents>
-            <Component class="javax.swing.JTextPane" name="lbl_Descripcion">
-              <Properties>
-                <Property name="editable" type="boolean" value="false"/>
-                <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-                  <Color blue="0" green="0" red="0" type="rgb"/>
-                </Property>
-                <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
-                  <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
-                    <EmptyBorder/>
-                  </Border>
-                </Property>
-                <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-                  <Color blue="c0" green="ff" red="c0" type="rgb"/>
-                </Property>
-              </Properties>
-            </Component>
-          </SubComponents>
-        </Container>
+        <Component class="javax.swing.JLabel" name="lbl_Descripcion">
+          <Properties>
+            <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+              <Color blue="c0" green="ff" red="c0" type="rgb"/>
+            </Property>
+            <Property name="text" type="java.lang.String" value="Descripcion"/>
+          </Properties>
+        </Component>
       </SubComponents>
     </Container>
     <Container class="javax.swing.JPanel" name="jPanel3">
@@ -893,19 +930,17 @@
           <Layout>
             <DimensionLayout dim="0">
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="102" alignment="0" attributes="0">
-                      <EmptySpace min="-2" pref="200" max="-2" attributes="0"/>
+                  <Group type="102" attributes="0">
+                      <EmptySpace min="235" pref="235" max="-2" attributes="0"/>
                       <Component id="jLabel1" min="-2" pref="481" max="-2" attributes="0"/>
-                      <EmptySpace pref="348" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
             <DimensionLayout dim="1">
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="102" alignment="0" attributes="0">
-                      <EmptySpace min="-2" pref="180" max="-2" attributes="0"/>
+                  <Group type="102" attributes="0">
+                      <EmptySpace min="169" pref="169" max="-2" attributes="0"/>
                       <Component id="jLabel1" min="-2" pref="429" max="-2" attributes="0"/>
-                      <EmptySpace pref="593" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>

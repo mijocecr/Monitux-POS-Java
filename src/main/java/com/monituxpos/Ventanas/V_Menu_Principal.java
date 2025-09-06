@@ -360,11 +360,13 @@ iniciarCintaLED(lblTitular);
         jLabel22 = new javax.swing.JLabel();
         jLabel23 = new javax.swing.JLabel();
         jLabel24 = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
+        jLabel25 = new javax.swing.JLabel();
+        jLabel26 = new javax.swing.JLabel();
         jPanel2 = new javax.swing.JPanel();
         lbl_Nombre_Empresa = new javax.swing.JLabel();
         lbl_version = new javax.swing.JLabel();
-        jScrollPane3 = new javax.swing.JScrollPane();
-        lbl_Descripcion = new javax.swing.JTextPane();
+        lbl_Descripcion = new javax.swing.JLabel();
         jPanel3 = new javax.swing.JPanel();
         lblTitular = new javax.swing.JLabel();
         jScrollPane2 = new javax.swing.JScrollPane();
@@ -372,6 +374,7 @@ iniciarCintaLED(lblTitular);
         jLabel1 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setPreferredSize(new java.awt.Dimension(1048, 750));
         addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowOpened(java.awt.event.WindowEvent evt) {
                 formWindowOpened(evt);
@@ -860,6 +863,15 @@ iniciarCintaLED(lblTitular);
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
+        jLabel3.setText("jLabel3");
+        jLabel3.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255)));
+
+        jLabel25.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel25.setText("Acceso");
+
+        jLabel26.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel26.setText("Miguel Josue Cerrato Cruz");
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -873,20 +885,34 @@ iniciarCintaLED(lblTitular);
                     .addComponent(reportes_submenu, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap(7, Short.MAX_VALUE))
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addContainerGap()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 165, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel13, javax.swing.GroupLayout.PREFERRED_SIZE, 171, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 175, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel12, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jLabel16, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jLabel20, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(20, 20, 20)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE, 101, Short.MAX_VALUE)
+                            .addComponent(jLabel25, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                    .addComponent(jLabel26, javax.swing.GroupLayout.PREFERRED_SIZE, 146, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel20, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel12, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel16, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel13, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE))))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(157, 157, 157)
+                .addGap(7, 7, 7)
+                .addComponent(jLabel25)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jLabel26)
+                .addGap(15, 15, 15)
                 .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(inicio_submenu, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -922,12 +948,14 @@ iniciarCintaLED(lblTitular);
 
         lbl_version.setForeground(new java.awt.Color(255, 51, 255));
         lbl_version.setText("Monitux-POS v.1.8");
+        lbl_version.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                lbl_versionMouseClicked(evt);
+            }
+        });
 
-        lbl_Descripcion.setEditable(false);
-        lbl_Descripcion.setBackground(new java.awt.Color(0, 0, 0));
-        lbl_Descripcion.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
         lbl_Descripcion.setForeground(new java.awt.Color(192, 255, 192));
-        jScrollPane3.setViewportView(lbl_Descripcion);
+        lbl_Descripcion.setText("Descripcion");
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -935,25 +963,28 @@ iniciarCintaLED(lblTitular);
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 586, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(lbl_Descripcion, javax.swing.GroupLayout.PREFERRED_SIZE, 580, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(lbl_Nombre_Empresa, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addContainerGap())
+                        .addGap(12, 12, 12)
+                        .addComponent(lbl_Nombre_Empresa, javax.swing.GroupLayout.DEFAULT_SIZE, 303, Short.MAX_VALUE))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(lbl_version, javax.swing.GroupLayout.PREFERRED_SIZE, 105, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(97, 97, 97))))
+                        .addComponent(lbl_version, javax.swing.GroupLayout.PREFERRED_SIZE, 105, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap())
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
-                .addComponent(lbl_Nombre_Empresa)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(lbl_version)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addComponent(lbl_Nombre_Empresa)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(lbl_version))
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addGap(3, 3, 3)
+                        .addComponent(lbl_Descripcion, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                 .addGap(0, 0, Short.MAX_VALUE))
-            .addComponent(jScrollPane3)
         );
 
         jPanel3.setBackground(new java.awt.Color(0, 0, 0));
@@ -978,16 +1009,14 @@ iniciarCintaLED(lblTitular);
         panelContenedorLayout.setHorizontalGroup(
             panelContenedorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(panelContenedorLayout.createSequentialGroup()
-                .addGap(200, 200, 200)
-                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 481, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(348, Short.MAX_VALUE))
+                .addGap(235, 235, 235)
+                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 481, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
         panelContenedorLayout.setVerticalGroup(
             panelContenedorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(panelContenedorLayout.createSequentialGroup()
-                .addGap(180, 180, 180)
-                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 429, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(593, Short.MAX_VALUE))
+                .addGap(169, 169, 169)
+                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 429, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
         jScrollPane2.setViewportView(panelContenedor);
@@ -1003,7 +1032,7 @@ iniciarCintaLED(lblTitular);
                     .addGroup(layout.createSequentialGroup()
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 902, Short.MAX_VALUE)
+                            .addComponent(jScrollPane2)
                             .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(1, 1, 1)
@@ -1019,7 +1048,7 @@ iniciarCintaLED(lblTitular);
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE))
             .addGroup(layout.createSequentialGroup()
-                .addComponent(jScrollPane1)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -1135,8 +1164,10 @@ jLabel1.setLocation(x, y);
 
      
          mostrarSubMenu(inicio_submenu);
- lbl_Descripcion.setText("Desde aquí podrá generar cotizaciones, emitir órdenes de compra y registrar todas sus compras y ventas fácilmente.");
 
+         lbl_Descripcion.setText("<html>Punto de partida para gestionar clientes, proveedores, venta rápida y obtener una visión general en tiempo real del estado del negocio.También puede realizar abonos y consultar los saldos de CTAS.</html>");
+
+         
         
         // TODO add your handling code here:
     }//GEN-LAST:event_jLabel2MouseClicked
@@ -1233,6 +1264,11 @@ jLabel1.setLocation(x, y);
     }//GEN-LAST:event_jLabel5MouseExited
 
     private void jLabel6MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel6MouseClicked
+
+
+        V_Compras_Ventas x = new V_Compras_Ventas();
+        abrirVentana(x);
+
         // TODO add your handling code here:
     }//GEN-LAST:event_jLabel6MouseClicked
 
@@ -1253,8 +1289,10 @@ aplicarColorFondo(jLabel6,new Color(35, 32, 45));
 
           
          mostrarSubMenu(facturas_submenu);
- lbl_Descripcion.setText("Desde aquí podrá generar cotizaciones, emitir órdenes de compra y registrar todas sus compras y ventas fácilmente.");
 
+         lbl_Descripcion.setText("<html>Desde aquí podrá generar cotizaciones, emitir órdenes de compra y registrar todas sus compras y ventas fácilmente.</html>");
+
+         
         // TODO add your handling code here:
     }//GEN-LAST:event_jLabel7MouseClicked
 
@@ -1294,7 +1332,8 @@ aplicarColorFondo(jLabel9,new Color(197, 89, 100));
         V_Cliente x = new V_Cliente();
         x.setVisible(true);
         
-        
+         
+
         
         // TODO add your handling code here:
     }//GEN-LAST:event_jLabel10MouseClicked
@@ -1332,7 +1371,8 @@ aplicarColorFondo(jLabel11,new Color(35, 32, 45));
 
     private void jLabel12MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel12MouseClicked
 
-
+ lbl_Descripcion.setText("<html>Esta ventana le permite gestionar su inventario de forma eficiente: puede consultar sus productos, agregar nuevos ítems y acceder al historial de movimientos (kardex).</html>");
+ 
         ocultarSubMenu();
         // TODO add your handling code here:
     }//GEN-LAST:event_jLabel12MouseClicked
@@ -1341,7 +1381,7 @@ aplicarColorFondo(jLabel11,new Color(35, 32, 45));
 
         
          mostrarSubMenu(cuentas_submenu);
- lbl_Descripcion.setText("Pendiente Descripcion.");
+ lbl_Descripcion.setText("<html>Administre sus cuentas por cobrar y por pagar, registre pagos parciales y acceda al detalle completo de transacciones.</html>");
 
         // TODO add your handling code here:
     }//GEN-LAST:event_jLabel13MouseClicked
@@ -1384,7 +1424,7 @@ aplicarColorFondo(jLabel11,new Color(35, 32, 45));
 
             
          mostrarSubMenu(movimientos_submenu);
- lbl_Descripcion.setText("Pendiente Descripcion.");
+ lbl_Descripcion.setText("<html></html>");
 
         // TODO add your handling code here:
     }//GEN-LAST:event_jLabel16MouseClicked
@@ -1517,6 +1557,13 @@ aplicarColorFondo(jLabel22,new Color(35, 32, 45));
         // TODO add your handling code here:
     }//GEN-LAST:event_jLabel24MouseExited
 
+    private void lbl_versionMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lbl_versionMouseClicked
+
+
+        JOptionPane.showMessageDialog(null,this.getSize());
+        // TODO add your handling code here:
+    }//GEN-LAST:event_lbl_versionMouseClicked
+
     /**
      * @param args the command line arguments
      */
@@ -1596,6 +1643,9 @@ public void abrirVentana(JPanel childPanel) {
     private javax.swing.JLabel jLabel22;
     private javax.swing.JLabel jLabel23;
     private javax.swing.JLabel jLabel24;
+    private javax.swing.JLabel jLabel25;
+    private javax.swing.JLabel jLabel26;
+    private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
@@ -1607,9 +1657,8 @@ public void abrirVentana(JPanel childPanel) {
     private javax.swing.JPanel jPanel3;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JLabel lblTitular;
-    private javax.swing.JTextPane lbl_Descripcion;
+    private javax.swing.JLabel lbl_Descripcion;
     private javax.swing.JLabel lbl_Nombre_Empresa;
     private javax.swing.JLabel lbl_version;
     private javax.swing.JPanel movimientos_submenu;
