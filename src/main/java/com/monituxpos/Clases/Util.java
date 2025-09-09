@@ -384,6 +384,32 @@ public class Util {
 }
 
     
+    public static void llenarComboUsuario(JComboBox<String> combo, int secuencial_Empresa) {
+    combo.removeAllItems(); // Limpiar combo
+
+    EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
+    EntityManager em = emf.createEntityManager();
+
+    try {
+        List<Usuario> usuarios = em.createQuery(
+            "SELECT u FROM Usuario u WHERE u.Activo = true AND u.Secuencial_Empresa = :empresa", Usuario.class)
+            .setParameter("empresa", secuencial_Empresa)
+            .getResultList();
+
+        for (Usuario u : usuarios) {
+            combo.addItem(u.getSecuencial() + " - " + u.getNombre());
+        }
+
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(null, "Error al cargar usuarios: " + e.getMessage());
+    } finally {
+        em.close();
+        emf.close();
+    }
+}
+
+    
+    
     
     public static void llenarComboProveedor(JComboBox<String> combo, int secuencial_Empresa) {
     combo.removeAllItems(); // Limpiar combo
@@ -444,15 +470,14 @@ public class Util {
     }
 }
 
-    
-    public static void llenarComboProveedorPorTelefono(JComboBox<String> combo, JTextField campoTelefono, int secuencialEmpresa) {
+  public static void llenarComboProveedorPorTelefono(JComboBox<String> combo, String telefono, int secuencialEmpresa) {
     combo.removeAllItems(); // Limpiar combo
 
     EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
     EntityManager em = emf.createEntityManager();
 
     try {
-        String textoTelefono = campoTelefono.getText().trim().toLowerCase();
+        String textoTelefono = telefono.trim().toLowerCase();
 
         List<Proveedor> proveedores = em.createQuery(
             "SELECT p FROM Proveedor p WHERE p.Activo = true AND p.Secuencial_Empresa = :empresa AND LOWER(p.Telefono) LIKE :telefono",
@@ -462,21 +487,33 @@ public class Util {
         .setParameter("telefono", "%" + textoTelefono + "%")
         .getResultList();
 
+        if (proveedores.isEmpty()) {
+            JOptionPane.showMessageDialog(null,
+                "No se encontró ningún proveedor con ese número de teléfono.",
+                "Sin resultados",
+                JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+
         for (Proveedor item : proveedores) {
             String texto = item.getSecuencial() + " - " + item.getNombre();
             combo.addItem(texto);
-            combo.setSelectedItem(texto); // Selecciona el último encontrado
         }
 
+        combo.setSelectedIndex(0); // Selecciona el primero si hay resultados
+
     } catch (Exception e) {
-        JOptionPane.showMessageDialog(null, "Error al filtrar proveedores: " + e.getMessage());
+        JOptionPane.showMessageDialog(null,
+            "Error al filtrar proveedores: " + e.getMessage(),
+            "Error",
+            JOptionPane.ERROR_MESSAGE);
+        e.printStackTrace();
     } finally {
         em.close();
         emf.close();
     }
 }
 
-    
     
     
      public static void EnviarCorreoConPdfBytes(

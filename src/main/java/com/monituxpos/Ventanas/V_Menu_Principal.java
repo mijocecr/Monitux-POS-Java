@@ -122,12 +122,6 @@ public NoticiasRSS fuente= new NoticiasRSS();//Esta linea es
         V_Menu_Principal.Email = Email;
     }
 
- 
-
-
-    /**
-     * Creates new form V_Menu_Principal
-     */
 
 
 
@@ -249,15 +243,23 @@ public NoticiasRSS fuente= new NoticiasRSS();//Esta linea es
         
           initComponents();
         
- 
-      
-     
+ mostrarSubMenu(inicio_submenu);
+     lbl_Descripcion.setText("<html>Punto de partida para gestionar clientes, proveedores, venta rápida y obtener una visión general en tiempo real del estado del negocio.También puede realizar abonos y consultar los saldos de CTAS.</html>");
+
      NoticiasRSS fuente = new NoticiasRSS();
 fuente.cargarTitularesRSS(this.getURL_RSS());
 titulares = fuente.getTitulares();
 
 
 iniciarCintaLED(lblTitular);
+
+
+
+     
+
+
+
+
 
   
     }
@@ -866,9 +868,11 @@ iniciarCintaLED(lblTitular);
         jLabel3.setText("jLabel3");
         jLabel3.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255)));
 
+        jLabel25.setForeground(new java.awt.Color(255, 255, 255));
         jLabel25.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel25.setText("Acceso");
 
+        jLabel26.setForeground(new java.awt.Color(255, 255, 255));
         jLabel26.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel26.setText("Miguel Josue Cerrato Cruz");
 
@@ -946,7 +950,7 @@ iniciarCintaLED(lblTitular);
         lbl_Nombre_Empresa.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         lbl_Nombre_Empresa.setText("Nombre de Empresa o Negocio");
 
-        lbl_version.setForeground(new java.awt.Color(255, 51, 255));
+        lbl_version.setForeground(new java.awt.Color(0, 255, 0));
         lbl_version.setText("Monitux-POS v.1.8");
         lbl_version.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -967,7 +971,7 @@ iniciarCintaLED(lblTitular);
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel2Layout.createSequentialGroup()
                         .addGap(12, 12, 12)
-                        .addComponent(lbl_Nombre_Empresa, javax.swing.GroupLayout.DEFAULT_SIZE, 303, Short.MAX_VALUE))
+                        .addComponent(lbl_Nombre_Empresa, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(lbl_version, javax.swing.GroupLayout.PREFERRED_SIZE, 105, javax.swing.GroupLayout.PREFERRED_SIZE)))
@@ -1008,15 +1012,17 @@ iniciarCintaLED(lblTitular);
         panelContenedor.setLayout(panelContenedorLayout);
         panelContenedorLayout.setHorizontalGroup(
             panelContenedorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(panelContenedorLayout.createSequentialGroup()
-                .addGap(235, 235, 235)
-                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 481, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelContenedorLayout.createSequentialGroup()
+                .addContainerGap(212, Short.MAX_VALUE)
+                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 481, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(203, 203, 203))
         );
         panelContenedorLayout.setVerticalGroup(
             panelContenedorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(panelContenedorLayout.createSequentialGroup()
-                .addGap(169, 169, 169)
-                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 429, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(78, 78, 78)
+                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 429, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(364, Short.MAX_VALUE))
         );
 
         jScrollPane2.setViewportView(panelContenedor);
@@ -1061,15 +1067,29 @@ iniciarCintaLED(lblTitular);
         this.getContentPane().setBackground(Color.black);
         
         
-        ImageIcon imagenOriginal= new ImageIcon("C:\\Users\\Miguel Cerrato\\Documents\\NetBeansProjects\\Monitux-POS-Java\\src\\main\\resources\\icons\\Logo.png");
+        ImageIcon imagenOriginal = new ImageIcon(getClass().getResource("/icons/Logo.png"));
+
         
       Util.redimensionarImagenEnLabel(jLabel1, imagenOriginal, 400,400);
       
-      
+        
+    int x = (panelContenedor.getWidth() - jLabel1.getWidth()) / 2;
+int y = (panelContenedor.getHeight() - jLabel1.getHeight()) / 2;
+jLabel1.setLocation(x, y);
      
 jLabel1.setHorizontalAlignment(SwingConstants.CENTER);
 jLabel1.setVerticalAlignment(SwingConstants.CENTER);
 
+
+ panelContenedor.removeAll(); // Limpia el contenido actual
+   
+  
+
+    
+    panelContenedor.add(jLabel1); // pictureBox2 debe ser un JLabel con un icono en Java
+    panelContenedor.revalidate();
+    panelContenedor.repaint();
+    
 
 
       
@@ -1079,7 +1099,7 @@ jLabel1.setVerticalAlignment(SwingConstants.CENTER);
         this.setAcceso("Administrador");
        this.setSecuencial_Empresa(1);
         this.setDireccion_Empresa("Juticalpa, Olancho");
-        this.setSecuencial_Usuario(1);
+        this.setSecuencial_Usuario(2);
         this.setTelefono_Empresa("642883288");
         this.setNombre_Empresa("One Click Solutions");
         this.setEmail("Empresa@gmail.com");
@@ -1430,6 +1450,12 @@ aplicarColorFondo(jLabel11,new Color(35, 32, 45));
     }//GEN-LAST:event_jLabel16MouseClicked
 
     private void jLabel17MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel17MouseClicked
+
+   V_Ingresos x = new V_Ingresos();
+        abrirVentana(x);
+        
+        lbl_Descripcion.setText("<html>Consulte de forma rápida y sencilla los ingresos registrados en el sistema, tanto automáticos como manuales. Además, tiene la opción de añadir ingresos independientes al proceso de venta.</html>");
+
         // TODO add your handling code here:
     }//GEN-LAST:event_jLabel17MouseClicked
 
@@ -1446,6 +1472,13 @@ aplicarColorFondo(jLabel11,new Color(35, 32, 45));
     }//GEN-LAST:event_jLabel17MouseExited
 
     private void jLabel18MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel18MouseClicked
+
+        V_Egresos x = new V_Egresos();
+        abrirVentana(x);
+        
+        lbl_Descripcion.setText("<html>Consulte de forma rápida y sencilla los egresos registrados en el sistema, tanto automáticos como manuales. Además, tiene la opción de añadir egresos independientes al proceso de compra.</html>");
+
+
         // TODO add your handling code here:
     }//GEN-LAST:event_jLabel18MouseClicked
 
@@ -1462,6 +1495,13 @@ aplicarColorFondo(jLabel11,new Color(35, 32, 45));
     }//GEN-LAST:event_jLabel18MouseExited
 
     private void jLabel19MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel19MouseClicked
+
+         V_Actividades x = new V_Actividades();
+        abrirVentana(x);
+        
+        lbl_Descripcion.setText("<html>Bitácora de actividades ventana que muestra un registro cronológico de tareas o eventos realizados, útil para el seguimiento y control de actividades.</html>");
+
+
         // TODO add your handling code here:
     }//GEN-LAST:event_jLabel19MouseClicked
 

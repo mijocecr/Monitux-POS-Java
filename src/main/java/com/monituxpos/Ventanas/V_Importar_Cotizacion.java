@@ -76,6 +76,27 @@ public Runnable onAceptar; // El callback
         }
     }
 });
+        
+        
+        
+        jTable1.addKeyListener(new java.awt.event.KeyAdapter() {
+    @Override
+    public void keyReleased(java.awt.event.KeyEvent evt) {
+        int fila = jTable1.getSelectedRow();
+        if (fila != -1) {
+            Object valor = jTable1.getValueAt(fila, 0); // Columna "Secuencial"
+            if (valor != null) {
+                try {
+                    secuencial = Integer.parseInt(valor.toString());
+                    filtrarDetalle(secuencial, jTable2);
+                } catch (NumberFormatException ex) {
+                    System.err.println("Error al convertir el valor a entero: " + valor);
+                }
+            }
+        }
+    }
+});
+
 
         
         

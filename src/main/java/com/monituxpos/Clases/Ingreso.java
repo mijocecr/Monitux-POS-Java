@@ -1,20 +1,8 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.monituxpos.Clases;
 
-
-
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
 @Entity
-
-
 @Table(name = "Ingresos")
 public class Ingreso {
 
@@ -22,13 +10,33 @@ public class Ingreso {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int Secuencial;
 
+    @ManyToOne
+    @JoinColumn(name = "Secuencial_Usuario", insertable = false, updatable = false)
+    private Usuario usuario;
+
+    @ManyToOne
+    @JoinColumn(name = "Secuencial_Factura", insertable = false, updatable = false)
+    private Venta venta;
+
+    @Column(name = "Secuencial_Factura", insertable = false, updatable = false)
     private Integer Secuencial_Factura = 0;
+
+    @Column(name = "Secuencial_Usuario", insertable = false, updatable = false)
     private int Secuencial_Usuario = 0;
+
+    @Column(name = "Fecha")
     private String Fecha = new java.text.SimpleDateFormat("dd/MM/yyyy").format(new java.util.Date());
+
+    @Column(name = "Tipo_Ingreso")
     private String Tipo_Ingreso = "";
+
+    @Column(name = "Descripcion")
     private String Descripcion = "";
+
+    @Column(name = "Total")
     private double Total = 0.0;
 
+    @Column(name = "Secuencial_Empresa")
     private int Secuencial_Empresa;
 
     // Getters y setters
@@ -62,6 +70,22 @@ public class Ingreso {
 
     public void setFecha(String fecha) {
         Fecha = fecha;
+    }
+
+    public Usuario getUsuario() {
+        return usuario;
+    }
+
+    public void setUsuario(Usuario usuario) {
+        this.usuario = usuario;
+    }
+
+    public Venta getVenta() {
+        return venta;
+    }
+
+    public void setVenta(Venta venta) {
+        this.venta = venta;
     }
 
     public String getTipo_Ingreso() {

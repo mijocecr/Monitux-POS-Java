@@ -1550,8 +1550,9 @@ if (lbl_descuento.getText().trim().isEmpty()) {
 
     private void jTextField2KeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextField2KeyReleased
    
+        String telefono=jTextField2.getText();
         if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
-        Util.llenarComboProveedorPorTelefono(comboProveedor, jTextField2, Secuencial_Empresa);
+        Util.llenarComboProveedorPorTelefono(comboProveedor, telefono, Secuencial_Empresa);
 
         if (jTextField2.getText().trim().isEmpty()) {
             Util.llenarComboProveedor(comboProveedor, Secuencial_Empresa);
@@ -1941,7 +1942,7 @@ try {
         detalle.setCantidad((double) pro.getCantidadSelecccion());
         detalle.setPrecio(redondear(pro.producto.getPrecio_Costo()));
         detalle.setTotal(redondear(pro.getCantidadSelecccion() * pro.producto.getPrecio_Costo()));
-        detalle.setTipo(pro.getTipo());
+        detalle.setTipo(pro.producto.getTipo());
 
         em.persist(detalle);
 

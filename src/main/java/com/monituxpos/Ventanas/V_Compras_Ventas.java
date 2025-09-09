@@ -4,20 +4,141 @@
  */
 package com.monituxpos.Ventanas;
 
+import com.monituxpos.Clases.Cliente;
+import com.monituxpos.Clases.Compra;
+import com.monituxpos.Clases.Compra_Detalle;
+import com.monituxpos.Clases.Proveedor;
+import com.monituxpos.Clases.Util;
+import com.monituxpos.Clases.Venta;
+import com.monituxpos.Clases.Venta_Detalle;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.Persistence;
+import java.awt.event.KeyEvent;
+import java.util.List;
+import javax.swing.JOptionPane;
+import javax.swing.JTable;
+import javax.swing.ListSelectionModel;
+import javax.swing.SwingConstants;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
+
 /**
  *
  * @author Miguel Cerrato
  */
 public class V_Compras_Ventas extends javax.swing.JPanel {
+public int Secuencial_Empresa=V_Menu_Principal.getSecuencial_Empresa();
+public int Secuencial_Venta;
+public int Secuencial_Compra;
 
+public int Secuencial_Proveedor;
+
+public int Secuencial_Cliente;
     /**
      * Creates new form V_Compras_Ventas
      */
+   
     public V_Compras_Ventas() {
-        initComponents();
-        
-        
-    }
+    initComponents();
+
+    // Cargar combos
+    Util.llenarComboCliente(jComboBox1, Secuencial_Empresa);
+    Util.llenarComboProveedor(jComboBox2, Secuencial_Empresa);
+
+    // Configurar tablas
+    configurarTablaVenta(jTable1);
+    configurarTablaDetalle(jTable2);
+    configurarTablaCompra(jTable3);
+    configurarTablaDetalle(jTable4);
+
+    // Limpiar tabla de detalles de venta
+    ((DefaultTableModel) jTable2.getModel()).setRowCount(0);
+
+    // Filtrar ventas por cliente seleccionado
+    String seleccionado = jComboBox1.getSelectedItem().toString();
+    int secuencialCliente = Integer.parseInt(seleccionado.split("-")[0].trim());
+    filtrarVenta(secuencialCliente, jTable1, jTable2);
+
+    // Limpiar tabla de detalles de compra
+    ((DefaultTableModel) jTable4.getModel()).setRowCount(0);
+
+    // Filtrar compras por proveedor seleccionado (CORREGIDO)
+    String seleccionadoc = jComboBox2.getSelectedItem().toString();
+    int secuencialProveedor = Integer.parseInt(seleccionadoc.split("-")[0].trim());
+    filtrarCompra(secuencialProveedor, jTable3, jTable4);
+
+    // Eventos de selección en tabla de ventas
+    jTable1.addMouseListener(new java.awt.event.MouseAdapter() {
+        public void mouseClicked(java.awt.event.MouseEvent evt) {
+            int fila = jTable1.getSelectedRow();
+            if (fila != -1) {
+                Object valor = jTable1.getValueAt(fila, 0);
+                if (valor != null) {
+                    Secuencial_Venta = Integer.parseInt(valor.toString());
+                    filtrarDetalleVenta(Secuencial_Venta, jTable2);
+                }
+            }
+        }
+    });
+
+    jTable1.addKeyListener(new java.awt.event.KeyAdapter() {
+        @Override
+        public void keyReleased(java.awt.event.KeyEvent evt) {
+            int fila = jTable1.getSelectedRow();
+            if (fila != -1) {
+                Object valor = jTable1.getValueAt(fila, 0);
+                if (valor != null) {
+                    try {
+                        Secuencial_Venta = Integer.parseInt(valor.toString());
+                        filtrarDetalleVenta(Secuencial_Venta, jTable2);
+                    } catch (NumberFormatException ex) {
+                        System.err.println("Error al convertir el valor a entero: " + valor);
+                    }
+                }
+            }
+        }
+    });
+
+    // Eventos de selección en tabla de compras
+    jTable3.addMouseListener(new java.awt.event.MouseAdapter() {
+        public void mouseClicked(java.awt.event.MouseEvent evt) {
+            int fila = jTable3.getSelectedRow();
+            if (fila != -1) {
+                Object valor = jTable3.getValueAt(fila, 0);
+                if (valor != null) {
+                    Secuencial_Compra = Integer.parseInt(valor.toString());
+                    filtrarDetalleCompra(Secuencial_Compra, jTable4);
+                }
+            }
+        }
+    });
+
+    jTable3.addKeyListener(new java.awt.event.KeyAdapter() {
+        @Override
+        public void keyReleased(java.awt.event.KeyEvent evt) {
+            int fila = jTable3.getSelectedRow();
+            if (fila != -1) {
+                Object valor = jTable3.getValueAt(fila, 0);
+                if (valor != null) {
+                    try {
+                        Secuencial_Compra = Integer.parseInt(valor.toString());
+                        filtrarDetalleCompra(Secuencial_Compra, jTable4);
+                    } catch (NumberFormatException ex) {
+                        System.err.println("Error al convertir el valor a entero: " + valor);
+                    }
+                }
+            }
+        }
+    });
+}
+
+    
+    
+    
+    
+    
+    
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -81,14 +202,39 @@ public class V_Compras_Ventas extends javax.swing.JPanel {
         jLabel2.setText("Ventas");
         jPanel2.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 0, -1, 30));
 
-        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
-        jPanel2.add(jComboBox1, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 30, 190, -1));
+        jComboBox1.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                jComboBox1ItemStateChanged(evt);
+            }
+        });
+        jComboBox1.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jComboBox1MouseClicked(evt);
+            }
+        });
+        jComboBox1.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
+            public void propertyChange(java.beans.PropertyChangeEvent evt) {
+                jComboBox1PropertyChange(evt);
+            }
+        });
+        jPanel2.add(jComboBox1, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 40, 190, -1));
 
         jLabel4.setForeground(new java.awt.Color(255, 255, 255));
         jLabel4.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         jLabel4.setText("Cliente:");
-        jPanel2.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 30, 60, 20));
-        jPanel2.add(jTextField1, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 50, 90, -1));
+        jPanel2.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 40, 50, 20));
+
+        jTextField1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jTextField1ActionPerformed(evt);
+            }
+        });
+        jTextField1.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                jTextField1KeyReleased(evt);
+            }
+        });
+        jPanel2.add(jTextField1, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 50, 100, -1));
 
         jLabel6.setForeground(new java.awt.Color(102, 0, 204));
         jLabel6.setText("Telefono:");
@@ -135,9 +281,19 @@ public class V_Compras_Ventas extends javax.swing.JPanel {
         jPanel2.add(jScrollPane3, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 290, 390, 186));
 
         jButton1.setText("Imprimir");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
         jPanel2.add(jButton1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 480, -1, -1));
 
         jButton2.setText("Enviar");
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
         jPanel2.add(jButton2, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 480, -1, -1));
 
         jButton3.setText("Modificar");
@@ -198,22 +354,42 @@ public class V_Compras_Ventas extends javax.swing.JPanel {
         jLabel11.setText("Proveedor:");
         jPanel4.add(jLabel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 40, 60, 30));
 
-        jComboBox2.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        jComboBox2.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                jComboBox2ItemStateChanged(evt);
+            }
+        });
         jPanel4.add(jComboBox2, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 40, 190, -1));
 
         jLabel12.setForeground(new java.awt.Color(51, 255, 51));
         jLabel12.setText("Telefono:");
-        jPanel4.add(jLabel12, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 40, 60, 20));
-        jPanel4.add(jTextField2, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 60, 100, -1));
+        jPanel4.add(jLabel12, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 30, 60, 20));
+
+        jTextField2.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                jTextField2KeyReleased(evt);
+            }
+        });
+        jPanel4.add(jTextField2, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 50, 100, -1));
 
         jButton4.setText("Imprimir");
+        jButton4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton4ActionPerformed(evt);
+            }
+        });
         jPanel4.add(jButton4, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 480, -1, -1));
 
         jButton5.setText("Enviar");
-        jPanel4.add(jButton5, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 480, -1, -1));
+        jButton5.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton5ActionPerformed(evt);
+            }
+        });
+        jPanel4.add(jButton5, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 480, -1, -1));
 
         jButton6.setText("Modificar");
-        jPanel4.add(jButton6, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 480, -1, -1));
+        jPanel4.add(jButton6, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 480, 90, -1));
 
         jLabel1.setBackground(new java.awt.Color(0, 0, 0));
         jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
@@ -276,6 +452,831 @@ public class V_Compras_Ventas extends javax.swing.JPanel {
         );
     }// </editor-fold>//GEN-END:initComponents
 
+    
+    
+    public void filtrarDetalleVenta(int Secuencial_Venta, JTable tablaDetalle) {
+    // Verificar y configurar columnas si no existen
+    if (tablaDetalle.getColumnCount() == 0) {
+        configurarTablaDetalle(tablaDetalle); // Asegúrate de tener este método definido
+    }
+
+    // Limpiar tabla
+    DefaultTableModel modelo = (DefaultTableModel) tablaDetalle.getModel();
+    modelo.setRowCount(0);
+
+    EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
+    EntityManager em = emf.createEntityManager();
+
+    try {
+        List<Venta_Detalle> detalles = em.createQuery(
+            "SELECT d FROM Venta_Detalle d WHERE d.Secuencial_Factura = :venta AND d.Secuencial_Empresa = :empresa",
+            Venta_Detalle.class)
+            .setParameter("venta", Secuencial_Venta)
+            .setParameter("empresa", Secuencial_Empresa)
+            .getResultList();
+
+        for (Venta_Detalle item : detalles) {
+            modelo.addRow(new Object[] {
+                item.getSecuencial(),
+                item.getCodigo(),
+                item.getDescripcion(),
+                item.getCantidad(),
+                item.getPrecio(),
+                redondear(item.getTotal()),
+                item.getSecuencial_Producto(),
+                item.getTipo()
+            });
+        }
+
+        tablaDetalle.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(null,
+            "Error al filtrar detalles de venta: " + e.getMessage(),
+            "Error",
+            JOptionPane.ERROR_MESSAGE);
+    } finally {
+        em.close();
+        emf.close();
+    }
+}
+
+       private double redondear(Double valor) {
+    return Math.round(valor * 100.0) / 100.0;
+}
+
+    
+       
+       public void filtrarDetalleCompra(int secuencialCompra, JTable tablaDetalle) {
+    // Verificar y configurar columnas si no existen
+    if (tablaDetalle.getColumnCount() == 0) {
+        configurarTablaDetalle(tablaDetalle); // Asegúrate de tener este método definido
+    }
+
+    // Limpiar tabla
+    DefaultTableModel modelo = (DefaultTableModel) tablaDetalle.getModel();
+    modelo.setRowCount(0);
+
+    EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
+    EntityManager em = emf.createEntityManager();
+
+    try {
+        List<Compra_Detalle> detalles = em.createQuery(
+            "SELECT d FROM Compra_Detalle d WHERE d.Secuencial_Factura = :compra AND d.Secuencial_Empresa = :empresa",
+            Compra_Detalle.class)
+            .setParameter("compra", secuencialCompra)
+            .setParameter("empresa", Secuencial_Empresa)
+            .getResultList();
+
+        for (Compra_Detalle item : detalles) {
+            modelo.addRow(new Object[] {
+                item.getSecuencial(),
+                item.getCodigo(),
+                item.getDescripcion(),
+                item.getCantidad(),
+                item.getPrecio(),
+                redondear(item.getTotal()),
+                item.getSecuencial_Producto(),
+                item.getTipo()
+            });
+        }
+
+        tablaDetalle.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(null,
+            "Error al filtrar detalles de compra: " + e.getMessage(),
+            "Error",
+            JOptionPane.ERROR_MESSAGE);
+    } finally {
+        em.close();
+        emf.close();
+    }
+}
+
+       
+    
+    private void jTextField1KeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextField1KeyReleased
+
+        if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
+        String telefono = jTextField1.getText().trim();
+
+        if (!telefono.isEmpty()) {
+            Util.llenarComboClientePorTelefono(jComboBox1, jTextField1, Secuencial_Empresa);
+        } else {
+            Util.llenarComboCliente(jComboBox1, Secuencial_Empresa);
+        }
+    }
+        
+    
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jTextField1KeyReleased
+
+     public void configurarTablaDetalle(JTable tabla) {
+    // Habilitar la tabla
+    tabla.setEnabled(true);
+
+    // Centrar contenido de las celdas
+    DefaultTableCellRenderer centrado = new DefaultTableCellRenderer();
+    centrado.setHorizontalAlignment(SwingConstants.CENTER);
+    tabla.setDefaultRenderer(Object.class, centrado);
+
+    // Definir columnas
+    String[] columnas = {
+        "S", "Codigo", "Descripción", "Cantidad", "Precio",
+        "Total", "SP", "Tipo"
+    };
+
+    DefaultTableModel modelo = new DefaultTableModel(null, columnas) {
+        @Override
+        public boolean isCellEditable(int row, int column) {
+            return false; // Tabla de solo lectura
+        }
+    };
+
+    tabla.setModel(modelo);
+
+    // Ajustes visuales
+    tabla.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+    tabla.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+}
+
+    
+    public void cargarDatosVenta(JTable tabla) {
+    // Limpiar la tabla
+    DefaultTableModel modelo = (DefaultTableModel) tabla.getModel();
+    modelo.setRowCount(0);
+
+    EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
+    EntityManager em = emf.createEntityManager();
+
+    try {
+        List<Venta> ventas = em.createQuery(
+            "SELECT v FROM Venta v WHERE v.Secuencial_Empresa = :empresa", Venta.class)
+            .setParameter("empresa", Secuencial_Empresa) // Asegúrate de tener esta variable definida
+            .getResultList();
+
+        for (Venta venta : ventas) {
+            modelo.addRow(new Object[] {
+                venta.getSecuencial(),
+                venta.getFecha(),
+                venta.getTotal(),
+                venta.getGran_Total(),
+                venta.getSecuencial_Cliente() 
+            });
+        }
+
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(null,
+            "Error al cargar ventas: " + e.getMessage(),
+            "Error",
+            JOptionPane.ERROR_MESSAGE);
+    } finally {
+        em.close();
+        emf.close();
+    }
+}
+
+    
+    public void cargarDatosCompra(JTable tabla) {
+    // Limpiar la tabla
+    DefaultTableModel modelo = (DefaultTableModel) tabla.getModel();
+    modelo.setRowCount(0);
+
+    EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
+    EntityManager em = emf.createEntityManager();
+
+    try {
+        List<Compra> compras = em.createQuery(
+            "SELECT c FROM Compra c WHERE c.Secuencial_Empresa = :empresa", Compra.class)
+            .setParameter("empresa", Secuencial_Empresa) // Asegúrate de tener esta variable definida
+            .getResultList();
+
+        for (Compra compra : compras) {
+            modelo.addRow(new Object[] {
+                compra.getSecuencial(),
+                compra.getFecha(),
+                compra.getTotal(),
+                compra.getGran_Total(),
+                compra.getSecuencial_Proveedor() // Ajusta según tu modelo
+            });
+        }
+
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(null,
+            "Error al cargar compras: " + e.getMessage(),
+            "Error",
+            JOptionPane.ERROR_MESSAGE);
+    } finally {
+        em.close();
+        emf.close();
+    }
+}
+
+    
+    public void filtrarVenta(int secuencialCliente, JTable tablaVenta, JTable tablaDetalle) {
+    // Verificar y configurar columnas si no existen
+    if (tablaVenta.getColumnCount() == 0) {
+        configurarTablaVenta(tablaVenta); // Asegúrate de tener este método definido
+    }
+
+    // Limpiar tabla
+    DefaultTableModel modelo = (DefaultTableModel) tablaVenta.getModel();
+    modelo.setRowCount(0);
+
+    EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
+    EntityManager em = emf.createEntityManager();
+
+    try {
+        List<Venta> ventas = em.createQuery(
+            "SELECT v FROM Venta v WHERE v.Secuencial_Cliente = :cliente AND v.Secuencial_Empresa = :empresa",
+            Venta.class)
+            .setParameter("cliente", secuencialCliente)
+            .setParameter("empresa", Secuencial_Empresa)
+            .getResultList();
+
+        for (Venta venta : ventas) {
+            modelo.addRow(new Object[] {
+                venta.getSecuencial(),
+                venta.getFecha(),
+                venta.getTotal(),
+                venta.getGran_Total(),
+                venta.getSecuencial_Cliente()
+            });
+        }
+
+        // Si no hay resultados, limpiar tabla de detalles
+        if (modelo.getRowCount() == 0) {
+            ((DefaultTableModel) tablaDetalle.getModel()).setRowCount(0);
+        }
+
+        // Selección de fila completa
+        tablaVenta.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(null,
+            "Error al filtrar ventas: " + e.getMessage(),
+            "Error",
+            JOptionPane.ERROR_MESSAGE);
+    } finally {
+        em.close();
+        emf.close();
+    }
+}
+
+    
+    
+    
+    public void filtrarCompra(int secuencialProveedor, JTable tablaCompra, JTable tablaDetalle) {
+    // Verificar y configurar columnas si no existen
+    if (tablaCompra.getColumnCount() == 0) {
+        configurarTablaCompra(tablaCompra); // Asegúrate de tener este método definido
+    }
+
+    // Limpiar tabla
+    DefaultTableModel modelo = (DefaultTableModel) tablaCompra.getModel();
+    modelo.setRowCount(0);
+
+    EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
+    EntityManager em = emf.createEntityManager();
+
+    try {
+        List<Compra> compras = em.createQuery(
+            "SELECT c FROM Compra c WHERE c.Secuencial_Proveedor = :proveedor AND c.Secuencial_Empresa = :empresa",
+            Compra.class)
+            .setParameter("proveedor", secuencialProveedor)
+            .setParameter("empresa", Secuencial_Empresa)
+            .getResultList();
+
+        for (Compra compra : compras) {
+            modelo.addRow(new Object[] {
+                compra.getSecuencial(),
+                compra.getFecha(),
+                compra.getTotal(),
+                compra.getGran_Total(),
+                compra.getSecuencial_Proveedor()
+            });
+        }
+
+        // Si no hay resultados, limpiar tabla de detalles
+        if (modelo.getRowCount() == 0) {
+            ((DefaultTableModel) tablaDetalle.getModel()).setRowCount(0);
+        }
+
+        // Selección de fila completa
+        tablaCompra.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(null,
+            "Error al filtrar compras: " + e.getMessage(),
+            "Error",
+            JOptionPane.ERROR_MESSAGE);
+    } finally {
+        em.close();
+        emf.close();
+    }
+}
+
+    
+    
+    public void configurarTablaVenta(JTable tabla) {
+    // Centrar contenido de las celdas
+    DefaultTableCellRenderer centrado = new DefaultTableCellRenderer();
+    centrado.setHorizontalAlignment(SwingConstants.CENTER);
+    tabla.setDefaultRenderer(Object.class, centrado);
+
+    // Definir columnas para ventas
+    String[] columnas = { "S", "Fecha", "Total", "Gran Total", "SC" };
+    DefaultTableModel modelo = new DefaultTableModel(null, columnas) {
+        @Override
+        public boolean isCellEditable(int row, int column) {
+            return false; // Tabla de solo lectura
+        }
+    };
+
+    tabla.setModel(modelo);
+
+    // Ajustes visuales
+    tabla.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+    tabla.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+}
+
+    
+    
+    public void configurarTablaCompra(JTable tabla) {
+    // Centrar contenido de las celdas
+    DefaultTableCellRenderer centrado = new DefaultTableCellRenderer();
+    centrado.setHorizontalAlignment(SwingConstants.CENTER);
+    tabla.setDefaultRenderer(Object.class, centrado);
+
+    // Definir columnas para compras
+    String[] columnas = { "S", "Fecha", "Total", "Gran Total", "SP" };
+    DefaultTableModel modelo = new DefaultTableModel(null, columnas) {
+        @Override
+        public boolean isCellEditable(int row, int column) {
+            return false; // Tabla de solo lectura
+        }
+    };
+
+    tabla.setModel(modelo);
+
+    // Ajustes visuales
+    tabla.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+    tabla.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+}
+
+    
+    
+    private void jTextField2KeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextField2KeyReleased
+
+
+        if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
+        String telefono = jTextField2.getText().trim();
+
+        if (!telefono.isEmpty()) {
+            Util.llenarComboProveedorPorTelefono(jComboBox2, telefono, Secuencial_Empresa);
+        } else {
+            Util.llenarComboProveedor(jComboBox2, Secuencial_Empresa);
+        }
+    }
+    
+        
+        
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jTextField2KeyReleased
+
+    private void jComboBox1ItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_jComboBox1ItemStateChanged
+
+
+         
+        DefaultTableModel modelo1 = (DefaultTableModel) jTable1.getModel();
+        modelo1.setRowCount(0);
+        
+        
+        DefaultTableModel modelo2 = (DefaultTableModel) jTable2.getModel();
+        modelo2.setRowCount(0);
+        
+        String seleccionado = jComboBox1.getSelectedItem().toString();
+int secuencialCliente = Integer.parseInt(seleccionado.split("-")[0].trim());
+filtrarVenta(secuencialCliente, jTable1, jTable2);
+Secuencial_Cliente=Integer.parseInt(seleccionado.split("-")[0].trim());
+
+        
+
+
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jComboBox1ItemStateChanged
+
+    private void jComboBox1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jComboBox1MouseClicked
+
+
+      //  Util.llenarComboCliente(jComboBox1, Secuencial_Empresa);
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jComboBox1MouseClicked
+
+    private void jComboBox1PropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_jComboBox1PropertyChange
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jComboBox1PropertyChange
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+
+
+        
+        try {
+    // Validar selección del cliente
+    if (jComboBox1.getSelectedItem() == null) {
+        JOptionPane.showMessageDialog(null,
+            "Por favor, selecciona un cliente antes de continuar.",
+            "Aviso",
+            JOptionPane.WARNING_MESSAGE);
+        return;
+    }
+
+    String clienteTexto = jComboBox1.getSelectedItem().toString();
+    int indice = clienteTexto.indexOf("- ");
+    if (indice == -1) {
+        JOptionPane.showMessageDialog(null,
+            "El formato del cliente no es válido.",
+            "Error",
+            JOptionPane.ERROR_MESSAGE);
+        return;
+    }
+
+    String nombreCliente = clienteTexto.substring(indice + 2).trim();
+
+    EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
+    EntityManager em = emf.createEntityManager();
+
+    Venta venta = em.createQuery(
+        "SELECT v FROM Venta v WHERE v.Secuencial_Empresa = :empresa AND v.Secuencial = :secuencial",
+        Venta.class)
+        .setParameter("empresa", V_Menu_Principal.Secuencial_Empresa)
+        .setParameter("secuencial", Secuencial_Venta)
+        .getResultStream()
+        .findFirst()
+        .orElse(null);
+
+    if (venta == null) {
+        JOptionPane.showMessageDialog(null,
+            "No se encontró la factura en la base de datos.",
+            "Error",
+            JOptionPane.ERROR_MESSAGE);
+        return;
+    }
+
+    byte[] documento = venta.getDocumento();
+    if (documento == null || documento.length == 0) {
+        JOptionPane.showMessageDialog(null,
+            "La factura no tiene documento PDF asociado.",
+            "Error",
+            JOptionPane.ERROR_MESSAGE);
+        return;
+    }
+
+    V_Visor_Factura visor = new V_Visor_Factura();
+    visor.setDocumentoEnBytes(documento);
+    visor.setTitulo("Factura de Venta No. " + venta.getSecuencial());
+    visor.mostrar(); // Asumiendo que 'mostrar()' es equivalente a 'ShowDialog()'
+
+    em.close();
+    emf.close();
+
+} catch (Exception ex) {
+    JOptionPane.showMessageDialog(null,
+        "Se produjo un error inesperado:\n" + ex.getMessage(),
+        "Error",
+        JOptionPane.ERROR_MESSAGE);
+    ex.printStackTrace();
+}
+
+        
+        
+        
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+
+
+        EntityManagerFactory emf = null;
+EntityManager em = null;
+
+try {
+    // Validar cliente
+    Object selectedItem = jComboBox1.getSelectedItem();
+    if (selectedItem == null) {
+        JOptionPane.showMessageDialog(null,
+            "Por favor, selecciona un cliente válido antes de continuar.",
+            "Aviso",
+            JOptionPane.WARNING_MESSAGE);
+        return;
+    }
+
+    String clienteTexto = selectedItem.toString().trim();
+    int indice = clienteTexto.indexOf("- ");
+    if (clienteTexto.isEmpty() || indice == -1) {
+        JOptionPane.showMessageDialog(null,
+            "Por favor, selecciona un cliente válido antes de continuar.",
+            "Aviso",
+            JOptionPane.WARNING_MESSAGE);
+        return;
+    }
+
+    String nombreCliente = clienteTexto.substring(indice + 2).trim();
+
+    emf = Persistence.createEntityManagerFactory("MonituxPU");
+    em = emf.createEntityManager();
+
+    Venta venta = em.createQuery(
+        "SELECT v FROM Venta v WHERE v.Secuencial_Empresa = :empresa AND v.Secuencial = :secuencial",
+        Venta.class)
+        .setParameter("empresa", V_Menu_Principal.Secuencial_Empresa)
+        .setParameter("secuencial", Secuencial_Venta)
+        .getResultStream()
+        .findFirst()
+        .orElse(null);
+
+    if (venta == null) {
+        JOptionPane.showMessageDialog(null,
+            "No se encontró la factura en la base de datos.",
+            "Error",
+            JOptionPane.ERROR_MESSAGE);
+        return;
+    }
+
+    byte[] documento = venta.getDocumento();
+    if (documento == null || documento.length == 0) {
+        JOptionPane.showMessageDialog(null,
+            "La factura no tiene documento PDF asociado.",
+            "Error",
+            JOptionPane.ERROR_MESSAGE);
+        return;
+    }
+
+    Cliente destinatarioCliente = em.find(Cliente.class, Secuencial_Cliente);
+    if (destinatarioCliente == null) {
+        JOptionPane.showMessageDialog(null,
+            "No se encontró el cliente en la base de datos.",
+            "Error",
+            JOptionPane.ERROR_MESSAGE);
+        return;
+    }
+
+    String destinatario = destinatarioCliente.getEmail();
+    if (destinatario == null || destinatario.trim().isEmpty()) {
+        JOptionPane.showMessageDialog(null,
+            "El cliente no tiene un correo electrónico registrado.",
+            "Aviso",
+            JOptionPane.WARNING_MESSAGE);
+        return;
+    }
+
+    Util.EnviarCorreoConPdfBytes(
+        "monitux.pos@gmail.com",
+        destinatario,
+        V_Menu_Principal.Nombre_Empresa + " - Comprobante",
+        "Gracias por su compra. Adjunto tiene su comprobante.",
+        documento,
+        "smtp.gmail.com",
+        587,
+        "monitux.pos",
+        "ffeg qqnx zaij otmb"
+    );
+
+    JOptionPane.showMessageDialog(null,
+        "Se envió la factura correctamente.",
+        "Éxito",
+        JOptionPane.INFORMATION_MESSAGE);
+
+} catch (Exception ex) {
+    JOptionPane.showMessageDialog(null,
+        "Se produjo un error inesperado:\n" + ex.getMessage(),
+        "Error",
+        JOptionPane.ERROR_MESSAGE);
+    ex.printStackTrace();
+} finally {
+    if (em != null && em.isOpen()) em.close();
+    if (emf != null && emf.isOpen()) emf.close();
+}
+
+        
+        
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButton2ActionPerformed
+
+    private void jComboBox2ItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_jComboBox2ItemStateChanged
+
+
+        
+
+         
+        DefaultTableModel modelo1 = (DefaultTableModel) jTable3.getModel();
+        modelo1.setRowCount(0);
+        
+        
+        DefaultTableModel modelo2 = (DefaultTableModel) jTable4.getModel();
+        modelo2.setRowCount(0);
+        
+        String seleccionado = jComboBox2.getSelectedItem().toString();
+int secuencialProveedor = Integer.parseInt(seleccionado.split("-")[0].trim());
+filtrarCompra(secuencialProveedor, jTable3, jTable4);
+Secuencial_Proveedor=Integer.parseInt(seleccionado.split("-")[0].trim());
+
+        
+
+
+
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jComboBox2ItemStateChanged
+
+    private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
+
+
+        
+        try {
+    // Validar selección del proveedor
+    if (jComboBox2.getSelectedItem() == null) {
+        JOptionPane.showMessageDialog(null,
+            "Por favor, selecciona un proveedor antes de continuar.",
+            "Aviso",
+            JOptionPane.WARNING_MESSAGE);
+        return;
+    }
+
+    String proveedorTexto = jComboBox2.getSelectedItem().toString();
+    int indice = proveedorTexto.indexOf("- ");
+    if (indice == -1) {
+        JOptionPane.showMessageDialog(null,
+            "El formato del proveedor no es válido.",
+            "Error",
+            JOptionPane.ERROR_MESSAGE);
+        return;
+    }
+
+    String nombreProveedor = proveedorTexto.substring(indice + 2).trim();
+
+    EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
+    EntityManager em = emf.createEntityManager();
+
+    Compra compra = em.createQuery(
+        "SELECT c FROM Compra c WHERE c.Secuencial_Empresa = :empresa AND c.Secuencial = :secuencial",
+        Compra.class)
+        .setParameter("empresa", V_Menu_Principal.Secuencial_Empresa)
+        .setParameter("secuencial", Secuencial_Compra)
+        .getResultStream()
+        .findFirst()
+        .orElse(null);
+
+    if (compra == null) {
+        JOptionPane.showMessageDialog(null,
+            "No se encontró la factura de compra en la base de datos.",
+            "Error",
+            JOptionPane.ERROR_MESSAGE);
+        return;
+    }
+
+    byte[] documento = compra.getDocumento();
+    if (documento == null || documento.length == 0) {
+        JOptionPane.showMessageDialog(null,
+            "La factura de compra no tiene documento PDF asociado.",
+            "Error",
+            JOptionPane.ERROR_MESSAGE);
+        return;
+    }
+
+    V_Visor_Factura visor = new V_Visor_Factura();
+    visor.setDocumentoEnBytes(documento);
+    visor.setTitulo("Factura de Compra No. " + compra.getSecuencial());
+    visor.mostrar(); // Asumiendo que 'mostrar()' es equivalente a 'ShowDialog()'
+
+    em.close();
+    emf.close();
+
+} catch (Exception ex) {
+    JOptionPane.showMessageDialog(null,
+        "Se produjo un error inesperado:\n" + ex.getMessage(),
+        "Error",
+        JOptionPane.ERROR_MESSAGE);
+    ex.printStackTrace();
+}
+
+
+
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButton4ActionPerformed
+
+    private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
+
+
+        EntityManagerFactory emf = null;
+EntityManager em = null;
+
+try {
+    // Validar proveedor
+    Object selectedItem = jComboBox2.getSelectedItem();
+    if (selectedItem == null) {
+        JOptionPane.showMessageDialog(null,
+            "Por favor, selecciona un proveedor válido antes de continuar.",
+            "Aviso",
+            JOptionPane.WARNING_MESSAGE);
+        return;
+    }
+
+    String proveedorTexto = selectedItem.toString().trim();
+    int indice = proveedorTexto.indexOf("- ");
+    if (proveedorTexto.isEmpty() || indice == -1) {
+        JOptionPane.showMessageDialog(null,
+            "Por favor, selecciona un proveedor válido antes de continuar.",
+            "Aviso",
+            JOptionPane.WARNING_MESSAGE);
+        return;
+    }
+
+    String nombreProveedor = proveedorTexto.substring(indice + 2).trim();
+
+    emf = Persistence.createEntityManagerFactory("MonituxPU");
+    em = emf.createEntityManager();
+
+    Compra compra = em.createQuery(
+        "SELECT c FROM Compra c WHERE c.Secuencial_Empresa = :empresa AND c.Secuencial = :secuencial",
+        Compra.class)
+        .setParameter("empresa", V_Menu_Principal.Secuencial_Empresa)
+        .setParameter("secuencial", Secuencial_Compra)
+        .getResultStream()
+        .findFirst()
+        .orElse(null);
+
+    if (compra == null) {
+        JOptionPane.showMessageDialog(null,
+            "No se encontró la factura de compra en la base de datos.",
+            "Error",
+            JOptionPane.ERROR_MESSAGE);
+        return;
+    }
+
+    byte[] documento = compra.getDocumento();
+    if (documento == null || documento.length == 0) {
+        JOptionPane.showMessageDialog(null,
+            "La factura de compra no tiene documento PDF asociado.",
+            "Error",
+            JOptionPane.ERROR_MESSAGE);
+        return;
+    }
+
+    Proveedor destinatarioProveedor = em.find(Proveedor.class, compra.getSecuencial_Proveedor());
+    if (destinatarioProveedor == null) {
+        JOptionPane.showMessageDialog(null,
+            "No se encontró el proveedor en la base de datos.",
+            "Error",
+            JOptionPane.ERROR_MESSAGE);
+        return;
+    }
+
+    String destinatario = destinatarioProveedor.getEmail();
+    if (destinatario == null || destinatario.trim().isEmpty()) {
+        JOptionPane.showMessageDialog(null,
+            "El proveedor no tiene un correo electrónico registrado.",
+            "Aviso",
+            JOptionPane.WARNING_MESSAGE);
+        return;
+    }
+
+    Util.EnviarCorreoConPdfBytes(
+        "monitux.pos@gmail.com",
+        destinatario,
+        V_Menu_Principal.Nombre_Empresa + " - Comprobante",
+        "Gracias por su gestión. Adjunto tiene el comprobante de compra.",
+        documento,
+        "smtp.gmail.com",
+        587,
+        "monitux.pos",
+        "ffeg qqnx zaij otmb"
+    );
+
+    JOptionPane.showMessageDialog(null,
+        "Se envió la factura de compra correctamente.",
+        "Éxito",
+        JOptionPane.INFORMATION_MESSAGE);
+
+} catch (Exception ex) {
+    JOptionPane.showMessageDialog(null,
+        "Se produjo un error inesperado:\n" + ex.getMessage(),
+        "Error",
+        JOptionPane.ERROR_MESSAGE);
+    ex.printStackTrace();
+} finally {
+    if (em != null && em.isOpen()) em.close();
+    if (emf != null && emf.isOpen()) emf.close();
+}
+
+
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButton5ActionPerformed
+
+    private void jTextField1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField1ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jTextField1ActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
@@ -300,7 +1301,6 @@ public class V_Compras_Ventas extends javax.swing.JPanel {
     private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
-    private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;

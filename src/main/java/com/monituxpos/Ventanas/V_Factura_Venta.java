@@ -2033,7 +2033,7 @@ try {
         detalle.setCantidad((double) pro.getCantidadSelecccion());
         detalle.setPrecio(redondear(pro.producto.getPrecio_Venta()));
         detalle.setTotal(redondear(pro.getCantidadSelecccion() * pro.producto.getPrecio_Venta()));
-        detalle.setTipo(pro.getTipo());
+        detalle.setTipo(pro.producto.getTipo());
 
         em.persist(detalle);
 
