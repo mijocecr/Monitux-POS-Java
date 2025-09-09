@@ -614,7 +614,7 @@ cargarItems();
             }
         });
         add(jLabel4);
-        jLabel4.setBounds(560, 0, 201, 40);
+        jLabel4.setBounds(550, 0, 201, 40);
 
         jLabel11.setText("Mecanica: Señale Producto -> Click -> Cantidad -> Actualizar Detalle");
         jLabel11.setForeground(new java.awt.Color(255, 255, 0));
@@ -630,7 +630,7 @@ cargarItems();
         icono_carga.setIcon(new javax.swing.ImageIcon(getClass().getResource("/gifs/spinner1-r.gif"))); // NOI18N
         icono_carga.setVisible(false);
         add(icono_carga);
-        icono_carga.setBounds(800, 10, 32, 32);
+        icono_carga.setBounds(790, 10, 32, 32);
     }// </editor-fold>//GEN-END:initComponents
 
     
@@ -1787,7 +1787,7 @@ try {
         JOptionPane.INFORMATION_MESSAGE);
 
     Util.registrarActividad(Secuencial_Usuario,
-        String.format("Ha registrado una orden de compra según Número: %d\nPor un valor de: %.2f",
+        String.format("Ha registrado una orden de compra según Número: %d Por un valor de: %.2f",
             orden.getSecuencial(), total),
         Secuencial_Empresa);
 

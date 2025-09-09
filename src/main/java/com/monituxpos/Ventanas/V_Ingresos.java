@@ -241,11 +241,11 @@ public void cargarDatosFecha(LocalDate fechaInicio, LocalDate fechaFin) {
 
         setBackground(new java.awt.Color(0, 0, 0));
 
+        jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel1.setText("Gestión de Ingresos");
         jLabel1.setBackground(new java.awt.Color(0, 0, 0));
         jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
         jLabel1.setForeground(new java.awt.Color(102, 255, 0));
-        jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel1.setText("Gestión de Ingresos");
         jLabel1.setOpaque(true);
 
         jPanel1.setBackground(new java.awt.Color(35, 32, 45));
@@ -255,12 +255,22 @@ public void cargarDatosFecha(LocalDate fechaInicio, LocalDate fechaFin) {
         jButton1.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         jButton1.setVerticalAlignment(javax.swing.SwingConstants.BOTTOM);
         jButton1.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
 
         jButton2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/delete1.png"))); // NOI18N
         jButton2.setText("<html><b>Eliminar</b><br><i>Ingreso</i></html>");
         jButton2.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         jButton2.setVerticalAlignment(javax.swing.SwingConstants.BOTTOM);
         jButton2.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        jButton2.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jButton2MouseClicked(evt);
+            }
+        });
         jButton2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton2ActionPerformed(evt);
@@ -272,22 +282,27 @@ public void cargarDatosFecha(LocalDate fechaInicio, LocalDate fechaFin) {
         jButton3.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         jButton3.setVerticalAlignment(javax.swing.SwingConstants.BOTTOM);
         jButton3.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        jButton3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton3ActionPerformed(evt);
+            }
+        });
 
         jPanel2.setBackground(new java.awt.Color(35, 32, 45));
         jPanel2.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255)));
 
-        jLabel2.setForeground(new java.awt.Color(255, 255, 255));
         jLabel2.setText("Desde:");
+        jLabel2.setForeground(new java.awt.Color(255, 255, 255));
 
-        jLabel3.setForeground(new java.awt.Color(255, 255, 255));
         jLabel3.setText("Hasta:");
+        jLabel3.setForeground(new java.awt.Color(255, 255, 255));
 
-        jLabel4.setForeground(new java.awt.Color(255, 255, 51));
         jLabel4.setText("Todos los ingresos en un rango de fechas.");
+        jLabel4.setForeground(new java.awt.Color(255, 255, 51));
 
+        jButton4.setText("Consultar");
         jButton4.setBackground(new java.awt.Color(128, 255, 128));
         jButton4.setForeground(new java.awt.Color(0, 0, 0));
-        jButton4.setText("Consultar");
         jButton4.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton4ActionPerformed(evt);
@@ -358,24 +373,24 @@ public void cargarDatosFecha(LocalDate fechaInicio, LocalDate fechaFin) {
         });
         jScrollPane1.setViewportView(jTable1);
 
+        jLabel5.setText("Ingresos Totales:");
         jLabel5.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
         jLabel5.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel5.setText("Ingresos Totales:");
 
+        jLabel6.setText("Otros Ingresos:");
         jLabel6.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
         jLabel6.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel6.setText("Otros Ingresos:");
 
+        jLabel7.setText("0");
         jLabel7.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
         jLabel7.setForeground(new java.awt.Color(51, 255, 0));
-        jLabel7.setText("0");
 
+        jLabel8.setText("0");
         jLabel8.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
         jLabel8.setForeground(new java.awt.Color(255, 255, 0));
-        jLabel8.setText("0");
 
-        jLabel9.setForeground(new java.awt.Color(255, 255, 255));
         jLabel9.setText("<html>No se puede eliminar ningun ingreso asociado a una factura o a un abono de cuentas por cobrar. La funcion \"Eliminar Ingreso\" solo puede aplicarse a registros manuales de ingresos.</html>");
+        jLabel9.setForeground(new java.awt.Color(255, 255, 255));
 
         jLabel10.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/arrow_refresh.png"))); // NOI18N
         jLabel10.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -594,6 +609,35 @@ int viewRowIndex = jTable1.getSelectedRow();
     }
         // TODO add your handling code here:
     }//GEN-LAST:event_jTable1KeyReleased
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+
+
+        V_Ingresos_Egresos vIngresosEgresos = new V_Ingresos_Egresos(this);
+vIngresosEgresos.isEgreso = false; // Indica que es un ingreso
+vIngresosEgresos.Secuencial_Empresa = this.Secuencial_Empresa;
+vIngresosEgresos.Secuencial_Usuario = this.Secuencial_Usuario;
+
+vIngresosEgresos.setVisible(true); // Muestra la ventana
+
+//Cargar_Datos(); // Refresca los datos después del cierre
+
+
+
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+
+
+            Util.exportarJTableAExcel(jTable1, "Ingresos", "Ingresos");
+
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButton3ActionPerformed
+
+    private void jButton2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton2MouseClicked
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButton2MouseClicked
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

@@ -4,17 +4,42 @@
  */
 package com.monituxpos.Ventanas;
 
+import com.monituxpos.Clases.Egreso;
+import com.monituxpos.Clases.Util;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.Persistence;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.util.List;
+import java.util.Locale;
+import javax.swing.JOptionPane;
+import javax.swing.JTable;
+import javax.swing.ListSelectionModel;
+import javax.swing.SwingConstants;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
+
 /**
  *
  * @author Miguel Cerrato
  */
 public class V_Egresos extends javax.swing.JPanel {
 
+    public int Secuencial_Empresa = V_Menu_Principal.getSecuencial_Empresa();
+    public int Secuencial_Usuario= V_Menu_Principal.getSecuencial_Usuario();;
+    public int Secuencial;
     /**
      * Creates new form V_Ingresos
      */
     public V_Egresos() {
         initComponents();
+        configurarTablaEgresos(jTable1);
+        cargarDatos();
     }
 
     /**
@@ -44,15 +69,16 @@ public class V_Egresos extends javax.swing.JPanel {
         jLabel6 = new javax.swing.JLabel();
         jLabel7 = new javax.swing.JLabel();
         jLabel8 = new javax.swing.JLabel();
+        jLabel10 = new javax.swing.JLabel();
         jLabel9 = new javax.swing.JLabel();
 
         setBackground(new java.awt.Color(0, 0, 0));
 
-        jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel1.setText("Gestión de Egresos");
         jLabel1.setBackground(new java.awt.Color(0, 0, 0));
         jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
         jLabel1.setForeground(new java.awt.Color(0, 204, 255));
+        jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel1.setText("Gestión de Egresos");
         jLabel1.setOpaque(true);
 
         jPanel1.setBackground(new java.awt.Color(35, 32, 45));
@@ -62,18 +88,33 @@ public class V_Egresos extends javax.swing.JPanel {
         jButton1.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         jButton1.setVerticalAlignment(javax.swing.SwingConstants.BOTTOM);
         jButton1.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
 
         jButton2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/delete1.png"))); // NOI18N
         jButton2.setText("<html><b>Eliminar</b><br><i>Egreso</i></html>");
         jButton2.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         jButton2.setVerticalAlignment(javax.swing.SwingConstants.BOTTOM);
         jButton2.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
 
         jButton3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/page_excel.png"))); // NOI18N
         jButton3.setText("<html><b>Exportar</b><br><i>Excel</i></html>");
         jButton3.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         jButton3.setVerticalAlignment(javax.swing.SwingConstants.BOTTOM);
         jButton3.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        jButton3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton3ActionPerformed(evt);
+            }
+        });
 
         jPanel2.setBackground(new java.awt.Color(35, 32, 45));
         jPanel2.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255)));
@@ -90,6 +131,11 @@ public class V_Egresos extends javax.swing.JPanel {
         jButton4.setText("Consultar");
         jButton4.setBackground(new java.awt.Color(128, 255, 128));
         jButton4.setForeground(new java.awt.Color(0, 0, 0));
+        jButton4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton4ActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -143,6 +189,16 @@ public class V_Egresos extends javax.swing.JPanel {
                 "Title 1", "Title 2", "Title 3", "Title 4"
             }
         ));
+        jTable1.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jTable1MouseClicked(evt);
+            }
+        });
+        jTable1.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                jTable1KeyReleased(evt);
+            }
+        });
         jScrollPane1.setViewportView(jTable1);
 
         jLabel5.setText("Egresos Totales:");
@@ -160,6 +216,13 @@ public class V_Egresos extends javax.swing.JPanel {
         jLabel8.setText("0");
         jLabel8.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
         jLabel8.setForeground(new java.awt.Color(255, 255, 0));
+
+        jLabel10.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/arrow_refresh.png"))); // NOI18N
+        jLabel10.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jLabel10MouseClicked(evt);
+            }
+        });
 
         jLabel9.setText("<html>No se puede eliminar ningun egreso asociado a una factura o a un abono de cuentas por pagar. La funcion \"Eliminar Egreso\" solo puede aplicarse a registros manuales de egresos.</html>");
         jLabel9.setForeground(new java.awt.Color(255, 255, 255));
@@ -179,7 +242,6 @@ public class V_Egresos extends javax.swing.JPanel {
                         .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 73, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(jLabel9, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
                         .addComponent(jLabel5)
@@ -188,7 +250,12 @@ public class V_Egresos extends javax.swing.JPanel {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 136, Short.MAX_VALUE)
                         .addComponent(jLabel6)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jLabel8, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(jLabel8, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
+                        .addComponent(jLabel9, javax.swing.GroupLayout.PREFERRED_SIZE, 611, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jLabel10)
+                        .addGap(50, 50, 50)))
                 .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
@@ -209,7 +276,11 @@ public class V_Egresos extends javax.swing.JPanel {
                     .addComponent(jLabel7)
                     .addComponent(jLabel8))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLabel9, javax.swing.GroupLayout.DEFAULT_SIZE, 44, Short.MAX_VALUE)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel9, javax.swing.GroupLayout.DEFAULT_SIZE, 44, Short.MAX_VALUE)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(jLabel10)
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
 
@@ -235,6 +306,309 @@ public class V_Egresos extends javax.swing.JPanel {
         jLabel1.getAccessibleContext().setAccessibleName("");
     }// </editor-fold>//GEN-END:initComponents
 
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+
+
+        
+        
+        V_Ingresos_Egresos vIngresosEgresos = new V_Ingresos_Egresos(this);
+vIngresosEgresos.isEgreso = true; // Indica que es un ingreso
+vIngresosEgresos.Secuencial_Empresa = this.Secuencial_Empresa;
+vIngresosEgresos.Secuencial_Usuario = this.Secuencial_Usuario;
+
+vIngresosEgresos.setVisible(true); // Muestra la ventana
+
+        
+
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
+
+
+         cargarDatosFecha(datePicker1.getDate(),datePicker2.getDate());
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButton4ActionPerformed
+
+    private void jLabel10MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel10MouseClicked
+
+        cargarDatos();
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jLabel10MouseClicked
+
+    private void jTable1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTable1MouseClicked
+
+      
+int viewRowIndex = jTable1.getSelectedRow();
+
+    if (viewRowIndex >= 0) { // Asegura que no sea el encabezado
+        int modelRowIndex = jTable1.convertRowIndexToModel(viewRowIndex);
+        int columnIndex = jTable1.getColumnModel().getColumnIndex("S");
+
+        TableModel model = jTable1.getModel();
+        Object value = model.getValueAt(modelRowIndex, columnIndex);
+
+        if (value != null) {
+            Secuencial = Integer.parseInt(value.toString());
+            
+        }
+    }
+
+
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jTable1MouseClicked
+
+    private void jTable1KeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTable1KeyReleased
+
+      
+int viewRowIndex = jTable1.getSelectedRow();
+
+    if (viewRowIndex >= 0) { // Asegura que no sea el encabezado
+        int modelRowIndex = jTable1.convertRowIndexToModel(viewRowIndex);
+        int columnIndex = jTable1.getColumnModel().getColumnIndex("S");
+
+        TableModel model = jTable1.getModel();
+        Object value = model.getValueAt(modelRowIndex, columnIndex);
+
+        if (value != null) {
+            Secuencial = Integer.parseInt(value.toString());
+            
+        }
+    }
+
+
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jTable1KeyReleased
+
+    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+
+   Util.exportarJTableAExcel(jTable1, "Egresos", "Egresos");
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButton3ActionPerformed
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+
+
+        int confirmResult = JOptionPane.showConfirmDialog(
+    null,
+    "¿Está seguro de eliminar el egreso seleccionado?",
+    "Confirmar Eliminación",
+    JOptionPane.YES_NO_OPTION
+);
+
+if (confirmResult != JOptionPane.YES_OPTION) {
+    return;
+}
+
+EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
+EntityManager em = emf.createEntityManager();
+
+try {
+    Egreso egreso = em.createQuery(
+        "SELECT e FROM Egreso e WHERE e.Secuencial = :secuencial " +
+        "AND (e.Secuencial_Factura = 0 OR e.Secuencial_Factura IS NULL) " +
+        "AND e.Secuencial_Empresa = :empresa", Egreso.class)
+        .setParameter("secuencial", this.Secuencial)
+        .setParameter("empresa", this.Secuencial_Empresa)
+        .setMaxResults(1)
+        .getResultStream()
+        .findFirst()
+        .orElse(null);
+
+    if (egreso != null) {
+        em.getTransaction().begin();
+        em.remove(egreso);
+
+        Util.registrarActividad(
+            this.Secuencial_Usuario,
+            "Eliminó egreso sin factura asociada. Monto: " + egreso.getTotal() +
+            " | Tipo: " + egreso.getTipo_Egreso() +
+            " | Fecha: " + egreso.getFecha(),
+            this.Secuencial_Empresa
+        );
+
+        em.getTransaction().commit();
+
+        JOptionPane.showMessageDialog(null,
+            "Egreso sin factura asociada eliminado correctamente.",
+            "Éxito",
+            JOptionPane.INFORMATION_MESSAGE);
+
+        cargarDatos(); // Método que refresca la tabla
+    } else {
+        JOptionPane.showMessageDialog(null,
+            "No es posible eliminar el egreso seleccionado.",
+            "Error",
+            JOptionPane.ERROR_MESSAGE);
+    }
+} catch (Exception e) {
+    if (em.getTransaction().isActive()) {
+        em.getTransaction().rollback();
+    }
+    JOptionPane.showMessageDialog(null,
+        "Error al eliminar egreso: " + e.getMessage(),
+        "Error",
+        JOptionPane.ERROR_MESSAGE);
+    e.printStackTrace();
+} finally {
+    em.close();
+    emf.close();
+}
+
+
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButton2ActionPerformed
+
+    
+    public void cargarDatos() {
+    double totalEgresos = 0;
+    double totalOtros = 0;
+
+    DefaultTableModel modelo = (DefaultTableModel) jTable1.getModel();
+    modelo.setRowCount(0);
+
+    EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
+    EntityManager em = emf.createEntityManager();
+
+    try {
+        List<Egreso> egresos = em.createQuery(
+            "SELECT e FROM Egreso e " +
+            "LEFT JOIN FETCH e.usuario " +
+            "LEFT JOIN FETCH e.compra " +
+            "WHERE e.Secuencial_Empresa = :empresa " +
+            "ORDER BY e.Fecha DESC", Egreso.class)
+            .setParameter("empresa", Secuencial_Empresa)
+            .getResultList();
+
+        for (Egreso e : egresos) {
+            String facturaAsociada = (e.getCompra() != null) ? "Factura No. " + e.getCompra().getSecuencial() : "0";
+
+            modelo.addRow(new Object[] {
+                e.getSecuencial(),
+                e.getUsuario() != null ? e.getUsuario().getNombre() : "Desconocido",
+                e.getFecha(), // ya es String
+                e.getTipo_Egreso(),
+                e.getTotal(),
+                e.getDescripcion()
+            });
+
+            if ("0".equals(facturaAsociada)) {
+                totalOtros += e.getTotal();
+            } else {
+                totalEgresos += e.getTotal();
+            }
+        }
+
+        jLabel8.setText(String.format("%.2f", totalOtros));
+        jLabel7.setText(String.format("%.2f", totalEgresos));
+
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(null, "Error al cargar datos: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        e.printStackTrace();
+    } finally {
+        em.close();
+        emf.close();
+    }
+}
+
+    
+      
+   public void configurarTablaEgresos(JTable tabla) {
+    // Definir columnas
+    String[] columnas = { "S", "Usuario", "Fecha", "Tipo", "Total", "Descripción" };
+    DefaultTableModel modelo = new DefaultTableModel(null, columnas) {
+        @Override
+        public boolean isCellEditable(int row, int column) {
+            return false; // Tabla de solo lectura
+        }
+    };
+
+    tabla.setModel(modelo);
+
+    // Centrar contenido de las celdas
+    DefaultTableCellRenderer centrado = new DefaultTableCellRenderer();
+    centrado.setHorizontalAlignment(SwingConstants.CENTER);
+    tabla.setDefaultRenderer(Object.class, centrado);
+
+    // Ajustes visuales
+    tabla.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+    tabla.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+    tabla.setEnabled(true); // Si quieres desactivarla, usa false
+}
+ 
+ 
+    
+    
+    public void cargarDatosFecha(LocalDate fechaInicio, LocalDate fechaFin) {
+    double totalEgresos = 0;
+    double totalOtros = 0;
+
+    DefaultTableModel modelo = (DefaultTableModel) jTable1.getModel();
+    modelo.setRowCount(0);
+
+    EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
+    EntityManager em = emf.createEntityManager();
+
+    try {
+        // Convertir rango a LocalDateTime
+        LocalDateTime inicio = fechaInicio.atStartOfDay();
+        LocalDateTime fin = fechaFin.atTime(LocalTime.MAX);
+
+        // Formato de fecha con hora (como está en la base)
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy hh:mm:ss a", new Locale("es", "ES"));
+
+        // Consulta con JOINs
+        List<Egreso> egresos = em.createQuery(
+            "SELECT e FROM Egreso e " +
+            "LEFT JOIN FETCH e.usuario " +
+            "LEFT JOIN FETCH e.compra " +
+            "WHERE e.Secuencial_Empresa = :empresa " +
+            "ORDER BY e.Fecha DESC", Egreso.class)
+            .setParameter("empresa", Secuencial_Empresa)
+            .getResultList();
+
+        for (Egreso e : egresos) {
+            LocalDateTime fechaConvertida;
+            try {
+                fechaConvertida = LocalDateTime.parse(e.getFecha().trim(), formatter);
+            } catch (DateTimeParseException ex) {
+                System.out.println("Fecha mal formateada: " + e.getFecha());
+                continue;
+            }
+
+            if (!fechaConvertida.isBefore(inicio) && !fechaConvertida.isAfter(fin)) {
+                String facturaAsociada = (e.getCompra() != null) ? "Factura No. " + e.getCompra().getSecuencial() : "0";
+
+                modelo.addRow(new Object[] {
+                    e.getSecuencial(),
+                    e.getUsuario() != null ? e.getUsuario().getNombre() : "Desconocido",
+                    e.getFecha(),
+                    e.getTipo_Egreso(),
+                    e.getTotal(),
+                    e.getDescripcion()
+                });
+
+                if ("0".equals(facturaAsociada)) {
+                    totalOtros += e.getTotal();
+                } else {
+                    totalEgresos += e.getTotal();
+                }
+            }
+        }
+
+        jLabel8.setText(String.format("%.2f", totalOtros));
+        jLabel7.setText(String.format("%.2f", totalEgresos));
+
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(null, "Error al cargar datos por fecha: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        e.printStackTrace();
+    } finally {
+        em.close();
+        emf.close();
+    }
+}
+
+    
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private com.github.lgooddatepicker.components.DatePicker datePicker1;
@@ -244,6 +618,7 @@ public class V_Egresos extends javax.swing.JPanel {
     private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;

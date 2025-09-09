@@ -7,6 +7,8 @@ import com.google.zxing.common.BitMatrix;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.client.j2se.MatrixToImageConfig;
+import com.lowagie.text.Cell;
+import com.lowagie.text.Row;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
@@ -42,6 +44,8 @@ import javax.swing.JFileChooser;
 import com.monituxpos.Clases.*;
 
 import com.monituxpos.Ventanas.VisorPDFBox;
+import java.awt.Font;
+import java.io.FileOutputStream;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -54,8 +58,16 @@ import javax.swing.ImageIcon;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
+import javax.swing.table.TableModel;
+import org.apache.poi.sl.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
+
 
 public class Util {
 
@@ -644,7 +656,54 @@ public class Util {
      
  //******************************
      
-    
+
+
+    public static void exportarJTableAExcel(JTable table, String nombreHoja, String nombreArchivoBase) {
+        try (Workbook workbook = new XSSFWorkbook()) {
+            org.apache.poi.ss.usermodel.Sheet sheet = workbook.createSheet(nombreHoja);
+
+            // 🔠 Estilo de encabezado
+            CellStyle headerStyle = workbook.createCellStyle();
+            org.apache.poi.ss.usermodel.Font font = workbook.createFont();
+            font.setBold(true);
+            headerStyle.setFont(font);
+
+            TableModel model = table.getModel();
+
+            // 🔠 Encabezados
+            org.apache.poi.ss.usermodel.Row headerRow = sheet.createRow(0);
+            for (int col = 0; col < model.getColumnCount(); col++) {
+                org.apache.poi.ss.usermodel.Cell cell = headerRow.createCell(col);
+                cell.setCellValue(model.getColumnName(col));
+                cell.setCellStyle(headerStyle);
+            }
+
+            // 📋 Filas
+            for (int row = 0; row < model.getRowCount(); row++) {
+                org.apache.poi.ss.usermodel.Row dataRow = sheet.createRow(row + 1);
+                for (int col = 0; col < model.getColumnCount(); col++) {
+                    Object value = model.getValueAt(row, col);
+                    dataRow.createCell(col).setCellValue(value != null ? value.toString() : "");
+                }
+            }
+
+            // 💾 Guardar archivo
+            String timestamp = LocalDate.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy"));
+            String nombreArchivo = nombreArchivoBase + "." + timestamp + ".xlsx";
+            String ruta = Paths.get(System.getProperty("user.home"), "Desktop", nombreArchivo).toString();
+
+            try (FileOutputStream out = new FileOutputStream(ruta)) {
+                workbook.write(out);
+            }
+
+          //  V_Menu_Principal.MSG.showMSG("Exportado correctamente a:\n" + ruta, "Excel generado");
+
+        } catch (IOException ex) {
+           // V_Menu_Principal.MSG.showMSG("Error al exportar a Excel: " + ex.getMessage(), "Error");
+        }
+    }
+
+ 
      
   
  //******************************    

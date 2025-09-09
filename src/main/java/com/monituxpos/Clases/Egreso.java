@@ -16,16 +16,36 @@ public class Egreso {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int Secuencial;
 
+    @ManyToOne
+    @JoinColumn(name = "Secuencial_Usuario", insertable = false, updatable = false)
+    private Usuario usuario;
+
+    @ManyToOne
+    @JoinColumn(name = "Secuencial_Factura", insertable = false, updatable = false)
+    private Compra compra;
+
+    @Column(name = "Secuencial_Factura") // ← insertable y actualizable por defecto
     private Integer Secuencial_Factura = 0;
+
+    @Column(name = "Secuencial_Usuario") // ← insertable y actualizable por defecto
     private int Secuencial_Usuario = 0;
 
+    @Column(name = "Fecha")
     private String Fecha = LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+
+    @Column(name = "Tipo_Egreso")
     private String Tipo_Egreso = "";
+
+    @Column(name = "Descripcion")
     private String Descripcion = "";
+
+    @Column(name = "Total")
     private double Total = 0.0;
 
+    @Column(name = "Secuencial_Empresa")
     private int Secuencial_Empresa;
 
+    // Getters y setters
     public int getSecuencial() {
         return Secuencial;
     }
@@ -56,6 +76,22 @@ public class Egreso {
 
     public void setFecha(String Fecha) {
         this.Fecha = Fecha;
+    }
+
+    public Usuario getUsuario() {
+        return usuario;
+    }
+
+    public void setUsuario(Usuario usuario) {
+        this.usuario = usuario;
+    }
+
+    public Compra getCompra() {
+        return compra;
+    }
+
+    public void setCompra(Compra compra) {
+        this.compra = compra;
     }
 
     public String getTipo_Egreso() {
@@ -89,6 +125,4 @@ public class Egreso {
     public void setSecuencial_Empresa(int Secuencial_Empresa) {
         this.Secuencial_Empresa = Secuencial_Empresa;
     }
-
-   
 }
