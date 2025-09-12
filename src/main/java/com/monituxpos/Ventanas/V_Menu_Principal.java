@@ -376,7 +376,8 @@ iniciarCintaLED(lblTitular);
         jLabel1 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setPreferredSize(new java.awt.Dimension(1048, 750));
+        setResizable(false);
+        setType(java.awt.Window.Type.UTILITY);
         addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowOpened(java.awt.event.WindowEvent evt) {
                 formWindowOpened(evt);
@@ -534,7 +535,7 @@ iniciarCintaLED(lblTitular);
         jLabel14.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
         jLabel14.setForeground(new java.awt.Color(255, 255, 255));
         jLabel14.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel14.setText("Por Cobrar");
+        jLabel14.setText("CTAS. a Cobrar");
         jLabel14.setOpaque(true);
         jLabel14.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -552,7 +553,7 @@ iniciarCintaLED(lblTitular);
         jLabel15.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
         jLabel15.setForeground(new java.awt.Color(255, 255, 255));
         jLabel15.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel15.setText("Por Pagar");
+        jLabel15.setText("CTAS. a Pagar");
         jLabel15.setOpaque(true);
         jLabel15.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -1407,6 +1408,11 @@ aplicarColorFondo(jLabel11,new Color(35, 32, 45));
     }//GEN-LAST:event_jLabel13MouseClicked
 
     private void jLabel14MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel14MouseClicked
+
+        V_CTAS_Cobrar formulario= new V_CTAS_Cobrar();
+        abrirVentana(formulario);
+        
+
         // TODO add your handling code here:
     }//GEN-LAST:event_jLabel14MouseClicked
 

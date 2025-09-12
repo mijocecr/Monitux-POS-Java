@@ -393,6 +393,7 @@ public void cargarDatosFecha(LocalDate fechaInicio, LocalDate fechaFin) {
         jLabel9.setForeground(new java.awt.Color(255, 255, 255));
 
         jLabel10.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/arrow_refresh.png"))); // NOI18N
+        jLabel10.setToolTipText("Refrescar Datos.");
         jLabel10.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 jLabel10MouseClicked(evt);
@@ -476,6 +477,8 @@ public void cargarDatosFecha(LocalDate fechaInicio, LocalDate fechaFin) {
 
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
 
+        
+        
         cargarDatosFecha(datePicker1.getDate(),datePicker2.getDate());
         
         
