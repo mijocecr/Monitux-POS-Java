@@ -23,6 +23,8 @@ public class V_Captura_Imagen extends JDialog {
     public V_Captura_Imagen(int secuencial, String titulo) {
         this.secuencial = secuencial;
         this.titulo = titulo;
+        this.setType(Type.UTILITY);
+        
 
         // Limpiar imagen anterior
         imagenCapturada = null;
@@ -37,6 +39,7 @@ public class V_Captura_Imagen extends JDialog {
         labelTitulo = new JLabel(titulo, SwingConstants.CENTER);
         labelTitulo.setFont(new Font("Segoe UI", Font.BOLD, 18));
         add(labelTitulo, BorderLayout.NORTH);
+        
 
         // Inicializar cámara
         webcam = Webcam.getDefault();

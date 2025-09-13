@@ -66,6 +66,7 @@ public class V_Visor_Factura extends JFrame {
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setSize(900, 700);
         setLocationRelativeTo(null);
+        //setType(Type.UTILITY);
     }
 
     public void mostrar() {

@@ -193,6 +193,11 @@ public class V_Abono_Cliente extends javax.swing.JFrame {
         jButton1.setForeground(new java.awt.Color(255, 255, 255));
         jButton1.setText("Ver Abonos");
         jButton1.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(102, 255, 0), 1, true));
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
 
         jButton2.setBackground(new java.awt.Color(51, 255, 0));
         jButton2.setForeground(new java.awt.Color(0, 0, 0));
@@ -442,6 +447,17 @@ cargarDatos();
 
         // TODO add your handling code here:
     }//GEN-LAST:event_jTextField1KeyPressed
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+
+        
+        
+        V_Abonos vAbonos = new V_Abonos(Secuencial_CTAC, true, Cliente_Nombre, Integer.parseInt(jLabel10.getText()));
+vAbonos.setVisible(true);
+
+
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButton1ActionPerformed
 
     /**
      * @param args the command line arguments

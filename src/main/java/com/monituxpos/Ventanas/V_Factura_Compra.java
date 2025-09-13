@@ -247,7 +247,7 @@ cargarItems();
                 formComponentShown(evt);
             }
         });
-        setLayout(null);
+        setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jPanel1.setBackground(new java.awt.Color(11, 8, 20));
         jPanel1.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255)));
@@ -289,8 +289,7 @@ cargarItems();
                 .addGap(12, 12, 12))
         );
 
-        add(jPanel1);
-        jPanel1.setBounds(10, 48, 189, 92);
+        add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 48, -1, 92));
 
         jButton1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/box_down.png"))); // NOI18N
         jButton1.setText("<html><b>Nuevo</b><br><i>Producto</i></html>");
@@ -304,8 +303,7 @@ cargarItems();
                 jButton1ActionPerformed(evt);
             }
         });
-        add(jButton1);
-        jButton1.setBounds(205, 48, 70, 92);
+        add(jButton1, new org.netbeans.lib.awtextra.AbsoluteConstraints(205, 48, 70, 92));
 
         jButton2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/lorry.png"))); // NOI18N
         jButton2.setText("<html><b>Gestionar</b><br><i>Proveedor</i></html>");
@@ -319,8 +317,7 @@ cargarItems();
                 jButton2ActionPerformed(evt);
             }
         });
-        add(jButton2);
-        jButton2.setBounds(281, 48, 70, 92);
+        add(jButton2, new org.netbeans.lib.awtextra.AbsoluteConstraints(281, 48, 70, 92));
 
         jButton3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/page_white_put.png"))); // NOI18N
         jButton3.setText("<html><b>Importar</b><br><i>Orden</i></html>");
@@ -334,8 +331,7 @@ cargarItems();
                 jButton3ActionPerformed(evt);
             }
         });
-        add(jButton3);
-        jButton3.setBounds(357, 48, 72, 92);
+        add(jButton3, new org.netbeans.lib.awtextra.AbsoluteConstraints(357, 48, 72, 92));
 
         jPanel2.setBackground(new java.awt.Color(0, 102, 255));
         jPanel2.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255)));
@@ -524,8 +520,7 @@ cargarItems();
         lbl_total.setForeground(new java.awt.Color(255, 255, 0));
         jPanel2.add(lbl_total, new org.netbeans.lib.awtextra.AbsoluteConstraints(244, 387, 150, -1));
 
-        add(jPanel2);
-        jPanel2.setBounds(435, 48, 400, 554);
+        add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(440, 50, 400, 554));
 
         jScrollPane1.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
         jScrollPane1.setAutoscrolls(true);
@@ -541,13 +536,11 @@ cargarItems();
         });
         jScrollPane1.setViewportView(contenedor);
 
-        add(jScrollPane1);
-        jScrollPane1.setBounds(6, 146, 423, 350);
+        add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(6, 146, 423, 350));
 
         jLabel2.setText("Productos en Lista:");
         jLabel2.setForeground(new java.awt.Color(255, 255, 255));
-        add(jLabel2);
-        jLabel2.setBounds(7, 499, 100, 16);
+        add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(7, 499, -1, -1));
 
         jLabel3.setText("0");
         jLabel3.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
@@ -557,8 +550,7 @@ cargarItems();
                 jLabel3MouseMoved(evt);
             }
         });
-        add(jLabel3);
-        jLabel3.setBounds(113, 496, 36, 20);
+        add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(113, 496, 36, -1));
 
         jButton4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/database_refresh.png"))); // NOI18N
         jButton4.setText("<html><b>Reset</b><br>Factura</html>");
@@ -572,8 +564,7 @@ cargarItems();
                 jButton4ActionPerformed(evt);
             }
         });
-        add(jButton4);
-        jButton4.setBounds(7, 522, 70, 80);
+        add(jButton4, new org.netbeans.lib.awtextra.AbsoluteConstraints(7, 522, 70, 80));
 
         jButton5.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/delete1.png"))); // NOI18N
         jButton5.setText("<html><b>Quitar</b><br>Elemento</html>");
@@ -587,8 +578,7 @@ cargarItems();
                 jButton5ActionPerformed(evt);
             }
         });
-        add(jButton5);
-        jButton5.setBounds(83, 522, 70, 80);
+        add(jButton5, new org.netbeans.lib.awtextra.AbsoluteConstraints(83, 522, 70, 80));
 
         jButton6.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/lightning_go.png"))); // NOI18N
         jButton6.setText("<html><b>Actualizar</b><br>Detalle</html>");
@@ -602,8 +592,7 @@ cargarItems();
                 jButton6ActionPerformed(evt);
             }
         });
-        add(jButton6);
-        jButton6.setBounds(354, 522, 72, 80);
+        add(jButton6, new org.netbeans.lib.awtextra.AbsoluteConstraints(354, 522, 72, 80));
 
         jLabel4.setText("Registrar Compra");
         jLabel4.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
@@ -613,24 +602,20 @@ cargarItems();
                 jLabel4MouseClicked(evt);
             }
         });
-        add(jLabel4);
-        jLabel4.setBounds(550, 0, 201, 40);
+        add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(550, 0, -1, 40));
 
         jLabel11.setText("Mecanica: Señale Producto -> Click -> Cantidad -> Actualizar Detalle");
         jLabel11.setForeground(new java.awt.Color(255, 255, 0));
-        add(jLabel11);
-        jLabel11.setBounds(10, 12, 419, 24);
+        add(jLabel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 12, 419, 24));
 
         contenedor_selector.setBackground(new java.awt.Color(35, 32, 45));
         jScrollPane3.setViewportView(contenedor_selector);
 
-        add(jScrollPane3);
-        jScrollPane3.setBounds(159, 522, 189, 80);
+        add(jScrollPane3, new org.netbeans.lib.awtextra.AbsoluteConstraints(159, 522, 189, 80));
 
         icono_carga.setIcon(new javax.swing.ImageIcon(getClass().getResource("/gifs/spinner1-r.gif"))); // NOI18N
         icono_carga.setVisible(false);
-        add(icono_carga);
-        icono_carga.setBounds(790, 10, 32, 32);
+        add(icono_carga, new org.netbeans.lib.awtextra.AbsoluteConstraints(800, 10, 32, 32));
     }// </editor-fold>//GEN-END:initComponents
 
     

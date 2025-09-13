@@ -12,6 +12,7 @@ import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Font;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.beans.Statement;
@@ -580,7 +581,7 @@ public class V_CTAS_Cobrar extends javax.swing.JPanel {
 //
 //    
     
-   private void inicializarModeloTabla() {
+    private void inicializarModeloTabla() {
     DefaultTableModel model = new DefaultTableModel() {
         @Override
         public boolean isCellEditable(int row, int column) {
@@ -590,16 +591,8 @@ public class V_CTAS_Cobrar extends javax.swing.JPanel {
 
     // Definir nombres de columnas (incluye columna oculta "Vencida")
     model.setColumnIdentifiers(new String[] {
-        "S",
-        "SF",
-        "Nombre",
-        "Fecha",
-        "Fecha_Vencimiento",
-        "Gran_Total",
-        "Saldo",
-        "Pagado",
-        "SC",
-        "Vencida" // columna extra para marcar vencimiento
+        "S", "SF", "Nombre", "Fecha", "Fecha_Vencimiento",
+        "Gran_Total", "Saldo", "Pagado", "SC", "Vencida"
     });
 
     jTable1.setModel(model);
@@ -608,9 +601,63 @@ public class V_CTAS_Cobrar extends javax.swing.JPanel {
     jTable1.getColumnModel().getColumn(jTable1.getColumnCount() - 1).setMinWidth(0);
     jTable1.getColumnModel().getColumn(jTable1.getColumnCount() - 1).setMaxWidth(0);
     jTable1.getColumnModel().getColumn(jTable1.getColumnCount() - 1).setWidth(0);
+
+    // 🎨 Aplicar estilo visual sin alterar la lógica
+    jTable1.setAutoResizeMode(JTable.AUTO_RESIZE_OFF); // Scroll horizontal
+    jTable1.setRowHeight(24);
+    jTable1.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 14));
+    jTable1.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+    jTable1.setGridColor(Color.LIGHT_GRAY);
+
+    // 🦓 Efecto zebra + centrado
+    jTable1.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
+        @Override
+        public Component getTableCellRendererComponent(JTable table, Object value,
+                boolean isSelected, boolean hasFocus, int row, int column) {
+
+            Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+            setHorizontalAlignment(SwingConstants.CENTER);
+            c.setBackground(isSelected ? table.getSelectionBackground() :
+                (row % 2 == 0 ? Color.WHITE : new Color(224, 224, 224)));
+            return c;
+        }
+    });
 }
 
     
+    
+//    
+//   private void inicializarModeloTabla() {
+//    DefaultTableModel model = new DefaultTableModel() {
+//        @Override
+//        public boolean isCellEditable(int row, int column) {
+//            return false; // Desactiva edición en todas las celdas
+//        }
+//    };
+//
+//    // Definir nombres de columnas (incluye columna oculta "Vencida")
+//    model.setColumnIdentifiers(new String[] {
+//        "S",
+//        "SF",
+//        "Nombre",
+//        "Fecha",
+//        "Fecha_Vencimiento",
+//        "Gran_Total",
+//        "Saldo",
+//        "Pagado",
+//        "SC",
+//        "Vencida" // columna extra para marcar vencimiento
+//    });
+//
+//    jTable1.setModel(model);
+//
+//    // Ocultar la columna "Vencida"
+//    jTable1.getColumnModel().getColumn(jTable1.getColumnCount() - 1).setMinWidth(0);
+//    jTable1.getColumnModel().getColumn(jTable1.getColumnCount() - 1).setMaxWidth(0);
+//    jTable1.getColumnModel().getColumn(jTable1.getColumnCount() - 1).setWidth(0);
+//}
+//
+//    
     
 //    
 //private void inicializarModeloTabla() {
@@ -784,6 +831,7 @@ public class V_CTAS_Cobrar extends javax.swing.JPanel {
         jLabel8.setForeground(new java.awt.Color(255, 255, 0));
 
         jLabel10.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/arrow_refresh.png"))); // NOI18N
+        jLabel10.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         jLabel10.setToolTipText("Refrescar Datos.");
         jLabel10.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -844,6 +892,7 @@ public class V_CTAS_Cobrar extends javax.swing.JPanel {
 
         jLabel13.setForeground(new java.awt.Color(255, 0, 51));
         jLabel13.setText("<html>Cuentas Vencidas</html>");
+        jLabel13.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         jLabel13.addAncestorListener(new javax.swing.event.AncestorListener() {
             public void ancestorAdded(javax.swing.event.AncestorEvent evt) {
                 jLabel13AncestorAdded(evt);
