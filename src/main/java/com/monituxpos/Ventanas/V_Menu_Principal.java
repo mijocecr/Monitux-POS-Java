@@ -1431,6 +1431,12 @@ aplicarColorFondo(jLabel11,new Color(35, 32, 45));
     }//GEN-LAST:event_jLabel14MouseExited
 
     private void jLabel15MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel15MouseClicked
+
+
+         V_CTAS_Pagar formulario= new V_CTAS_Pagar();
+        abrirVentana(formulario);
+        
+
         // TODO add your handling code here:
     }//GEN-LAST:event_jLabel15MouseClicked
 

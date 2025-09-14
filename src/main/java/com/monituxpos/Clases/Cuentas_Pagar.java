@@ -1,16 +1,8 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.monituxpos.Clases;
 
-/**
- *
- * @author Miguel Cerrato
- */
+import com.monituxpos.Clases.Proveedor;
+import com.monituxpos.Clases.Compra;
 import jakarta.persistence.*;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 @Entity
 @Table(name = "Cuentas_Pagar")
@@ -20,29 +12,76 @@ public class Cuentas_Pagar {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int Secuencial;
 
+    @ManyToOne
+    @JoinColumn(name = "Secuencial_Factura", insertable = false, updatable = false)
+    private Compra Compra;
+
+    @ManyToOne
+    @JoinColumn(name = "Secuencial_Proveedor", insertable = false, updatable = false)
+    private Proveedor Proveedor;
+
+    @Column(name = "Secuencial_Factura")
     private int Secuencial_Factura = 0;
+
+    @Column(name = "Secuencial_Proveedor")
     private int Secuencial_Proveedor = 0;
+
+    @Column(name = "Secuencial_Usuario")
     private int Secuencial_Usuario = 0;
 
-    private String Fecha = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"));
+    @Column(name = "Fecha")
+    private String Fecha;
+
+    @Column(name = "Fecha_Vencimiento")
     private String Fecha_Vencimiento;
 
+    @Column(name = "Total")
     private Double Total = 0.0;
+
+    @Column(name = "Saldo")
     private Double Saldo = 0.0;
+
+    @Column(name = "Pagado")
     private Double Pagado = 0.0;
+
+    @Column(name = "Otros_Cargos")
     private Double Otros_Cargos = 0.0;
+
+    @Column(name = "Descuento")
     private Double Descuento = 0.0;
+
+    @Column(name = "Impuesto")
     private Double Impuesto = 0.0;
+
+    @Column(name = "Gran_Total")
     private Double Gran_Total = 0.0;
 
+    @Column(name = "Secuencial_Empresa")
     private int Secuencial_Empresa;
 
+    // Getters y setters
     public int getSecuencial() {
         return Secuencial;
     }
 
     public void setSecuencial(int Secuencial) {
         this.Secuencial = Secuencial;
+    }
+
+    public Compra getCompra() {
+        return Compra;
+    }
+
+    public void setCompra(Compra Compra) {
+        this.Compra = Compra;
+    }
+
+    public Proveedor getProveedor() {
+        return Proveedor;
+    }
+
+    public void setProveedor(Proveedor Proveedor) {
+        this.Proveedor = Proveedor;
     }
 
     public int getSecuencial_Factura() {
@@ -109,6 +148,14 @@ public class Cuentas_Pagar {
         this.Pagado = Pagado;
     }
 
+    public Double getOtros_Cargos() {
+        return Otros_Cargos;
+    }
+
+    public void setOtros_Cargos(Double Otros_Cargos) {
+        this.Otros_Cargos = Otros_Cargos;
+    }
+
     public Double getDescuento() {
         return Descuento;
     }
@@ -125,14 +172,6 @@ public class Cuentas_Pagar {
         this.Impuesto = Impuesto;
     }
 
-    public Double getOtros_Cargos() {
-        return Otros_Cargos;
-    }
-
-    public void setOtros_Cargos(Double Otros_Cargos) {
-        this.Otros_Cargos = Otros_Cargos;
-    }
-
     public Double getGran_Total() {
         return Gran_Total;
     }
@@ -141,7 +180,6 @@ public class Cuentas_Pagar {
         this.Gran_Total = Gran_Total;
     }
 
-   
     public int getSecuencial_Empresa() {
         return Secuencial_Empresa;
     }
@@ -149,9 +187,4 @@ public class Cuentas_Pagar {
     public void setSecuencial_Empresa(int Secuencial_Empresa) {
         this.Secuencial_Empresa = Secuencial_Empresa;
     }
-
-    public Cuentas_Pagar() {
-    }
-
-   
 }

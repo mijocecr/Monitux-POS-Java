@@ -52,7 +52,7 @@ public class Abono_Compra {
         return Secuencial_CTAP;
     }
 
-    public void setSecuencial_CTAC(int Secuencial_CTAP) {
+    public void setSecuencial_CTAP(int Secuencial_CTAP) {
         this.Secuencial_CTAP = Secuencial_CTAP;
     }
 

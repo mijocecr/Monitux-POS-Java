@@ -5,6 +5,7 @@
 package com.monituxpos.Ventanas;
 
 import com.monituxpos.Clases.Cuentas_Cobrar;
+import com.monituxpos.Clases.Cuentas_Pagar;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
@@ -24,19 +25,19 @@ import javax.swing.table.TableColumnModel;
  *
  * @author Miguel Cerrato
  */
-public class V_CTA_Cliente extends javax.swing.JFrame {
-    public V_Cliente form;
-    public int Secuencial_Cliente;
+public class V_CTA_Proveedor extends javax.swing.JFrame {
+    public V_Proveedor form;
+    public int Secuencial_Proveedor;
     public int Secuencial_Empresa=V_Menu_Principal.getSecuencial_Empresa();
     public String Nombre;
     public int Secuencial;
     public double Gran_Total;
-    private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(V_CTA_Cliente.class.getName());
+    private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(V_CTA_Proveedor.class.getName());
 
     /**
      * Creates new form V_CTA_Cliente
      */
-    public V_CTA_Cliente() {
+    public V_CTA_Proveedor() {
         initComponents();
         this.setLocationRelativeTo(null);
         this.getContentPane().setBackground(Color.black);
@@ -44,11 +45,11 @@ public class V_CTA_Cliente extends javax.swing.JFrame {
     }
 
     
-     public V_CTA_Cliente(int secuencialCliente,String nombre,V_Cliente x) {
+     public V_CTA_Proveedor(int secuencialProveedor,String nombre,V_Proveedor x) {
         initComponents();
         this.setLocationRelativeTo(null);
         this.getContentPane().setBackground(Color.black);
-        Secuencial_Cliente=secuencialCliente;
+        Secuencial_Proveedor=secuencialProveedor;
         Nombre=nombre;
         configurarTabla(jTable1);
         form=x;
@@ -103,9 +104,7 @@ public class V_CTA_Cliente extends javax.swing.JFrame {
 }
 
      
-     
-     
-     public void cargarDatosCTAS() {
+   public void cargarDatosCTAS() {
     double totalFacturas = 0;
     double saldoPendiente = 0;
 
@@ -115,19 +114,18 @@ public class V_CTA_Cliente extends javax.swing.JFrame {
     DefaultTableModel modelo = (DefaultTableModel) jTable1.getModel();
     modelo.setRowCount(0); // Limpiar tabla
 
-    // Crear EntityManager dentro del método
     EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
     EntityManager em = emf.createEntityManager();
 
     try {
-        List<Cuentas_Cobrar> cuentas = em.createQuery(
-            "SELECT c FROM Cuentas_Cobrar c WHERE c.Secuencial_Empresa = :empresa AND c.Secuencial_Cliente = :cliente",
-            Cuentas_Cobrar.class)
+        List<Cuentas_Pagar> cuentas = em.createQuery(
+            "SELECT c FROM Cuentas_Pagar c WHERE c.Secuencial_Empresa = :empresa AND c.Secuencial_Proveedor = :proveedor",
+            Cuentas_Pagar.class)
             .setParameter("empresa", Secuencial_Empresa)
-            .setParameter("cliente", Secuencial_Cliente)
+            .setParameter("proveedor", Secuencial_Proveedor)
             .getResultList();
 
-        for (Cuentas_Cobrar item : cuentas) {
+        for (Cuentas_Pagar item : cuentas) {
             saldoPendiente += item.getSaldo();
             totalFacturas += item.getTotal();
 
@@ -155,8 +153,9 @@ public class V_CTA_Cliente extends javax.swing.JFrame {
 
                 if (fechaVenc.isBefore(LocalDate.now()) && saldo > 0) {
                     for (int j = 0; j < jTable1.getColumnCount(); j++) {
-                        jTable1.getCellRenderer(i, j).getTableCellRendererComponent(jTable1, jTable1.getValueAt(i, j), false, false, i, j)
-                            .setBackground(new Color(255, 228, 225)); // MistyRose
+                        jTable1.getCellRenderer(i, j).getTableCellRendererComponent(
+                            jTable1, jTable1.getValueAt(i, j), false, false, i, j
+                        ).setBackground(new Color(255, 228, 225)); // MistyRose
                     }
                 }
             } catch (Exception e) {
@@ -169,7 +168,6 @@ public class V_CTA_Cliente extends javax.swing.JFrame {
     }
 }
 
-     
      
      
      
@@ -290,7 +288,7 @@ public class V_CTA_Cliente extends javax.swing.JFrame {
 
         jLabel6.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         jLabel6.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel6.setText("Cargando Cliente....");
+        jLabel6.setText("Cargando Proveedor....");
 
         jButton1.setBackground(new java.awt.Color(102, 255, 0));
         jButton1.setForeground(new java.awt.Color(0, 0, 0));
@@ -382,13 +380,13 @@ cargarDatosCTAS();
     Secuencial = Integer.parseInt(model.getValueAt(filaSeleccionada, 0).toString());   // "S"
     Nombre = jLabel6.getText(); // O donde tengas el nombre del cliente
 
-    if (Secuencial_Cliente == 0) return;
+    if (Secuencial_Proveedor == 0) return;
 
-    V_Abono_Cliente vAbonoCliente = new V_Abono_Cliente(Secuencial, Secuencial_Cliente, Nombre, Gran_Total,this);
-    vAbonoCliente.setCliente_Nombre(Nombre);
-    vAbonoCliente.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+    V_Abono_Proveedor vAbonoProveedor = new V_Abono_Proveedor(Secuencial, Secuencial_Proveedor, Nombre, Gran_Total,this);
+    vAbonoProveedor.setCliente_Nombre(Nombre);
+    vAbonoProveedor.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
     
-    vAbonoCliente.setVisible(true);
+    vAbonoProveedor.setVisible(true);
 
 } catch (Exception ex) {
     ex.printStackTrace(); // Para depurar
@@ -401,12 +399,11 @@ cargarDatosCTAS();
     private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
 
 
- 
     if (form!=null){
 form.toFront();
 form.requestFocus();
     
-    }     
+    }                
 
         // TODO add your handling code here:
     }//GEN-LAST:event_formWindowClosing
@@ -433,7 +430,7 @@ form.requestFocus();
         //</editor-fold>
 
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(() -> new V_CTA_Cliente().setVisible(true));
+        java.awt.EventQueue.invokeLater(() -> new V_CTA_Proveedor().setVisible(true));
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

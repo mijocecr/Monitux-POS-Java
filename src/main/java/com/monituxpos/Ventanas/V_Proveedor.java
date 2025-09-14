@@ -170,6 +170,7 @@ public void setImagen(byte[] imagen) {
             }
         ));
         tableProveedores.setAutoscrolls(false);
+        tableProveedores.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         tableProveedores.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         tableProveedores.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {

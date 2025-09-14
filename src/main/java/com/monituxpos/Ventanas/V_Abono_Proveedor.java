@@ -4,8 +4,12 @@
  */
 package com.monituxpos.Ventanas;
 
+import com.monituxpos.Clases.Abono_Compra;
 import com.monituxpos.Clases.Abono_Venta;
+import com.monituxpos.Clases.Compra;
 import com.monituxpos.Clases.Cuentas_Cobrar;
+import com.monituxpos.Clases.Cuentas_Pagar;
+import com.monituxpos.Clases.Egreso;
 import com.monituxpos.Clases.Ingreso;
 import com.monituxpos.Clases.Util;
 import com.monituxpos.Clases.Venta;
@@ -25,96 +29,93 @@ import javax.swing.JOptionPane;
  *
  * @author Miguel Cerrato
  */
-public class V_Abono_Cliente extends javax.swing.JFrame {
+public class V_Abono_Proveedor extends javax.swing.JFrame {
     
-    public int Secuencial_CTAC;
-    public String Cliente_Nombre;
-    public int Secuencial_Cliente;
+    public int Secuencial_CTAP;
+    public String Proveedor_Nombre;
+    public int Secuencial_Proveedor;
     public int Secuencial_Usuario;
-    public V_CTAS_Cobrar form;
-    public V_CTA_Cliente form_CTA;
+    public V_CTAS_Pagar form;
+    public V_CTA_Proveedor form_CTA;
     public double Gran_Total;
     
     
     public int Secuencial_Empresa;
 
-    public String getCliente_Nombre() {
-        return Cliente_Nombre;
+    public String getProveedor_Nombre() {
+        return Proveedor_Nombre;
     }
 
-    public void setCliente_Nombre(String Cliente_Nombre) {
-        this.Cliente_Nombre = Cliente_Nombre;
+    public void setCliente_Nombre(String Proveedor_Nombre) {
+        this.Proveedor_Nombre = Proveedor_Nombre;
     }
     
     
     
     
     
-    private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(V_Abono_Cliente.class.getName());
+    private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(V_Abono_Proveedor.class.getName());
 
     /**
      * Creates new form V_Abono_Cliente
      */
-    public V_Abono_Cliente() {
+    public V_Abono_Proveedor() {
         initComponents();
         this.getContentPane().setBackground(Color.black);
     }
 
-     public V_Abono_Cliente(int secuencial_ctac, int secuencial_cliente, String nombre_cliente, double gran_total,V_CTAS_Cobrar x) {
+     public V_Abono_Proveedor(int secuencial_ctap, int secuencial_proveedor, String nombre_proveedor, double gran_total,V_CTAS_Pagar x) {
         initComponents();
         this.getContentPane().setBackground(Color.black);
         
         
           
   Gran_Total = gran_total;
-  this.setTitle("CTA. a Cobrar: " + secuencial_ctac);
+  this.setTitle("CTA. a Pagar: " + secuencial_ctap);
   Secuencial_Empresa = V_Menu_Principal.getSecuencial_Empresa();
   Secuencial_Usuario = V_Menu_Principal.getSecuencial_Usuario();
-  Secuencial_Cliente = secuencial_cliente;
-  Secuencial_CTAC = secuencial_ctac;
-  jLabel1.setText(nombre_cliente);
+  Secuencial_Proveedor = secuencial_proveedor;
+  Secuencial_CTAP = secuencial_ctap;
+  jLabel1.setText(nombre_proveedor);
       form=x;  
         
     }
      
      
-       public V_Abono_Cliente(int secuencial_ctac, int secuencial_cliente, String nombre_cliente, double gran_total, V_CTA_Cliente x) {
+       public V_Abono_Proveedor(int secuencial_ctap, int secuencial_proveedor, String nombre_proveedor, double gran_total, V_CTA_Proveedor x) {
         initComponents();
         this.getContentPane().setBackground(Color.black);
         
         
           
   Gran_Total = gran_total;
-  this.setTitle("CTA. a Cobrar: " + secuencial_ctac);
+  this.setTitle("CTA. a Pagar: " + secuencial_ctap);
   Secuencial_Empresa = V_Menu_Principal.getSecuencial_Empresa();
   Secuencial_Usuario = V_Menu_Principal.getSecuencial_Usuario();
-  Secuencial_Cliente = secuencial_cliente;
-  Secuencial_CTAC = secuencial_ctac;
-  jLabel1.setText(nombre_cliente);
+  Secuencial_Proveedor = secuencial_proveedor;
+  Secuencial_CTAP = secuencial_ctap;
+  jLabel1.setText(nombre_proveedor);
       form_CTA=x;
         
     }
 
     
     
-    private void cargarDatos() {
-   
-
-    
+  private void cargarDatos() {
     EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
     EntityManager em = emf.createEntityManager();
 
     try {
-        // Consulta Cuentas_Cobrar
-        List<Cuentas_Cobrar> ctaCobrar = em.createQuery(
-            "SELECT c FROM Cuentas_Cobrar c WHERE c.Secuencial_Empresa = :empresa AND c.Secuencial_Cliente = :cliente AND c.Secuencial = :ctac",
-            Cuentas_Cobrar.class)
+        // Consulta Cuentas_Pagar
+        List<Cuentas_Pagar> ctaPagar = em.createQuery(
+            "SELECT c FROM Cuentas_Pagar c WHERE c.Secuencial_Empresa = :empresa AND c.Secuencial_Proveedor = :proveedor AND c.Secuencial = :ctap",
+            Cuentas_Pagar.class)
             .setParameter("empresa", Secuencial_Empresa)
-            .setParameter("cliente", Secuencial_Cliente)
-            .setParameter("ctac", Secuencial_CTAC)
+            .setParameter("proveedor", Secuencial_Proveedor)
+            .setParameter("ctap", Secuencial_CTAP)
             .getResultList();
 
-        for (Cuentas_Cobrar item : ctaCobrar) {
+        for (Cuentas_Pagar item : ctaPagar) {
             jLabel7.setText(item.getGran_Total().toString());
             jLabel8.setText(item.getPagado().toString());
             jLabel9.setText(item.getSaldo().toString());
@@ -123,15 +124,15 @@ public class V_Abono_Cliente extends javax.swing.JFrame {
         double valorRef = Math.round(Gran_Total * 100.0) / 100.0;
         double tolerancia = 0.05;
 
-        // Consulta Ventas con filtro adicional en memoria
-        List<Venta> ventas = em.createQuery(
-            "SELECT v FROM Venta v WHERE v.Secuencial_Empresa = :empresa AND v.Secuencial_Cliente = :cliente AND v.Tipo = 'Credito'",
-            Venta.class)
+        // Consulta Compras con filtro adicional en memoria
+        List<Compra> compras = em.createQuery(
+            "SELECT c FROM Compra c WHERE c.Secuencial_Empresa = :empresa AND c.Secuencial_Proveedor = :proveedor AND c.Tipo = 'Credito'",
+            Compra.class)
             .setParameter("empresa", Secuencial_Empresa)
-            .setParameter("cliente", Secuencial_Cliente)
+            .setParameter("proveedor", Secuencial_Proveedor)
             .getResultList();
 
-        for (Venta item : ventas) {
+        for (Compra item : compras) {
             if (Math.abs(item.getGran_Total() - valorRef) < tolerancia) {
                 jLabel10.setText(String.valueOf(item.getSecuencial()));
                 break; // si solo necesitas uno
@@ -140,7 +141,6 @@ public class V_Abono_Cliente extends javax.swing.JFrame {
 
     } catch (Exception ex) {
         JOptionPane.showMessageDialog(null, "Error al cargar datos: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-        
         System.err.println(ex.getMessage());
     } finally {
         em.close();
@@ -148,7 +148,6 @@ public class V_Abono_Cliente extends javax.swing.JFrame {
     }
 }
 
-    
     
     
    
@@ -212,17 +211,17 @@ public class V_Abono_Cliente extends javax.swing.JFrame {
 
         jButton1.setBackground(new java.awt.Color(35, 32, 45));
         jButton1.setForeground(new java.awt.Color(255, 255, 255));
-        jButton1.setText("Ver Abonos");
-        jButton1.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(102, 255, 0), 1, true));
+        jButton1.setText("Ver Pagos");
+        jButton1.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 192, 192), 1, true));
         jButton1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton1ActionPerformed(evt);
             }
         });
 
-        jButton2.setBackground(new java.awt.Color(51, 255, 0));
+        jButton2.setBackground(new java.awt.Color(0, 192, 192));
         jButton2.setForeground(new java.awt.Color(0, 0, 0));
-        jButton2.setText("Registrar Abono");
+        jButton2.setText("Registrar Pago");
         jButton2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton2ActionPerformed(evt);
@@ -310,7 +309,7 @@ public class V_Abono_Cliente extends javax.swing.JFrame {
 
         jLabel1.setForeground(new java.awt.Color(255, 255, 255));
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel1.setText("Nombre de Cliente");
+        jLabel1.setText("Nombre de Proveedor");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -344,115 +343,107 @@ cargarDatos();
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
 
-
         //********************
-        
-        String textoAbono = jTextField1.getText();
 
-    if (textoAbono != null && !textoAbono.trim().isEmpty()) {
+String textoPago = jTextField1.getText();
+
+if (textoPago != null && !textoPago.trim().isEmpty()) {
+    try {
+        double pago = Double.parseDouble(textoPago.replace(",", "."));
+        double pagado = Double.parseDouble(jLabel8.getText().replace(",", "."));
+        double saldo = Double.parseDouble(jLabel9.getText().replace(",", "."));
+
+        double nuevoPagado = pagado + pago;
+        double nuevoSaldo = saldo - pago;
+
+        EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
+        EntityManager em = emf.createEntityManager();
+
         try {
-            double abono = Double.parseDouble(textoAbono.replace(",", "."));
-            double pagado = Double.parseDouble(jLabel8.getText().replace(",", "."));
-            double saldo = Double.parseDouble(jLabel9.getText().replace(",", "."));
+            em.getTransaction().begin();
 
-            double nuevoPagado = pagado + abono;
-            double nuevoSaldo = saldo - abono;
+            // Buscar cuenta por pagar
+            Cuentas_Pagar ctaPagar = em.createQuery(
+                "SELECT c FROM Cuentas_Pagar c WHERE c.Secuencial = :ctap AND c.Secuencial_Empresa = :empresa",
+                Cuentas_Pagar.class)
+                .setParameter("ctap", this.Secuencial_CTAP)
+                .setParameter("empresa", Secuencial_Empresa)
+                .getResultStream()
+                .findFirst()
+                .orElse(null);
 
-            EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
-            EntityManager em = emf.createEntityManager();
+            if (ctaPagar != null) {
+                ctaPagar.setSaldo(nuevoSaldo);
+                ctaPagar.setPagado(nuevoPagado);
+                ctaPagar.setSecuencial_Empresa(Secuencial_Empresa);
+                ctaPagar.setSecuencial_Proveedor(Secuencial_Proveedor);
+                ctaPagar.setSecuencial_Usuario(V_Menu_Principal.getSecuencial_Usuario());
 
-            try {
-                em.getTransaction().begin();
+                // Registrar egreso
+                Egreso egreso = new Egreso();
+                egreso.setSecuencial_Empresa(Secuencial_Empresa);
+                egreso.setSecuencial_Factura(ctaPagar.getSecuencial_Factura()); // ← CORREGIDO
+                egreso.setSecuencial_Usuario(Secuencial_Usuario);
+                egreso.setFecha(LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")));
+                egreso.setTotal(pago);
+                egreso.setTipo_Egreso("Pago Realizado");
+                egreso.setDescripcion("Pago a CTA: " + Secuencial_CTAP + " de la Factura: " + jLabel10.getText());
 
-                // Buscar cuenta por cobrar
-                Cuentas_Cobrar ctaCobrar = em.createQuery(
-                    "SELECT c FROM Cuentas_Cobrar c WHERE c.Secuencial = :ctac AND c.Secuencial_Empresa = :empresa",
-                    Cuentas_Cobrar.class)
-                    .setParameter("ctac", this.Secuencial_CTAC)
-                    .setParameter("empresa", Secuencial_Empresa)
-                    .getResultStream()
-                    .findFirst()
-                    .orElse(null);
+                em.persist(egreso);
 
-                if (ctaCobrar != null) {
-                    ctaCobrar.setSaldo(nuevoSaldo);
-                    ctaCobrar.setPagado(nuevoPagado);
-                    ctaCobrar.setSecuencial_Factura(Integer.parseInt(jLabel10.getText()));
-                    ctaCobrar.setSecuencial_Empresa(Secuencial_Empresa);
-                    ctaCobrar.setSecuencial_Cliente(Secuencial_Cliente);
-                    ctaCobrar.setSecuencial_Usuario(V_Menu_Principal.getSecuencial_Usuario());
+                // Registrar pago
+                Abono_Compra pagoCompra = new Abono_Compra();
+                pagoCompra.setSecuencial_Empresa(Secuencial_Empresa);
+                pagoCompra.setSecuencial_Proveedor(Secuencial_Proveedor);
+                pagoCompra.setSecuencial_Usuario(Secuencial_Usuario);
+                pagoCompra.setSecuencial_CTAP(Secuencial_CTAP);
+                pagoCompra.setFecha(LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")));
+                pagoCompra.setMonto(pago);
 
-                    // Registrar ingreso
-                    Ingreso ingreso = new Ingreso();
-                    ingreso.setSecuencial_Empresa(Secuencial_Empresa);
-                    ingreso.setSecuencial_Factura(Secuencial_CTAC);
-                    ingreso.setSecuencial_Usuario(Secuencial_Usuario);
-                    ingreso.setFecha(LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")));
-                    ingreso.setTotal(abono);
-                    ingreso.setTipo_Ingreso("Pago Recibido");
-                    ingreso.setDescripcion("Abono a CTA: " + Secuencial_CTAC + " de la Factura: " + jLabel10.getText());
+                em.persist(pagoCompra);
 
-                    em.persist(ingreso);
+                em.getTransaction().commit();
 
-                    // Registrar abono
-                    Abono_Venta abonoVenta = new Abono_Venta();
-                    abonoVenta.setSecuencial_Empresa(Secuencial_Empresa);
-                    abonoVenta.setSecuencial_Cliente(Secuencial_Cliente);
-                    abonoVenta.setSecuencial_Usuario(Secuencial_Usuario);
-                    abonoVenta.setSecuencial_CTAC(Secuencial_CTAC);
-                    abonoVenta.setFecha(LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")));
-                    abonoVenta.setMonto(abono);
+                // Registrar actividad
+                Util.registrarActividad(Secuencial_Usuario,
+                    "Ha registrado un pago a CTA:" + Secuencial_CTAP + " de " + jLabel1.getText() +
+                    " por un monto de: " + jTextField1.getText() + " " +
+                    " a Factura: " + jLabel10.getText(),
+                    Secuencial_Empresa);
 
-                    em.persist(abonoVenta);
+                JOptionPane.showMessageDialog(null, "Pago registrado correctamente", "Éxito", JOptionPane.INFORMATION_MESSAGE);
 
-                    em.getTransaction().commit();
-
-                    // Registrar actividad
-                    Util.registrarActividad(Secuencial_Usuario,
-                        "Ha registrado un abono a CTA:" + Secuencial_CTAC + " de " + jLabel1.getText() +
-                        " por un monto de: " + jTextField1.getText() + " " +
-                        " a Factura: " + jLabel10.getText(),
-                        Secuencial_Empresa);
-
-                    JOptionPane.showMessageDialog(null, "Abono registrado correctamente", "Éxito", JOptionPane.INFORMATION_MESSAGE);
-                    if (form!=null){
-                    form.Cargar_Datos_CTAS(Secuencial_Empresa);
-                    }
-                      if (form_CTA!=null){
-            
-                form_CTA.cargarDatosCTAS();
-            }
-                    
-                    
+                if (form != null) {
+                    form.Cargar_Datos_CTAS_Pagar(Secuencial_Empresa);
                 }
-
-            } catch (Exception ex) {
-                em.getTransaction().rollback();
-                JOptionPane.showMessageDialog(null, "Error al registrar abono: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-            } finally {
-                em.close();
-                emf.close();
+                if (form_CTA != null) {
+                    form_CTA.cargarDatosCTAS();
+                }
             }
 
-           // cargarDatos();
-            
-          
-          
-            this.dispose();
-            
-            
-form_CTA.toFront();
-form_CTA.requestFocus();
-
-        } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(null, "El monto ingresado no es válido.", "Error", JOptionPane.ERROR_MESSAGE);
+        } catch (Exception ex) {
+            em.getTransaction().rollback();
+            JOptionPane.showMessageDialog(null, "Error al registrar pago: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        } finally {
+            em.close();
+            emf.close();
         }
-    } else {
-        JOptionPane.showMessageDialog(null, "El monto a recibir es inválido.", "Error", JOptionPane.ERROR_MESSAGE);
-    }
-        
-        //********************
 
+        //cargarDatos();
+        this.dispose();
+        if (form_CTA != null) {
+            form_CTA.toFront();
+            form_CTA.requestFocus();
+        }
+
+    } catch (NumberFormatException ex) {
+        JOptionPane.showMessageDialog(null, "El monto ingresado no es válido.", "Error", JOptionPane.ERROR_MESSAGE);
+    }
+} else {
+    JOptionPane.showMessageDialog(null, "El monto a pagar es inválido.", "Error", JOptionPane.ERROR_MESSAGE);
+}
+
+//********************
 
 
         // TODO add your handling code here:
@@ -488,7 +479,7 @@ form_CTA.requestFocus();
 
         
         
-        V_Abonos vAbonos = new V_Abonos(Secuencial_CTAC, true, Cliente_Nombre, Integer.parseInt(jLabel10.getText()));
+        V_Abonos vAbonos = new V_Abonos(Secuencial_CTAP, false, Proveedor_Nombre, Integer.parseInt(jLabel10.getText()));
 vAbonos.setVisible(true);
 
 
@@ -517,7 +508,7 @@ vAbonos.setVisible(true);
         //</editor-fold>
 
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(() -> new V_Abono_Cliente().setVisible(true));
+        java.awt.EventQueue.invokeLater(() -> new V_Abono_Proveedor().setVisible(true));
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
