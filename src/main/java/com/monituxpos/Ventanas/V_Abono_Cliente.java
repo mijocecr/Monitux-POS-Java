@@ -18,6 +18,7 @@ import java.awt.event.KeyEvent;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
 /**
@@ -31,7 +32,9 @@ public class V_Abono_Cliente extends javax.swing.JFrame {
     public int Secuencial_Cliente;
     public int Secuencial_Usuario;
     public V_CTAS_Cobrar form;
+    public V_CTA_Cliente form_CTA;
     public double Gran_Total;
+    
     
     public int Secuencial_Empresa;
 
@@ -71,6 +74,24 @@ public class V_Abono_Cliente extends javax.swing.JFrame {
   Secuencial_CTAC = secuencial_ctac;
   jLabel1.setText(nombre_cliente);
       form=x;  
+        
+    }
+     
+     
+       public V_Abono_Cliente(int secuencial_ctac, int secuencial_cliente, String nombre_cliente, double gran_total, V_CTA_Cliente x) {
+        initComponents();
+        this.getContentPane().setBackground(Color.black);
+        
+        
+          
+  Gran_Total = gran_total;
+  this.setTitle("CTA. a Cobrar: " + secuencial_ctac);
+  Secuencial_Empresa = V_Menu_Principal.getSecuencial_Empresa();
+  Secuencial_Usuario = V_Menu_Principal.getSecuencial_Usuario();
+  Secuencial_Cliente = secuencial_cliente;
+  Secuencial_CTAC = secuencial_ctac;
+  jLabel1.setText(nombre_cliente);
+      form_CTA=x;
         
     }
 
@@ -394,7 +415,15 @@ cargarDatos();
                         Secuencial_Empresa);
 
                     JOptionPane.showMessageDialog(null, "Abono registrado correctamente", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+                    if (form!=null){
                     form.Cargar_Datos_CTAS(Secuencial_Empresa);
+                    }
+                      if (form_CTA!=null){
+            
+                form_CTA.cargarDatosCTAS();
+            }
+                    
+                    
                 }
 
             } catch (Exception ex) {
@@ -406,7 +435,14 @@ cargarDatos();
             }
 
             cargarDatos();
+            
+          
+          
             this.dispose();
+            
+            
+form_CTA.toFront();
+form_CTA.requestFocus();
 
         } catch (NumberFormatException ex) {
             JOptionPane.showMessageDialog(null, "El monto ingresado no es válido.", "Error", JOptionPane.ERROR_MESSAGE);

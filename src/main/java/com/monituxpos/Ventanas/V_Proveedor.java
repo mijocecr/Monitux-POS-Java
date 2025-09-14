@@ -104,32 +104,32 @@ public void setImagen(byte[] imagen) {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setResizable(false);
-        setType(java.awt.Window.Type.UTILITY);
+        setType(java.awt.Window.Type.POPUP);
         addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowOpened(java.awt.event.WindowEvent evt) {
                 formWindowOpened(evt);
             }
         });
 
+        jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel1.setText("Proveedores");
         jLabel1.setBackground(new java.awt.Color(0, 0, 0));
         jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
         jLabel1.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel1.setText("Proveedores");
         jLabel1.setOpaque(true);
 
         jPanel1.setBackground(new java.awt.Color(35, 32, 40));
 
-        labelImagen.setToolTipText("Click para escoger imagen.");
         labelImagen.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        labelImagen.setToolTipText("Click para escoger imagen.");
         labelImagen.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 labelImagenMouseClicked(evt);
             }
         });
 
-        checkBoxActivo.setForeground(new java.awt.Color(255, 255, 255));
         checkBoxActivo.setText("Activo");
+        checkBoxActivo.setForeground(new java.awt.Color(255, 255, 255));
 
         labelImagen1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/camera.png"))); // NOI18N
         labelImagen1.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -138,23 +138,23 @@ public void setImagen(byte[] imagen) {
             }
         });
 
-        jLabel2.setForeground(java.awt.Color.white);
         jLabel2.setText("Nombre:");
+        jLabel2.setForeground(java.awt.Color.white);
 
-        jLabel3.setForeground(java.awt.Color.white);
         jLabel3.setText("Telefono:");
+        jLabel3.setForeground(java.awt.Color.white);
 
-        jLabel4.setForeground(java.awt.Color.white);
         jLabel4.setText("Direccion:");
+        jLabel4.setForeground(java.awt.Color.white);
 
-        jLabel5.setForeground(java.awt.Color.white);
         jLabel5.setText("Email:");
+        jLabel5.setForeground(java.awt.Color.white);
 
-        jLabel7.setForeground(java.awt.Color.white);
         jLabel7.setText("Contacto:");
+        jLabel7.setForeground(java.awt.Color.white);
 
-        jLabel8.setForeground(java.awt.Color.white);
         jLabel8.setText("Tipo:");
+        jLabel8.setForeground(java.awt.Color.white);
 
         combo_Tipo.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Local", "Nacional", "Internacional", "Virtual" }));
 
@@ -197,8 +197,8 @@ public void setImagen(byte[] imagen) {
             }
         });
 
-        jLabel6.setForeground(new java.awt.Color(255, 255, 255));
         jLabel6.setText("Buscar por:");
+        jLabel6.setForeground(new java.awt.Color(255, 255, 255));
 
         jComboBox2.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Nombre", "Telefono", "Contacto", "Email" }));
 

@@ -270,40 +270,40 @@ public void setImagen(byte[] imagen) {
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setBackground(new java.awt.Color(0, 102, 255));
         setResizable(false);
-        setType(java.awt.Window.Type.UTILITY);
+        setType(java.awt.Window.Type.POPUP);
         addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowOpened(java.awt.event.WindowEvent evt) {
                 formWindowOpened(evt);
             }
         });
 
+        jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel1.setText("Usuarios");
         jLabel1.setBackground(new java.awt.Color(0, 0, 0));
         jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
         jLabel1.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel1.setText("Usuarios");
         jLabel1.setOpaque(true);
 
         jPanel1.setBackground(new java.awt.Color(35, 32, 40));
 
-        jLabel2.setForeground(new java.awt.Color(255, 255, 255));
         jLabel2.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         jLabel2.setText("Codigo:");
+        jLabel2.setForeground(new java.awt.Color(255, 255, 255));
 
-        jLabel3.setForeground(new java.awt.Color(255, 255, 255));
         jLabel3.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         jLabel3.setText("Nombre:");
+        jLabel3.setForeground(new java.awt.Color(255, 255, 255));
 
-        jLabel4.setForeground(new java.awt.Color(255, 255, 255));
         jLabel4.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         jLabel4.setText("Password:");
+        jLabel4.setForeground(new java.awt.Color(255, 255, 255));
 
-        jLabel5.setForeground(new java.awt.Color(255, 255, 255));
         jLabel5.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         jLabel5.setText("Acceso:");
+        jLabel5.setForeground(new java.awt.Color(255, 255, 255));
 
-        checkBoxActivo.setForeground(new java.awt.Color(255, 255, 255));
         checkBoxActivo.setText("Activo");
+        checkBoxActivo.setForeground(new java.awt.Color(255, 255, 255));
 
         tableUsuarios.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -334,8 +334,8 @@ public void setImagen(byte[] imagen) {
         });
         jScrollPane2.setViewportView(tableUsuarios);
 
-        labelImagen.setToolTipText("Click para escoger imagen.");
         labelImagen.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        labelImagen.setToolTipText("Click para escoger imagen.");
         labelImagen.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 labelImagenMouseClicked(evt);
@@ -363,8 +363,8 @@ public void setImagen(byte[] imagen) {
             }
         });
 
-        jLabel6.setForeground(new java.awt.Color(255, 255, 255));
         jLabel6.setText("Buscar por:");
+        jLabel6.setForeground(new java.awt.Color(255, 255, 255));
 
         javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
         jPanel4.setLayout(jPanel4Layout);

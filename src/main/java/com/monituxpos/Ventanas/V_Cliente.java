@@ -17,6 +17,8 @@ import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -31,6 +33,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
@@ -45,7 +48,7 @@ public class V_Cliente extends javax.swing.JFrame {
      public int Secuencial_Usuario=V_Menu_Principal.getSecuencial_Usuario();
     public int Secuencial_Empresa=V_Menu_Principal.getSecuencial_Empresa();;//Cambiar esto
     public int Secuencial;
-    
+    public String Nombre;
       private byte[] imagen;
 
 public byte[] getImagen() {
@@ -62,6 +65,22 @@ public void setImagen(byte[] imagen) {
      */
     public V_Cliente() {
         initComponents();
+        
+       tableClientes.addMouseListener(new MouseAdapter() {
+    @Override
+    public void mouseClicked(MouseEvent evt) {
+        if (evt.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(evt)) {
+            int row = tableClientes.rowAtPoint(evt.getPoint());
+            if (row != -1) {
+                abrirVentanaDetalle(row);
+            }
+        }
+    }
+});
+
+        
+        
+        
     }
 
     /**
@@ -104,7 +123,7 @@ public void setImagen(byte[] imagen) {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setResizable(false);
-        setType(java.awt.Window.Type.UTILITY);
+        setType(java.awt.Window.Type.POPUP);
         addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowOpened(java.awt.event.WindowEvent evt) {
                 formWindowOpened(evt);
@@ -169,6 +188,7 @@ public void setImagen(byte[] imagen) {
 
             }
         ));
+        tableClientes.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         tableClientes.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         tableClientes.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -362,6 +382,23 @@ public void setImagen(byte[] imagen) {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    
+    private void abrirVentanaDetalle(int rowIndex) {
+    DefaultTableModel model = (DefaultTableModel) tableClientes.getModel();
+
+    Secuencial = Integer.parseInt(model.getValueAt(rowIndex, 0).toString()); // Columna "Secuencial"
+    Nombre = model.getValueAt(rowIndex, 2).toString();                    // Columna "Nombre"
+    
+    
+
+    // Crear y mostrar la ventana de detalle
+    V_CTA_Cliente ventana = new V_CTA_Cliente(Secuencial,Nombre,this);
+   
+    ventana.setVisible(true);
+}
+
+    
+    
     private void Menu_NuevoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Menu_NuevoActionPerformed
 
         Secuencial=0;
@@ -470,6 +507,11 @@ dispose();             // Cierra el formulario actual
         
     }//GEN-LAST:event_Menu_GuardarActionPerformed
 
+    
+ 
+    
+    
+    
     private void Menu_EliminarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Menu_EliminarActionPerformed
 
         int res = JOptionPane.showConfirmDialog(null, "¿Está seguro de eliminar este cliente?", "Confirmación", JOptionPane.YES_NO_OPTION);
@@ -667,7 +709,9 @@ if (res == JOptionPane.YES_OPTION) {
     private void tableClientesMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tableClientesMouseClicked
 
      
-        try {
+     try {
+            
+            
     int rowIndex = tableClientes.getSelectedRow();
     if (rowIndex < 0) return; // No hay fila seleccionada
 
@@ -715,10 +759,6 @@ if (res == JOptionPane.YES_OPTION) {
     ex.printStackTrace(); // Para depuración
 }
 
-
-
-        
-      
     }//GEN-LAST:event_tableClientesMouseClicked
 
     

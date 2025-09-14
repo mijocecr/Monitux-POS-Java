@@ -39,6 +39,8 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 
 /**
@@ -580,16 +582,16 @@ public class V_CTAS_Cobrar extends javax.swing.JPanel {
 //}
 //
 //    
+   
     
     private void inicializarModeloTabla() {
     DefaultTableModel model = new DefaultTableModel() {
         @Override
         public boolean isCellEditable(int row, int column) {
-            return false; // Desactiva edición en todas las celdas
+            return false;
         }
     };
 
-    // Definir nombres de columnas (incluye columna oculta "Vencida")
     model.setColumnIdentifiers(new String[] {
         "S", "SF", "Nombre", "Fecha", "Fecha_Vencimiento",
         "Gran_Total", "Saldo", "Pagado", "SC", "Vencida"
@@ -597,19 +599,19 @@ public class V_CTAS_Cobrar extends javax.swing.JPanel {
 
     jTable1.setModel(model);
 
-    // Ocultar la columna "Vencida"
-    jTable1.getColumnModel().getColumn(jTable1.getColumnCount() - 1).setMinWidth(0);
-    jTable1.getColumnModel().getColumn(jTable1.getColumnCount() - 1).setMaxWidth(0);
-    jTable1.getColumnModel().getColumn(jTable1.getColumnCount() - 1).setWidth(0);
+    // Ocultar columna "Vencida"
+    TableColumn vencidaCol = jTable1.getColumnModel().getColumn(jTable1.getColumnCount() - 1);
+    vencidaCol.setMinWidth(0);
+    vencidaCol.setMaxWidth(0);
+    vencidaCol.setWidth(0);
 
-    // 🎨 Aplicar estilo visual sin alterar la lógica
-    jTable1.setAutoResizeMode(JTable.AUTO_RESIZE_OFF); // Scroll horizontal
+    jTable1.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
     jTable1.setRowHeight(24);
     jTable1.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 14));
     jTable1.setFont(new Font("Segoe UI", Font.PLAIN, 13));
     jTable1.setGridColor(Color.LIGHT_GRAY);
 
-    // 🦓 Efecto zebra + centrado
+    // Efecto zebra + centrado
     jTable1.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
         @Override
         public Component getTableCellRendererComponent(JTable table, Object value,
@@ -622,8 +624,22 @@ public class V_CTAS_Cobrar extends javax.swing.JPanel {
             return c;
         }
     });
+
+    // 🔧 Autoredimensionar columna "Nombre"
+    TableColumn nombreCol = jTable1.getColumnModel().getColumn(2); // Índice de "Nombre"
+    int maxWidth = 100; // Ancho mínimo base
+
+    for (int row = 0; row < jTable1.getRowCount(); row++) {
+        TableCellRenderer renderer = jTable1.getCellRenderer(row, 2);
+        Component comp = renderer.getTableCellRendererComponent(jTable1,
+                jTable1.getValueAt(row, 2), false, false, row, 2);
+        maxWidth = Math.max(comp.getPreferredSize().width + 10, maxWidth);
+    }
+
+    nombreCol.setPreferredWidth(maxWidth);
 }
 
+    
     
     
 //    

@@ -23,7 +23,7 @@ public class V_Captura_Imagen extends JDialog {
     public V_Captura_Imagen(int secuencial, String titulo) {
         this.secuencial = secuencial;
         this.titulo = titulo;
-        this.setType(Type.UTILITY);
+        this.setType(Type.POPUP);
         
 
         // Limpiar imagen anterior
