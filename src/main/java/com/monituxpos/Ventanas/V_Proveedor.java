@@ -16,6 +16,8 @@ import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -28,6 +30,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
+import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumnModel;
@@ -42,7 +45,7 @@ public class V_Proveedor extends javax.swing.JFrame {
      public int Secuencial_Usuario=V_Menu_Principal.getSecuencial_Usuario();//Cambiar esto
     public int Secuencial_Empresa=V_Menu_Principal.getSecuencial_Empresa();//Cambiar esto
     public int Secuencial;
-    
+    public String Nombre;
     
     private byte[] imagen;
 
@@ -60,8 +63,39 @@ public void setImagen(byte[] imagen) {
      */
     public V_Proveedor() {
         initComponents();
+        
+              tableProveedores.addMouseListener(new MouseAdapter() {
+    @Override
+    public void mouseClicked(MouseEvent evt) {
+        if (evt.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(evt)) {
+            int row = tableProveedores.rowAtPoint(evt.getPoint());
+            if (row != -1) {
+                abrirVentanaDetalle(row);
+            }
+        }
+    }
+});
+
+        
     }
 
+    
+     private void abrirVentanaDetalle(int rowIndex) {
+    DefaultTableModel model = (DefaultTableModel) tableProveedores.getModel();
+
+    Secuencial = Integer.parseInt(model.getValueAt(rowIndex, 0).toString()); // Columna "Secuencial"
+    Nombre = model.getValueAt(rowIndex, 1).toString();                    // Columna "Nombre"
+    
+    
+
+    // Crear y mostrar la ventana de detalle
+    V_CTA_Proveedor ventana = new V_CTA_Proveedor(Secuencial,Nombre,this);
+   
+    ventana.setVisible(true);
+}
+    
+    
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always

@@ -97,6 +97,9 @@ public void setImagen(byte[] imagen) {
      */
     public V_Producto() {
         initComponents();
+        
+        
+        
     }
 
  

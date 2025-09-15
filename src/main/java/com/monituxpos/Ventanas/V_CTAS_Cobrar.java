@@ -754,7 +754,7 @@ public class V_CTAS_Cobrar extends javax.swing.JPanel {
         jLabel3.setText("Hasta:");
         jLabel3.setForeground(new java.awt.Color(255, 255, 255));
 
-        jLabel4.setText("Todos las CTAS a Cobrar en un rango de fechas.");
+        jLabel4.setText("Todos las CTAS a cobrar en un rango de fechas.");
         jLabel4.setForeground(new java.awt.Color(255, 255, 51));
 
         jButton4.setText("Consultar");
@@ -906,9 +906,9 @@ public class V_CTAS_Cobrar extends javax.swing.JPanel {
                 .addContainerGap())
         );
 
-        jLabel13.setForeground(new java.awt.Color(255, 0, 51));
         jLabel13.setText("<html>Cuentas Vencidas</html>");
         jLabel13.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        jLabel13.setForeground(new java.awt.Color(255, 0, 51));
         jLabel13.addAncestorListener(new javax.swing.event.AncestorListener() {
             public void ancestorAdded(javax.swing.event.AncestorEvent evt) {
                 jLabel13AncestorAdded(evt);

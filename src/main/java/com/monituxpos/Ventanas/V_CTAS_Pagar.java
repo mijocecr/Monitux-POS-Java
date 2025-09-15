@@ -728,7 +728,7 @@ public class V_CTAS_Pagar extends javax.swing.JPanel {
         jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
         jLabel1.setForeground(new java.awt.Color(0, 192, 192));
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel1.setText("Cuentas a Cobrar");
+        jLabel1.setText("Cuentas a Pagar");
         jLabel1.setOpaque(true);
 
         jPanel1.setBackground(new java.awt.Color(35, 32, 45));
@@ -742,7 +742,7 @@ public class V_CTAS_Pagar extends javax.swing.JPanel {
         jLabel3.setText("Hasta:");
         jLabel3.setForeground(new java.awt.Color(255, 255, 255));
 
-        jLabel4.setText("Todos las CTAS a Pagar en un rango de fechas.");
+        jLabel4.setText("Todos las CTAS a pagar en un rango de fechas.");
         jLabel4.setForeground(new java.awt.Color(255, 255, 51));
 
         jButton4.setText("Consultar");

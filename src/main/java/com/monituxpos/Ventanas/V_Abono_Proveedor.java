@@ -233,7 +233,7 @@ public class V_Abono_Proveedor extends javax.swing.JFrame {
         jLabel6.setText("No. Factura:");
 
         jLabel7.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        jLabel7.setForeground(new java.awt.Color(255, 255, 0));
+        jLabel7.setForeground(new java.awt.Color(0, 192, 192));
         jLabel7.setText("0");
 
         jLabel8.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
