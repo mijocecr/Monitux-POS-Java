@@ -797,6 +797,12 @@ if (miniatura.cargarComentario()!=null){
 
 
 
+
+
+
+
+
+
 public void cargar_Items(int secuencialEmpresa, JPanel contenedor, JPanel contenedor_selector, EntityManager entityManager) {
     icono_carga.setVisible(true);
 

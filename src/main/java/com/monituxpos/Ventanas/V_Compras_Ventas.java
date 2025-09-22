@@ -7,6 +7,7 @@ package com.monituxpos.Ventanas;
 import com.monituxpos.Clases.Cliente;
 import com.monituxpos.Clases.Compra;
 import com.monituxpos.Clases.Compra_Detalle;
+import com.monituxpos.Clases.Miniatura_Producto;
 import com.monituxpos.Clases.Proveedor;
 import com.monituxpos.Clases.Util;
 import com.monituxpos.Clases.Venta;
@@ -15,7 +16,9 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
 import java.awt.event.KeyEvent;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
@@ -35,6 +38,14 @@ public int Secuencial_Compra;
 public int Secuencial_Proveedor;
 
 public int Secuencial_Cliente;
+
+  public  String cliente_seleccionado;
+  public  String proveedor_seleccionado;
+
+
+
+public static Map<String, Double> lista = new HashMap<>();
+
     /**
      * Creates new form V_Compras_Ventas
      */
@@ -299,6 +310,11 @@ public int Secuencial_Cliente;
         jPanel2.add(jButton2, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 480, -1, -1));
 
         jButton3.setText("Modificar");
+        jButton3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton3ActionPerformed(evt);
+            }
+        });
         jPanel2.add(jButton3, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 480, 90, -1));
 
         jPanel1.add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(18, 62, 392, -1));
@@ -818,10 +834,10 @@ public int Secuencial_Cliente;
         DefaultTableModel modelo2 = (DefaultTableModel) jTable2.getModel();
         modelo2.setRowCount(0);
         
-        String seleccionado = jComboBox1.getSelectedItem().toString();
-int secuencialCliente = Integer.parseInt(seleccionado.split("-")[0].trim());
+        cliente_seleccionado = jComboBox1.getSelectedItem().toString();
+int secuencialCliente = Integer.parseInt(cliente_seleccionado.split("-")[0].trim());
 filtrarVenta(secuencialCliente, jTable1, jTable2);
-Secuencial_Cliente=Integer.parseInt(seleccionado.split("-")[0].trim());
+Secuencial_Cliente=Integer.parseInt(cliente_seleccionado.split("-")[0].trim());
 
         
 
@@ -1238,6 +1254,95 @@ try {
     private void jTextField1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField1ActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_jTextField1ActionPerformed
+
+    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+
+        lista.clear();
+V_Editar_Factura_Venta.listaDeItems.clear();
+
+if (jTable1.getRowCount() == 0) {
+    JOptionPane.showMessageDialog(null, "No hay factura seleccionada para modificar.", "Error", JOptionPane.ERROR_MESSAGE);
+    return;
+}
+
+// Obtener cliente seleccionado
+Object clienteObj = jComboBox1.getSelectedItem();
+if (clienteObj == null) {
+    JOptionPane.showMessageDialog(null, "Seleccione un cliente válido.", "Advertencia", JOptionPane.WARNING_MESSAGE);
+    return;
+}
+String clienteSeleccionado = clienteObj.toString();
+
+lista.clear(); // Limpiar la lista antes de importar
+
+// Obtener índices de columnas por nombre
+int colCodigo = -1;
+int colCantidad = -1;
+for (int c = 0; c < jTable2.getColumnCount(); c++) {
+    String colName = jTable2.getColumnName(c);
+    if (colName.equalsIgnoreCase("Codigo")) colCodigo = c;
+    if (colName.equalsIgnoreCase("Cantidad")) colCantidad = c;
+}
+
+if (colCodigo == -1 || colCantidad == -1) {
+    JOptionPane.showMessageDialog(null, "Las columnas 'Codigo' o 'Cantidad' no existen en la tabla.", "Error", JOptionPane.ERROR_MESSAGE);
+    return;
+}
+
+// Recorrer filas de la tabla
+for (int i = 0; i < jTable2.getRowCount(); i++) {
+    Object codigoObj = jTable2.getValueAt(i, colCodigo);
+    Object cantidadObj = jTable2.getValueAt(i, colCantidad);
+
+    if (codigoObj != null && cantidadObj != null) {
+        String codigo = codigoObj.toString().trim();
+        try {
+            double cantidad = Double.parseDouble(cantidadObj.toString().trim());
+            if (!lista.containsKey(codigo)) {
+                lista.put(codigo, cantidad);
+            }
+        } catch (NumberFormatException e) {
+            System.err.println("Cantidad inválida en fila " + i + ": " + cantidadObj);
+        }
+    }
+}
+
+if (Secuencial_Venta == 0) {
+    JOptionPane.showMessageDialog(null, "Seleccione Factura", "Monitux-POS", JOptionPane.WARNING_MESSAGE);
+    return;
+}
+
+// Crear y mostrar ventana de edición
+V_Editar_Factura_Venta vEditarFacturaVenta = new V_Editar_Factura_Venta(this);
+vEditarFacturaVenta.setSecuencial_Cliente(Secuencial_Cliente);
+vEditarFacturaVenta.setSecuencial(Secuencial_Venta);
+
+
+ EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
+ EntityManager em1 = emf.createEntityManager();
+
+vEditarFacturaVenta.importarFactura(V_Compras_Ventas.lista, cliente_seleccionado,em1);
+
+
+
+JOptionPane.showMessageDialog(null, cliente_seleccionado);
+
+vEditarFacturaVenta.setVisible(true); // Equivalente a ShowDialog()
+
+// Filtrar por cliente
+String clienteTexto = jComboBox1.getSelectedItem().toString();
+try {
+    int clienteId = Integer.parseInt(clienteTexto.split("-")[0].trim());
+    filtrarVenta(clienteId,jTable1,jTable2);
+    filtrarDetalleVenta(Secuencial_Venta,jTable2);
+} catch (NumberFormatException e) {
+    JOptionPane.showMessageDialog(null, "Formato de cliente inválido.", "Error", JOptionPane.ERROR_MESSAGE);
+}
+
+ 
+
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButton3ActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
