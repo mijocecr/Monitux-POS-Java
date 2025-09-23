@@ -579,6 +579,15 @@ public static Map<String, Double> lista = new HashMap<>();
     tabla.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 }
 
+     public void cargar_Datos_Venta(){
+     
+         cargarDatosVenta(jTable1);
+         DefaultTableModel modelo = (DefaultTableModel) jTable2.getModel();
+         modelo.setRowCount(0);
+
+         
+     }
+     
     
     public void cargarDatosVenta(JTable tabla) {
     // Limpiar la tabla
@@ -589,10 +598,14 @@ public static Map<String, Double> lista = new HashMap<>();
     EntityManager em = emf.createEntityManager();
 
     try {
+      
         List<Venta> ventas = em.createQuery(
-            "SELECT v FROM Venta v WHERE v.Secuencial_Empresa = :empresa", Venta.class)
-            .setParameter("empresa", Secuencial_Empresa) // Asegúrate de tener esta variable definida
-            .getResultList();
+    "SELECT v FROM Venta v WHERE v.Secuencial_Empresa = :empresa AND v.Secuencial_Cliente = :cliente",
+    Venta.class
+)
+.setParameter("empresa", Secuencial_Empresa)
+.setParameter("cliente", Secuencial_Cliente)
+.getResultList();
 
         for (Venta venta : ventas) {
             modelo.addRow(new Object[] {
@@ -680,6 +693,7 @@ public static Map<String, Double> lista = new HashMap<>();
                 venta.getTotal(),
                 venta.getGran_Total(),
                 venta.getSecuencial_Cliente()
+                    
             });
         }
 
@@ -1325,7 +1339,7 @@ vEditarFacturaVenta.importarFactura(V_Compras_Ventas.lista, cliente_seleccionado
 
 
 
-JOptionPane.showMessageDialog(null, cliente_seleccionado);
+
 
 vEditarFacturaVenta.setVisible(true); // Equivalente a ShowDialog()
 
