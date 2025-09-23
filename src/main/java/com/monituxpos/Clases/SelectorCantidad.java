@@ -66,9 +66,9 @@ import java.awt.*;
 
 public class SelectorCantidad extends JPanel {
 
-    private JLabel labelCodigo;
+    public JLabel labelCodigo;
     public JSpinner spinnerCantidad;
-    private JCheckBox checkBoxSeleccionado;
+    public JCheckBox checkBoxSeleccionado;
 public String codigo;
     public SelectorCantidad(String codigoProducto,int cantidad) {
         setLayout(new BorderLayout());

@@ -1084,17 +1084,17 @@ iniciarCintaLED(lblTitular);
         panelContenedor.setLayout(panelContenedorLayout);
         panelContenedorLayout.setHorizontalGroup(
             panelContenedorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelContenedorLayout.createSequentialGroup()
-                .addContainerGap(212, Short.MAX_VALUE)
-                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 481, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(203, 203, 203))
+            .addGroup(panelContenedorLayout.createSequentialGroup()
+                .addGap(161, 161, 161)
+                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 488, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(247, Short.MAX_VALUE))
         );
         panelContenedorLayout.setVerticalGroup(
             panelContenedorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(panelContenedorLayout.createSequentialGroup()
-                .addGap(78, 78, 78)
-                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 429, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(729, Short.MAX_VALUE))
+                .addGap(69, 69, 69)
+                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 420, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(747, Short.MAX_VALUE))
         );
 
         jScrollPane2.setViewportView(panelContenedor);
@@ -1683,7 +1683,9 @@ aplicarColorFondo(jLabel22,new Color(35, 32, 45));
     private void lbl_versionMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lbl_versionMouseClicked
 
 
-        JOptionPane.showMessageDialog(null,this.getSize());
+       // JOptionPane.showMessageDialog(null,this.getSize());
+        JOptionPane.showMessageDialog(null,"<html>Programa escrito en <strong>JAVA</strong> <br>por: <strong>Miguel Josue Cerrato Cruz</strong></br><br><u>miguel.cerrato.es@gmail.com</u></br></html>");
+        
         // TODO add your handling code here:
     }//GEN-LAST:event_lbl_versionMouseClicked
 

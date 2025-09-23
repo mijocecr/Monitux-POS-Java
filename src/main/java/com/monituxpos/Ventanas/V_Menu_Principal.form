@@ -997,19 +997,19 @@
           <Layout>
             <DimensionLayout dim="0">
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="102" alignment="1" attributes="0">
-                      <EmptySpace pref="212" max="32767" attributes="0"/>
-                      <Component id="jLabel1" min="-2" pref="481" max="-2" attributes="0"/>
-                      <EmptySpace min="-2" pref="203" max="-2" attributes="0"/>
+                  <Group type="102" alignment="0" attributes="0">
+                      <EmptySpace min="-2" pref="161" max="-2" attributes="0"/>
+                      <Component id="jLabel1" min="-2" pref="488" max="-2" attributes="0"/>
+                      <EmptySpace pref="247" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
             <DimensionLayout dim="1">
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="0" attributes="0">
-                      <EmptySpace min="-2" pref="78" max="-2" attributes="0"/>
-                      <Component id="jLabel1" min="-2" pref="429" max="-2" attributes="0"/>
-                      <EmptySpace pref="729" max="32767" attributes="0"/>
+                      <EmptySpace min="-2" pref="69" max="-2" attributes="0"/>
+                      <Component id="jLabel1" min="-2" pref="420" max="-2" attributes="0"/>
+                      <EmptySpace pref="747" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>

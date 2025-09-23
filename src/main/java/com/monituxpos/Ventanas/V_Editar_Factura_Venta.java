@@ -6,6 +6,7 @@ package com.monituxpos.Ventanas;
 
 import com.monituxpos.Clases.Cuentas_Cobrar;
 import com.monituxpos.Clases.Ingreso;
+import com.monituxpos.Clases.Kardex;
 import com.monituxpos.Clases.Miniatura_Producto;
 import com.monituxpos.Clases.Producto;
 import com.monituxpos.Clases.SelectorCantidad;
@@ -35,6 +36,7 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
@@ -46,6 +48,7 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import javax.imageio.ImageIO;
+import javax.mail.FetchProfile.Item;
 import javax.swing.ImageIcon;
 import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
@@ -76,6 +79,7 @@ double impuesto = 0.0;
 double descuento = 0.0;
     
        public static final Map<String, Miniatura_Producto> listaDeItems = new HashMap<>();
+       public static final Map<String, Miniatura_Producto> listaDeItemsEliminar = new HashMap<>();
        public static final Map<String, SelectorCantidad> selectoresCantidad = new HashMap<>();
 
     public int getSecuencial_Cliente() {
@@ -213,8 +217,8 @@ double descuento = 0.0;
             }
         });
 
-        jLabel1.setText("Buscar Por:");
         jLabel1.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel1.setText("Buscar Por:");
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -488,16 +492,16 @@ double descuento = 0.0;
         jPanel2.add(lbl_total, new org.netbeans.lib.awtextra.AbsoluteConstraints(240, 410, 150, -1));
 
         jLabel6.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
-        jLabel6.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel6.setForeground(new java.awt.Color(0, 0, 255));
         jLabel6.setText("-- -- ----");
         jPanel2.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(190, 80, 160, -1));
 
-        jLabel11.setText("Mecanica: Señale Producto -> Click -> Cantidad -> Actualizar Detalle");
         jLabel11.setForeground(new java.awt.Color(255, 255, 0));
+        jLabel11.setText("Mecanica: Señale Producto -> Click -> Cantidad -> Actualizar Detalle");
 
-        jLabel4.setText("Modificar Venta");
         jLabel4.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
         jLabel4.setForeground(new java.awt.Color(255, 255, 51));
+        jLabel4.setText("Modificar Venta");
         jLabel4.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 jLabel4MouseClicked(evt);
@@ -509,11 +513,11 @@ double descuento = 0.0;
 
         jPanel4.setBackground(new java.awt.Color(0, 0, 0));
 
+        jButton1.setBackground(new java.awt.Color(11, 8, 20));
+        jButton1.setForeground(new java.awt.Color(255, 255, 255));
         jButton1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/box_down.png"))); // NOI18N
         jButton1.setText("<html><b>Nuevo</b><br><i>Producto</i></html>");
-        jButton1.setBackground(new java.awt.Color(11, 8, 20));
         jButton1.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255)));
-        jButton1.setForeground(new java.awt.Color(255, 255, 255));
         jButton1.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         jButton1.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
         jButton1.addActionListener(new java.awt.event.ActionListener() {
@@ -527,14 +531,15 @@ double descuento = 0.0;
 
         jComboBox2.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Codigo", "Descripcion", "Marca", "Codigo_Barra" }));
 
+        jTextField3.setToolTipText("<html>Para efectuar la busqueda debe presionar Enter. <br>El filtro se restablecera al presionar Enter si la casilla esta vacia.</br></html>");
         jTextField3.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyReleased(java.awt.event.KeyEvent evt) {
                 jTextField3KeyReleased(evt);
             }
         });
 
-        jLabel19.setText("Buscar Por:");
         jLabel19.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel19.setText("Buscar Por:");
 
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
@@ -562,12 +567,12 @@ double descuento = 0.0;
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        jLabel20.setText("<html>El impuesto y el descuento deben recalcularse al editar factura. (si aplica)</html>");
         jLabel20.setForeground(new java.awt.Color(255, 153, 0));
+        jLabel20.setText("<html>El impuesto y el descuento deben recalcularse al editar factura. (si aplica)</html>");
         jLabel20.setToolTipText("");
 
-        jScrollPane1.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
         jScrollPane1.setBackground(new java.awt.Color(35, 32, 40));
+        jScrollPane1.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
         jScrollPane1.setHorizontalScrollBar(null);
 
         contenedor.setBackground(new java.awt.Color(35, 32, 45));
@@ -580,22 +585,22 @@ double descuento = 0.0;
         contenedor.setLayout(new java.awt.GridLayout(1, 0));
         jScrollPane1.setViewportView(contenedor);
 
-        jLabel2.setText("Productos en Lista:");
         jLabel2.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel2.setText("Productos en Lista:");
 
-        jLabel3.setText("0");
         jLabel3.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         jLabel3.setForeground(new java.awt.Color(0, 153, 255));
+        jLabel3.setText("0");
         jLabel3.addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
             public void mouseMoved(java.awt.event.MouseEvent evt) {
                 jLabel3MouseMoved(evt);
             }
         });
 
-        jButton4.setText("<html><b>Eliminar</b><br>Factura</html>");
         jButton4.setBackground(new java.awt.Color(11, 8, 20));
-        jButton4.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 0, 51)));
         jButton4.setForeground(new java.awt.Color(255, 0, 51));
+        jButton4.setText("<html><b>Eliminar</b><br>Factura</html>");
+        jButton4.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 0, 51)));
         jButton4.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         jButton4.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
         jButton4.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -609,11 +614,11 @@ double descuento = 0.0;
             }
         });
 
+        jButton5.setBackground(new java.awt.Color(11, 8, 20));
+        jButton5.setForeground(new java.awt.Color(255, 255, 255));
         jButton5.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/delete1.png"))); // NOI18N
         jButton5.setText("<html><b>Quitar</b><br>Elemento</html>");
-        jButton5.setBackground(new java.awt.Color(11, 8, 20));
         jButton5.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255)));
-        jButton5.setForeground(new java.awt.Color(255, 255, 255));
         jButton5.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         jButton5.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
         jButton5.addActionListener(new java.awt.event.ActionListener() {
@@ -625,11 +630,11 @@ double descuento = 0.0;
         contenedor_selector.setBackground(new java.awt.Color(35, 32, 45));
         jScrollPane3.setViewportView(contenedor_selector);
 
+        jButton6.setBackground(new java.awt.Color(11, 8, 20));
+        jButton6.setForeground(new java.awt.Color(255, 255, 255));
         jButton6.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/lightning_go.png"))); // NOI18N
         jButton6.setText("<html><b>Actualizar</b><br>Detalle</html>");
-        jButton6.setBackground(new java.awt.Color(11, 8, 20));
         jButton6.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 51, 255)));
-        jButton6.setForeground(new java.awt.Color(255, 255, 255));
         jButton6.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         jButton6.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
         jButton6.addActionListener(new java.awt.event.ActionListener() {
@@ -712,14 +717,14 @@ double descuento = 0.0;
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(jLabel11, javax.swing.GroupLayout.PREFERRED_SIZE, 419, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addGroup(layout.createSequentialGroup()
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, 400, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(110, 110, 110)
                         .addComponent(jLabel4)
-                        .addGap(55, 55, 55)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(icono_carga, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(8, Short.MAX_VALUE))
         );
@@ -916,6 +921,123 @@ double descuento = 0.0;
         // TODO add your handling code here:
     }//GEN-LAST:event_lbl_impuestoKeyReleased
 
+    
+     public void Quitar_Elemento(EntityManager em) {
+    List<Component> paraEliminar = new ArrayList<>();
+    double totalRestado = 0.0;
+
+    for (Component comp : contenedor_selector.getComponents()) {
+        if (!(comp instanceof SelectorCantidad selector)) continue;
+
+        String codigo = selector.getCodigo();
+        if (!selector.isSeleccionado() || !listaDeItems.containsKey(codigo)) {
+            if (!listaDeItems.containsKey(codigo)) selector.setBackground(Color.RED);
+            continue;
+        }
+
+        Miniatura_Producto original = listaDeItems.get(codigo);
+        Miniatura_Producto copia = Util.clonarControl(original);
+        copia.setCantidadSelecccion(original.getCantidadSelecccion());
+        copia.setUnidadesAgregar(copia.getCantidadSelecccion());
+
+        listaDeItemsEliminar.put(codigo, copia);
+        listaDeItems.remove(codigo);
+        paraEliminar.add(selector);
+
+        double cantidad = copia.getCantidadSelecccion();
+        double precio = copia.producto.getPrecio_Venta();
+        totalRestado += cantidad * precio;
+
+        // Eliminar detalle de venta
+        List<Venta_Detalle> detalles = em.createQuery(
+            "SELECT vd FROM Venta_Detalle vd WHERE vd.Codigo = :codigo AND vd.Secuencial_Factura = :factura AND vd.Secuencial_Empresa = :empresa",
+            Venta_Detalle.class)
+            .setParameter("codigo", codigo)
+            .setParameter("factura", Secuencial)
+            .setParameter("empresa", Secuencial_Empresa)
+            .getResultList();
+
+        if (!detalles.isEmpty()) {
+            em.getTransaction().begin();
+            em.remove(detalles.get(0));
+            em.getTransaction().commit();
+        }
+
+        // Actualizar inventario y Kardex si no es servicio
+     
+        if (!"Servicio".equalsIgnoreCase(copia.producto.getTipo())) {
+    Producto producto = em.find(Producto.class, copia.producto.getSecuencial());
+    if (producto != null) {
+        producto.setCantidad(producto.getCantidad() + cantidad);
+        em.getTransaction().begin();
+        em.merge(producto);
+        em.getTransaction().commit();
+
+        // ✅ Usar método centralizado de Util
+        Util.registrarMovimientoKardex(
+            producto.getSecuencial(),
+            producto.getCantidad(), // existencia actualizada
+            producto.getDescripcion(),
+            cantidad,
+            producto.getPrecio_Costo(),
+            producto.getPrecio_Venta(),
+            "Entrada",
+            Secuencial_Empresa
+        );
+    }
+}
+
+        
+
+        Util.registrarActividad(Secuencial_Usuario,
+            "Eliminó el Item: " + codigo + " de la Factura No. " + Secuencial + "\n" +
+            "Registrado a: " + precio + " " + ", cantidad: " + cantidad + "\n" +
+            "Total: " + (cantidad * precio),
+            Secuencial_Empresa);
+    }
+
+    for (Component comp : paraEliminar) {
+        contenedor_selector.remove(comp);
+    }
+
+    // Actualizar totales en Venta
+    Venta venta = em.find(Venta.class, Secuencial);
+    if (venta != null) {
+        venta.setTotal(venta.getTotal() - totalRestado);
+        venta.setGran_Total(venta.getGran_Total() - totalRestado);
+        em.getTransaction().begin();
+        em.merge(venta);
+        em.getTransaction().commit();
+    }
+
+    // Actualizar cuentas por cobrar si aplica
+    List<Cuentas_Cobrar> cuentas = em.createQuery(
+        "SELECT c FROM Cuentas_Cobrar c WHERE c.Secuencial_Factura = :factura AND c.Secuencial_Empresa = :empresa",
+        Cuentas_Cobrar.class)
+        .setParameter("factura", Secuencial)
+        .setParameter("empresa", Secuencial_Empresa)
+        .getResultList();
+
+    if (!cuentas.isEmpty()) {
+        Cuentas_Cobrar cuenta = cuentas.get(0);
+        cuenta.setTotal(cuenta.getTotal() - totalRestado);
+        cuenta.setGran_Total(cuenta.getGran_Total() - totalRestado);
+        cuenta.setSaldo(cuenta.getSaldo() - totalRestado);
+        em.getTransaction().begin();
+        em.merge(cuenta);
+        em.getTransaction().commit();
+    }
+
+    jLabel3.setText(String.valueOf(listaDeItems.size()));
+   // btnActualizarTotales.doClick(); Hay que revisar que hace este boton
+    contenedor_selector.revalidate();
+    contenedor_selector.repaint();
+}
+
+    
+    
+    
+    
     private void lbl_descuentoKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_lbl_descuentoKeyReleased
 
         if (lbl_descuento.getText().trim().isEmpty()) {
@@ -946,59 +1068,16 @@ double descuento = 0.0;
 
     
      
-    public void Eliminar_Item_Selector() {
-    List<Component> paraEliminar = new ArrayList<>();
-
-    for (Component comp : contenedor_selector.getComponents()) {
-        if (comp instanceof SelectorCantidad selector) {
-            String codigo = selector.getCodigo();
-
-            // Actualizar cantidad si el producto está en la lista
-            if (listaDeItems.containsKey(codigo)) {
-                Miniatura_Producto item = listaDeItems.get(codigo);
-                double cantidad = selector.getCantidadSeleccionada();
-                item.setCantidadSelecccion(cantidad);
-                selector.setCantidad(cantidad); // reflejar en el spinner
-            }
-
-            // Verificar si está marcado para eliminar
-            if (selector.isSeleccionado()) {
-                if (listaDeItems.containsKey(codigo)) {
-                    JOptionPane.showMessageDialog(
-                        null,
-                        "El item " + codigo + " se removió de la factura",
-                        "Ventas",
-                        JOptionPane.INFORMATION_MESSAGE
-                    );
-                    paraEliminar.add(selector);
-                    listaDeItems.remove(codigo);
-                } else {
-                    selector.setBackground(Color.RED); // marcar visualmente si no está en la lista
-                }
-            }
-        }
-    }
-
-    // Eliminar selectores marcados
-    for (Component comp : paraEliminar) {
-        contenedor_selector.remove(comp);
-    }
-
-    contenedor_selector.revalidate();
-    contenedor_selector.repaint();
-
-    // Recargar visualmente si lo necesitas
-    jLabel3.setText(String.valueOf(listaDeItems.size()));
-    jButton6.doClick(); // Actualiza la tabla
-}
-
+   
    
     
     
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
 
         
-     try {
+        icono_carga.setVisible(true);
+
+try {
     int secuencialFactura = Secuencial;
 
     int confirmResult = JOptionPane.showConfirmDialog(
@@ -1020,7 +1099,6 @@ double descuento = 0.0;
             return;
         }
 
-        // Eliminar ingreso vinculado a la factura antes de eliminar la factura
         Ingreso ingresoAsociado = em.createQuery(
             "SELECT i FROM Ingreso i WHERE i.Secuencial_Factura = :factura AND i.Secuencial_Empresa = :empresa",
             Ingreso.class
@@ -1040,7 +1118,6 @@ double descuento = 0.0;
             );
         }
 
-        // Eliminar cuenta por cobrar si existe
         Cuentas_Cobrar ctac = em.createQuery(
             "SELECT c FROM Cuentas_Cobrar c WHERE c.Secuencial_Factura = :factura AND c.Secuencial_Cliente = :cliente AND c.Secuencial_Empresa = :empresa",
             Cuentas_Cobrar.class
@@ -1056,7 +1133,6 @@ double descuento = 0.0;
             em.remove(ctac);
         }
 
-        // Obtener detalles de la factura
         List<Venta_Detalle> detalles = em.createQuery(
             "SELECT vd FROM Venta_Detalle vd WHERE vd.Secuencial_Factura = :factura",
             Venta_Detalle.class
@@ -1064,7 +1140,6 @@ double descuento = 0.0;
         .setParameter("factura", secuencialFactura)
         .getResultList();
 
-        // Revertir stock si corresponde
         for (Venta_Detalle detalle : detalles) {
             Producto producto = em.createQuery(
                 "SELECT p FROM Producto p WHERE p.Codigo = :codigo",
@@ -1094,15 +1169,12 @@ double descuento = 0.0;
             }
         }
 
-        // Eliminar detalles
         for (Venta_Detalle detalle : detalles) {
             em.remove(detalle);
         }
 
-        // Eliminar factura
         em.remove(factura);
 
-        // Registrar actividad
         Util.registrarActividad(
             Secuencial_Usuario,
             "Eliminó la Factura No. " + secuencialFactura + " con " + detalles.size() +
@@ -1119,7 +1191,7 @@ double descuento = 0.0;
             JOptionPane.INFORMATION_MESSAGE
         );
 
-        this.dispose(); // Limpieza visual opcional
+        this.dispose();
         form.cargar_Datos_Venta();
     }
 } catch (Exception ex) {
@@ -1129,8 +1201,11 @@ double descuento = 0.0;
         "Error",
         JOptionPane.ERROR_MESSAGE
     );
+} finally {
+    icono_carga.setVisible(false); // Se oculta siempre, incluso si hay error
 }
 
+        
         
         
         // TODO add your handling code here:
@@ -1138,11 +1213,22 @@ double descuento = 0.0;
 
     private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
 
-        Eliminar_Item_Selector();
-
-        // TODO add your handling code here:
+      
+     
+        Quitar_Elemento(em);
+        
+         Actualizar_Detalle();
+         
+         //cargarItems();
+         
+        
     }//GEN-LAST:event_jButton5ActionPerformed
 
+    
+    
+    
+    
+    
     private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
 
         Actualizar_Detalle();
@@ -1151,8 +1237,18 @@ double descuento = 0.0;
     }//GEN-LAST:event_jButton6ActionPerformed
 
     
-  
     
+    
+   
+   
+   
+   
+    
+    
+    
+    //*****************************************
+  
+    //Esto es De Ayer No tocar de aqui para abajo
     public void Actualizar_Detalle(){
     
          //*********************************

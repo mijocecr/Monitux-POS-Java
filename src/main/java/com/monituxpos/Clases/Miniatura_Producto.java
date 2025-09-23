@@ -748,6 +748,22 @@ public String Fecha_Caducidad;
     }
 }
 
+    public void setProducto(Producto producto) {
+        this.producto = producto;
+    }
+
+    public void setUnidadesAgregar(double unidadesAgregar) {
+        this.unidadesAgregar = unidadesAgregar;
+    }
+
+    public void setUnidadesRetirar(double unidadesRetirar) {
+        this.unidadesRetirar = unidadesRetirar;
+    }
+
+    public void setComentario(String comentario) {
+        this.comentario = comentario;
+    }
+
     
     
     

@@ -44,8 +44,10 @@ import javax.swing.JFileChooser;
 import com.monituxpos.Clases.*;
 
 import com.monituxpos.Ventanas.VisorPDFBox;
+import java.awt.Component;
 import java.awt.Font;
 import java.io.FileOutputStream;
+import java.lang.reflect.Field;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -709,7 +711,36 @@ public class Util {
  //******************************    
      
      
-     
+     public static <T extends Component> T clonarControl(T controlOriginal) {
+    try {
+        @SuppressWarnings("unchecked")
+        T nuevoControl = (T) controlOriginal.getClass().getDeclaredConstructor().newInstance();
+
+        for (Field field : controlOriginal.getClass().getDeclaredFields()) {
+            field.setAccessible(true);
+
+            // Evitar campos internos del sistema si es necesario
+            if (!field.getName().equals("peer")) {
+                try {
+                    Object valor = field.get(controlOriginal);
+                    field.set(nuevoControl, valor);
+                } catch (IllegalAccessException e) {
+                    // Ignorar campos no accesibles
+                }
+            }
+        }
+
+        return nuevoControl;
+
+    } catch (Exception e) {
+        e.printStackTrace();
+        return null;
+    }
+}
+
+    
+    
+    //***************************
      
     
 }//Fin Clase
