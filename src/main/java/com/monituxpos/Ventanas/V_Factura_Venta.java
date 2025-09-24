@@ -1780,7 +1780,7 @@ if (invocador instanceof Miniatura_Producto) {
     }//GEN-LAST:event_jMenuItem3ActionPerformed
 
     
-    private double redondear(double valor) {
+    public double redondear(double valor) {
     return Math.round(valor * 100.0) / 100.0;
 }
 

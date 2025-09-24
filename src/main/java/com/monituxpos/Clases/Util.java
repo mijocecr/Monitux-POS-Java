@@ -52,6 +52,7 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -325,6 +326,11 @@ public class Util {
     return ImageIO.read(new URL(url));
 }
 
+    public static String fechaActualCompleta() {
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy hh:mm:ss a");
+    return LocalDateTime.now().format(formatter);
+}
+
     
     
     public static void registrarMovimientoKardex(
@@ -371,6 +377,10 @@ public class Util {
 }
 
     
+    public static double redondear(double valor) {
+    return Math.round(valor * 100.0) / 100.0;
+}
+
    
 
     public static void llenarComboCliente(JComboBox<String> combo,int secuencial_Empresa) {

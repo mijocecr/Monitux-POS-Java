@@ -5,7 +5,9 @@
 package com.monituxpos.Ventanas;
 
 import com.monituxpos.Clases.Cuentas_Cobrar;
+import com.monituxpos.Clases.FacturaCompletaPDF_Venta;
 import com.monituxpos.Clases.Ingreso;
+import com.monituxpos.Clases.Item_Factura;
 import com.monituxpos.Clases.Kardex;
 import com.monituxpos.Clases.Miniatura_Producto;
 import com.monituxpos.Clases.Producto;
@@ -45,14 +47,17 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 import javax.imageio.ImageIO;
 import javax.mail.FetchProfile.Item;
 import javax.swing.ImageIcon;
 import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
@@ -323,6 +328,9 @@ double descuento = 0.0;
         setResizable(false);
         setType(java.awt.Window.Type.POPUP);
         addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowClosing(java.awt.event.WindowEvent evt) {
+                formWindowClosing(evt);
+            }
             public void windowOpened(java.awt.event.WindowEvent evt) {
                 formWindowOpened(evt);
             }
@@ -396,10 +404,10 @@ double descuento = 0.0;
 
         jPanel2.add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 170, 400, 210));
 
-        jButton7.setText("<html><b>Guardar</b><br>Cambios</html>");
         jButton7.setBackground(new java.awt.Color(11, 8, 20));
-        jButton7.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255)));
         jButton7.setForeground(new java.awt.Color(0, 255, 0));
+        jButton7.setText("<html><b>Guardar</b><br>Cambios</html>");
+        jButton7.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255)));
         jButton7.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton7ActionPerformed(evt);
@@ -772,13 +780,270 @@ double descuento = 0.0;
 
     private void jButton7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton7ActionPerformed
 
-        // TODO add your handling code here:
+        
+        
+        
+        
+     ActualizarNumeros();   
+        
+Guardar_Cambios();
+
+
+       
     }//GEN-LAST:event_jButton7ActionPerformed
 
+    
+    public void Guardar_Cambios() {
+    EntityManagerFactory emf = null;
+    EntityManager em = null;
+
+    try {
+        emf = Persistence.createEntityManagerFactory("MonituxPU");
+        em = emf.createEntityManager();
+        em.getTransaction().begin();
+
+        Venta venta = em.find(Venta.class, Secuencial);
+        if (venta == null || venta.getSecuencial_Empresa() != Secuencial_Empresa) {
+            JOptionPane.showMessageDialog(null, "No se encontró la factura para actualizar.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        venta.setSecuencial_Cliente(Secuencial_Cliente);
+        venta.setSecuencial_Usuario(Secuencial_Usuario);
+        venta.setTipo(jComboBox3.getSelectedItem() != null ? jComboBox3.getSelectedItem().toString() : "Sin tipo");
+        venta.setForma_Pago(jComboBox4.getSelectedItem() != null ? jComboBox4.getSelectedItem().toString() : "Sin forma de pago");
+        venta.setFecha(Util.fechaActualCompleta());
+        venta.setTotal(Util.redondear(subTotal));
+        venta.setGran_Total(Util.redondear(total));
+        venta.setImpuesto(impuesto);
+        venta.setOtros_Cargos(otrosCargos);
+        venta.setDescuento(descuento);
+
+        List<String> codigos = listaDeItems.values().stream()
+            .map(pro -> pro.producto.getCodigo())
+            .filter(Objects::nonNull)
+            .distinct()
+            .toList();
+
+        List<Producto> productos = em.createQuery(
+            "SELECT p FROM Producto p WHERE p.Codigo IN :codigos", Producto.class)
+            .setParameter("codigos", codigos)
+            .getResultList();
+
+        Map<String, Producto> productosCache = productos.stream()
+            .collect(Collectors.toMap(Producto::getCodigo, p -> p));
+
+        for (Miniatura_Producto pro : listaDeItems.values()) {
+            String codigo = pro.producto.getCodigo().trim();
+            Producto productoBD = productosCache.get(codigo);
+
+            if (productoBD == null) {
+                System.out.println("❌ Producto no encontrado en BD para código: " + codigo);
+                continue;
+            }
+
+            pro.producto.setPrecio_Costo(productoBD.getPrecio_Costo());
+            pro.producto.setPrecio_Venta(productoBD.getPrecio_Venta());
+            pro.producto.setCantidad(productoBD.getCantidad());
+
+            double nuevaCantidad = pro.getCantidadSelecccion();
+
+            Venta_Detalle detalle = em.createQuery(
+                "SELECT d FROM Venta_Detalle d WHERE d.Secuencial_Factura = :factura AND d.Secuencial_Producto = :producto AND d.Secuencial_Empresa = :empresa",
+                Venta_Detalle.class)
+                .setParameter("factura", venta.getSecuencial())
+                .setParameter("producto", productoBD.getSecuencial())
+                .setParameter("empresa", venta.getSecuencial_Empresa())
+                .getResultStream().findFirst().orElse(null);
+
+            if (detalle != null) {
+                if (!"Servicio".equalsIgnoreCase(pro.producto.getTipo())) {
+                    double cantidadAnterior = detalle.getCantidad();
+                    double diferencia = nuevaCantidad - cantidadAnterior;
+
+                    if (diferencia != 0) {
+                        String tipoMovimiento = diferencia > 0 ? "Salida" : "Entrada";
+                        double cantidadMovimiento = Math.abs(diferencia);
+
+                        Util.registrarMovimientoKardex(productoBD.getSecuencial(), productoBD.getCantidad(), productoBD.getDescripcion(),
+                            cantidadMovimiento, productoBD.getPrecio_Costo(), productoBD.getPrecio_Venta(), tipoMovimiento, Secuencial_Empresa);
+
+                        String accion = diferencia > 0 ? "Agregó" : "Quitó";
+                        Util.registrarActividad(Secuencial_Usuario,
+                            accion + " " + cantidadMovimiento + " unidades de " + productoBD.getCodigo() + " en modificación de factura No: " + venta.getSecuencial(),
+                            Secuencial_Empresa);
+
+                        productoBD.setCantidad(productoBD.getCantidad() - diferencia);
+                        em.merge(productoBD);
+                    }
+                }
+
+                detalle.setCantidad(nuevaCantidad);
+                detalle.setPrecio(Util.redondear(productoBD.getPrecio_Venta()));
+                detalle.setTotal(Util.redondear(nuevaCantidad * productoBD.getPrecio_Venta()));
+                detalle.setDescripcion(productoBD.getDescripcion());
+                detalle.setTipo(productoBD.getTipo());
+                detalle.setFecha(venta.getFecha());
+                detalle.setSecuencial_Usuario(venta.getSecuencial_Usuario());
+                detalle.setSecuencial_Cliente(venta.getSecuencial_Cliente());
+            } else {
+                Venta_Detalle nuevo = new Venta_Detalle();
+                nuevo.setSecuencial_Empresa(venta.getSecuencial_Empresa());
+                nuevo.setSecuencial_Factura(venta.getSecuencial());
+                nuevo.setSecuencial_Cliente(venta.getSecuencial_Cliente());
+                nuevo.setSecuencial_Usuario(venta.getSecuencial_Usuario());
+                nuevo.setFecha(venta.getFecha());
+                nuevo.setSecuencial_Producto(productoBD.getSecuencial());
+                nuevo.setCodigo(productoBD.getCodigo());
+                nuevo.setDescripcion(productoBD.getDescripcion());
+                nuevo.setCantidad(nuevaCantidad);
+                nuevo.setPrecio(Util.redondear(productoBD.getPrecio_Venta()));
+                nuevo.setTotal(Util.redondear(nuevaCantidad * productoBD.getPrecio_Venta()));
+                nuevo.setTipo(productoBD.getTipo());
+                em.persist(nuevo);
+
+                Util.registrarActividad(Secuencial_Usuario,
+                    "Agregó la cantidad de: " + nuevaCantidad + " de: " + productoBD.getCodigo() + " a Factura No: " + venta.getSecuencial(),
+                    Secuencial_Empresa);
+
+                if (!"Servicio".equalsIgnoreCase(productoBD.getTipo())) {
+                    Util.registrarMovimientoKardex(productoBD.getSecuencial(), productoBD.getCantidad(), productoBD.getDescripcion(),
+                        nuevaCantidad, productoBD.getPrecio_Costo(), productoBD.getPrecio_Venta(), "Salida", Secuencial_Empresa);
+
+                    productoBD.setCantidad(productoBD.getCantidad() - nuevaCantidad);
+                    em.merge(productoBD);
+                }
+            }
+
+            Cuentas_Cobrar cuenta = em.createQuery(
+                "SELECT c FROM Cuentas_Cobrar c WHERE c.Secuencial_Factura = :factura AND c.Secuencial_Cliente = :cliente AND c.Secuencial_Empresa = :empresa",
+                Cuentas_Cobrar.class)
+                .setParameter("factura", venta.getSecuencial())
+                .setParameter("cliente", venta.getSecuencial_Cliente())
+                .setParameter("empresa", venta.getSecuencial_Empresa())
+                .getResultStream().findFirst().orElse(null);
+
+            if (cuenta != null) {
+                cuenta.setGran_Total(Util.redondear(venta.getGran_Total()));
+                cuenta.setTotal(Util.redondear(venta.getTotal()));
+                cuenta.setSaldo(Util.redondear(cuenta.getGran_Total() - cuenta.getPagado()));
+            }
+        }
+
+        Ingreso ingreso = em.createQuery(
+            "SELECT i FROM Ingreso i WHERE i.Secuencial_Factura = :factura AND i.Secuencial_Empresa = :empresa",
+            Ingreso.class)
+            .setParameter("factura", venta.getSecuencial())
+            .setParameter("empresa", venta.getSecuencial_Empresa())
+            .getResultStream().findFirst().orElse(null);
+
+        if (ingreso != null) {
+            ingreso.setTotal(venta.getGran_Total());
+            ingreso.setDescripcion("Actualización de ingreso por compra No. " + venta.getSecuencial());
+            ingreso.setFecha(Util.fechaActualCompleta());
+            ingreso.setTipo_Ingreso(venta.getTipo());
+            ingreso.setSecuencial_Usuario(venta.getSecuencial_Usuario());
+        }
+
+        FacturaCompletaPDF_Venta factura = new FacturaCompletaPDF_Venta();
+        factura.setSecuencial(venta.getSecuencial());
+        factura.setCliente(comboCliente.getSelectedItem().toString().split("- ")[1].trim());
+        factura.setTipoVenta(venta.getTipo());
+        factura.setMetodoPago(venta.getForma_Pago());
+        factura.setFecha(venta.getFecha());
+        factura.setItems(ObtenerItemsDesdeGrid(jTable1));
+        factura.setISV(venta.getImpuesto());
+        factura.setOtrosCargos(venta.getOtros_Cargos());
+        factura.setDescuento(venta.getDescuento());
+
+        venta.setDocumento(factura.GeneratePdfToBytes());
+
+        em.merge(venta);
+        em.getTransaction().commit();
+
+        listaDeItems.clear();
+        listaDeItemsEliminar.clear();
+
+        JOptionPane.showMessageDialog(null, "Factura No. " + venta.getSecuencial() + " actualizada correctamente.", "Ventas", JOptionPane.INFORMATION_MESSAGE);
+        form.cargar_Datos_Venta();
+        this.dispose();
+
+   } catch (Exception ex) {
+        if (em != null && em.getTransaction().isActive()) {
+            em.getTransaction().rollback();
+        }
+        JOptionPane.showMessageDialog(null, "Error al actualizar factura:\n" + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+    } finally {
+        if (em != null && em.isOpen()) {
+            em.close();
+        }
+        if (emf != null && emf.isOpen()) {
+            emf.close();
+        }
+    }
+}
+
+                
+                
+    
+             
+                
+                
+    
     private void lbl_otrosCargosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_lbl_otrosCargosActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_lbl_otrosCargosActionPerformed
 
+    
+     public int obtenerIndiceColumna(JTable table, String nombreColumna) {
+    for (int i = 0; i < table.getColumnCount(); i++) {
+        if (table.getColumnName(i).equalsIgnoreCase(nombreColumna)) {
+            return i;
+        }
+    }
+    return -1; // No encontrada
+}
+
+    
+     public List<Item_Factura> ObtenerItemsDesdeGrid(JTable table) {
+    List<Item_Factura> lista = new ArrayList<>();
+
+    DefaultTableModel model = (DefaultTableModel) table.getModel();
+    int rowCount = model.getRowCount();
+
+    for (int i = 0; i < rowCount; i++) {
+        // Puedes omitir filas vacías si lo deseas
+        Object codigoObj = model.getValueAt(i, obtenerIndiceColumna(table, "Codigo"));
+        Object descripcionObj = model.getValueAt(i, obtenerIndiceColumna(table, "Descripcion"));
+        Object cantidadObj = model.getValueAt(i, obtenerIndiceColumna(table, "Cantidad"));
+        Object precioObj = model.getValueAt(i, obtenerIndiceColumna(table, "Precio"));
+
+       if (codigoObj != null && cantidadObj != null && precioObj != null) {
+    try {
+        Item_Factura item = new Item_Factura();
+        item.setCodigo(codigoObj.toString());
+        item.setDescripcion(descripcionObj != null ? descripcionObj.toString() : "");
+
+        // Manejo seguro de cantidad (puede venir como "1.0")
+        double cantidadDouble = Double.parseDouble(cantidadObj.toString());
+        item.setCantidad((int) cantidadDouble); // redondeo truncado
+
+        // Manejo seguro de precio
+        double precio = Double.parseDouble(precioObj.toString());
+        item.setPrecio(precio);
+
+        lista.add(item);
+    } catch (NumberFormatException ex) {
+        JOptionPane.showMessageDialog(null, "Error al convertir cantidad o precio: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+    }
+}
+
+    }
+
+    return lista;
+}
+
+    
     private void lbl_otrosCargosKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_lbl_otrosCargosKeyReleased
 
         if (lbl_otrosCargos.getText().trim().isEmpty()) {
@@ -925,7 +1190,7 @@ double descuento = 0.0;
      public void Quitar_Elemento(EntityManager em) {
     List<Component> paraEliminar = new ArrayList<>();
     double totalRestado = 0.0;
-
+jButton7.setEnabled(false);
     for (Component comp : contenedor_selector.getComponents()) {
         if (!(comp instanceof SelectorCantidad selector)) continue;
 
@@ -1032,6 +1297,9 @@ double descuento = 0.0;
    // btnActualizarTotales.doClick(); Hay que revisar que hace este boton
     contenedor_selector.revalidate();
     contenedor_selector.repaint();
+    
+    JOptionPane.showMessageDialog(null, "Se ha modificado la factura y el elemento se ha retirado correctamente.");
+    
 }
 
     
@@ -1217,6 +1485,7 @@ try {
      
         Quitar_Elemento(em);
         
+        
          Actualizar_Detalle();
          
          //cargarItems();
@@ -1252,7 +1521,7 @@ try {
     public void Actualizar_Detalle(){
     
          //*********************************
-
+jButton7.setEnabled(true);
         total = 0;
         subTotal = 0;
         //    impuesto = 0;
@@ -2145,6 +2414,12 @@ public void cargarItemsDesdeLista(Map<String, Double> lista, int secuencialEmpre
 
         // TODO add your handling code here:
     }//GEN-LAST:event_jButton4MouseClicked
+
+    private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
+
+        form.cargar_Datos_Venta();
+        // TODO add your handling code here:
+    }//GEN-LAST:event_formWindowClosing
 
     /**
      * @param args the command line arguments
