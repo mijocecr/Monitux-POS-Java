@@ -409,6 +409,11 @@ public static Map<String, Double> lista = new HashMap<>();
         jPanel4.add(jButton5, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 480, -1, -1));
 
         jButton6.setText("Modificar");
+        jButton6.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton6ActionPerformed(evt);
+            }
+        });
         jPanel4.add(jButton6, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 480, 90, -1));
 
         jPanel1.add(jPanel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(422, 62, 394, -1));
@@ -588,6 +593,15 @@ public static Map<String, Double> lista = new HashMap<>();
          
      }
      
+     
+      public void cargar_Datos_Compra(){
+     
+         cargarDatosCompra(jTable3);
+         DefaultTableModel modelo = (DefaultTableModel) jTable4.getModel();
+         modelo.setRowCount(0);
+
+         
+     }
     
     public void cargarDatosVenta(JTable tabla) {
     // Limpiar la tabla
@@ -639,8 +653,9 @@ public static Map<String, Double> lista = new HashMap<>();
 
     try {
         List<Compra> compras = em.createQuery(
-            "SELECT c FROM Compra c WHERE c.Secuencial_Empresa = :empresa", Compra.class)
-            .setParameter("empresa", Secuencial_Empresa) // Asegúrate de tener esta variable definida
+            "SELECT c FROM Compra c WHERE c.Secuencial_Empresa = :empresa AND c.Secuencial_Proveedor = :proveedor", Compra.class)
+            .setParameter("empresa", Secuencial_Empresa)
+            .setParameter("proveedor", Secuencial_Proveedor)   
             .getResultList();
 
         for (Compra compra : compras) {
@@ -1357,6 +1372,102 @@ try {
 
         // TODO add your handling code here:
     }//GEN-LAST:event_jButton3ActionPerformed
+
+    private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
+
+
+//************************
+
+
+        lista.clear();
+V_Editar_Factura_Venta.listaDeItems.clear();
+
+if (jTable3.getRowCount() == 0) {
+    JOptionPane.showMessageDialog(null, "No hay factura seleccionada para modificar.", "Error", JOptionPane.ERROR_MESSAGE);
+    return;
+}
+
+// Obtener cliente seleccionado
+Object proveedorObj = jComboBox2.getSelectedItem();
+if (proveedorObj == null) {
+    JOptionPane.showMessageDialog(null, "Seleccione un proveedor válido.", "Advertencia", JOptionPane.WARNING_MESSAGE);
+    return;
+}
+proveedor_seleccionado = proveedorObj.toString();
+
+lista.clear(); // Limpiar la lista antes de importar
+
+// Obtener índices de columnas por nombre
+int colCodigo = -1;
+int colCantidad = -1;
+for (int c = 0; c < jTable4.getColumnCount(); c++) {
+    String colName = jTable4.getColumnName(c);
+    if (colName.equalsIgnoreCase("Codigo")) colCodigo = c;
+    if (colName.equalsIgnoreCase("Cantidad")) colCantidad = c;
+}
+
+if (colCodigo == -1 || colCantidad == -1) {
+    JOptionPane.showMessageDialog(null, "Las columnas 'Codigo' o 'Cantidad' no existen en la tabla.", "Error", JOptionPane.ERROR_MESSAGE);
+    return;
+}
+
+// Recorrer filas de la tabla
+for (int i = 0; i < jTable4.getRowCount(); i++) {
+    Object codigoObj = jTable4.getValueAt(i, colCodigo);
+    Object cantidadObj = jTable4.getValueAt(i, colCantidad);
+
+    if (codigoObj != null && cantidadObj != null) {
+        String codigo = codigoObj.toString().trim();
+        try {
+            double cantidad = Double.parseDouble(cantidadObj.toString().trim());
+            if (!lista.containsKey(codigo)) {
+                lista.put(codigo, cantidad);
+            }
+        } catch (NumberFormatException e) {
+            System.err.println("Cantidad inválida en fila " + i + ": " + cantidadObj);
+        }
+    }
+}
+
+if (Secuencial_Compra == 0) {
+    JOptionPane.showMessageDialog(null, "Seleccione Factura", "Monitux-POS", JOptionPane.WARNING_MESSAGE);
+    return;
+}
+
+// Crear y mostrar ventana de edición
+V_Editar_Factura_Compra vEditarFacturaCompra = new V_Editar_Factura_Compra(this);
+vEditarFacturaCompra.setSecuencial_Proveedor(Secuencial_Proveedor);
+vEditarFacturaCompra.setSecuencial(Secuencial_Compra);
+
+
+ EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
+ EntityManager em1 = emf.createEntityManager();
+
+vEditarFacturaCompra.importarFactura(V_Compras_Ventas.lista, proveedor_seleccionado,em1);
+
+
+
+
+
+vEditarFacturaCompra.setVisible(true); // Equivalente a ShowDialog()
+
+// Filtrar por cliente
+String proveedorTexto = jComboBox2.getSelectedItem().toString();
+try {
+    int proveedorId = Integer.parseInt(proveedorTexto.split("-")[0].trim());
+    filtrarCompra(proveedorId,jTable3,jTable4);
+    filtrarDetalleCompra(Secuencial_Compra,jTable4);
+} catch (NumberFormatException e) {
+    JOptionPane.showMessageDialog(null, "Formato de proveedor inválido.", "Error", JOptionPane.ERROR_MESSAGE);
+}
+
+
+
+
+//************************
+
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButton6ActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

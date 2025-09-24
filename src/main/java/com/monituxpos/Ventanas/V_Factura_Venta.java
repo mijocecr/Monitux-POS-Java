@@ -2103,7 +2103,7 @@ try {
         ingreso.setSecuencial_Usuario(venta.getSecuencial_Usuario());
         ingreso.setFecha(venta.getFecha());
         ingreso.setTotal(redondear(total));
-        ingreso.setTipo_Ingreso(venta.getForma_Pago());
+        ingreso.setTipo_Ingreso(venta.getTipo());
         ingreso.setDescripcion("Venta según Factura: " + venta.getSecuencial());
 
         em.persist(ingreso);

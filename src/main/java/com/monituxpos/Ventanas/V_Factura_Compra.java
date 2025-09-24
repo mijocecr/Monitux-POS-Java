@@ -917,7 +917,7 @@ public void cargarItemsFiltrados(
     contenedor.setLayout(new GridBagLayout());
     contenedor_selector.setLayout(new GridLayout(0, 1, 5, 5));
     contenedor.removeAll();
-    contenedor_selector.removeAll();
+    
 
     String campoFiltro = (String) comboFiltro.getSelectedItem();
     String valorFiltro = campoValorFiltro.getText();
@@ -1986,7 +1986,7 @@ try {
         egreso.setSecuencial_Usuario(compra.getSecuencial_Usuario());
         egreso.setFecha(compra.getFecha());
         egreso.setTotal(redondear(total));
-        egreso.setTipo_Egreso(compra.getForma_Pago());
+        egreso.setTipo_Egreso(compra.getTipo());
         egreso.setDescripcion("Compra según Factura: " + compra.getSecuencial());
 
         em.persist(egreso);

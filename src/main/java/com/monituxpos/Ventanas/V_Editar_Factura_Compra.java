@@ -4,7 +4,12 @@
  */
 package com.monituxpos.Ventanas;
 
+import com.monituxpos.Clases.Compra;
+import com.monituxpos.Clases.Compra_Detalle;
 import com.monituxpos.Clases.Cuentas_Cobrar;
+import com.monituxpos.Clases.Cuentas_Pagar;
+import com.monituxpos.Clases.Egreso;
+import com.monituxpos.Clases.FacturaCompletaPDF_Compra;
 import com.monituxpos.Clases.FacturaCompletaPDF_Venta;
 import com.monituxpos.Clases.Ingreso;
 import com.monituxpos.Clases.Item_Factura;
@@ -15,6 +20,10 @@ import com.monituxpos.Clases.SelectorCantidad;
 import com.monituxpos.Clases.Util;
 import com.monituxpos.Clases.Venta;
 import com.monituxpos.Clases.Venta_Detalle;
+import static com.monituxpos.Ventanas.V_Editar_Factura_Venta.listaDeItems;
+import static com.monituxpos.Ventanas.V_Editar_Factura_Venta.selectoresCantidad;
+import static com.monituxpos.Ventanas.V_Factura_Compra.listaDeItems;
+import static com.monituxpos.Ventanas.V_Factura_Compra.selectoresCantidad;
 import static com.monituxpos.Ventanas.V_Factura_Venta.listaDeItems;
 import static com.monituxpos.Ventanas.V_Factura_Venta.selectoresCantidad;
 import jakarta.persistence.EntityManager;
@@ -67,12 +76,12 @@ import javax.swing.table.DefaultTableModel;
  *
  * @author Miguel Cerrato
  */
-public class V_Editar_Factura_Venta extends javax.swing.JFrame {
+public class V_Editar_Factura_Compra extends javax.swing.JFrame {
     
     
      
       public int Secuencial_Usuario = V_Menu_Principal.getSecuencial_Usuario();
-      public int Secuencial_Cliente;
+      public int Secuencial_Proveedor;
     public int Secuencial_Empresa=V_Menu_Principal.getSecuencial_Empresa();
     public int Secuencial;
     public V_Compras_Ventas form;
@@ -87,9 +96,7 @@ double descuento = 0.0;
        public static final Map<String, Miniatura_Producto> listaDeItemsEliminar = new HashMap<>();
        public static final Map<String, SelectorCantidad> selectoresCantidad = new HashMap<>();
 
-    public int getSecuencial_Cliente() {
-        return Secuencial_Cliente;
-    }
+   
 
     public int getSecuencial_Usuario() {
         return Secuencial_Usuario;
@@ -107,9 +114,7 @@ double descuento = 0.0;
         this.Secuencial_Empresa = Secuencial_Empresa;
     }
 
-    public void setSecuencial_Cliente(int Secuencial_Cliente) {
-        this.Secuencial_Cliente = Secuencial_Cliente;
-    }
+   
 
     public int getSecuencial() {
         return Secuencial;
@@ -123,12 +128,12 @@ double descuento = 0.0;
     
     
     
-    private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(V_Editar_Factura_Venta.class.getName());
+    private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(V_Editar_Factura_Compra.class.getName());
 
     /**
      * Creates new form V_Editar_Factura_Venta
      */
-    public V_Editar_Factura_Venta(V_Compras_Ventas x) {
+    public V_Editar_Factura_Compra(V_Compras_Ventas x) {
         initComponents();
         
          EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
@@ -138,7 +143,7 @@ double descuento = 0.0;
          
          form=x;
          
-         Secuencial_Cliente= form.Secuencial_Cliente;
+         Secuencial_Proveedor= form.Secuencial_Proveedor;
     }
 
     /**
@@ -168,7 +173,7 @@ double descuento = 0.0;
         jMenuItem8 = new javax.swing.JMenuItem();
         jPanel2 = new javax.swing.JPanel();
         jLabel5 = new javax.swing.JLabel();
-        comboCliente = new javax.swing.JComboBox<>();
+        comboProveedor = new javax.swing.JComboBox<>();
         jLabel7 = new javax.swing.JLabel();
         jLabel8 = new javax.swing.JLabel();
         jLabel9 = new javax.swing.JLabel();
@@ -336,21 +341,26 @@ double descuento = 0.0;
             }
         });
 
-        jPanel2.setBackground(new java.awt.Color(0, 168, 107));
+        jPanel2.setBackground(new java.awt.Color(0, 102, 255));
         jPanel2.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255)));
         jPanel2.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        jLabel5.setText("Cliente:");
         jLabel5.setForeground(new java.awt.Color(255, 255, 255));
-        jPanel2.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(13, 30, -1, -1));
+        jLabel5.setText("Proveedor:");
+        jPanel2.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(13, 16, -1, 30));
 
-        comboCliente.setEnabled(false);
-        comboCliente.addMouseListener(new java.awt.event.MouseAdapter() {
+        comboProveedor.setEnabled(false);
+        comboProveedor.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                comboClienteMouseClicked(evt);
+                comboProveedorMouseClicked(evt);
             }
         });
-        jPanel2.add(comboCliente, new org.netbeans.lib.awtextra.AbsoluteConstraints(59, 25, 221, -1));
+        comboProveedor.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                comboProveedorActionPerformed(evt);
+            }
+        });
+        jPanel2.add(comboProveedor, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 20, 221, -1));
 
         jLabel7.setText("Tipo de Venta:");
         jLabel7.setForeground(new java.awt.Color(255, 255, 255));
@@ -405,7 +415,7 @@ double descuento = 0.0;
         jPanel2.add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 170, 400, 210));
 
         jButton7.setBackground(new java.awt.Color(11, 8, 20));
-        jButton7.setForeground(new java.awt.Color(0, 255, 0));
+        jButton7.setForeground(new java.awt.Color(0, 204, 255));
         jButton7.setText("<html><b>Guardar</b><br>Cambios</html>");
         jButton7.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255)));
         jButton7.addActionListener(new java.awt.event.ActionListener() {
@@ -437,10 +447,10 @@ double descuento = 0.0;
         jLabel16.setForeground(new java.awt.Color(255, 255, 255));
         jPanel2.add(jLabel16, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 490, -1, -1));
 
-        lbl_otrosCargos.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         lbl_otrosCargos.setBackground(new java.awt.Color(0, 204, 204));
-        lbl_otrosCargos.setBorder(null);
         lbl_otrosCargos.setForeground(new java.awt.Color(0, 0, 0));
+        lbl_otrosCargos.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        lbl_otrosCargos.setBorder(null);
         lbl_otrosCargos.setForeground(Color.BLUE); // Cambia el texto a azul
         lbl_otrosCargos.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -494,13 +504,13 @@ double descuento = 0.0;
         lbl_subTotal.setForeground(new java.awt.Color(255, 255, 0));
         jPanel2.add(lbl_subTotal, new org.netbeans.lib.awtextra.AbsoluteConstraints(240, 380, 150, -1));
 
-        lbl_total.setText("0");
         lbl_total.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
         lbl_total.setForeground(new java.awt.Color(255, 255, 0));
+        lbl_total.setText("0");
         jPanel2.add(lbl_total, new org.netbeans.lib.awtextra.AbsoluteConstraints(240, 410, 150, -1));
 
         jLabel6.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
-        jLabel6.setForeground(new java.awt.Color(0, 0, 255));
+        jLabel6.setForeground(new java.awt.Color(0, 255, 0));
         jLabel6.setText("-- -- ----");
         jPanel2.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(190, 80, 160, -1));
 
@@ -509,7 +519,7 @@ double descuento = 0.0;
 
         jLabel4.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
         jLabel4.setForeground(new java.awt.Color(255, 255, 51));
-        jLabel4.setText("Modificar Venta");
+        jLabel4.setText("Modificar Compra");
         jLabel4.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 jLabel4MouseClicked(evt);
@@ -540,6 +550,11 @@ double descuento = 0.0;
         jComboBox2.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Codigo", "Descripcion", "Marca", "Codigo_Barra" }));
 
         jTextField3.setToolTipText("<html>Para efectuar la busqueda debe presionar Enter. <br>El filtro se restablecera al presionar Enter si la casilla esta vacia.</br></html>");
+        jTextField3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jTextField3ActionPerformed(evt);
+            }
+        });
         jTextField3.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyReleased(java.awt.event.KeyEvent evt) {
                 jTextField3KeyReleased(evt);
@@ -662,26 +677,26 @@ double descuento = 0.0;
                     .addGroup(jPanel4Layout.createSequentialGroup()
                         .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addGroup(jPanel4Layout.createSequentialGroup()
-                                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addGroup(jPanel4Layout.createSequentialGroup()
-                                        .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 76, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addGap(30, 30, 30)
-                                        .addComponent(jLabel20, javax.swing.GroupLayout.PREFERRED_SIZE, 113, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                    .addGroup(jPanel4Layout.createSequentialGroup()
-                                        .addComponent(jLabel2)
-                                        .addGap(6, 6, 6)
-                                        .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                                .addGap(8, 8, 8))
-                            .addGroup(jPanel4Layout.createSequentialGroup()
                                 .addComponent(jButton4, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(jButton5, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 189, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(jButton6, javax.swing.GroupLayout.PREFERRED_SIZE, 72, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                .addComponent(jButton6, javax.swing.GroupLayout.PREFERRED_SIZE, 72, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(jPanel4Layout.createSequentialGroup()
+                                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(jPanel4Layout.createSequentialGroup()
+                                        .addComponent(jLabel2)
+                                        .addGap(6, 6, 6)
+                                        .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addGroup(jPanel4Layout.createSequentialGroup()
+                                        .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 76, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addGap(18, 18, 18)
+                                        .addComponent(jLabel20, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                .addGap(8, 8, 8)))
                         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
         );
         jPanel4Layout.setVerticalGroup(
@@ -755,13 +770,6 @@ double descuento = 0.0;
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void comboClienteMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_comboClienteMouseClicked
-
-       // Util.llenarComboCliente(comboCliente,Secuencial_Empresa);
-
-        // TODO add your handling code here:
-    }//GEN-LAST:event_comboClienteMouseClicked
-
     private void jComboBox3ItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_jComboBox3ItemStateChanged
 
       
@@ -793,6 +801,9 @@ Guardar_Cambios();
     }//GEN-LAST:event_jButton7ActionPerformed
 
     
+    //**************************************
+    
+    
     public void Guardar_Cambios() {
     EntityManagerFactory emf = null;
     EntityManager em = null;
@@ -802,22 +813,22 @@ Guardar_Cambios();
         em = emf.createEntityManager();
         em.getTransaction().begin();
 
-        Venta venta = em.find(Venta.class, Secuencial);
-        if (venta == null || venta.getSecuencial_Empresa() != Secuencial_Empresa) {
-            JOptionPane.showMessageDialog(null, "No se encontró la factura para actualizar.", "Error", JOptionPane.ERROR_MESSAGE);
+        Compra compra = em.find(Compra.class, Secuencial);
+        if (compra == null || compra.getSecuencial_Empresa() != Secuencial_Empresa) {
+            JOptionPane.showMessageDialog(null, "No se encontró la compra para actualizar.", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
-        venta.setSecuencial_Cliente(Secuencial_Cliente);
-        venta.setSecuencial_Usuario(Secuencial_Usuario);
-        venta.setTipo(jComboBox3.getSelectedItem() != null ? jComboBox3.getSelectedItem().toString() : "Sin tipo");
-        venta.setForma_Pago(jComboBox4.getSelectedItem() != null ? jComboBox4.getSelectedItem().toString() : "Sin forma de pago");
-        venta.setFecha(Util.fechaActualCompleta());
-        venta.setTotal(Util.redondear(subTotal));
-        venta.setGran_Total(Util.redondear(total));
-        venta.setImpuesto(impuesto);
-        venta.setOtros_Cargos(otrosCargos);
-        venta.setDescuento(descuento);
+        compra.setSecuencial_Proveedor(Secuencial_Proveedor);
+        compra.setSecuencial_Usuario(Secuencial_Usuario);
+        compra.setTipo(jComboBox3.getSelectedItem() != null ? jComboBox3.getSelectedItem().toString() : "Sin tipo");
+        compra.setForma_Pago(jComboBox4.getSelectedItem() != null ? jComboBox4.getSelectedItem().toString() : "Sin forma de pago");
+        compra.setFecha(Util.fechaActualCompleta());
+        compra.setTotal(Util.redondear(subTotal));
+        compra.setGran_Total(Util.redondear(total));
+        compra.setImpuesto(impuesto);
+        compra.setOtros_Cargos(otrosCargos);
+        compra.setDescuento(descuento);
 
         List<String> codigos = listaDeItems.values().stream()
             .map(pro -> pro.producto.getCodigo())
@@ -848,12 +859,12 @@ Guardar_Cambios();
 
             double nuevaCantidad = pro.getCantidadSelecccion();
 
-            Venta_Detalle detalle = em.createQuery(
-                "SELECT d FROM Venta_Detalle d WHERE d.Secuencial_Factura = :factura AND d.Secuencial_Producto = :producto AND d.Secuencial_Empresa = :empresa",
-                Venta_Detalle.class)
-                .setParameter("factura", venta.getSecuencial())
+            Compra_Detalle detalle = em.createQuery(
+                "SELECT d FROM Compra_Detalle d WHERE d.Secuencial_Factura = :compra AND d.Secuencial_Producto = :producto AND d.Secuencial_Empresa = :empresa",
+                Compra_Detalle.class)
+                .setParameter("compra", compra.getSecuencial())
                 .setParameter("producto", productoBD.getSecuencial())
-                .setParameter("empresa", venta.getSecuencial_Empresa())
+                .setParameter("empresa", compra.getSecuencial_Empresa())
                 .getResultStream().findFirst().orElse(null);
 
             if (detalle != null) {
@@ -862,121 +873,116 @@ Guardar_Cambios();
                     double diferencia = nuevaCantidad - cantidadAnterior;
 
                     if (diferencia != 0) {
-                        String tipoMovimiento = diferencia > 0 ? "Salida" : "Entrada";
-                        double cantidadMovimiento = Math.abs(diferencia);
-
                         Util.registrarMovimientoKardex(productoBD.getSecuencial(), productoBD.getCantidad(), productoBD.getDescripcion(),
-                            cantidadMovimiento, productoBD.getPrecio_Costo(), productoBD.getPrecio_Venta(), tipoMovimiento, Secuencial_Empresa);
+                            Math.abs(diferencia), productoBD.getPrecio_Costo(), productoBD.getPrecio_Venta(), "Entrada", Secuencial_Empresa);
 
-                        String accion = diferencia > 0 ? "Agregó" : "Quitó";
                         Util.registrarActividad(Secuencial_Usuario,
-                            accion + " " + cantidadMovimiento + " unidades de " + productoBD.getCodigo() + " en modificación de factura No: " + venta.getSecuencial(),
+                            "Modificó cantidad de " + productoBD.getCodigo() + " en compra No. " + compra.getSecuencial(),
                             Secuencial_Empresa);
 
-                        productoBD.setCantidad(productoBD.getCantidad() - diferencia);
+                        productoBD.setCantidad(productoBD.getCantidad() + diferencia);
                         em.merge(productoBD);
                     }
                 }
 
                 detalle.setCantidad(nuevaCantidad);
-                detalle.setPrecio(Util.redondear(productoBD.getPrecio_Venta()));
-                detalle.setTotal(Util.redondear(nuevaCantidad * productoBD.getPrecio_Venta()));
+                detalle.setPrecio(Util.redondear(productoBD.getPrecio_Costo()));
+                detalle.setTotal(Util.redondear(nuevaCantidad * productoBD.getPrecio_Costo()));
                 detalle.setDescripcion(productoBD.getDescripcion());
                 detalle.setTipo(productoBD.getTipo());
-                detalle.setFecha(venta.getFecha());
-                detalle.setSecuencial_Usuario(venta.getSecuencial_Usuario());
-                detalle.setSecuencial_Cliente(venta.getSecuencial_Cliente());
+                detalle.setFecha(compra.getFecha());
+                detalle.setSecuencial_Usuario(compra.getSecuencial_Usuario());
+                detalle.setSecuencial_Proveedor(compra.getSecuencial_Proveedor());
             } else {
-                Venta_Detalle nuevo = new Venta_Detalle();
-                nuevo.setSecuencial_Empresa(venta.getSecuencial_Empresa());
-                nuevo.setSecuencial_Factura(venta.getSecuencial());
-                nuevo.setSecuencial_Cliente(venta.getSecuencial_Cliente());
-                nuevo.setSecuencial_Usuario(venta.getSecuencial_Usuario());
-                nuevo.setFecha(venta.getFecha());
+                Compra_Detalle nuevo = new Compra_Detalle();
+                nuevo.setSecuencial_Empresa(compra.getSecuencial_Empresa());
+                nuevo.setSecuencial_Factura(compra.getSecuencial());
+                nuevo.setSecuencial_Proveedor(compra.getSecuencial_Proveedor());
+                nuevo.setSecuencial_Usuario(compra.getSecuencial_Usuario());
+                nuevo.setFecha(compra.getFecha());
                 nuevo.setSecuencial_Producto(productoBD.getSecuencial());
                 nuevo.setCodigo(productoBD.getCodigo());
                 nuevo.setDescripcion(productoBD.getDescripcion());
                 nuevo.setCantidad(nuevaCantidad);
-                nuevo.setPrecio(Util.redondear(productoBD.getPrecio_Venta()));
-                nuevo.setTotal(Util.redondear(nuevaCantidad * productoBD.getPrecio_Venta()));
+                nuevo.setPrecio(Util.redondear(productoBD.getPrecio_Costo()));
+                nuevo.setTotal(Util.redondear(nuevaCantidad * productoBD.getPrecio_Costo()));
                 nuevo.setTipo(productoBD.getTipo());
                 em.persist(nuevo);
 
                 Util.registrarActividad(Secuencial_Usuario,
-                    "Agregó la cantidad de: " + nuevaCantidad + " de: " + productoBD.getCodigo() + " a Factura No: " + venta.getSecuencial(),
+                    "Agregó " + nuevaCantidad + " de " + productoBD.getCodigo() + " a compra No. " + compra.getSecuencial(),
                     Secuencial_Empresa);
 
                 if (!"Servicio".equalsIgnoreCase(productoBD.getTipo())) {
                     Util.registrarMovimientoKardex(productoBD.getSecuencial(), productoBD.getCantidad(), productoBD.getDescripcion(),
-                        nuevaCantidad, productoBD.getPrecio_Costo(), productoBD.getPrecio_Venta(), "Salida", Secuencial_Empresa);
+                        nuevaCantidad, productoBD.getPrecio_Costo(), productoBD.getPrecio_Venta(), "Entrada", Secuencial_Empresa);
 
-                    productoBD.setCantidad(productoBD.getCantidad() - nuevaCantidad);
+                    productoBD.setCantidad(productoBD.getCantidad() + nuevaCantidad);
                     em.merge(productoBD);
                 }
             }
 
-            Cuentas_Cobrar cuenta = em.createQuery(
-                "SELECT c FROM Cuentas_Cobrar c WHERE c.Secuencial_Factura = :factura AND c.Secuencial_Cliente = :cliente AND c.Secuencial_Empresa = :empresa",
-                Cuentas_Cobrar.class)
-                .setParameter("factura", venta.getSecuencial())
-                .setParameter("cliente", venta.getSecuencial_Cliente())
-                .setParameter("empresa", venta.getSecuencial_Empresa())
+            Cuentas_Pagar cuenta = em.createQuery(
+                "SELECT c FROM Cuentas_Pagar c WHERE c.Secuencial_Factura = :compra AND c.Secuencial_Proveedor = :proveedor AND c.Secuencial_Empresa = :empresa",
+                Cuentas_Pagar.class)
+                .setParameter("compra", compra.getSecuencial())
+                .setParameter("proveedor", compra.getSecuencial_Proveedor())
+                .setParameter("empresa", compra.getSecuencial_Empresa())
                 .getResultStream().findFirst().orElse(null);
 
             if (cuenta != null) {
-                cuenta.setGran_Total(Util.redondear(venta.getGran_Total()));
-                cuenta.setTotal(Util.redondear(venta.getTotal()));
+                cuenta.setGran_Total(Util.redondear(compra.getGran_Total()));
+                cuenta.setTotal(Util.redondear(compra.getTotal()));
                 cuenta.setSaldo(Util.redondear(cuenta.getGran_Total() - cuenta.getPagado()));
             }
         }
 
-        Ingreso ingreso = em.createQuery(
-            "SELECT i FROM Ingreso i WHERE i.Secuencial_Factura = :factura AND i.Secuencial_Empresa = :empresa",
-            Ingreso.class)
-            .setParameter("factura", venta.getSecuencial())
-            .setParameter("empresa", venta.getSecuencial_Empresa())
+        Egreso egreso = em.createQuery(
+            "SELECT e FROM Egreso e WHERE e.Secuencial_Factura = :compra AND e.Secuencial_Empresa = :empresa",
+            Egreso.class)
+            .setParameter("compra", compra.getSecuencial())
+            .setParameter("empresa", compra.getSecuencial_Empresa())
             .getResultStream().findFirst().orElse(null);
 
-       if (ingreso != null) {
-    ingreso.setTotal(venta.getGran_Total());
-    ingreso.setDescripcion("Actualización de ingreso por compra No. " + venta.getSecuencial());
-    ingreso.setFecha(Util.fechaActualCompleta());
-    ingreso.setTipo_Ingreso(venta.getTipo());
-    ingreso.setSecuencial_Usuario(venta.getSecuencial_Usuario());
-    em.merge(ingreso);
-} else {
-    System.out.println("⚠️ No se encontró ingreso asociado a la factura No. " + venta.getSecuencial());
-}
+        if (egreso != null) {
+            egreso.setTotal(compra.getGran_Total());
+            egreso.setDescripcion("Actualización de egreso por compra No. " + compra.getSecuencial());
+            egreso.setFecha(Util.fechaActualCompleta());
+            egreso.setTipo_Egreso(compra.getTipo());
+            egreso.setSecuencial_Usuario(compra.getSecuencial_Usuario());
+            em.merge(egreso);
+        } else {
+            System.out.println("⚠️ No se encontró egreso asociado a la compra No. " + compra.getSecuencial());
+        }
 
-
-        FacturaCompletaPDF_Venta factura = new FacturaCompletaPDF_Venta();
-        factura.setSecuencial(venta.getSecuencial());
-        factura.setCliente(comboCliente.getSelectedItem().toString().split("- ")[1].trim());
-        factura.setTipoVenta(venta.getTipo());
-        factura.setMetodoPago(venta.getForma_Pago());
-        factura.setFecha(venta.getFecha());
+        FacturaCompletaPDF_Compra factura = new FacturaCompletaPDF_Compra();
+        factura.setSecuencial(compra.getSecuencial());
+        factura.setProveedor(comboProveedor.getSelectedItem().toString().split("- ")[1].trim());
+        factura.setTipoCompra(compra.getTipo());
+        factura.setMetodoPago(compra.getForma_Pago());
+        factura.setFecha(compra.getFecha());
         factura.setItems(ObtenerItemsDesdeGrid(jTable1));
-        factura.setISV(venta.getImpuesto());
-        factura.setOtrosCargos(venta.getOtros_Cargos());
-        factura.setDescuento(venta.getDescuento());
+        factura.setISV(compra.getImpuesto());
+        factura.setOtrosCargos(compra.getOtros_Cargos());
+        factura.setDescuento(compra.getDescuento());
 
-        venta.setDocumento(factura.GeneratePdfToBytes());
+        compra.setDocumento(factura.GeneratePdfToBytes());
 
-        em.merge(venta);
+        em.merge(compra);
         em.getTransaction().commit();
 
         listaDeItems.clear();
         listaDeItemsEliminar.clear();
 
-        JOptionPane.showMessageDialog(null, "Factura No. " + venta.getSecuencial() + " actualizada correctamente.", "Ventas", JOptionPane.INFORMATION_MESSAGE);
-        form.cargar_Datos_Venta();
+        JOptionPane.showMessageDialog(null, "Compra No. " + compra.getSecuencial() + " actualizada correctamente.", "Compras", JOptionPane.INFORMATION_MESSAGE);
+        form.cargar_Datos_Compra();
         this.dispose();
 
-   } catch (Exception ex) {
+        } catch (Exception ex) {
         if (em != null && em.getTransaction().isActive()) {
             em.getTransaction().rollback();
         }
-        JOptionPane.showMessageDialog(null, "Error al actualizar factura:\n" + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(null, "Error al actualizar compra:\n" + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
     } finally {
         if (em != null && em.isOpen()) {
             em.close();
@@ -986,6 +992,20 @@ Guardar_Cambios();
         }
     }
 }
+
+    
+    //**************************************
+   
+    
+    
+    
+    public int getSecuencial_Proveedor() {
+        return Secuencial_Proveedor;
+    }
+
+    public void setSecuencial_Proveedor(int Secuencial_Proveedor) {
+        this.Secuencial_Proveedor = Secuencial_Proveedor;
+    }
 
                 
                 
@@ -1132,10 +1152,10 @@ Guardar_Cambios();
 //    
 //    
     
-    public void importarFactura(Map<String, Double> lista, String cliente, EntityManager entityManager) {
+    public void importarFactura(Map<String, Double> lista, String proveedor, EntityManager entityManager) {
     try {
-        Util.llenarComboCliente(comboCliente, Secuencial_Empresa);
-        comboCliente.setSelectedItem(cliente);
+        Util.llenarComboProveedor(comboProveedor, Secuencial_Empresa);
+        comboProveedor.setSelectedItem(proveedor);
 
         for (Map.Entry<String, Double> itemC : lista.entrySet()) {
             List<Producto> productos = entityManager
@@ -1191,10 +1211,15 @@ Guardar_Cambios();
     }//GEN-LAST:event_lbl_impuestoKeyReleased
 
     
+     
+     
+     
+     
      public void Quitar_Elemento(EntityManager em) {
     List<Component> paraEliminar = new ArrayList<>();
     double totalRestado = 0.0;
-jButton7.setEnabled(false);
+    jButton7.setEnabled(false);
+
     for (Component comp : contenedor_selector.getComponents()) {
         if (!(comp instanceof SelectorCantidad selector)) continue;
 
@@ -1214,15 +1239,15 @@ jButton7.setEnabled(false);
         paraEliminar.add(selector);
 
         double cantidad = copia.getCantidadSelecccion();
-        double precio = copia.producto.getPrecio_Venta();
+        double precio = copia.producto.getPrecio_Costo(); // ← Costo en compras
         totalRestado += cantidad * precio;
 
-        // Eliminar detalle de venta
-        List<Venta_Detalle> detalles = em.createQuery(
-            "SELECT vd FROM Venta_Detalle vd WHERE vd.Codigo = :codigo AND vd.Secuencial_Factura = :factura AND vd.Secuencial_Empresa = :empresa",
-            Venta_Detalle.class)
+        // Eliminar detalle de compra
+        List<Compra_Detalle> detalles = em.createQuery(
+            "SELECT cd FROM Compra_Detalle cd WHERE cd.Codigo = :codigo AND cd.Secuencial_Factura = :compra AND cd.Secuencial_Empresa = :empresa",
+            Compra_Detalle.class)
             .setParameter("codigo", codigo)
-            .setParameter("factura", Secuencial)
+            .setParameter("compra", Secuencial)
             .setParameter("empresa", Secuencial_Empresa)
             .getResultList();
 
@@ -1233,34 +1258,30 @@ jButton7.setEnabled(false);
         }
 
         // Actualizar inventario y Kardex si no es servicio
-     
         if (!"Servicio".equalsIgnoreCase(copia.producto.getTipo())) {
-    Producto producto = em.find(Producto.class, copia.producto.getSecuencial());
-    if (producto != null) {
-        producto.setCantidad(producto.getCantidad() + cantidad);
-        em.getTransaction().begin();
-        em.merge(producto);
-        em.getTransaction().commit();
+            Producto producto = em.find(Producto.class, copia.producto.getSecuencial());
+            if (producto != null) {
+                producto.setCantidad(producto.getCantidad() - cantidad); // ← Salida por eliminación
+                em.getTransaction().begin();
+                em.merge(producto);
+                em.getTransaction().commit();
 
-        // ✅ Usar método centralizado de Util
-        Util.registrarMovimientoKardex(
-            producto.getSecuencial(),
-            producto.getCantidad(), // existencia actualizada
-            producto.getDescripcion(),
-            cantidad,
-            producto.getPrecio_Costo(),
-            producto.getPrecio_Venta(),
-            "Entrada",
-            Secuencial_Empresa
-        );
-    }
-}
-
-        
+                Util.registrarMovimientoKardex(
+                    producto.getSecuencial(),
+                    producto.getCantidad(),
+                    producto.getDescripcion(),
+                    cantidad,
+                    producto.getPrecio_Costo(),
+                    producto.getPrecio_Venta(),
+                    "Salida",
+                    Secuencial_Empresa
+                );
+            }
+        }
 
         Util.registrarActividad(Secuencial_Usuario,
-            "Eliminó el Item: " + codigo + " de la Factura No. " + Secuencial + "\n" +
-            "Registrado a: " + precio + " " + ", cantidad: " + cantidad + "\n" +
+            "Eliminó el Item: " + codigo + " de la Compra No. " + Secuencial + "\n" +
+            "Registrado a: " + precio + ", cantidad: " + cantidad + "\n" +
             "Total: " + (cantidad * precio),
             Secuencial_Empresa);
     }
@@ -1269,26 +1290,26 @@ jButton7.setEnabled(false);
         contenedor_selector.remove(comp);
     }
 
-    // Actualizar totales en Venta
-    Venta venta = em.find(Venta.class, Secuencial);
-    if (venta != null) {
-        venta.setTotal(venta.getTotal() - totalRestado);
-        venta.setGran_Total(venta.getGran_Total() - totalRestado);
+    // Actualizar totales en Compra
+    Compra compra = em.find(Compra.class, Secuencial);
+    if (compra != null) {
+        compra.setTotal(compra.getTotal() - totalRestado);
+        compra.setGran_Total(compra.getGran_Total() - totalRestado);
         em.getTransaction().begin();
-        em.merge(venta);
+        em.merge(compra);
         em.getTransaction().commit();
     }
 
-    // Actualizar cuentas por cobrar si aplica
-    List<Cuentas_Cobrar> cuentas = em.createQuery(
-        "SELECT c FROM Cuentas_Cobrar c WHERE c.Secuencial_Factura = :factura AND c.Secuencial_Empresa = :empresa",
-        Cuentas_Cobrar.class)
-        .setParameter("factura", Secuencial)
+    // Actualizar cuentas por pagar si aplica
+    List<Cuentas_Pagar> cuentas = em.createQuery(
+        "SELECT c FROM Cuentas_Pagar c WHERE c.Secuencial_Factura = :compra AND c.Secuencial_Empresa = :empresa",
+        Cuentas_Pagar.class)
+        .setParameter("compra", Secuencial)
         .setParameter("empresa", Secuencial_Empresa)
         .getResultList();
 
     if (!cuentas.isEmpty()) {
-        Cuentas_Cobrar cuenta = cuentas.get(0);
+        Cuentas_Pagar cuenta = cuentas.get(0);
         cuenta.setTotal(cuenta.getTotal() - totalRestado);
         cuenta.setGran_Total(cuenta.getGran_Total() - totalRestado);
         cuenta.setSaldo(cuenta.getSaldo() - totalRestado);
@@ -1298,15 +1319,14 @@ jButton7.setEnabled(false);
     }
 
     jLabel3.setText(String.valueOf(listaDeItems.size()));
-   // btnActualizarTotales.doClick(); Hay que revisar que hace este boton
     contenedor_selector.revalidate();
     contenedor_selector.repaint();
-    
-    JOptionPane.showMessageDialog(null, "Se ha modificado la factura y el elemento se ha retirado correctamente.");
-    
+
+    JOptionPane.showMessageDialog(null, "Se ha modificado la compra y el elemento se ha retirado correctamente.");
 }
 
-    
+     
+     
     
     
     
@@ -1350,11 +1370,11 @@ jButton7.setEnabled(false);
         icono_carga.setVisible(true);
 
 try {
-    int secuencialFactura = Secuencial;
+    int secuencialCompra = Secuencial;
 
     int confirmResult = JOptionPane.showConfirmDialog(
         null,
-        "¿Está seguro de eliminar la Factura No. " + secuencialFactura + "?",
+        "¿Está seguro de eliminar la Compra No. " + secuencialCompra + "?",
         "Confirmar Eliminación",
         JOptionPane.YES_NO_OPTION
     );
@@ -1365,54 +1385,57 @@ try {
     try (EntityManager em = emf.createEntityManager()) {
         em.getTransaction().begin();
 
-        Venta factura = em.find(Venta.class, secuencialFactura);
-        if (factura == null) {
-            JOptionPane.showMessageDialog(null, "Factura no encontrada.", "Error", JOptionPane.ERROR_MESSAGE);
+        Compra compra = em.find(Compra.class, secuencialCompra);
+        if (compra == null) {
+            JOptionPane.showMessageDialog(null, "Compra no encontrada.", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
-        Ingreso ingresoAsociado = em.createQuery(
-            "SELECT i FROM Ingreso i WHERE i.Secuencial_Factura = :factura AND i.Secuencial_Empresa = :empresa",
-            Ingreso.class
+        // 🔁 Eliminar ingreso equivalente: Egreso
+        Egreso egresoAsociado = em.createQuery(
+            "SELECT e FROM Egreso e WHERE e.Secuencial_Factura = :factura AND e.Secuencial_Empresa = :empresa",
+            Egreso.class
         )
-        .setParameter("factura", secuencialFactura)
+        .setParameter("factura", secuencialCompra)
         .setParameter("empresa", Secuencial_Empresa)
         .getResultStream()
         .findFirst()
         .orElse(null);
 
-        if (ingresoAsociado != null) {
-            em.remove(ingresoAsociado);
+        if (egresoAsociado != null) {
+            em.remove(egresoAsociado);
             Util.registrarActividad(
                 Secuencial_Usuario,
-                "Se eliminó el ingreso relacionado a la Factura No. " + secuencialFactura,
+                "Se eliminó el egreso relacionado a la Compra No. " + secuencialCompra,
                 Secuencial_Empresa
             );
         }
 
-        Cuentas_Cobrar ctac = em.createQuery(
-            "SELECT c FROM Cuentas_Cobrar c WHERE c.Secuencial_Factura = :factura AND c.Secuencial_Cliente = :cliente AND c.Secuencial_Empresa = :empresa",
-            Cuentas_Cobrar.class
+        // 💳 Eliminar cuenta por pagar
+        Cuentas_Pagar ctap = em.createQuery(
+            "SELECT c FROM Cuentas_Pagar c WHERE c.Secuencial_Factura = :compra AND c.Secuencial_Proveedor = :proveedor AND c.Secuencial_Empresa = :empresa",
+            Cuentas_Pagar.class
         )
-        .setParameter("factura", secuencialFactura)
-        .setParameter("cliente", Secuencial_Cliente)
+        .setParameter("compra", secuencialCompra)
+        .setParameter("proveedor", Secuencial_Proveedor)
         .setParameter("empresa", Secuencial_Empresa)
         .getResultStream()
         .findFirst()
         .orElse(null);
 
-        if (ctac != null) {
-            em.remove(ctac);
+        if (ctap != null) {
+            em.remove(ctap);
         }
 
-        List<Venta_Detalle> detalles = em.createQuery(
-            "SELECT vd FROM Venta_Detalle vd WHERE vd.Secuencial_Factura = :factura",
-            Venta_Detalle.class
+        // 📦 Recuperar detalles de compra
+        List<Compra_Detalle> detalles = em.createQuery(
+            "SELECT cd FROM Compra_Detalle cd WHERE cd.Secuencial_Factura = :factura",
+            Compra_Detalle.class
         )
-        .setParameter("factura", secuencialFactura)
+        .setParameter("factura", secuencialCompra)
         .getResultList();
 
-        for (Venta_Detalle detalle : detalles) {
+        for (Compra_Detalle detalle : detalles) {
             Producto producto = em.createQuery(
                 "SELECT p FROM Producto p WHERE p.Codigo = :codigo",
                 Producto.class
@@ -1423,34 +1446,34 @@ try {
             .orElse(null);
 
             if (producto != null && !"Servicio".equals(producto.getTipo()) && detalle.getCantidad() != null) {
-                double cantidadDevuelta = detalle.getCantidad();
+                double cantidadRetirada = detalle.getCantidad();
 
                 Util.registrarMovimientoKardex(
                     producto.getSecuencial(),
                     producto.getCantidad(),
                     producto.getDescripcion(),
-                    cantidadDevuelta,
+                    cantidadRetirada,
                     producto.getPrecio_Costo(),
                     producto.getPrecio_Venta(),
-                    "Entrada",
+                    "Salida",
                     Secuencial_Empresa
                 );
 
-                producto.setCantidad(producto.getCantidad() + cantidadDevuelta);
+                producto.setCantidad(producto.getCantidad() - cantidadRetirada);
                 em.merge(producto);
             }
         }
 
-        for (Venta_Detalle detalle : detalles) {
+        for (Compra_Detalle detalle : detalles) {
             em.remove(detalle);
         }
 
-        em.remove(factura);
+        em.remove(compra);
 
         Util.registrarActividad(
             Secuencial_Usuario,
-            "Eliminó la Factura No. " + secuencialFactura + " con " + detalles.size() +
-            " productos. Registrada por un monto de " + factura.getGran_Total(),
+            "Eliminó la Compra No. " + secuencialCompra + " con " + detalles.size() +
+            " productos. Registrada por un monto de " + compra.getGran_Total(),
             Secuencial_Empresa
         );
 
@@ -1458,26 +1481,25 @@ try {
 
         JOptionPane.showMessageDialog(
             null,
-            "Factura No. " + secuencialFactura + " eliminada correctamente.",
+            "Compra No. " + secuencialCompra + " eliminada correctamente.",
             "Operación Exitosa",
             JOptionPane.INFORMATION_MESSAGE
         );
 
         this.dispose();
-        form.cargar_Datos_Venta();
+        form.cargar_Datos_Compra();
     }
 } catch (Exception ex) {
     JOptionPane.showMessageDialog(
         null,
-        "Error al eliminar factura: " + ex.getMessage(),
+        "Error al eliminar compra: " + ex.getMessage(),
         "Error",
         JOptionPane.ERROR_MESSAGE
     );
 } finally {
-    icono_carga.setVisible(false); // Se oculta siempre, incluso si hay error
+    icono_carga.setVisible(false);
 }
 
-        
         
         
         // TODO add your handling code here:
@@ -1568,7 +1590,7 @@ jButton7.setEnabled(true);
 
             if (item.cantidadSelecccion != 0) {
                 double cantidad = item.cantidadSelecccion;
-                double precio = item.producto.getPrecio_Venta();
+                double precio = item.producto.getPrecio_Costo();
                 double totalItem = cantidad * precio;
 
                 modeloTabla.addRow(new Object[] {
@@ -1615,40 +1637,39 @@ jButton7.setEnabled(true);
 //    .orElse(null);
 //}
 
-    
-    public Object[] obtenerDatosVenta(EntityManager em, int secuencialEmpresa, int secuencialFactura) {
-    // Paso 1: Obtener los datos base desde Venta
-    Object[] datosVenta = em.createQuery(
-        "SELECT v.Tipo, v.Forma_Pago, v.Otros_Cargos " +
-        "FROM Venta v " +
-        "WHERE v.Secuencial_Empresa = :empresa AND v.Secuencial = :factura",
+ public Object[] obtenerDatosCompra(EntityManager em, int secuencialEmpresa, int secuencialCompra) {
+    // Paso 1: Obtener los datos base desde Compra
+    Object[] datosCompra = em.createQuery(
+        "SELECT c.Tipo, c.Forma_Pago, c.Otros_Cargos " +
+        "FROM Compra c " +
+        "WHERE c.Secuencial_Empresa = :empresa AND c.Secuencial = :compra",
         Object[].class
     )
     .setParameter("empresa", secuencialEmpresa)
-    .setParameter("factura", secuencialFactura)
+    .setParameter("compra", secuencialCompra)
     .getResultStream()
     .findFirst()
     .orElse(null);
 
-    if (datosVenta == null) {
-        return null; // No se encontró la venta
+    if (datosCompra == null) {
+        return null; // No se encontró la compra
     }
 
-    String tipo = (String) datosVenta[0];
-    String formaPago = (String) datosVenta[1];
-    Double otrosCargos = (Double) datosVenta[2];
+    String tipo = (String) datosCompra[0];
+    String formaPago = (String) datosCompra[1];
+    Double otrosCargos = (Double) datosCompra[2];
 
-    // Paso 2: Si es crédito, obtener la fecha de vencimiento desde Cuentas_Cobrar
+    // Paso 2: Si es crédito, obtener la fecha de vencimiento desde Cuentas_Pagar
     String fechaVencimiento = null;
     if ("Credito".equalsIgnoreCase(tipo)) {
         fechaVencimiento = em.createQuery(
-            "SELECT c.Fecha_Vencimiento " +
-            "FROM Cuentas_Cobrar c " +
-            "WHERE c.Secuencial_Empresa = :empresa AND c.Secuencial_Factura = :factura",
+            "SELECT cp.Fecha_Vencimiento " +
+            "FROM Cuentas_Pagar cp " +
+            "WHERE cp.Secuencial_Empresa = :empresa AND cp.Secuencial = :compra",
             String.class
         )
         .setParameter("empresa", secuencialEmpresa)
-        .setParameter("factura", secuencialFactura)
+        .setParameter("compra", secuencialCompra)
         .getResultStream()
         .findFirst()
         .orElse(null);
@@ -1657,8 +1678,7 @@ jButton7.setEnabled(true);
     // Retornar todos los datos en un arreglo
     return new Object[] { tipo, fechaVencimiento, formaPago, otrosCargos };
 }
-
-    
+ 
     
     
  private void ActualizarNumeros() {
@@ -1675,9 +1695,217 @@ jButton7.setEnabled(true);
     
  
  //*************
+    
+public void cargar_Items(int secuencialEmpresa, JPanel contenedor, JPanel contenedor_selector, EntityManager entityManager) {
+    icono_carga.setVisible(true);
+
+    // Usamos GridBagLayout para evitar el ajuste automático de tamaño
+    contenedor.setLayout(new GridBagLayout());
+    contenedor_selector.setLayout(new GridLayout(0, 1, 5, 5)); // Selector puede seguir con GridLayout
+
+    contenedor.removeAll();
+    //contenedor_selector.removeAll();
+   // listaDeItems.clear();
+    //selectoresCantidad.clear();
+
+    List<Producto> productos = entityManager
+        .createQuery("SELECT p FROM Producto p WHERE p.Secuencial_Empresa = :empresa", Producto.class)
+        .setParameter("empresa", secuencialEmpresa)
+        .getResultList();
+
+    GridBagConstraints gbc = new GridBagConstraints();
+    gbc.insets = new Insets(5, 5, 5, 5); // Espaciado entre miniaturas
+    gbc.fill = GridBagConstraints.NONE; // No expandir
+    gbc.anchor = GridBagConstraints.NORTHWEST;
+
+    int col = 0, row = 0;
+
+    for (Producto producto : productos) {
+        Miniatura_Producto miniatura = new Miniatura_Producto(producto, false);
+        miniatura.setPreferredSize(new Dimension(120, 170)); // Tamaño fijo para cada miniatura
+
+        miniatura.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                SelectorCantidad selector = selectoresCantidad.computeIfAbsent(
+                    producto.getCodigo(),
+                    codigo -> new SelectorCantidad(codigo, 0)
+                );
+
+                if (!listaDeItems.containsKey(producto.getCodigo())) {
+                    listaDeItems.put(producto.getCodigo(), miniatura);
+                    if (!Arrays.asList(contenedor_selector.getComponents()).contains(selector)) {
+                        contenedor_selector.add(selector);
+                    }
+                }
+
+                contenedor_selector.revalidate();
+                contenedor_selector.repaint();
+            }
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+                if (e.isPopupTrigger()) {
+                    menu_contextual.show(e.getComponent(), e.getX(), e.getY());
+                }
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                if (e.isPopupTrigger()) {
+                    menu_contextual.show(e.getComponent(), e.getX(), e.getY());
+                }
+            }
+        });
+
+        String comentario = miniatura.cargarComentario();
+        String descripcion = miniatura.producto.getDescripcion();
+        miniatura.setToolTipText(
+            comentario != null
+                ? "<html><b>" + descripcion + "</b><br>" + comentario + "</html>"
+                : "<html><b>" + descripcion + "</b><br></html>"
+        );
+
+        // Posicionamiento en la cuadrícula
+        gbc.gridx = col;
+        gbc.gridy = row;
+        contenedor.add(miniatura, gbc);
+        
+        
+
+        col++;
+        if (col == 3) {
+            col = 0;
+            row++;
+        }
+    }
+
+    contenedor.revalidate();
+    contenedor.repaint();
+    icono_carga.setVisible(false);
+    
+}
+
  
- 
-public void cargarItemsFiltrados(
+    public void cargarItems() {
+    
+        contenedor.removeAll();
+        icono_carga.setVisible(true); // Mostrar ícono de carga
+
+    SwingWorker<Void, Void> worker = new SwingWorker<>() {
+        @Override
+        protected Void doInBackground() {
+            EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
+            EntityManager em = emf.createEntityManager();
+            cargar_Items(Secuencial_Empresa, contenedor, contenedor_selector, em);
+            em.close();
+            emf.close();
+            return null;
+        }
+
+        @Override
+        protected void done() {
+            icono_carga.setVisible(false); // Ocultar ícono de carga
+            revalidate();
+            repaint();
+        }
+    };
+
+    worker.execute(); // Ejecutar en segundo plano
+}
+
+    
+    
+    
+    public void cargarItems_Filtrados( // Original
+    int secuencialEmpresa,
+    JComboBox<String> comboFiltro,
+    JTextField campoValorFiltro,
+    JPanel contenedor,
+    JPanel contenedor_selector,
+    EntityManager entityManager
+) {
+    icono_carga.setVisible(true);
+
+    contenedor.setLayout(new GridLayout(0, 3, 5, 5));
+    contenedor_selector.setLayout(new GridLayout(0, 1, 5, 5));
+    contenedor.removeAll();
+
+    String campoFiltro = (String) comboFiltro.getSelectedItem();
+    String valorFiltro = campoValorFiltro.getText();
+
+    boolean aplicarFiltro = campoFiltro != null && !campoFiltro.trim().isEmpty()
+                         && valorFiltro != null && !valorFiltro.trim().isEmpty();
+
+    String jpql = "SELECT p FROM Producto p WHERE p.Secuencial_Empresa = :empresa"
+                + (aplicarFiltro ? " AND LOWER(p." + campoFiltro + ") LIKE :valorFiltro" : "");
+
+    TypedQuery<Producto> query = entityManager.createQuery(jpql, Producto.class);
+    query.setParameter("empresa", secuencialEmpresa);
+    if (aplicarFiltro) {
+        query.setParameter("valorFiltro", "%" + valorFiltro.toLowerCase() + "%");
+    }
+
+    for (Producto producto : query.getResultList()) {
+        ImageIcon imagenIcon = (producto.getImagen() != null && producto.getImagen().length > 0)
+            ? new ImageIcon(producto.getImagen())
+            : new ImageIcon(getClass().getResource("/icons/no-image-icon-10.png"));
+
+
+        Miniatura_Producto miniatura = new Miniatura_Producto(producto,true);
+
+        miniatura.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                SelectorCantidad selector = selectoresCantidad.computeIfAbsent(
+                    producto.getCodigo(),
+                    codigo -> new SelectorCantidad(codigo, 0)
+                );
+
+                selector.setCantidad(0);
+
+                if (!listaDeItems.containsKey(producto.getCodigo())) {
+                    listaDeItems.put(producto.getCodigo(), miniatura);
+
+                    if (!Arrays.asList(contenedor_selector.getComponents()).contains(selector)) {
+                        contenedor_selector.add(selector);
+                    }
+                }
+
+                contenedor_selector.revalidate();
+                contenedor_selector.repaint();
+            }
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+                if (e.isPopupTrigger()) {
+                    menu_contextual.show(e.getComponent(), e.getX(), e.getY());
+                }
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                if (e.isPopupTrigger()) {
+                    menu_contextual.show(e.getComponent(), e.getX(), e.getY());
+                }
+            }
+        });
+
+        String comentario = miniatura.cargarComentario();
+        String descripcion = miniatura.producto.getDescripcion();
+        miniatura.setToolTipText("<html><b>" + descripcion + "</b><br>" + (comentario != null ? comentario : "") + "</html>");
+
+        contenedor.add(miniatura);
+    }
+
+    contenedor.revalidate();
+    contenedor.repaint();
+    icono_carga.setVisible(false);
+}
+    
+    
+    
+    public void cargarItemsFiltrados(
     int secuencialEmpresa,
     JComboBox<String> comboFiltro,
     JTextField campoValorFiltro,
@@ -1691,7 +1919,7 @@ public void cargarItemsFiltrados(
     contenedor.setLayout(new GridBagLayout());
     contenedor_selector.setLayout(new GridLayout(0, 1, 5, 5));
     contenedor.removeAll();
-    //contenedor_selector.removeAll();
+    
 
     String campoFiltro = (String) comboFiltro.getSelectedItem();
     String valorFiltro = campoValorFiltro.getText();
@@ -1716,7 +1944,7 @@ public void cargarItemsFiltrados(
     int col = 0, row = 0;
 
     for (Producto producto : query.getResultList()) {
-        Miniatura_Producto miniatura = new Miniatura_Producto(producto, false);
+        Miniatura_Producto miniatura = new Miniatura_Producto(producto, true);
         miniatura.setPreferredSize(new Dimension(120, 170)); // Tamaño fijo
 
         miniatura.addMouseListener(new MouseAdapter() {
@@ -1775,13 +2003,11 @@ public void cargarItemsFiltrados(
     contenedor.revalidate();
     contenedor.repaint();
     icono_carga.setVisible(false);
-    
-    System.err.println("Campo filtro: " + comboFiltro.getSelectedItem());
-System.err.println("Valor filtro: '" + campoValorFiltro.getText() + "'");
-
 }
 
 
+    
+    
  
  //*************
  
@@ -1893,234 +2119,10 @@ System.err.println("Valor filtro: '" + campoValorFiltro.getText() + "'");
     }//GEN-LAST:event_jTextField3KeyReleased
 
     
-    
-public void cargar_Items(int secuencialEmpresa, JPanel contenedor, JPanel contenedor_selector, EntityManager entityManager) {
-    icono_carga.setVisible(true);
-
-    // Usamos GridBagLayout para evitar el ajuste automático de tamaño
-    contenedor.setLayout(new GridBagLayout());
-    contenedor_selector.setLayout(new GridLayout(0, 1, 5, 5)); // Selector puede seguir con GridLayout
-
-    contenedor.removeAll();
-    //contenedor_selector.removeAll();
-   // listaDeItems.clear();
-    //selectoresCantidad.clear();
-
-    List<Producto> productos = entityManager
-        .createQuery("SELECT p FROM Producto p WHERE p.Secuencial_Empresa = :empresa", Producto.class)
-        .setParameter("empresa", secuencialEmpresa)
-        .getResultList();
-
-    GridBagConstraints gbc = new GridBagConstraints();
-    gbc.insets = new Insets(5, 5, 5, 5); // Espaciado entre miniaturas
-    gbc.fill = GridBagConstraints.NONE; // No expandir
-    gbc.anchor = GridBagConstraints.NORTHWEST;
-
-    int col = 0, row = 0;
-
-    for (Producto producto : productos) {
-        Miniatura_Producto miniatura = new Miniatura_Producto(producto, false);
-        miniatura.setPreferredSize(new Dimension(120, 170)); // Tamaño fijo para cada miniatura
-
-        miniatura.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                SelectorCantidad selector = selectoresCantidad.computeIfAbsent(
-                    producto.getCodigo(),
-                    codigo -> new SelectorCantidad(codigo, 0)
-                );
-
-                if (!listaDeItems.containsKey(producto.getCodigo())) {
-                    listaDeItems.put(producto.getCodigo(), miniatura);
-                    if (!Arrays.asList(contenedor_selector.getComponents()).contains(selector)) {
-                        contenedor_selector.add(selector);
-                    }
-                }
-
-                contenedor_selector.revalidate();
-                contenedor_selector.repaint();
-            }
-
-            @Override
-            public void mousePressed(MouseEvent e) {
-                if (e.isPopupTrigger()) {
-                    menu_contextual.show(e.getComponent(), e.getX(), e.getY());
-                }
-            }
-
-            @Override
-            public void mouseReleased(MouseEvent e) {
-                if (e.isPopupTrigger()) {
-                    menu_contextual.show(e.getComponent(), e.getX(), e.getY());
-                }
-            }
-        });
-
-        String comentario = miniatura.cargarComentario();
-        String descripcion = miniatura.producto.getDescripcion();
-        miniatura.setToolTipText(
-            comentario != null
-                ? "<html><b>" + descripcion + "</b><br>" + comentario + "</html>"
-                : "<html><b>" + descripcion + "</b><br></html>"
-        );
-
-        // Posicionamiento en la cuadrícula
-        gbc.gridx = col;
-        gbc.gridy = row;
-        contenedor.add(miniatura, gbc);
-        
-        
-
-        col++;
-        if (col == 3) {
-            col = 0;
-            row++;
-        }
-    }
-
-    contenedor.revalidate();
-    contenedor.repaint();
-    icono_carga.setVisible(false);
-    
-}
-
-    
-     
-    public void cargarItems() {
-    
-        contenedor.removeAll();
-        icono_carga.setVisible(true); // Mostrar ícono de carga
-
-    SwingWorker<Void, Void> worker = new SwingWorker<>() {
-        @Override
-        protected Void doInBackground() {
-            EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
-            EntityManager em = emf.createEntityManager();
-            cargar_Items(Secuencial_Empresa, contenedor, contenedor_selector, em);
-            em.close();
-            emf.close();
-            return null;
-        }
-
-        @Override
-        protected void done() {
-            icono_carga.setVisible(false); // Ocultar ícono de carga
-            revalidate();
-            repaint();
-        }
-    };
-
-    worker.execute(); // Ejecutar en segundo plano
-}
-
+   
    
     
-    
-public void cargarItems(int secuencialEmpresa, JPanel contenedor, JPanel contenedor_selector, EntityManager entityManager) {
-
-    icono_carga.setVisible(true);
-    contenedor.setLayout(new GridLayout(0, 3, 5, 5)); // 3 columnas, filas dinámicas
-  
-  
-   contenedor_selector.setLayout(new GridLayout(0, 1, 5, 5)); // 4 columnas, filas dinámicas
-    
-
-    contenedor.removeAll();
-    contenedor_selector.removeAll();
-    listaDeItems.clear();
-    selectoresCantidad.clear();
-
-    // 🔍 Consulta JPA
-    List<Producto> productos = entityManager
-        .createQuery("SELECT p FROM Producto p WHERE p.Secuencial_Empresa = :empresa", Producto.class)
-        .setParameter("empresa", secuencialEmpresa)
-        .getResultList();
-
-    for (Producto producto : productos) {
-        ImageIcon imagenIcon = producto.getImagen() != null && producto.getImagen().length > 0
-            ? new ImageIcon(producto.getImagen())
-            : new ImageIcon(getClass().getResource("/icons/no-image-icon-10.png"));
-//ImageIcon icono = new ImageIcon(getClass().getResource("/icons/no-image-icon-10.png"));
-
-       
-        Miniatura_Producto miniatura = new Miniatura_Producto(producto,false);
-
-        
-      
-        miniatura.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                SelectorCantidad selector = selectoresCantidad.computeIfAbsent(
-                    producto.getCodigo(),
-                    codigo -> {
-                        SelectorCantidad nuevo = new SelectorCantidad(codigo,0);
-                        nuevo.setCantidad(0);
-                        
-                        return nuevo;
-                    }
-                );
-
-                if (!listaDeItems.containsKey(producto.getCodigo())) {
-                    listaDeItems.put(producto.getCodigo(), miniatura);
-                   // miniatura.checkBoxSeleccionado.setSelected(true);
-
-                    if (!Arrays.asList(contenedor_selector.getComponents()).contains(selector)) {
-                        contenedor_selector.add(selector);
-                    }
-                } else {
-//                    contenedor_selector.remove(selector);
-//                    listaDeItems.remove(producto.getCodigo());
-//                    miniatura.checkBoxSeleccionado.setSelected(false);
-                }
-
-                contenedor_selector.revalidate();
-                contenedor_selector.repaint();
-            }
-        });
-        
-        
-        
-// Agregar el menú contextual
-miniatura.addMouseListener(new MouseAdapter() {
-    @Override
-    public void mousePressed(MouseEvent e) {
-        if (e.isPopupTrigger()) {
-            menu_contextual.show(e.getComponent(), e.getX(), e.getY());
-        }
-    }
-
-    @Override
-    public void mouseReleased(MouseEvent e) {
-        if (e.isPopupTrigger()) {
-            menu_contextual.show(e.getComponent(), e.getX(), e.getY());
-        }
-    }
-});
-
-if (miniatura.cargarComentario()!=null){
-
- //miniatura.setToolTipText(miniatura.cargarComentario());
  
- 
- miniatura.setToolTipText("<html><b>" + miniatura.producto.getDescripcion() + "</b><br>"+miniatura.cargarComentario()+"</html>");
- 
- //<html><b>Actualizar</b><br>Detalle</html>
-}else{
-
-    miniatura.setToolTipText("<html><b>" + miniatura.producto.getDescripcion() + "</b><br></html>");
- 
-}
-
-        contenedor.add(miniatura);
-    }
-
-    contenedor.revalidate();
-    contenedor.repaint();
-    
-    icono_carga.setVisible(false);
-    
-}
-
     
     
     private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
@@ -2263,7 +2265,7 @@ if (miniatura.cargarComentario()!=null){
     private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
 
 
-    Object[] resultado = obtenerDatosVenta(em, Secuencial_Empresa, Secuencial);
+    Object[] resultado = obtenerDatosCompra(em, Secuencial_Empresa, Secuencial);
 
 
     
@@ -2421,9 +2423,24 @@ public void cargarItemsDesdeLista(Map<String, Double> lista, int secuencialEmpre
 
     private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
 
-        form.cargar_Datos_Venta();
+        form.cargar_Datos_Compra();
         // TODO add your handling code here:
     }//GEN-LAST:event_formWindowClosing
+
+    private void comboProveedorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_comboProveedorActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_comboProveedorActionPerformed
+
+    private void comboProveedorMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_comboProveedorMouseClicked
+
+        // Util.llenarComboCliente(comboCliente,Secuencial_Empresa);
+
+        // TODO add your handling code here:
+    }//GEN-LAST:event_comboProveedorMouseClicked
+
+    private void jTextField3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField3ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jTextField3ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -2431,7 +2448,7 @@ public void cargarItemsDesdeLista(Map<String, Double> lista, int secuencialEmpre
   
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JComboBox<String> comboCliente;
+    private javax.swing.JComboBox<String> comboProveedor;
     private javax.swing.JPanel contenedor;
     private javax.swing.JPanel contenedor_selector;
     public javax.swing.JLabel icono_carga;
