@@ -748,6 +748,36 @@ public class Util {
     }
 }
 
+     
+     
+       
+    public static void llenar_Combo_Categoria(JComboBox comboCategoria, int Secuencial_Empresa ) {
+    comboCategoria.removeAllItems(); // Limpiar combo
+
+    EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
+    EntityManager em = emf.createEntityManager();
+
+    try {
+        List<Categoria> categorias = em.createQuery(
+            "SELECT c FROM Categoria c WHERE c.Secuencial_Empresa = :empresa", Categoria.class)
+            .setParameter("empresa", Secuencial_Empresa)
+            .getResultList();
+
+        
+            for (Categoria c : categorias) {
+                comboCategoria.addItem(c.getSecuencial() + " - " + c.getNombre());
+            }
+
+
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(null, "Error al cargar categorías: " + e.getMessage());
+    } finally {
+        em.close();
+        emf.close();
+    }
+}
+
+    
     
     
     //***************************

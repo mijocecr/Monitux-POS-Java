@@ -1807,73 +1807,11 @@ System.err.println("Valor filtro: '" + campoValorFiltro.getText() + "'");
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
 
-        V_Producto x = new V_Producto();
+        V_Producto form = new V_Producto();
+            form.setOnProductoEditado(() -> cargarItems());
+            form.setVisible(true);
 
-        x.setLocationRelativeTo(null);
-        x.setVisible(true);
-
-        //**********************************
-
-        //Producto productoPrueba = new Producto();
-        //
-        //productoPrueba.setSecuencial_Proveedor(1);
-        //productoPrueba.setCodigo("PRD-001");
-        //productoPrueba.setDescripcion("Ratón inalámbrico ergonómico");
-        //productoPrueba.setCantidad(50);
-        //productoPrueba.setPrecio_Costo(8.50);
-        //productoPrueba.setPrecio_Venta(14.99);
-        //productoPrueba.setMarca("Logitech");
-        //productoPrueba.setCodigo_Barra("1234567890123");
-        //productoPrueba.setCodigo_Fabricante("LG-MOUSE-2025");
-        //
-        //// Imagen de prueba como byte[] (puedes cargarla desde archivo si lo deseas)
-        //productoPrueba.setImagen(new byte[0]); // vacío por ahora
-        //
-        //productoPrueba.setFecha_Caducidad("2026-12-31");
-        //productoPrueba.setTipo("Producto");
-        //productoPrueba.setSecuencial_Categoria(3);
-        //productoPrueba.setExpira(false);
-        //productoPrueba.setExistencia_Minima(10);
-
-        //**********************************
-
-        //
-        //
-
-        //
-        //   Miniatura_Producto miniatura = new Miniatura_Producto(productoPrueba);
-        //
-        //miniatura.setVisible(true);
-        //miniatura.setSize(110, 130);
-        //
-        //// Agregar el menú contextual
-        //miniatura.addMouseListener(new MouseAdapter() {
-            //    @Override
-            //    public void mousePressed(MouseEvent e) {
-                //        if (e.isPopupTrigger()) {
-                    //            //jPopupMenu1.show(e.getComponent(), e.getX(), e.getY());
-                    //        }
-                //    }
-            //
-            //    @Override
-            //    public void mouseReleased(MouseEvent e) {
-                //        if (e.isPopupTrigger()) {
-                    //           // jPopupMenu1.show(e.getComponent(), e.getX(), e.getY());
-                    //        }
-                //    }
-            //});
-    //
-    //miniatura.setBackground(Color.green);
-    //
-    //contenedor.add(miniatura);
-    //contenedor.revalidate();  // Mejor que repaint para layouts dinámicos
-    //contenedor.repaint();
-    //
-    //
-
-    //**********************************
-
-    // TODO add your handling code here:
+       
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jTextField3KeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextField3KeyReleased
