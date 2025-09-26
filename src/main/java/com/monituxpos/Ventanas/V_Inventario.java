@@ -23,21 +23,29 @@ import java.awt.Insets;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
+import javax.swing.table.DefaultTableModel;
 
 /**
  *
@@ -101,6 +109,7 @@ public class V_Inventario extends javax.swing.JPanel {
         jLabel4 = new javax.swing.JLabel();
         jButton9 = new javax.swing.JButton();
         jButton10 = new javax.swing.JButton();
+        fecha_txt = new javax.swing.JFormattedTextField();
         jLabel5 = new javax.swing.JLabel();
         jComboBox3 = new javax.swing.JComboBox<>();
         jTextField1 = new javax.swing.JTextField();
@@ -109,6 +118,8 @@ public class V_Inventario extends javax.swing.JPanel {
         jLabel8 = new javax.swing.JLabel();
         jLabel9 = new javax.swing.JLabel();
         icono_carga = new javax.swing.JLabel();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        lista_tabla = new javax.swing.JTable();
 
         jMenu1.setText("Imagen");
 
@@ -209,7 +220,7 @@ public class V_Inventario extends javax.swing.JPanel {
         contenedor.setLayout(new java.awt.GridBagLayout());
         jScrollPane1.setViewportView(contenedor);
 
-        add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(6, 152, 840, 410));
+        add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(6, 162, 840, 400));
 
         jButton1.setBackground(new java.awt.Color(44, 117, 255));
         jButton1.setForeground(new java.awt.Color(255, 255, 255));
@@ -223,7 +234,7 @@ public class V_Inventario extends javax.swing.JPanel {
                 jButton1ActionPerformed(evt);
             }
         });
-        add(jButton1, new org.netbeans.lib.awtextra.AbsoluteConstraints(6, 56, 68, 90));
+        add(jButton1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 60, 68, 90));
 
         jButton2.setBackground(new java.awt.Color(44, 117, 255));
         jButton2.setForeground(new java.awt.Color(255, 255, 255));
@@ -237,7 +248,7 @@ public class V_Inventario extends javax.swing.JPanel {
                 jButton2ActionPerformed(evt);
             }
         });
-        add(jButton2, new org.netbeans.lib.awtextra.AbsoluteConstraints(92, 56, 68, 90));
+        add(jButton2, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 60, 68, 90));
 
         jButton3.setBackground(new java.awt.Color(44, 117, 255));
         jButton3.setForeground(new java.awt.Color(255, 255, 255));
@@ -251,7 +262,7 @@ public class V_Inventario extends javax.swing.JPanel {
                 jButton3ActionPerformed(evt);
             }
         });
-        add(jButton3, new org.netbeans.lib.awtextra.AbsoluteConstraints(166, 56, 68, 90));
+        add(jButton3, new org.netbeans.lib.awtextra.AbsoluteConstraints(190, 60, 68, 90));
 
         jButton4.setBackground(new java.awt.Color(44, 117, 255));
         jButton4.setForeground(new java.awt.Color(255, 255, 255));
@@ -265,7 +276,7 @@ public class V_Inventario extends javax.swing.JPanel {
                 jButton4ActionPerformed(evt);
             }
         });
-        add(jButton4, new org.netbeans.lib.awtextra.AbsoluteConstraints(240, 56, 68, 90));
+        add(jButton4, new org.netbeans.lib.awtextra.AbsoluteConstraints(260, 60, 68, 90));
 
         jButton5.setBackground(new java.awt.Color(44, 117, 255));
         jButton5.setForeground(new java.awt.Color(255, 255, 255));
@@ -279,7 +290,7 @@ public class V_Inventario extends javax.swing.JPanel {
                 jButton5ActionPerformed(evt);
             }
         });
-        add(jButton5, new org.netbeans.lib.awtextra.AbsoluteConstraints(326, 56, 68, 90));
+        add(jButton5, new org.netbeans.lib.awtextra.AbsoluteConstraints(370, 60, 68, 90));
 
         jPanel1.setBackground(new java.awt.Color(44, 117, 255));
         jPanel1.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255)));
@@ -318,13 +329,28 @@ public class V_Inventario extends javax.swing.JPanel {
         });
 
         jButton8.setText("1 Mes");
+        jButton8.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton8ActionPerformed(evt);
+            }
+        });
 
         jButton6.setText("1 Año");
+        jButton6.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton6ActionPerformed(evt);
+            }
+        });
 
         jLabel4.setForeground(new java.awt.Color(255, 255, 255));
         jLabel4.setText("Vence en:");
 
         jButton9.setText("Ver");
+        jButton9.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jButton9MouseClicked(evt);
+            }
+        });
         jButton9.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton9ActionPerformed(evt);
@@ -335,6 +361,21 @@ public class V_Inventario extends javax.swing.JPanel {
         jButton10.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton10ActionPerformed(evt);
+            }
+        });
+
+        fecha_txt.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
+        fecha_txt.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.DateFormatter(new java.text.SimpleDateFormat("dd/MM/yyyy"))));
+        fecha_txt.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        fecha_txt.setToolTipText("Ingrese fecha con formato \"dd/MM/yyyy\" y presione Enter para consultar.");
+        fecha_txt.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                fecha_txtActionPerformed(evt);
+            }
+        });
+        fecha_txt.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                fecha_txtKeyReleased(evt);
             }
         });
 
@@ -365,9 +406,10 @@ public class V_Inventario extends javax.swing.JPanel {
                                 .addComponent(jButton6, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addGap(0, 0, Short.MAX_VALUE)))))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(jButton9, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton10, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jButton10, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(fecha_txt))
                 .addContainerGap(11, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
@@ -376,27 +418,27 @@ public class V_Inventario extends javax.swing.JPanel {
                 .addContainerGap()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel2)
-                            .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jButton10, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGap(26, 26, 26)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jComboBox2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jLabel3)
-                            .addComponent(jButton9, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jButton6, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jButton7, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jButton8, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel4))
-                        .addGap(0, 4, Short.MAX_VALUE))))
+                            .addComponent(jButton9, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jLabel2)
+                        .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jButton10, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jButton6, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jButton7, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jButton8, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jLabel4))
+                    .addComponent(fecha_txt, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(0, 4, Short.MAX_VALUE))
         );
 
-        add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(459, 60, 380, 90));
+        add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(460, 60, 380, 90));
 
         jLabel5.setForeground(new java.awt.Color(255, 255, 255));
         jLabel5.setText("Buscar Por:");
@@ -404,6 +446,7 @@ public class V_Inventario extends javax.swing.JPanel {
 
         add(jComboBox3, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 570, 160, -1));
 
+        jTextField1.setToolTipText("<html>Para efectuar la busqueda debe presionar Enter. <br>El filtro se restablecera al presionar Enter si la casilla esta vacia.</br></html>");
         jTextField1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jTextField1ActionPerformed(evt);
@@ -425,6 +468,12 @@ public class V_Inventario extends javax.swing.JPanel {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 jLabel6MouseClicked(evt);
             }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                jLabel6MouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                jLabel6MouseExited(evt);
+            }
         });
         add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(430, 570, 107, 26));
 
@@ -436,6 +485,12 @@ public class V_Inventario extends javax.swing.JPanel {
         jLabel7.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 jLabel7MouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                jLabel7MouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                jLabel7MouseExited(evt);
             }
         });
         add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(550, 570, 63, 26));
@@ -450,6 +505,7 @@ public class V_Inventario extends javax.swing.JPanel {
         });
         add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(800, 570, -1, -1));
 
+        jLabel9.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         jLabel9.setForeground(new java.awt.Color(255, 255, 255));
         jLabel9.setText("Modo: Cuadricula");
         add(jLabel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(640, 570, -1, 30));
@@ -457,6 +513,24 @@ public class V_Inventario extends javax.swing.JPanel {
         icono_carga.setIcon(new javax.swing.ImageIcon(getClass().getResource("/gifs/spinner1-r.gif"))); // NOI18N
         icono_carga.setVisible(false);
         add(icono_carga, new org.netbeans.lib.awtextra.AbsoluteConstraints(750, 570, 32, 32));
+
+        lista_tabla.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {},
+                {},
+                {},
+                {}
+            },
+            new String [] {
+
+            }
+        ));
+        lista_tabla.setToolTipText("Doble Click Para Ver el Producto.");
+        lista_tabla.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        lista_tabla.setVisible(false);
+        jScrollPane2.setViewportView(lista_tabla);
+
+        add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 160, 830, 400));
     }// </editor-fold>//GEN-END:initComponents
 
     private void contenedorMouseMoved(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_contenedorMouseMoved
@@ -469,11 +543,12 @@ public class V_Inventario extends javax.swing.JPanel {
         
          V_Producto form = new V_Producto();
          if (Modo=="Cuadricula"){
-            form.setOnProductoEditado(() -> cargarItems_Cuadricula());
+            form.setOnProductoEditado(() -> Modo_Cuadricula());
          }
          if (Modo=="Lista"){
          
-              //form.setOnProductoEditado(() -> cargarItems_Cuadricula());
+              form.setOnProductoEditado(() -> Modo_Lista());
+              
          
          }
          
@@ -488,6 +563,99 @@ public class V_Inventario extends javax.swing.JPanel {
         
         
     }//GEN-LAST:event_jButton1ActionPerformed
+
+    
+    
+    public void Filtrar_Lista_Fecha(
+    int secuencialEmpresa,
+    String fechaTexto, // formato dd/MM/yyyy
+    JTable tabla,
+    EntityManager entityManager
+) {
+    icono_carga.setVisible(true);
+
+    String jpql = "SELECT p FROM Producto p " +
+                  "WHERE p.Secuencial_Empresa = :empresa " +
+                  "AND p.Fecha_Caducidad = :fecha";
+
+    TypedQuery<Producto> query = entityManager.createQuery(jpql, Producto.class);
+    query.setParameter("empresa", secuencialEmpresa);
+    query.setParameter("fecha", fechaTexto); // debe coincidir con el formato en BD
+
+    List<Producto> productos = query.getResultList();
+
+    DefaultTableModel modelo = new DefaultTableModel(new Object[]{
+        "S", "Código", "Descripción", "Marca", "Existencia", "E. mínima",
+        "C. Barra", "C. Fabricante", "F. Vencimiento", "P. Costo", "P. Venta"
+    }, 0) {
+        @Override
+        public boolean isCellEditable(int row, int column) {
+            return false;
+        }
+    };
+
+    for (Producto producto : productos) {
+        modelo.addRow(new Object[]{
+            producto.getSecuencial(),
+            producto.getCodigo(),
+            producto.getDescripcion(),
+            producto.getMarca(),
+            producto.getCantidad(),
+            producto.getExistencia_Minima(),
+            producto.getCodigo_Barra(),
+            producto.getCodigo_Fabricante(),
+            producto.getFecha_Caducidad(),
+            producto.getPrecio_Costo(),
+            producto.getPrecio_Venta()
+        });
+    }
+
+    tabla.setModel(modelo);
+    tabla.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+    // Eliminar listeners previos para evitar duplicación
+    for (MouseListener ml : tabla.getMouseListeners()) {
+        tabla.removeMouseListener(ml);
+    }
+
+    // Agregar evento de clic y doble clic
+    tabla.addMouseListener(new MouseAdapter() {
+        @Override
+        public void mousePressed(MouseEvent e) {
+            if (SwingUtilities.isLeftMouseButton(e)) {
+                int fila = tabla.rowAtPoint(e.getPoint());
+                if (fila != -1) {
+                    tabla.setRowSelectionInterval(fila, fila);
+                }
+            }
+        }
+
+        @Override
+        public void mouseClicked(MouseEvent e) {
+            if (e.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(e)) {
+                int fila = tabla.rowAtPoint(e.getPoint());
+                if (fila != -1) {
+                    tabla.setRowSelectionInterval(fila, fila);
+
+                    String codigo = tabla.getValueAt(fila, 1).toString();
+                    Producto productoSeleccionado = productos.stream()
+                        .filter(p -> p.getCodigo().equals(codigo))
+                        .findFirst()
+                        .orElse(null);
+
+                    if (productoSeleccionado != null) {
+                    V_Producto form = new V_Producto(false, productoSeleccionado);
+                    form.setOnProductoEditado(() -> cargarItems_Cuadricula());
+                    form.setVisible(true);
+                }
+                    
+                }
+            }
+        }
+    });
+
+    icono_carga.setVisible(false);
+}
 
     
     
@@ -521,11 +689,19 @@ public class V_Inventario extends javax.swing.JPanel {
         Miniatura_Producto miniatura = new Miniatura_Producto(producto, false);
         miniatura.setPreferredSize(new Dimension(120, 170));
 
-        miniatura.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                // Evento click
-            }
+       
+         miniatura.addMouseListener(new MouseAdapter() {
+    @Override
+    public void mouseClicked(MouseEvent e) {
+        if (e.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(e)) {
+            // Evento doble clic izquierdo
+            Producto productoSeleccionado = miniatura.producto;
+            
+            // Aquí puedes abrir un diálogo, mostrar detalles, o iniciar edición
+            
+        }
+    }
+        
 
             @Override
             public void mousePressed(MouseEvent e) {
@@ -570,7 +746,15 @@ public class V_Inventario extends javax.swing.JPanel {
     
     
     public void Modo_Cuadricula(){
-    
+     jLabel9.setText("Modo: Cuadricula");
+            jScrollPane2.setVisible(false);
+            lista_tabla.setVisible(false);
+            
+            jScrollPane1.setVisible(true);
+            contenedor.setVisible(true);
+        //kardex_lista.setVisible(false);
+      
+        
       Modo="Cuadricula";
         jComboBox3.removeAllItems();
         jComboBox3.addItem("Codigo");
@@ -580,22 +764,66 @@ public class V_Inventario extends javax.swing.JPanel {
         jComboBox3.addItem("Fecha_Caducidad");
         jComboBox3.addItem("Marca");
         jComboBox3.setSelectedIndex(0);
-        jLabel9.setText("Modo: Cuadricula");
+        
         jButton5.setVisible(true);
         jPanel1.setVisible(true);
         cargarItems_Cuadricula();
-        
+       
     }
     
     
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
 
+         
     Modo_Cuadricula();
 
         // TODO add your handling code here:
     }//GEN-LAST:event_jButton2ActionPerformed
 
+    
+    
+    public void Modo_Lista(){
+     jLabel9.setText("Modo: Lista");
+          
+        contenedor.setVisible(false);
+        //kardex_lista.setVisible(false);
+         jScrollPane2.setVisible(true);
+         jScrollPane1.setVisible(false);   
+        lista_tabla.setVisible(true);
+       
+        Modo="Lista";
+        
+          jComboBox3.removeAllItems();
+        jComboBox3.addItem("Codigo");
+        jComboBox3.addItem("Codigo_Barra");
+        jComboBox3.addItem("Codigo_Fabricante");
+        jComboBox3.addItem("Descripcion");
+        jComboBox3.addItem("Fecha_Caducidad");
+        jComboBox3.addItem("Marca");
+        jComboBox3.setSelectedIndex(0);
+        jLabel9.setText("Modo: Lista");
+        jButton5.setVisible(true);
+        jPanel1.setVisible(true);
+        
+           EntityManagerFactory emf = null;
+        EntityManager em = null;
+
+         emf = Persistence.createEntityManagerFactory("MonituxPU");
+            em = emf.createEntityManager();
+            
+            cargar_Items_Lista(Secuencial_Empresa,lista_tabla);
+            
+
+    
+    }
+    
+    
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+
+       
+        
+        Modo_Lista();
+
         // TODO add your handling code here:
     }//GEN-LAST:event_jButton3ActionPerformed
 
@@ -620,7 +848,7 @@ public class V_Inventario extends javax.swing.JPanel {
         
         if (Modo=="Lista"){
          
-            
+            Filtrar_Servicios_Lista(Secuencial_Empresa,lista_tabla,em);
            
         }
         
@@ -649,6 +877,8 @@ public class V_Inventario extends javax.swing.JPanel {
               break;
               
             case "Lista":
+                
+                Modo_Lista();
                 
                 break;
                 
@@ -846,7 +1076,7 @@ public class V_Inventario extends javax.swing.JPanel {
                     }
 
                     case "Lista":
-                        // lógica para modo Lista
+                        cargar_ItemsFiltrados_Lista(Secuencial_Empresa, jComboBox3, jTextField1, lista_tabla, em);
                         break;
 
                     case "Kardex":
@@ -940,7 +1170,12 @@ SwingWorker<Void, Void> worker = new SwingWorker<>() {
                 }
 
                 case "Lista":
-                    // lógica para modo Lista
+                    
+                     String seleccionado = jComboBox1.getSelectedItem().toString();
+                    int secuencialProveedor = Integer.parseInt(seleccionado.split("-")[0].trim());
+
+                    Filtrar_Lista_Proveedor(Secuencial_Empresa, secuencialProveedor, lista_tabla, em);
+                 
                     break;
 
                 case "Kardex":
@@ -999,7 +1234,12 @@ SwingWorker<Void, Void> worker = new SwingWorker<>() {
                 }
 
                 case "Lista":
-                    // lógica para modo Lista
+                    
+                     String seleccionado = jComboBox2.getSelectedItem().toString();
+                    int secuencialCategoria = Integer.parseInt(seleccionado.split("-")[0].trim());
+
+                    Filtrar_Lista_Categoria(Secuencial_Empresa, secuencialCategoria, lista_tabla, em);
+                    
                     break;
 
                 case "Kardex":
@@ -1039,130 +1279,174 @@ worker.execute();
     private void jLabel6MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel6MouseClicked
 
        
-        
-        switch (Modo){
-        
-        
-            case "Cuadricula":
-                
-                
-       icono_carga.setVisible(true);
+        switch (Modo) {
+    case "Cuadricula":
+        icono_carga.setVisible(true);
 
-SwingWorker<Void, Void> worker = new SwingWorker<>() {
-    @Override
-    protected Void doInBackground() {
-        EntityManagerFactory emf = null;
-        EntityManager em = null;
+        new SwingWorker<Void, Void>() {
+            @Override
+            protected Void doInBackground() {
+                EntityManagerFactory emf = null;
+                EntityManager em = null;
 
-        try {
-            emf = Persistence.createEntityManagerFactory("MonituxPU");
-            em = emf.createEntityManager();
+                try {
+                    emf = Persistence.createEntityManagerFactory("MonituxPU");
+                    em = emf.createEntityManager();
 
-            Filtrar_Existencia_Minima_Cuadricula(Secuencial_Empresa, contenedor, em);
+                    Filtrar_Existencia_Minima_Cuadricula(Secuencial_Empresa, contenedor, em);
 
-        } catch (Exception ex) {
-            SwingUtilities.invokeLater(() ->
-                JOptionPane.showMessageDialog(null, "Error al cargar productos: " + ex.getMessage())
-            );
-        } finally {
-            if (em != null) em.close();
-            if (emf != null) emf.close();
-        }
+                } catch (Exception ex) {
+                    SwingUtilities.invokeLater(() ->
+                        JOptionPane.showMessageDialog(null, "Error al cargar productos: " + ex.getMessage())
+                    );
+                } finally {
+                    if (em != null) em.close();
+                    if (emf != null) emf.close();
+                }
 
-        return null;
-    }
+                return null;
+            }
 
-    @Override
-    protected void done() {
-        icono_carga.setVisible(false);
-    }
-};
+            @Override
+            protected void done() {
+                icono_carga.setVisible(false);
+            }
+        }.execute();
 
-worker.execute();
-     
-                break;
-                
-            case "Lista":
-                
-                break;
-                
-                
-            case "Kardex":
-            
-            break;
-                
-            default:
-                break;
-        
-        
-        }
-        
+        break;
+
+    case "Lista":
+        icono_carga.setVisible(true);
+
+        new SwingWorker<Void, Void>() {
+            @Override
+            protected Void doInBackground() {
+                EntityManagerFactory emf = null;
+                EntityManager em = null;
+
+                try {
+                    emf = Persistence.createEntityManagerFactory("MonituxPU");
+                    em = emf.createEntityManager();
+
+                    Filtrar_Existencia_Minima_Lista(Secuencial_Empresa, lista_tabla, em);
+
+                } catch (Exception ex) {
+                    SwingUtilities.invokeLater(() ->
+                        JOptionPane.showMessageDialog(null, "Error al cargar productos: " + ex.getMessage())
+                    );
+                } finally {
+                    if (em != null) em.close();
+                    if (emf != null) emf.close();
+                }
+
+                return null;
+            }
+
+            @Override
+            protected void done() {
+                icono_carga.setVisible(false);
+            }
+        }.execute();
+
+        break;
+
+    case "Kardex":
+        // Implementación futura
+        break;
+
+    default:
+        // Modo desconocido
+        break;
+}
+
+   
         // TODO add your handling code here:
     }//GEN-LAST:event_jLabel6MouseClicked
 
     private void jLabel7MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel7MouseClicked
 
+      switch (Modo) {
+    case "Cuadricula":
+        icono_carga.setVisible(true);
+
+        new SwingWorker<Void, Void>() {
+            @Override
+            protected Void doInBackground() {
+                EntityManagerFactory emf = null;
+                EntityManager em = null;
+
+                try {
+                    emf = Persistence.createEntityManagerFactory("MonituxPU");
+                    em = emf.createEntityManager();
+
+                    Filtrar_Agotados_Cuadricula(Secuencial_Empresa, contenedor, em);
+
+                } catch (Exception ex) {
+                    SwingUtilities.invokeLater(() ->
+                        JOptionPane.showMessageDialog(null, "Error al cargar productos: " + ex.getMessage())
+                    );
+                } finally {
+                    if (em != null) em.close();
+                    if (emf != null) emf.close();
+                }
+
+                return null;
+            }
+
+            @Override
+            protected void done() {
+                icono_carga.setVisible(false);
+            }
+        }.execute();
+
+        break;
+
+    case "Lista":
+        icono_carga.setVisible(true);
+
+        new SwingWorker<Void, Void>() {
+            @Override
+            protected Void doInBackground() {
+                EntityManagerFactory emf = null;
+                EntityManager em = null;
+
+                try {
+                    emf = Persistence.createEntityManagerFactory("MonituxPU");
+                    em = emf.createEntityManager();
+
+                    Filtrar_Agotados_Lista(Secuencial_Empresa, lista_tabla, em);
+
+                } catch (Exception ex) {
+                    SwingUtilities.invokeLater(() ->
+                        JOptionPane.showMessageDialog(null, "Error al cargar productos: " + ex.getMessage())
+                    );
+                } finally {
+                    if (em != null) em.close();
+                    if (emf != null) emf.close();
+                }
+
+                return null;
+            }
+
+            @Override
+            protected void done() {
+                icono_carga.setVisible(false);
+            }
+        }.execute();
+
+        break;
+
+    case "Kardex":
+        // Implementación futura
+        break;
+
+    default:
+        // Modo desconocido
+        break;
+}
+
         
-        
-        
-        switch (Modo){
-        
-        
-            case "Cuadricula":
-                
-                
-       icono_carga.setVisible(true);
 
-SwingWorker<Void, Void> worker = new SwingWorker<>() {
-    @Override
-    protected Void doInBackground() {
-        EntityManagerFactory emf = null;
-        EntityManager em = null;
-
-        try {
-            emf = Persistence.createEntityManagerFactory("MonituxPU");
-            em = emf.createEntityManager();
-
-            Filtrar_Agotados_Cuadricula(Secuencial_Empresa, contenedor, em);
-
-        } catch (Exception ex) {
-            SwingUtilities.invokeLater(() ->
-                JOptionPane.showMessageDialog(null, "Error al cargar productos: " + ex.getMessage())
-            );
-        } finally {
-            if (em != null) em.close();
-            if (emf != null) emf.close();
-        }
-
-        return null;
-    }
-
-    @Override
-    protected void done() {
-        icono_carga.setVisible(false);
-    }
-};
-
-worker.execute();
-     
-                break;
-                
-            case "Lista":
-                
-                break;
-                
-                
-            case "Kardex":
-            
-            break;
-                
-            default:
-                break;
-        
-        
-        }
-
-        // TODO add your handling code here:
     }//GEN-LAST:event_jLabel7MouseClicked
 
     private void jButton7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton7ActionPerformed
@@ -1176,15 +1460,7 @@ worker.execute();
          emf = Persistence.createEntityManagerFactory("MonituxPU");
             em = emf.createEntityManager();
 
-        
-        
-        switch (Modo){
-            
-            
-            case "Cuadricula":
-                
-        
-        
+             
         LocalDate hoy = LocalDate.now();
 
 // Sumar 7 días
@@ -1194,15 +1470,25 @@ LocalDate fechaMas7 = hoy.plusDays(7);
 DateTimeFormatter formato = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 String fechaTexto = fechaMas7.format(formato);
 
-// Usar como parámetro en el método de filtrado
-Filtrar_Fecha_Cuadricula(Secuencial_Empresa, fechaTexto, contenedor, em);
+
         
+        switch (Modo){
+            
+            
+            case "Cuadricula":
                 
-                
+        
+   // Usar como parámetro en el método de filtrado
+Filtrar_Fecha_Cuadricula(Secuencial_Empresa, fechaTexto, contenedor, em);
+      
                 break;
                 
             case "Lista":
                 
+                
+Filtrar_Lista_Fecha(Secuencial_Empresa, fechaTexto, lista_tabla, em);
+                
+             
                 break;
                 
             default:
@@ -1215,6 +1501,221 @@ Filtrar_Fecha_Cuadricula(Secuencial_Empresa, fechaTexto, contenedor, em);
 
 // TODO add your handling code here:
     }//GEN-LAST:event_jButton7ActionPerformed
+
+    private void jButton8ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton8ActionPerformed
+
+
+
+        
+        
+                
+                 EntityManagerFactory emf = null;
+        EntityManager em = null;
+
+        
+         emf = Persistence.createEntityManagerFactory("MonituxPU");
+            em = emf.createEntityManager();
+
+        
+              
+        
+        LocalDate hoy = LocalDate.now();
+
+// Sumar 7 días
+LocalDate fechaMas1mes = hoy.plusMonths(1);
+
+// Formatear como dd/MM/yyyy
+DateTimeFormatter formato = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+String fechaTexto = fechaMas1mes.format(formato);
+
+            
+            
+        
+        switch (Modo){
+            
+            
+            case "Cuadricula":
+                
+      
+// Usar como parámetro en el método de filtrado
+Filtrar_Fecha_Cuadricula(Secuencial_Empresa, fechaTexto, contenedor, em);
+        
+                
+                
+                break;
+                
+            case "Lista":
+                
+                Filtrar_Lista_Fecha(Secuencial_Empresa, fechaTexto,lista_tabla, em);
+        
+                break;
+                
+            default:
+                
+                break;
+                
+        
+        }
+        
+
+        
+        
+        
+
+
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButton8ActionPerformed
+
+    private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
+
+
+
+        
+        
+                
+                 EntityManagerFactory emf = null;
+        EntityManager em = null;
+
+        
+         emf = Persistence.createEntityManagerFactory("MonituxPU");
+            em = emf.createEntityManager();
+
+             
+        LocalDate hoy = LocalDate.now();
+
+// Sumar 7 días
+LocalDate fechaMas1year = hoy.plusYears(1);
+
+// Formatear como dd/MM/yyyy
+DateTimeFormatter formato = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+String fechaTexto = fechaMas1year.format(formato);
+
+        
+        switch (Modo){
+            
+            
+            case "Cuadricula":
+                
+        
+   
+// Usar como parámetro en el método de filtrado
+Filtrar_Fecha_Cuadricula(Secuencial_Empresa, fechaTexto, contenedor, em);
+        
+                
+                
+                break;
+                
+            case "Lista":
+                
+                
+                // Usar como parámetro en el método de filtrado
+Filtrar_Lista_Fecha(Secuencial_Empresa, fechaTexto, lista_tabla, em);
+        
+       
+                break;
+                
+            default:
+                
+                break;
+                
+        
+        }
+        
+
+        
+        
+        
+
+
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButton6ActionPerformed
+
+    private void fecha_txtKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_fecha_txtKeyReleased
+
+      if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
+    String fechaTexto = fecha_txt.getText().trim();
+
+    icono_carga.setVisible(true); // Mostrar animación antes de iniciar el trabajo
+
+    new SwingWorker<Void, Void>() {
+        @Override
+        protected Void doInBackground() {
+            Date fechaValidada;
+
+            try {
+                SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+                sdf.setLenient(false);
+                fechaValidada = sdf.parse(fechaTexto);
+            } catch (ParseException ex) {
+                SwingUtilities.invokeLater(() -> {
+                    JOptionPane.showMessageDialog(null, "Formato de fecha inválido. Usa dd/MM/yyyy.", "Error", JOptionPane.ERROR_MESSAGE);
+                    icono_carga.setVisible(false); // Ocultar animación si hay error
+                });
+                return null;
+            }
+
+            EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
+            EntityManager em = emf.createEntityManager();
+
+            switch (Modo) {
+                case "Cuadricula":
+                    Filtrar_Fecha_Cuadricula(Secuencial_Empresa, fechaTexto, contenedor, em);
+                    break;
+                case "Lista":
+                     Filtrar_Lista_Fecha(Secuencial_Empresa, fechaTexto, lista_tabla, em);
+                    break;
+                default:
+                    break;
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void done() {
+            icono_carga.setVisible(false); // Ocultar animación al terminar
+        }
+    }.execute();
+}
+
+        
+        // TODO add your handling code here:
+    }//GEN-LAST:event_fecha_txtKeyReleased
+
+    private void fecha_txtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fecha_txtActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_fecha_txtActionPerformed
+
+    private void jLabel6MouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel6MouseEntered
+
+         jLabel6.setText("<html><u>Existencia Minima</u></html>");
+      
+
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jLabel6MouseEntered
+
+    private void jLabel6MouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel6MouseExited
+
+         jLabel6.setText("<html>Existencia Minima</html>");
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jLabel6MouseExited
+
+    private void jLabel7MouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel7MouseEntered
+
+
+         jLabel7.setText("<html><u>Agotados</u></html>");
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jLabel7MouseEntered
+
+    private void jLabel7MouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel7MouseExited
+
+        jLabel7.setText("<html>Agotados</html>");
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jLabel7MouseExited
+
+    private void jButton9MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton9MouseClicked
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButton9MouseClicked
 
  
 public void cargarItems_Cuadricula(int secuencialEmpresa, JPanel contenedor, EntityManager entityManager) {
@@ -1242,25 +1743,18 @@ public void cargarItems_Cuadricula(int secuencialEmpresa, JPanel contenedor, Ent
 
         
       
-        miniatura.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                SelectorCantidad selector = selectoresCantidad.computeIfAbsent(
-                    producto.getCodigo(),
-                    codigo -> {
-                        SelectorCantidad nuevo = new SelectorCantidad(codigo,0);
-                        nuevo.setCantidad(0);
-                        
-                        return nuevo;
-                    }
-                );
-
-                if (!listaDeItems.containsKey(producto.getCodigo())) {
-                    listaDeItems.put(producto.getCodigo(), miniatura);
-                    
-                } 
-
-            }
+        
+            miniatura.addMouseListener(new MouseAdapter() {
+    @Override
+    public void mouseClicked(MouseEvent e) {
+        if (e.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(e)) {
+            // Evento doble clic izquierdo
+            Producto productoSeleccionado = miniatura.producto;
+            
+            // Aquí puedes abrir un diálogo, mostrar detalles, o iniciar edición
+            
+        }
+    }
         });
         
         
@@ -1308,6 +1802,312 @@ if (miniatura.cargarComentario()!=null){
 
 
 
+//***********
+
+
+public void Filtrar_Existencia_Minima_Lista(
+    int secuencialEmpresa,
+    JTable tabla,
+    EntityManager entityManager
+) {
+    icono_carga.setVisible(true);
+
+    String jpql = "SELECT p FROM Producto p " +
+                  "WHERE p.Secuencial_Empresa = :empresa " +
+                  "AND p.Cantidad = p.Existencia_Minima " +
+                  "AND p.Tipo <> 'Servicio'";
+
+    TypedQuery<Producto> query = entityManager.createQuery(jpql, Producto.class);
+    query.setParameter("empresa", secuencialEmpresa);
+
+    List<Producto> productos = query.getResultList();
+
+    DefaultTableModel modelo = new DefaultTableModel(new Object[]{
+        "S", "Código", "Descripción", "Marca", "Existencia", "E. mínima",
+        "C. Barra", "C. Fabricante", "F. Vencimiento", "P. Costo", "P. Venta"
+    }, 0) {
+        @Override
+        public boolean isCellEditable(int row, int column) {
+            return false;
+        }
+    };
+
+    for (Producto producto : productos) {
+        modelo.addRow(new Object[]{
+            producto.getSecuencial(),
+            producto.getCodigo(),
+            producto.getDescripcion(),
+            producto.getMarca(),
+            producto.getCantidad(),
+            producto.getExistencia_Minima(),
+            producto.getCodigo_Barra(),
+            producto.getCodigo_Fabricante(),
+            producto.getFecha_Caducidad(),
+            producto.getPrecio_Costo(),
+            producto.getPrecio_Venta()
+        });
+    }
+
+    tabla.setModel(modelo);
+    tabla.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+    
+    // Eliminar listeners previos para evitar duplicación
+for (MouseListener ml : tabla.getMouseListeners()) {
+    tabla.removeMouseListener(ml);
+}
+
+// Agregar solo uno
+tabla.addMouseListener(new MouseAdapter() {
+    @Override
+    public void mousePressed(MouseEvent e) {
+        if (SwingUtilities.isLeftMouseButton(e)) {
+            int fila = tabla.rowAtPoint(e.getPoint());
+            if (fila != -1) {
+                tabla.setRowSelectionInterval(fila, fila); // 🔹 Selección visual
+            }
+        }
+    }
+
+    @Override
+    public void mouseClicked(MouseEvent e) {
+        if (e.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(e)) {
+            int fila = tabla.rowAtPoint(e.getPoint());
+            if (fila != -1) {
+                tabla.setRowSelectionInterval(fila, fila); // Asegura selección en doble clic
+
+                String codigo = tabla.getValueAt(fila, 1).toString();
+                Producto productoSeleccionado = productos.stream()
+                    .filter(p -> p.getCodigo().equals(codigo))
+                    .findFirst()
+                    .orElse(null);
+
+                if (productoSeleccionado != null) {
+                    V_Producto form = new V_Producto(false, productoSeleccionado);
+                    form.setOnProductoEditado(() -> cargarItems_Cuadricula());
+                    form.setVisible(true);
+                }
+            }
+        }
+    }
+});
+
+    icono_carga.setVisible(false);
+}
+
+
+//***********
+
+
+
+public void Filtrar_Agotados_Lista(
+    int secuencialEmpresa,
+    JTable tabla,
+    EntityManager entityManager
+) {
+    icono_carga.setVisible(true);
+
+    String jpql = "SELECT p FROM Producto p " +
+                  "WHERE p.Secuencial_Empresa = :empresa " +
+                  "AND p.Cantidad < p.Existencia_Minima " +
+                  "AND p.Tipo <> 'Servicio'";
+
+    TypedQuery<Producto> query = entityManager.createQuery(jpql, Producto.class);
+    query.setParameter("empresa", secuencialEmpresa);
+
+    List<Producto> productos = query.getResultList();
+
+    DefaultTableModel modelo = new DefaultTableModel(new Object[]{
+        "S", "Código", "Descripción", "Marca", "Existencia", "E. mínima",
+        "C. Barra", "C. Fabricante", "F. Vencimiento", "P. Costo", "P. Venta"
+    }, 0) {
+        @Override
+        public boolean isCellEditable(int row, int column) {
+            return false;
+        }
+    };
+
+    for (Producto producto : productos) {
+        modelo.addRow(new Object[]{
+            producto.getSecuencial(),
+            producto.getCodigo(),
+            producto.getDescripcion(),
+            producto.getMarca(),
+            producto.getCantidad(),
+            producto.getExistencia_Minima(),
+            producto.getCodigo_Barra(),
+            producto.getCodigo_Fabricante(),
+            producto.getFecha_Caducidad(),
+            producto.getPrecio_Costo(),
+            producto.getPrecio_Venta()
+        });
+    }
+
+    tabla.setModel(modelo);
+    tabla.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+     
+    // Eliminar listeners previos para evitar duplicación
+for (MouseListener ml : tabla.getMouseListeners()) {
+    tabla.removeMouseListener(ml);
+}
+
+// Agregar solo uno
+tabla.addMouseListener(new MouseAdapter() {
+    @Override
+    public void mousePressed(MouseEvent e) {
+        if (SwingUtilities.isLeftMouseButton(e)) {
+            int fila = tabla.rowAtPoint(e.getPoint());
+            if (fila != -1) {
+                tabla.setRowSelectionInterval(fila, fila); // 🔹 Selección visual
+            }
+        }
+    }
+
+    @Override
+    public void mouseClicked(MouseEvent e) {
+        if (e.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(e)) {
+            int fila = tabla.rowAtPoint(e.getPoint());
+            if (fila != -1) {
+                tabla.setRowSelectionInterval(fila, fila); // Asegura selección en doble clic
+
+                String codigo = tabla.getValueAt(fila, 1).toString();
+                Producto productoSeleccionado = productos.stream()
+                    .filter(p -> p.getCodigo().equals(codigo))
+                    .findFirst()
+                    .orElse(null);
+
+                if (productoSeleccionado != null) {
+                    V_Producto form = new V_Producto(false, productoSeleccionado);
+                    form.setOnProductoEditado(() -> cargarItems_Cuadricula());
+                    form.setVisible(true);
+                }
+            }
+        }
+    }
+});
+
+
+
+
+    icono_carga.setVisible(false);
+}
+
+
+
+
+
+public void cargar_ItemsFiltrados_Lista(
+    int secuencialEmpresa,
+    JComboBox<String> comboFiltro,
+    JTextField campoValorFiltro,
+    JTable tabla,
+    EntityManager entityManager
+) {
+    icono_carga.setVisible(true);
+
+    String campoFiltro = (String) comboFiltro.getSelectedItem();
+    String valorFiltro = campoValorFiltro.getText();
+
+    boolean aplicarFiltro = campoFiltro != null && !campoFiltro.trim().isEmpty()
+                         && valorFiltro != null && !valorFiltro.trim().isEmpty();
+
+    String jpql = "SELECT p FROM Producto p WHERE p.Secuencial_Empresa = :empresa"
+                + (aplicarFiltro ? " AND LOWER(p." + campoFiltro + ") LIKE :valorFiltro" : "");
+
+    TypedQuery<Producto> query = entityManager.createQuery(jpql, Producto.class);
+    query.setParameter("empresa", secuencialEmpresa);
+    if (aplicarFiltro) {
+        query.setParameter("valorFiltro", "%" + valorFiltro.toLowerCase() + "%");
+    }
+
+    List<Producto> productos = query.getResultList();
+
+    DefaultTableModel modelo = new DefaultTableModel(new Object[]{
+        "S", "Código", "Descripción", "Marca", "Existencia", "E. mínima",
+        "C. Barra", "C. Fabricante", "F. Vencimiento", "P. Costo", "P. Venta"
+    }, 0) {
+        @Override
+        public boolean isCellEditable(int row, int column) {
+            return false;
+        }
+    };
+
+    for (Producto producto : productos) {
+        modelo.addRow(new Object[]{
+            producto.getSecuencial(),
+            producto.getCodigo(),
+            producto.getDescripcion(),
+            producto.getMarca(),
+            producto.getCantidad(),
+            producto.getExistencia_Minima(),
+            producto.getCodigo_Barra(),
+            producto.getCodigo_Fabricante(),
+            producto.getFecha_Caducidad(),
+            producto.getPrecio_Costo(),
+            producto.getPrecio_Venta()
+        });
+    }
+
+    tabla.setModel(modelo);
+    tabla.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+   
+    // Eliminar listeners previos para evitar duplicación
+for (MouseListener ml : tabla.getMouseListeners()) {
+    tabla.removeMouseListener(ml);
+}
+
+// Agregar solo uno
+tabla.addMouseListener(new MouseAdapter() {
+    @Override
+    public void mousePressed(MouseEvent e) {
+        if (SwingUtilities.isLeftMouseButton(e)) {
+            int fila = tabla.rowAtPoint(e.getPoint());
+            if (fila != -1) {
+                tabla.setRowSelectionInterval(fila, fila); // 🔹 Selección visual
+            }
+        }
+    }
+
+    @Override
+    public void mouseClicked(MouseEvent e) {
+        if (e.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(e)) {
+            int fila = tabla.rowAtPoint(e.getPoint());
+            if (fila != -1) {
+                tabla.setRowSelectionInterval(fila, fila); // Asegura selección en doble clic
+
+                String codigo = tabla.getValueAt(fila, 1).toString();
+                Producto productoSeleccionado = productos.stream()
+                    .filter(p -> p.getCodigo().equals(codigo))
+                    .findFirst()
+                    .orElse(null);
+
+                if (productoSeleccionado != null) {
+                    V_Producto form = new V_Producto(false, productoSeleccionado);
+                    form.setOnProductoEditado(() -> cargarItems_Cuadricula());
+                    form.setVisible(true);
+                }
+            }
+        }
+    }
+});
+
+    
+    
+    
+    icono_carga.setVisible(false);
+}
+
+
+
+
+
+
+
+
+
+
 public void cargarItemsFiltrados_Cuadricula(
     int secuencialEmpresa,
     JComboBox<String> comboFiltro,
@@ -1351,12 +2151,16 @@ public void cargarItemsFiltrados_Cuadricula(
         miniatura.setPreferredSize(new Dimension(120, 170)); // Tamaño fijo
 
         miniatura.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-               
-                //Evento Click
-              
-            }
+    @Override
+    public void mouseClicked(MouseEvent e) {
+        if (e.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(e)) {
+            // Evento doble clic izquierdo
+            Producto productoSeleccionado = miniatura.producto;
+            
+            // Aquí puedes abrir un diálogo, mostrar detalles, o iniciar edición
+            
+        }
+    }
 
             @Override
             public void mousePressed(MouseEvent e) {
@@ -1422,12 +2226,22 @@ public void Filtrar_Cuadricula_Proveedor(
         Miniatura_Producto miniatura = new Miniatura_Producto(producto, false);
         miniatura.setPreferredSize(new Dimension(120, 170));
 
-        miniatura.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                // Evento click
-            }
-
+       
+         miniatura.addMouseListener(new MouseAdapter() {
+    @Override
+    public void mouseClicked(MouseEvent e) {
+        if (e.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(e)) {
+            // Evento doble clic izquierdo
+            Producto productoSeleccionado = miniatura.producto;
+            
+            
+            //Aqui el codigo para abrir Kardex
+            
+            
+            
+        }
+    }
+        
             @Override
             public void mousePressed(MouseEvent e) {
                 if (e.isPopupTrigger()) {
@@ -1466,6 +2280,103 @@ public void Filtrar_Cuadricula_Proveedor(
 
 
 //************************************
+
+
+public void Filtrar_Lista_Proveedor(
+    int secuencialEmpresa,
+    int secuencialProveedor,
+    JTable tabla,
+    EntityManager entityManager
+) {
+    icono_carga.setVisible(true);
+
+    String jpql = "SELECT p FROM Producto p " +
+                  "WHERE p.Secuencial_Empresa = :empresa " +
+                  "AND p.Secuencial_Proveedor = :proveedor";
+
+    TypedQuery<Producto> query = entityManager.createQuery(jpql, Producto.class);
+    query.setParameter("empresa", secuencialEmpresa);
+    query.setParameter("proveedor", secuencialProveedor);
+
+    List<Producto> productos = query.getResultList();
+
+    DefaultTableModel modelo = new DefaultTableModel(new Object[]{
+        "S", "Código", "Descripción", "Marca", "Existencia", "E. mínima",
+        "C. Barra", "C. Fabricante", "F. Vencimiento", "P. Costo", "P. Venta"
+    }, 0) {
+        @Override
+        public boolean isCellEditable(int row, int column) {
+            return false;
+        }
+    };
+
+    for (Producto producto : productos) {
+        modelo.addRow(new Object[]{
+            producto.getSecuencial(),
+            producto.getCodigo(),
+            producto.getDescripcion(),
+            producto.getMarca(),
+            producto.getCantidad(),
+            producto.getExistencia_Minima(),
+            producto.getCodigo_Barra(),
+            producto.getCodigo_Fabricante(),
+            producto.getFecha_Caducidad(),
+            producto.getPrecio_Costo(),
+            producto.getPrecio_Venta()
+        });
+    }
+
+    tabla.setModel(modelo);
+    tabla.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+    // Eliminar listeners previos para evitar duplicación
+    for (MouseListener ml : tabla.getMouseListeners()) {
+        tabla.removeMouseListener(ml);
+    }
+
+    // Agregar evento de clic y doble clic
+    tabla.addMouseListener(new MouseAdapter() {
+        @Override
+        public void mousePressed(MouseEvent e) {
+            if (SwingUtilities.isLeftMouseButton(e)) {
+                int fila = tabla.rowAtPoint(e.getPoint());
+                if (fila != -1) {
+                    tabla.setRowSelectionInterval(fila, fila);
+                }
+            }
+        }
+
+        @Override
+        public void mouseClicked(MouseEvent e) {
+            if (e.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(e)) {
+                int fila = tabla.rowAtPoint(e.getPoint());
+                if (fila != -1) {
+                    tabla.setRowSelectionInterval(fila, fila);
+
+                    String codigo = tabla.getValueAt(fila, 1).toString();
+                    Producto productoSeleccionado = productos.stream()
+                        .filter(p -> p.getCodigo().equals(codigo))
+                        .findFirst()
+                        .orElse(null);
+
+                     if (productoSeleccionado != null) {
+                    V_Producto form = new V_Producto(false, productoSeleccionado);
+                    form.setOnProductoEditado(() -> cargarItems_Cuadricula());
+                    form.setVisible(true);
+                }
+                }
+            }
+        }
+    });
+
+    icono_carga.setVisible(false);
+}
+
+
+
+
+//*****************************
+
 
 public void Filtrar_Existencia_Minima_Cuadricula(
     int secuencialEmpresa,
@@ -1496,10 +2407,16 @@ public void Filtrar_Existencia_Minima_Cuadricula(
         miniatura.setPreferredSize(new Dimension(120, 170));
 
         miniatura.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                // Evento click
-            }
+    @Override
+    public void mouseClicked(MouseEvent e) {
+        if (e.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(e)) {
+            // Evento doble clic izquierdo
+            Producto productoSeleccionado = miniatura.producto;
+            
+          //Aqui el codigo para abrir Kardex
+            
+        }
+    }
 
             @Override
             public void mousePressed(MouseEvent e) {
@@ -1540,6 +2457,11 @@ public void Filtrar_Existencia_Minima_Cuadricula(
 //************************************
 
 
+
+
+
+
+
 public void Filtrar_Servicios_Cuadricula(
     int secuencialEmpresa,
     JPanel contenedor,
@@ -1567,11 +2489,27 @@ public void Filtrar_Servicios_Cuadricula(
         Miniatura_Producto miniatura = new Miniatura_Producto(producto, false);
         miniatura.setPreferredSize(new Dimension(120, 170));
 
+        
+      
+        
+        
         miniatura.addMouseListener(new MouseAdapter() {
             @Override
-            public void mouseClicked(MouseEvent e) {
-                // Evento click
-            }
+    public void mouseClicked(MouseEvent e) {
+        if (e.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(e)) {
+            // Evento doble clic izquierdo
+            Producto productoSeleccionado = miniatura.producto;
+            
+           
+             if (productoSeleccionado != null) {
+                    V_Producto form = new V_Producto(false, productoSeleccionado);
+                    form.setOnProductoEditado(() -> cargarItems_Cuadricula());
+                    form.setVisible(true);
+                }
+            
+            
+        }
+    }
 
             @Override
             public void mousePressed(MouseEvent e) {
@@ -1612,7 +2550,106 @@ public void Filtrar_Servicios_Cuadricula(
 
 
 
+
+
+
+
+
+
 //*************************************
+
+
+
+
+public void Filtrar_Servicios_Lista(
+    int secuencialEmpresa,
+    JTable tabla,
+    EntityManager entityManager
+) {
+    icono_carga.setVisible(true);
+
+    String jpql = "SELECT p FROM Producto p " +
+                  "WHERE p.Secuencial_Empresa = :empresa " +
+                  "AND p.Tipo = 'Servicio'";
+
+    TypedQuery<Producto> query = entityManager.createQuery(jpql, Producto.class);
+    query.setParameter("empresa", secuencialEmpresa);
+
+    List<Producto> productos = query.getResultList();
+
+    DefaultTableModel modelo = new DefaultTableModel(new Object[]{
+        "S", "Código", "Descripción", "Marca", "Existencia", "E. mínima",
+        "C. Barra", "C. Fabricante", "F. Vencimiento", "P. Costo", "P. Venta"
+    }, 0) {
+        @Override
+        public boolean isCellEditable(int row, int column) {
+            return false;
+        }
+    };
+
+    for (Producto producto : productos) {
+        modelo.addRow(new Object[]{
+            producto.getSecuencial(),
+            producto.getCodigo(),
+            producto.getDescripcion(),
+            producto.getMarca(),
+            producto.getCantidad(),
+            producto.getExistencia_Minima(),
+            producto.getCodigo_Barra(),
+            producto.getCodigo_Fabricante(),
+            producto.getFecha_Caducidad(),
+            producto.getPrecio_Costo(),
+            producto.getPrecio_Venta()
+        });
+    }
+
+    tabla.setModel(modelo);
+    tabla.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+ 
+    // Eliminar listeners previos para evitar duplicación
+for (MouseListener ml : tabla.getMouseListeners()) {
+    tabla.removeMouseListener(ml);
+}
+
+// Agregar solo uno
+tabla.addMouseListener(new MouseAdapter() {
+    @Override
+    public void mousePressed(MouseEvent e) {
+        if (SwingUtilities.isLeftMouseButton(e)) {
+            int fila = tabla.rowAtPoint(e.getPoint());
+            if (fila != -1) {
+                tabla.setRowSelectionInterval(fila, fila); // 🔹 Selección visual
+            }
+        }
+    }
+
+    @Override
+    public void mouseClicked(MouseEvent e) {
+        if (e.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(e)) {
+            int fila = tabla.rowAtPoint(e.getPoint());
+            if (fila != -1) {
+                tabla.setRowSelectionInterval(fila, fila); // Asegura selección en doble clic
+
+                String codigo = tabla.getValueAt(fila, 1).toString();
+                Producto productoSeleccionado = productos.stream()
+                    .filter(p -> p.getCodigo().equals(codigo))
+                    .findFirst()
+                    .orElse(null);
+
+                if (productoSeleccionado != null) {
+                    V_Producto form = new V_Producto(false, productoSeleccionado);
+                    form.setOnProductoEditado(() -> cargarItems_Cuadricula());
+                    form.setVisible(true);
+                }
+            }
+        }
+    }
+});
+
+
+    icono_carga.setVisible(false);
+}
+
 
 public void Filtrar_Agotados_Cuadricula(
     int secuencialEmpresa,
@@ -1643,10 +2680,16 @@ public void Filtrar_Agotados_Cuadricula(
         miniatura.setPreferredSize(new Dimension(120, 170));
 
         miniatura.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                // Evento click
-            }
+    @Override
+    public void mouseClicked(MouseEvent e) {
+        if (e.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(e)) {
+            // Evento doble clic izquierdo
+            Producto productoSeleccionado = miniatura.producto;
+            
+            //Aqui el codigo para abrir Kardex
+            
+        }
+    }
 
             @Override
             public void mousePressed(MouseEvent e) {
@@ -1683,6 +2726,95 @@ public void Filtrar_Agotados_Cuadricula(
     icono_carga.setVisible(false);
 }
 
+public void Filtrar_Lista_Categoria(
+    int secuencialEmpresa,
+    int secuencialCategoria,
+    JTable tabla,
+    EntityManager entityManager
+) {
+    icono_carga.setVisible(true);
+
+    String jpql = "SELECT p FROM Producto p " +
+                  "WHERE p.Secuencial_Empresa = :empresa " +
+                  "AND p.Secuencial_Categoria = :categoria";
+
+    TypedQuery<Producto> query = entityManager.createQuery(jpql, Producto.class);
+    query.setParameter("empresa", secuencialEmpresa);
+    query.setParameter("categoria", secuencialCategoria);
+
+    List<Producto> productos = query.getResultList();
+
+    DefaultTableModel modelo = new DefaultTableModel(new Object[]{
+        "S", "Código", "Descripción", "Marca", "Existencia", "E. mínima",
+        "C. Barra", "C. Fabricante", "F. Vencimiento", "P. Costo", "P. Venta"
+    }, 0) {
+        @Override
+        public boolean isCellEditable(int row, int column) {
+            return false;
+        }
+    };
+
+    for (Producto producto : productos) {
+        modelo.addRow(new Object[]{
+            producto.getSecuencial(),
+            producto.getCodigo(),
+            producto.getDescripcion(),
+            producto.getMarca(),
+            producto.getCantidad(),
+            producto.getExistencia_Minima(),
+            producto.getCodigo_Barra(),
+            producto.getCodigo_Fabricante(),
+            producto.getFecha_Caducidad(),
+            producto.getPrecio_Costo(),
+            producto.getPrecio_Venta()
+        });
+    }
+
+    tabla.setModel(modelo);
+    tabla.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+    // Eliminar listeners previos para evitar duplicación
+    for (MouseListener ml : tabla.getMouseListeners()) {
+        tabla.removeMouseListener(ml);
+    }
+
+    // Agregar evento de clic y doble clic
+    tabla.addMouseListener(new MouseAdapter() {
+        @Override
+        public void mousePressed(MouseEvent e) {
+            if (SwingUtilities.isLeftMouseButton(e)) {
+                int fila = tabla.rowAtPoint(e.getPoint());
+                if (fila != -1) {
+                    tabla.setRowSelectionInterval(fila, fila);
+                }
+            }
+        }
+
+        @Override
+        public void mouseClicked(MouseEvent e) {
+            if (e.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(e)) {
+                int fila = tabla.rowAtPoint(e.getPoint());
+                if (fila != -1) {
+                    tabla.setRowSelectionInterval(fila, fila);
+
+                    String codigo = tabla.getValueAt(fila, 1).toString();
+                    Producto productoSeleccionado = productos.stream()
+                        .filter(p -> p.getCodigo().equals(codigo))
+                        .findFirst()
+                        .orElse(null);
+
+                     if (productoSeleccionado != null) {
+                    V_Producto form = new V_Producto(false, productoSeleccionado);
+                    form.setOnProductoEditado(() -> cargarItems_Cuadricula());
+                    form.setVisible(true);
+                }
+                }
+            }
+        }
+    });
+
+    icono_carga.setVisible(false);
+}
 
 
 
@@ -1713,11 +2845,19 @@ public void Filtrar_Cuadricula_Categoria(
         Miniatura_Producto miniatura = new Miniatura_Producto(producto, false);
         miniatura.setPreferredSize(new Dimension(120, 170));
 
-        miniatura.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                // Evento click
-            }
+       
+         miniatura.addMouseListener(new MouseAdapter() {
+    @Override
+    public void mouseClicked(MouseEvent e) {
+        if (e.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(e)) {
+            // Evento doble clic izquierdo
+            Producto productoSeleccionado = miniatura.producto;
+            
+            //Aqui el codigo para abrir Kardex
+           
+        }
+    }
+        
 
             @Override
             public void mousePressed(MouseEvent e) {
@@ -1785,13 +2925,22 @@ public void cargar_Items_Cuadricula(int secuencialEmpresa, JPanel contenedor, En
         Miniatura_Producto miniatura = new Miniatura_Producto(producto, false);
         miniatura.setPreferredSize(new Dimension(120, 170)); // Tamaño fijo para cada miniatura
 
+       
         miniatura.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-               
-                //Evento Click
-                
-            }
+    @Override
+    public void mouseClicked(MouseEvent e) {
+        if (e.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(e)) {
+            // Evento doble clic izquierdo
+            Producto productoSeleccionado = miniatura.producto;
+            
+            if (!"Servicio".equals(productoSeleccionado.getTipo())){
+            JOptionPane.showMessageDialog(null, "Doble Click");
+            }            
+// Aquí puedes abrir un diálogo, mostrar detalles, o iniciar edición
+            
+        }
+    }
+        
 
             @Override
             public void mousePressed(MouseEvent e) {
@@ -1836,6 +2985,120 @@ public void cargar_Items_Cuadricula(int secuencialEmpresa, JPanel contenedor, En
 
 
 
+public void cargar_Items_Lista(int secuencialEmpresa, JTable tabla) {
+    icono_carga.setVisible(true);
+
+    new SwingWorker<List<Producto>, Void>() {
+        @Override
+        protected List<Producto> doInBackground() {
+            EntityManagerFactory emf = null;
+            EntityManager em = null;
+            List<Producto> productos = new ArrayList<>();
+
+            try {
+                emf = Persistence.createEntityManagerFactory("MonituxPU");
+                em = emf.createEntityManager();
+
+                productos = em.createQuery(
+                    "SELECT p FROM Producto p WHERE p.Secuencial_Empresa = :empresa", Producto.class)
+                    .setParameter("empresa", secuencialEmpresa)
+                    .getResultList();
+
+            } catch (Exception ex) {
+                SwingUtilities.invokeLater(() ->
+                    JOptionPane.showMessageDialog(null, "Error al cargar productos: " + ex.getMessage())
+                );
+            } finally {
+                if (em != null) em.close();
+                if (emf != null) emf.close();
+            }
+
+            return productos;
+        }
+
+        @Override
+        protected void done() {
+            try {
+                List<Producto> productos = get();
+
+                DefaultTableModel modelo = new DefaultTableModel(new Object[]{
+                    "S", "Código", "Descripción", "Marca", "Existencia", "E. mínima",
+                    "C. Barra", "C. Fabricante", "F. Vencimiento", "P. Costo", "P. Venta"
+                }, 0) {
+                    @Override
+                    public boolean isCellEditable(int row, int column) {
+                        return false;
+                    }
+                };
+
+                for (Producto producto : productos) {
+                    modelo.addRow(new Object[]{
+                        producto.getSecuencial(),
+                        producto.getCodigo(),
+                        producto.getDescripcion(),
+                        producto.getMarca(),
+                        producto.getCantidad(),
+                        producto.getExistencia_Minima(),
+                        producto.getCodigo_Barra(),
+                        producto.getCodigo_Fabricante(),
+                        producto.getFecha_Caducidad(),
+                        producto.getPrecio_Costo(),
+                        producto.getPrecio_Venta()
+                    });
+                }
+
+                tabla.setModel(modelo);
+                tabla.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+                for (MouseListener ml : tabla.getMouseListeners()) {
+                    tabla.removeMouseListener(ml);
+                }
+
+tabla.addMouseListener(new MouseAdapter() {
+    @Override
+    public void mousePressed(MouseEvent e) {
+        if (SwingUtilities.isLeftMouseButton(e)) {
+            int fila = tabla.rowAtPoint(e.getPoint());
+            if (fila != -1) {
+                tabla.setRowSelectionInterval(fila, fila); // 🔹 Selección visual
+            }
+        }
+    }
+
+    @Override
+    public void mouseClicked(MouseEvent e) {
+        if (e.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(e)) {
+            int fila = tabla.rowAtPoint(e.getPoint());
+            if (fila != -1) {
+                tabla.setRowSelectionInterval(fila, fila); // Asegura selección en doble clic
+
+                String codigo = tabla.getValueAt(fila, 1).toString();
+                Producto productoSeleccionado = productos.stream()
+                    .filter(p -> p.getCodigo().equals(codigo))
+                    .findFirst()
+                    .orElse(null);
+
+                if (productoSeleccionado != null) {
+                    V_Producto form = new V_Producto(false, productoSeleccionado);
+                    form.setOnProductoEditado(() -> cargarItems_Cuadricula());
+                    form.setVisible(true);
+                }
+            }
+        }
+    }
+});             
+
+
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(null, "Error al procesar productos: " + ex.getMessage());
+            } finally {
+                icono_carga.setVisible(false);
+            }
+        }
+    }.execute();
+}
+
+
 
 public void cargar_ItemsFiltrados_Cuadricula( //este es el original
     int secuencialEmpresa,
@@ -1876,12 +3139,17 @@ public void cargar_ItemsFiltrados_Cuadricula( //este es el original
 
         Miniatura_Producto miniatura = new Miniatura_Producto(producto,false);
 
-        miniatura.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-               
-                //Evento Click
-            }
+       miniatura.addMouseListener(new MouseAdapter() {
+    @Override
+    public void mouseClicked(MouseEvent e) {
+        if (e.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(e)) {
+            // Evento doble clic izquierdo
+            Producto productoSeleccionado = miniatura.producto;
+            
+            // Aquí puedes abrir un diálogo, mostrar detalles, o iniciar edición
+            
+        }
+    }
 
             @Override
             public void mousePressed(MouseEvent e) {
@@ -1946,6 +3214,7 @@ public void cargar_ItemsFiltrados_Cuadricula( //este es el original
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel contenedor;
+    private javax.swing.JFormattedTextField fecha_txt;
     public javax.swing.JLabel icono_carga;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton10;
@@ -1981,8 +3250,10 @@ public void cargar_ItemsFiltrados_Cuadricula( //este es el original
     private javax.swing.JMenuItem jMenuItem8;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JPopupMenu.Separator jSeparator1;
     private javax.swing.JTextField jTextField1;
+    private javax.swing.JTable lista_tabla;
     private javax.swing.JPopupMenu menu_contextual;
     // End of variables declaration//GEN-END:variables
 }
