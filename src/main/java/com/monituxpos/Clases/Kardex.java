@@ -1,130 +1,90 @@
 package com.monituxpos.Clases;
+
 import jakarta.persistence.*;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 
 @Entity
 @Table(name = "Kardex")
-public class Kardex{
+public class Kardex {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int Secuencial;
+    @Column(name = "Secuencial")
+    private int secuencial;
 
-    private String Fecha = LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+    @Column(name = "Fecha")
+    private String fecha; // formato dd/MM/yyyy
 
-    @Column(name = "Secuencial_Producto")
-    private int Secuencial_Producto;
+    @Column(name = "Secuencial_Producto", insertable = false, updatable = false)
+    private int secuencialProducto;
 
-    private String Descripcion;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "Secuencial_Producto")
+    private Producto producto;
 
-    private double Cantidad = 0;
-    private double Costo = 0;
-    private double Costo_Total = 0;
-    private double Venta = 0;
-    private double Venta_Total = 0;
-    private double Saldo = 0;
+    @Column(name = "Descripcion")
+    private String descripcion;
 
-    private String Movimiento;
+    @Column(name = "Cantidad")
+    private double cantidad;
+
+    @Column(name = "Costo")
+    private double costo;
+
+    @Column(name = "Costo_Total")
+    private double costoTotal;
+
+    @Column(name = "Venta")
+    private double venta;
+
+    @Column(name = "Venta_Total")
+    private double ventaTotal;
+
+    @Column(name = "Saldo")
+    private double saldo;
+
+    @Column(name = "Movimiento")
+    private String movimiento;
 
     @Column(name = "Secuencial_Empresa")
-    private int Secuencial_Empresa;
+    private int secuencialEmpresa;
 
-    public int getSecuencial() {
-        return Secuencial;
-    }
+    // Getters y setters
+    public int getSecuencial() { return secuencial; }
+    public void setSecuencial(int secuencial) { this.secuencial = secuencial; }
 
-    public void setSecuencial(int Secuencial) {
-        this.Secuencial = Secuencial;
-    }
+    public String getFecha() { return fecha; }
+    public void setFecha(String fecha) { this.fecha = fecha; }
 
-    public String getFecha() {
-        return Fecha;
-    }
+    public int getSecuencialProducto() { return secuencialProducto; }
+    public void setSecuencialProducto(int secuencialProducto) { this.secuencialProducto = secuencialProducto; }
 
-    public void setFecha(String Fecha) {
-        this.Fecha = Fecha;
-    }
+    public Producto getProducto() { return producto; }
+    public void setProducto(Producto producto) { this.producto = producto; }
 
-    public int getSecuencial_Producto() {
-        return Secuencial_Producto;
-    }
+    public String getDescripcion() { return descripcion; }
+    public void setDescripcion(String descripcion) { this.descripcion = descripcion; }
 
-    public void setSecuencial_Producto(int Secuencial_Producto) {
-        this.Secuencial_Producto = Secuencial_Producto;
-    }
+    public double getCantidad() { return cantidad; }
+    public void setCantidad(double cantidad) { this.cantidad = cantidad; }
 
-    public String getDescripcion() {
-        return Descripcion;
-    }
+    public double getCosto() { return costo; }
+    public void setCosto(double costo) { this.costo = costo; }
 
-    public void setDescripcion(String Descripcion) {
-        this.Descripcion = Descripcion;
-    }
+    public double getCostoTotal() { return costoTotal; }
+    public void setCostoTotal(double costoTotal) { this.costoTotal = costoTotal; }
 
-    public double getCantidad() {
-        return Cantidad;
-    }
+    public double getVenta() { return venta; }
+    public void setVenta(double venta) { this.venta = venta; }
 
-    public void setCantidad(double Cantidad) {
-        this.Cantidad = Cantidad;
-    }
+    public double getVentaTotal() { return ventaTotal; }
+    public void setVentaTotal(double ventaTotal) { this.ventaTotal = ventaTotal; }
 
-    public double getCosto() {
-        return Costo;
-    }
+    public double getSaldo() { return saldo; }
+    public void setSaldo(double saldo) { this.saldo = saldo; }
 
-    public void setCosto(double Costo) {
-        this.Costo = Costo;
-    }
+    public String getMovimiento() { return movimiento; }
+    public void setMovimiento(String movimiento) { this.movimiento = movimiento; }
 
-    public double getCosto_Total() {
-        return Costo_Total;
-    }
-
-    public void setCosto_Total(double Costo_Total) {
-        this.Costo_Total = Costo_Total;
-    }
-
-    public double getVenta() {
-        return Venta;
-    }
-
-    public void setVenta(double venta) {
-        this.Venta = venta;
-    }
-
-    public double getVenta_Total() {
-        return Venta_Total;
-    }
-
-    public void setVenta_Total(double Venta_Total) {
-        this.Venta_Total = Venta_Total;
-    }
-
-    public double getSaldo() {
-        return Saldo;
-    }
-
-    public void setSaldo(double Saldo) {
-        this.Saldo = Saldo;
-    }
-
-    public String getMovimiento() {
-        return Movimiento;
-    }
-
-    public void setMovimiento(String Movimiento) {
-        this.Movimiento = Movimiento;
-    }
-
-    public int getSecuencial_Empresa() {
-        return Secuencial_Empresa;
-    }
-
-    public void setSecuencial_Empresa(int Secuencial_Empresa) {
-        this.Secuencial_Empresa = Secuencial_Empresa;
-    }
-
-  
+    public int getSecuencialEmpresa() { return secuencialEmpresa; }
+    public void setSecuencialEmpresa(int secuencialEmpresa) { this.secuencialEmpresa = secuencialEmpresa; }
 }

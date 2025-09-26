@@ -4,6 +4,7 @@
  */
 package com.monituxpos.Ventanas;
 
+import com.monituxpos.Clases.Kardex;
 import com.monituxpos.Clases.Miniatura_Producto;
 import com.monituxpos.Clases.Producto;
 import com.monituxpos.Clases.SelectorCantidad;
@@ -31,10 +32,13 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JComboBox;
@@ -98,6 +102,9 @@ public class V_Inventario extends javax.swing.JPanel {
         jButton3 = new javax.swing.JButton();
         jButton4 = new javax.swing.JButton();
         jButton5 = new javax.swing.JButton();
+        jLabel5 = new javax.swing.JLabel();
+        jComboBox3 = new javax.swing.JComboBox<>();
+        jTextField1 = new javax.swing.JTextField();
         jPanel1 = new javax.swing.JPanel();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
@@ -110,16 +117,25 @@ public class V_Inventario extends javax.swing.JPanel {
         jButton9 = new javax.swing.JButton();
         jButton10 = new javax.swing.JButton();
         fecha_txt = new javax.swing.JFormattedTextField();
-        jLabel5 = new javax.swing.JLabel();
-        jComboBox3 = new javax.swing.JComboBox<>();
-        jTextField1 = new javax.swing.JTextField();
         jLabel6 = new javax.swing.JLabel();
         jLabel7 = new javax.swing.JLabel();
+        jPanel2 = new javax.swing.JPanel();
+        jLabel10 = new javax.swing.JLabel();
+        jLabel11 = new javax.swing.JLabel();
+        jLabel12 = new javax.swing.JLabel();
+        jTextField2 = new javax.swing.JTextField();
+        jLabel13 = new javax.swing.JLabel();
+        jComboBox4 = new javax.swing.JComboBox<>();
+        jButton11 = new javax.swing.JButton();
+        jTextField3 = new javax.swing.JTextField();
+        jTextField4 = new javax.swing.JTextField();
         jLabel8 = new javax.swing.JLabel();
         jLabel9 = new javax.swing.JLabel();
         icono_carga = new javax.swing.JLabel();
         jScrollPane2 = new javax.swing.JScrollPane();
         lista_tabla = new javax.swing.JTable();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        kardex_tabla = new javax.swing.JTable();
 
         jMenu1.setText("Imagen");
 
@@ -196,7 +212,7 @@ public class V_Inventario extends javax.swing.JPanel {
 
         setBackground(new java.awt.Color(44, 117, 255));
         setPreferredSize(new java.awt.Dimension(847, 609));
-        setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+        setLayout(null);
 
         jLabel1.setBackground(new java.awt.Color(0, 0, 0));
         jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
@@ -204,7 +220,8 @@ public class V_Inventario extends javax.swing.JPanel {
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel1.setText("Inventario");
         jLabel1.setOpaque(true);
-        add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 860, 50));
+        add(jLabel1);
+        jLabel1.setBounds(0, 0, 860, 50);
 
         jScrollPane1.setBackground(new java.awt.Color(35, 32, 40));
         jScrollPane1.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
@@ -220,7 +237,8 @@ public class V_Inventario extends javax.swing.JPanel {
         contenedor.setLayout(new java.awt.GridBagLayout());
         jScrollPane1.setViewportView(contenedor);
 
-        add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(6, 162, 840, 400));
+        add(jScrollPane1);
+        jScrollPane1.setBounds(6, 162, 840, 390);
 
         jButton1.setBackground(new java.awt.Color(44, 117, 255));
         jButton1.setForeground(new java.awt.Color(255, 255, 255));
@@ -234,7 +252,8 @@ public class V_Inventario extends javax.swing.JPanel {
                 jButton1ActionPerformed(evt);
             }
         });
-        add(jButton1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 60, 68, 90));
+        add(jButton1);
+        jButton1.setBounds(10, 60, 68, 90);
 
         jButton2.setBackground(new java.awt.Color(44, 117, 255));
         jButton2.setForeground(new java.awt.Color(255, 255, 255));
@@ -248,7 +267,8 @@ public class V_Inventario extends javax.swing.JPanel {
                 jButton2ActionPerformed(evt);
             }
         });
-        add(jButton2, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 60, 68, 90));
+        add(jButton2);
+        jButton2.setBounds(120, 60, 68, 90);
 
         jButton3.setBackground(new java.awt.Color(44, 117, 255));
         jButton3.setForeground(new java.awt.Color(255, 255, 255));
@@ -262,7 +282,8 @@ public class V_Inventario extends javax.swing.JPanel {
                 jButton3ActionPerformed(evt);
             }
         });
-        add(jButton3, new org.netbeans.lib.awtextra.AbsoluteConstraints(190, 60, 68, 90));
+        add(jButton3);
+        jButton3.setBounds(190, 60, 68, 90);
 
         jButton4.setBackground(new java.awt.Color(44, 117, 255));
         jButton4.setForeground(new java.awt.Color(255, 255, 255));
@@ -276,7 +297,8 @@ public class V_Inventario extends javax.swing.JPanel {
                 jButton4ActionPerformed(evt);
             }
         });
-        add(jButton4, new org.netbeans.lib.awtextra.AbsoluteConstraints(260, 60, 68, 90));
+        add(jButton4);
+        jButton4.setBounds(260, 60, 68, 90);
 
         jButton5.setBackground(new java.awt.Color(44, 117, 255));
         jButton5.setForeground(new java.awt.Color(255, 255, 255));
@@ -290,7 +312,30 @@ public class V_Inventario extends javax.swing.JPanel {
                 jButton5ActionPerformed(evt);
             }
         });
-        add(jButton5, new org.netbeans.lib.awtextra.AbsoluteConstraints(370, 60, 68, 90));
+        add(jButton5);
+        jButton5.setBounds(350, 60, 68, 90);
+
+        jLabel5.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel5.setText("Buscar Por:");
+        add(jLabel5);
+        jLabel5.setBounds(20, 570, 70, 20);
+
+        add(jComboBox3);
+        jComboBox3.setBounds(100, 570, 130, 26);
+
+        jTextField1.setToolTipText("<html>Para efectuar la busqueda debe presionar Enter. <br>El filtro se restablecera al presionar Enter si la casilla esta vacia.</br></html>");
+        jTextField1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jTextField1ActionPerformed(evt);
+            }
+        });
+        jTextField1.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                jTextField1KeyReleased(evt);
+            }
+        });
+        add(jTextField1);
+        jTextField1.setBounds(240, 570, 120, 26);
 
         jPanel1.setBackground(new java.awt.Color(44, 117, 255));
         jPanel1.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255)));
@@ -438,26 +483,8 @@ public class V_Inventario extends javax.swing.JPanel {
                 .addGap(0, 4, Short.MAX_VALUE))
         );
 
-        add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(460, 60, 380, 90));
-
-        jLabel5.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel5.setText("Buscar Por:");
-        add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 570, -1, 20));
-
-        add(jComboBox3, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 570, 160, -1));
-
-        jTextField1.setToolTipText("<html>Para efectuar la busqueda debe presionar Enter. <br>El filtro se restablecera al presionar Enter si la casilla esta vacia.</br></html>");
-        jTextField1.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jTextField1ActionPerformed(evt);
-            }
-        });
-        jTextField1.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyReleased(java.awt.event.KeyEvent evt) {
-                jTextField1KeyReleased(evt);
-            }
-        });
-        add(jTextField1, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 570, 120, -1));
+        add(jPanel1);
+        jPanel1.setBounds(460, 60, 380, 90);
 
         jLabel6.setBackground(new java.awt.Color(35, 32, 45));
         jLabel6.setForeground(new java.awt.Color(255, 255, 0));
@@ -475,7 +502,8 @@ public class V_Inventario extends javax.swing.JPanel {
                 jLabel6MouseExited(evt);
             }
         });
-        add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(430, 570, 107, 26));
+        add(jLabel6);
+        jLabel6.setBounds(430, 570, 107, 26);
 
         jLabel7.setBackground(new java.awt.Color(35, 32, 45));
         jLabel7.setForeground(new java.awt.Color(255, 0, 0));
@@ -493,7 +521,91 @@ public class V_Inventario extends javax.swing.JPanel {
                 jLabel7MouseExited(evt);
             }
         });
-        add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(550, 570, 63, 26));
+        add(jLabel7);
+        jLabel7.setBounds(550, 570, 63, 26);
+
+        jPanel2.setBackground(new java.awt.Color(44, 117, 255));
+        jPanel2.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255)));
+        jPanel2.setVisible(false);
+
+        jLabel10.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel10.setText("De:");
+
+        jLabel11.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel11.setText("A:");
+
+        jLabel12.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel12.setText("Codigo:");
+
+        jLabel13.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel13.setText("Movimiento:");
+        jLabel13.setToolTipText("");
+
+        jComboBox4.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Entrada", "Salida" }));
+
+        jButton11.setBackground(new java.awt.Color(0, 255, 51));
+        jButton11.setForeground(new java.awt.Color(0, 0, 0));
+        jButton11.setText("Ejecutar");
+        jButton11.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton11ActionPerformed(evt);
+            }
+        });
+
+        jTextField3.setToolTipText("Ingrese fecha con formato \"dd/MM/yyyy\" para consultar.");
+
+        jTextField4.setToolTipText("Ingrese fecha con formato \"dd/MM/yyyy\" para consultar.");
+
+        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
+        jPanel2.setLayout(jPanel2Layout);
+        jPanel2Layout.setHorizontalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jLabel12)
+                    .addComponent(jLabel10))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jLabel13))
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(63, 63, 63)
+                        .addComponent(jLabel11)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jTextField4)
+                    .addComponent(jComboBox4, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jButton11)
+                .addContainerGap(8, Short.MAX_VALUE))
+        );
+        jPanel2Layout.setVerticalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel12)
+                            .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel13)
+                            .addComponent(jComboBox4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel10)
+                            .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel11)
+                            .addComponent(jTextField4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addComponent(jButton11, javax.swing.GroupLayout.PREFERRED_SIZE, 68, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(14, Short.MAX_VALUE))
+        );
+
+        add(jPanel2);
+        jPanel2.setBounds(430, 60, 400, 90);
 
         jLabel8.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/arrow_refresh.png"))); // NOI18N
         jLabel8.setToolTipText("Refrescar Datos.");
@@ -503,16 +615,19 @@ public class V_Inventario extends javax.swing.JPanel {
                 jLabel8MouseClicked(evt);
             }
         });
-        add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(800, 570, -1, -1));
+        add(jLabel8);
+        jLabel8.setBounds(800, 570, 32, 32);
 
         jLabel9.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         jLabel9.setForeground(new java.awt.Color(255, 255, 255));
         jLabel9.setText("Modo: Cuadricula");
-        add(jLabel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(640, 570, -1, 30));
+        add(jLabel9);
+        jLabel9.setBounds(640, 570, 108, 30);
 
         icono_carga.setIcon(new javax.swing.ImageIcon(getClass().getResource("/gifs/spinner1-r.gif"))); // NOI18N
         icono_carga.setVisible(false);
-        add(icono_carga, new org.netbeans.lib.awtextra.AbsoluteConstraints(750, 570, 32, 32));
+        add(icono_carga);
+        icono_carga.setBounds(750, 570, 32, 32);
 
         lista_tabla.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -530,7 +645,24 @@ public class V_Inventario extends javax.swing.JPanel {
         lista_tabla.setVisible(false);
         jScrollPane2.setViewportView(lista_tabla);
 
-        add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 160, 830, 400));
+        add(jScrollPane2);
+        jScrollPane2.setBounds(10, 160, 830, 400);
+
+        kardex_tabla.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {},
+                {},
+                {},
+                {}
+            },
+            new String [] {
+
+            }
+        ));
+        jScrollPane3.setViewportView(kardex_tabla);
+
+        add(jScrollPane3);
+        jScrollPane3.setBounds(10, 160, 830, 400);
     }// </editor-fold>//GEN-END:initComponents
 
     private void contenedorMouseMoved(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_contenedorMouseMoved
@@ -585,7 +717,7 @@ public class V_Inventario extends javax.swing.JPanel {
     List<Producto> productos = query.getResultList();
 
     DefaultTableModel modelo = new DefaultTableModel(new Object[]{
-        "S", "Código", "Descripción", "Marca", "Existencia", "E. mínima",
+        "S", "Codigo", "Descripción", "Marca", "Existencia", "E. mínima",
         "C. Barra", "C. Fabricante", "F. Vencimiento", "P. Costo", "P. Venta"
     }, 0) {
         @Override
@@ -749,10 +881,14 @@ public class V_Inventario extends javax.swing.JPanel {
      jLabel9.setText("Modo: Cuadricula");
             jScrollPane2.setVisible(false);
             lista_tabla.setVisible(false);
-            
+            jScrollPane3.setVisible(false);
             jScrollPane1.setVisible(true);
+            
+        jLabel6.setVisible(true);
+        jLabel7.setVisible(true);
+        
             contenedor.setVisible(true);
-        //kardex_lista.setVisible(false);
+        kardex_tabla.setVisible(false);
       
         
       Modo="Cuadricula";
@@ -767,6 +903,7 @@ public class V_Inventario extends javax.swing.JPanel {
         
         jButton5.setVisible(true);
         jPanel1.setVisible(true);
+        jPanel2.setVisible(false);
         cargarItems_Cuadricula();
        
     }
@@ -786,11 +923,14 @@ public class V_Inventario extends javax.swing.JPanel {
      jLabel9.setText("Modo: Lista");
           
         contenedor.setVisible(false);
-        //kardex_lista.setVisible(false);
+        kardex_tabla.setVisible(false);
+        jScrollPane3.setVisible(false);
          jScrollPane2.setVisible(true);
          jScrollPane1.setVisible(false);   
         lista_tabla.setVisible(true);
-       
+       jLabel6.setVisible(true);
+        jLabel7.setVisible(true);
+        
         Modo="Lista";
         
           jComboBox3.removeAllItems();
@@ -804,7 +944,7 @@ public class V_Inventario extends javax.swing.JPanel {
         jLabel9.setText("Modo: Lista");
         jButton5.setVisible(true);
         jPanel1.setVisible(true);
-        
+        jPanel2.setVisible(false);
            EntityManagerFactory emf = null;
         EntityManager em = null;
 
@@ -827,7 +967,43 @@ public class V_Inventario extends javax.swing.JPanel {
         // TODO add your handling code here:
     }//GEN-LAST:event_jButton3ActionPerformed
 
+    public void Modo_Kardex(){
+    
+        jLabel6.setVisible(false);
+        jLabel7.setVisible(false);
+        jLabel9.setText("Modo: Kardex");
+         jComboBox3.removeAllItems();
+         
+ jComboBox3.addItem("Codigo");
+ jComboBox3.addItem("Descripcion");
+ jComboBox3.addItem("Fecha");
+        
+        jPanel2.setVisible(true);
+        jPanel1.setVisible(false);
+        jButton5.setVisible(false);
+        Modo="Kardex";
+        
+        jScrollPane3.setVisible(true);
+        jScrollPane1.setVisible(false);
+        jScrollPane2.setVisible(false);
+        lista_tabla.setVisible(false);
+        contenedor.setVisible(false);
+        kardex_tabla.setVisible(true);
+        
+        
+        cargar_Items_Kardex(Secuencial_Empresa,kardex_tabla);
+        
+        
+    
+    
+    }
+    
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
+
+        Modo_Kardex();
+        
+        
+        
         // TODO add your handling code here:
     }//GEN-LAST:event_jButton4ActionPerformed
 
@@ -884,6 +1060,7 @@ public class V_Inventario extends javax.swing.JPanel {
                 
                 
             case "Kardex":
+                Modo_Kardex();
                 
                 break;
                 
@@ -1080,7 +1257,10 @@ public class V_Inventario extends javax.swing.JPanel {
                         break;
 
                     case "Kardex":
-                        // lógica para modo Kardex
+                       
+                        cargar_ItemsFiltrados_Kardex(Secuencial_Empresa, jComboBox3, jTextField1, kardex_tabla, em);
+
+
                         break;
 
                     default:
@@ -1717,6 +1897,119 @@ Filtrar_Lista_Fecha(Secuencial_Empresa, fechaTexto, lista_tabla, em);
         // TODO add your handling code here:
     }//GEN-LAST:event_jButton9MouseClicked
 
+    
+    public void filtrarItemsKardexConsulta(
+    String fechaInicioTexto,
+    String fechaFinTexto,
+    String codigo,
+    String movimiento,
+    int secuencialEmpresa,
+    JTable tabla,
+    EntityManager entityManager
+) {
+    icono_carga.setVisible(true);
+
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    LocalDate fechaInicio, fechaFin;
+
+    try {
+        fechaInicio = LocalDate.parse(fechaInicioTexto, formatter);
+        fechaFin = LocalDate.parse(fechaFinTexto, formatter);
+    } catch (DateTimeParseException ex) {
+        JOptionPane.showMessageDialog(null, "Las fechas ingresadas no son válidas.", "Error", JOptionPane.ERROR_MESSAGE);
+        icono_carga.setVisible(false);
+        return;
+    }
+
+    // Consulta base sin filtro de fecha
+    List<Kardex> todos = entityManager.createQuery(
+        "SELECT k FROM Kardex k WHERE k.secuencialEmpresa = :empresa", Kardex.class)
+        .setParameter("empresa", secuencialEmpresa)
+        .getResultList();
+
+    // Filtrar en memoria por fecha, codigo y movimiento
+    List<Kardex> filtrados = todos.stream()
+        .filter(k -> {
+            try {
+                LocalDate fechaKardex = LocalDate.parse(k.getFecha(), formatter);
+                return !fechaKardex.isBefore(fechaInicio) &&
+                       !fechaKardex.isAfter(fechaFin) &&
+                       k.getMovimiento().equalsIgnoreCase(movimiento) &&
+                       k.getProducto() != null &&
+                       k.getProducto().getCodigo().equalsIgnoreCase(codigo);
+            } catch (Exception ex) {
+                return false;
+            }
+        })
+        .collect(Collectors.toList());
+
+    if (filtrados.isEmpty()) {
+        JOptionPane.showMessageDialog(null, "No se encontraron registros que coincidan con los criterios de búsqueda.", "Kardex", JOptionPane.INFORMATION_MESSAGE);
+        icono_carga.setVisible(false);
+        return;
+    } else {
+        JOptionPane.showMessageDialog(null, "Registros obtenidos: " + filtrados.size(), "Kardex", JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    // Crear modelo de tabla
+    DefaultTableModel modelo = new DefaultTableModel(new Object[]{
+        "Secuencial", "Codigo", "Fecha", "Descripción", "Movimiento", "Cantidad",
+        "Costo", "Costo Total", "Venta", "Venta Total", "Saldo", "Secuencial Producto", "Secuencial Empresa"
+    }, 0) {
+        @Override
+        public boolean isCellEditable(int row, int column) {
+            return false;
+        }
+    };
+
+    for (Kardex k : filtrados) {
+        Producto p = k.getProducto();
+        modelo.addRow(new Object[]{
+            k.getSecuencial(),
+            p != null ? p.getCodigo() : "",
+            k.getFecha(),
+            k.getDescripcion(),
+            k.getMovimiento(),
+            k.getCantidad(),
+            Util.redondear(k.getCosto()),
+            Util.redondear(k.getCostoTotal()),
+            Util.redondear(k.getVenta()),
+            Util.redondear(k.getVentaTotal()),
+            Util.redondear(k.getSaldo()),
+            k.getSecuencialProducto(),
+            k.getSecuencialEmpresa()
+        });
+    }
+
+    tabla.setModel(modelo);
+    tabla.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+    icono_carga.setVisible(false);
+}
+
+   
+    
+   
+    
+    
+    private void jButton11ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton11ActionPerformed
+
+      
+        String fechaInicio = jTextField3.getText().trim(); // formato dd/MM/yyyy
+    String fechaFin = jTextField4.getText().trim();
+    String codigo = jTextField2.getText().trim();
+    String movimiento = jComboBox4.getSelectedItem().toString();
+    int empresa = V_Menu_Principal.Secuencial_Empresa; // o como lo tengas definido
+
+    EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
+    EntityManager em = emf.createEntityManager();
+
+    filtrarItemsKardexConsulta(fechaInicio, fechaFin, codigo, movimiento, empresa, kardex_tabla, em);
+
+    em.close();
+    emf.close();
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButton11ActionPerformed
+
  
 public void cargarItems_Cuadricula(int secuencialEmpresa, JPanel contenedor, EntityManager entityManager) {
 
@@ -1823,7 +2116,7 @@ public void Filtrar_Existencia_Minima_Lista(
     List<Producto> productos = query.getResultList();
 
     DefaultTableModel modelo = new DefaultTableModel(new Object[]{
-        "S", "Código", "Descripción", "Marca", "Existencia", "E. mínima",
+        "S", "Codigo", "Descripción", "Marca", "Existencia", "E. mínima",
         "C. Barra", "C. Fabricante", "F. Vencimiento", "P. Costo", "P. Venta"
     }, 0) {
         @Override
@@ -1918,7 +2211,7 @@ public void Filtrar_Agotados_Lista(
     List<Producto> productos = query.getResultList();
 
     DefaultTableModel modelo = new DefaultTableModel(new Object[]{
-        "S", "Código", "Descripción", "Marca", "Existencia", "E. mínima",
+        "S", "Codigo", "Descripción", "Marca", "Existencia", "E. mínima",
         "C. Barra", "C. Fabricante", "F. Vencimiento", "P. Costo", "P. Venta"
     }, 0) {
         @Override
@@ -2024,7 +2317,7 @@ public void cargar_ItemsFiltrados_Lista(
     List<Producto> productos = query.getResultList();
 
     DefaultTableModel modelo = new DefaultTableModel(new Object[]{
-        "S", "Código", "Descripción", "Marca", "Existencia", "E. mínima",
+        "S", "Codigo", "Descripción", "Marca", "Existencia", "E. mínima",
         "C. Barra", "C. Fabricante", "F. Vencimiento", "P. Costo", "P. Venta"
     }, 0) {
         @Override
@@ -2101,6 +2394,119 @@ tabla.addMouseListener(new MouseAdapter() {
 
 
 
+
+public void cargar_ItemsFiltrados_Kardex(
+    int secuencialEmpresa,
+    JComboBox<String> comboFiltro,
+    JTextField campoValorFiltro,
+    JTable tabla,
+    EntityManager entityManager
+) {
+    icono_carga.setVisible(true);
+
+    String campoFiltro = comboFiltro.getSelectedItem().toString().trim();
+    String valorFiltro = campoValorFiltro.getText().trim().toLowerCase();
+
+    boolean aplicarFiltro = !campoFiltro.isEmpty() && !valorFiltro.isEmpty();
+
+    // Campos que pertenecen a Producto
+    Set<String> camposProducto = Set.of("Codigo", "Descripcion", "Marca", "Codigo_Barra", "Codigo_Fabricante");
+
+    String jpql;
+    TypedQuery<Kardex> query;
+
+    if (aplicarFiltro && camposProducto.contains(campoFiltro)) {
+        jpql = "SELECT k FROM Kardex k JOIN FETCH k.producto p " +
+               "WHERE k.secuencialEmpresa = :empresa AND LOWER(p." + campoFiltro + ") LIKE :valorFiltro";
+        query = entityManager.createQuery(jpql, Kardex.class);
+        query.setParameter("empresa", secuencialEmpresa);
+        query.setParameter("valorFiltro", "%" + valorFiltro + "%");
+    } else if (aplicarFiltro) {
+        jpql = "SELECT k FROM Kardex k JOIN FETCH k.producto " +
+               "WHERE k.secuencialEmpresa = :empresa AND LOWER(k." + campoFiltro + ") LIKE :valorFiltro";
+        query = entityManager.createQuery(jpql, Kardex.class);
+        query.setParameter("empresa", secuencialEmpresa);
+        query.setParameter("valorFiltro", "%" + valorFiltro + "%");
+    } else {
+        jpql = "SELECT k FROM Kardex k JOIN FETCH k.producto WHERE k.secuencialEmpresa = :empresa";
+        query = entityManager.createQuery(jpql, Kardex.class);
+        query.setParameter("empresa", secuencialEmpresa);
+    }
+
+    List<Kardex> kardexList = query.getResultList();
+
+    DefaultTableModel modelo = new DefaultTableModel(new Object[]{
+        "S", "Código", "Fecha", "Descripción", "Movimiento", "Cantidad",
+        "Costo", "Costo Total", "Venta", "Venta Total", "Saldo",
+        "Sec. Producto", "Sec. Empresa"
+    }, 0) {
+        @Override
+        public boolean isCellEditable(int row, int column) {
+            return false;
+        }
+    };
+
+    for (Kardex k : kardexList) {
+        Producto p = k.getProducto();
+        modelo.addRow(new Object[]{
+            k.getSecuencial(),
+            p != null ? p.getCodigo() : "",
+            k.getFecha(),
+            k.getDescripcion(),
+            k.getMovimiento(),
+            k.getCantidad(),
+            Util.redondear(k.getCosto()),
+            Util.redondear(k.getCostoTotal()),
+            Util.redondear(k.getVenta()),
+            Util.redondear(k.getVentaTotal()),
+            Util.redondear(k.getSaldo()),
+            k.getSecuencialProducto(),
+            k.getSecuencialEmpresa()
+        });
+    }
+
+    tabla.setModel(modelo);
+    tabla.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+    for (MouseListener ml : tabla.getMouseListeners()) {
+        tabla.removeMouseListener(ml);
+    }
+
+    tabla.addMouseListener(new MouseAdapter() {
+        @Override
+        public void mousePressed(MouseEvent e) {
+            if (SwingUtilities.isLeftMouseButton(e)) {
+                int fila = tabla.rowAtPoint(e.getPoint());
+                if (fila != -1) {
+                    tabla.setRowSelectionInterval(fila, fila);
+                }
+            }
+        }
+
+        @Override
+        public void mouseClicked(MouseEvent e) {
+            if (e.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(e)) {
+                int fila = tabla.rowAtPoint(e.getPoint());
+                if (fila != -1) {
+                    tabla.setRowSelectionInterval(fila, fila);
+
+                    int secuencial = Integer.parseInt(tabla.getValueAt(fila, 0).toString());
+                    Kardex seleccionado = kardexList.stream()
+                        .filter(k -> k.getSecuencial() == secuencial)
+                        .findFirst()
+                        .orElse(null);
+
+                    if (seleccionado != null) {
+                        JOptionPane.showMessageDialog(null, "Doble clic en: " + seleccionado.getDescripcion());
+                        // Aquí puedes abrir un formulario de edición si lo deseas
+                    }
+                }
+            }
+        }
+    });
+
+    icono_carga.setVisible(false);
+}
 
 
 
@@ -2301,7 +2707,7 @@ public void Filtrar_Lista_Proveedor(
     List<Producto> productos = query.getResultList();
 
     DefaultTableModel modelo = new DefaultTableModel(new Object[]{
-        "S", "Código", "Descripción", "Marca", "Existencia", "E. mínima",
+        "S", "Codigo", "Descripción", "Marca", "Existencia", "E. mínima",
         "C. Barra", "C. Fabricante", "F. Vencimiento", "P. Costo", "P. Venta"
     }, 0) {
         @Override
@@ -2578,7 +2984,7 @@ public void Filtrar_Servicios_Lista(
     List<Producto> productos = query.getResultList();
 
     DefaultTableModel modelo = new DefaultTableModel(new Object[]{
-        "S", "Código", "Descripción", "Marca", "Existencia", "E. mínima",
+        "S", "Codigo", "Descripción", "Marca", "Existencia", "E. mínima",
         "C. Barra", "C. Fabricante", "F. Vencimiento", "P. Costo", "P. Venta"
     }, 0) {
         @Override
@@ -2745,7 +3151,7 @@ public void Filtrar_Lista_Categoria(
     List<Producto> productos = query.getResultList();
 
     DefaultTableModel modelo = new DefaultTableModel(new Object[]{
-        "S", "Código", "Descripción", "Marca", "Existencia", "E. mínima",
+        "S", "Codigo", "Descripción", "Marca", "Existencia", "E. mínima",
         "C. Barra", "C. Fabricante", "F. Vencimiento", "P. Costo", "P. Venta"
     }, 0) {
         @Override
@@ -3022,7 +3428,7 @@ public void cargar_Items_Lista(int secuencialEmpresa, JTable tabla) {
                 List<Producto> productos = get();
 
                 DefaultTableModel modelo = new DefaultTableModel(new Object[]{
-                    "S", "Código", "Descripción", "Marca", "Existencia", "E. mínima",
+                    "S", "Codigo", "Descripción", "Marca", "Existencia", "E. mínima",
                     "C. Barra", "C. Fabricante", "F. Vencimiento", "P. Costo", "P. Venta"
                 }, 0) {
                     @Override
@@ -3091,6 +3497,122 @@ tabla.addMouseListener(new MouseAdapter() {
 
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(null, "Error al procesar productos: " + ex.getMessage());
+            } finally {
+                icono_carga.setVisible(false);
+            }
+        }
+    }.execute();
+}
+
+
+public void cargar_Items_Kardex(int secuencialEmpresa, JTable tabla) {
+    icono_carga.setVisible(true);
+
+    new SwingWorker<List<Kardex>, Void>() {
+        @Override
+        protected List<Kardex> doInBackground() {
+            EntityManagerFactory emf = null;
+            EntityManager em = null;
+            List<Kardex> kardexList = new ArrayList<>();
+
+            try {
+                emf = Persistence.createEntityManagerFactory("MonituxPU");
+                em = emf.createEntityManager();
+
+                kardexList = em.createQuery(
+                    "SELECT k FROM Kardex k JOIN FETCH k.producto WHERE k.secuencialEmpresa = :empresa", Kardex.class)
+                    .setParameter("empresa", secuencialEmpresa)
+                    .getResultList();
+
+            } catch (Exception ex) {
+                SwingUtilities.invokeLater(() ->
+                    JOptionPane.showMessageDialog(null, "Error al cargar Kardex: " + ex.getMessage())
+                );
+            } finally {
+                if (em != null) em.close();
+                if (emf != null) emf.close();
+            }
+
+            return kardexList;
+        }
+
+        @Override
+        protected void done() {
+            try {
+                List<Kardex> kardexList = get();
+
+                DefaultTableModel modelo = new DefaultTableModel(new Object[]{
+                    "S", "Codigo", "Fecha", "Descripción", "Movimiento", "Cantidad",
+                    "Costo", "Costo Total", "Venta", "Venta Total", "Saldo",
+                    "Sec. Producto", "Sec. Empresa"
+                }, 0) {
+                    @Override
+                    public boolean isCellEditable(int row, int column) {
+                        return false;
+                    }
+                };
+
+                for (Kardex k : kardexList) {
+                    Producto p = k.getProducto();
+                    modelo.addRow(new Object[]{
+                        k.getSecuencial(),
+                        p != null ? p.getCodigo() : "",
+                        k.getFecha(),
+                        k.getDescripcion(),
+                        k.getMovimiento(),
+                        k.getCantidad(),
+                        Util.redondear(k.getCosto()),
+                        Util.redondear(k.getCostoTotal()),
+                        Util.redondear(k.getVenta()),
+                        Util.redondear(k.getVentaTotal()),
+                        Util.redondear(k.getSaldo()),
+                        k.getSecuencialProducto(),
+                        k.getSecuencialEmpresa()
+                    });
+                }
+
+                tabla.setModel(modelo);
+                tabla.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+                for (MouseListener ml : tabla.getMouseListeners()) {
+                    tabla.removeMouseListener(ml);
+                }
+
+                tabla.addMouseListener(new MouseAdapter() {
+                    @Override
+                    public void mousePressed(MouseEvent e) {
+                        if (SwingUtilities.isLeftMouseButton(e)) {
+                            int fila = tabla.rowAtPoint(e.getPoint());
+                            if (fila != -1) {
+                                tabla.setRowSelectionInterval(fila, fila);
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void mouseClicked(MouseEvent e) {
+                        if (e.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(e)) {
+                            int fila = tabla.rowAtPoint(e.getPoint());
+                            if (fila != -1) {
+                                tabla.setRowSelectionInterval(fila, fila);
+
+                                int secuencial = Integer.parseInt(tabla.getValueAt(fila, 0).toString());
+                                Kardex seleccionado = kardexList.stream()
+                                    .filter(k -> k.getSecuencial() == secuencial)
+                                    .findFirst()
+                                    .orElse(null);
+
+                                if (seleccionado != null) {
+                                    JOptionPane.showMessageDialog(null, "Doble clic en: " + seleccionado.getDescripcion());
+                                    // Aquí puedes abrir un formulario de edición si lo deseas
+                                }
+                            }
+                        }
+                    }
+                });
+
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(null, "Error al procesar Kardex: " + ex.getMessage());
             } finally {
                 icono_carga.setVisible(false);
             }
@@ -3218,6 +3740,7 @@ public void cargar_ItemsFiltrados_Cuadricula( //este es el original
     public javax.swing.JLabel icono_carga;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton10;
+    private javax.swing.JButton jButton11;
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
@@ -3229,7 +3752,12 @@ public void cargar_ItemsFiltrados_Cuadricula( //este es el original
     private javax.swing.JComboBox<String> jComboBox1;
     private javax.swing.JComboBox<String> jComboBox2;
     private javax.swing.JComboBox<String> jComboBox3;
+    private javax.swing.JComboBox<String> jComboBox4;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel10;
+    private javax.swing.JLabel jLabel11;
+    private javax.swing.JLabel jLabel12;
+    private javax.swing.JLabel jLabel13;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
@@ -3249,10 +3777,16 @@ public void cargar_ItemsFiltrados_Cuadricula( //este es el original
     private javax.swing.JMenuItem jMenuItem7;
     private javax.swing.JMenuItem jMenuItem8;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JPopupMenu.Separator jSeparator1;
     private javax.swing.JTextField jTextField1;
+    private javax.swing.JTextField jTextField2;
+    private javax.swing.JTextField jTextField3;
+    private javax.swing.JTextField jTextField4;
+    private javax.swing.JTable kardex_tabla;
     private javax.swing.JTable lista_tabla;
     private javax.swing.JPopupMenu menu_contextual;
     // End of variables declaration//GEN-END:variables

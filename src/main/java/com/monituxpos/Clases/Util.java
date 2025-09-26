@@ -349,16 +349,16 @@ public class Util {
             : existencia - cantidadUnidades;
 
         Kardex kardex = new Kardex();
-        kardex.setSecuencial_Empresa(secuencialEmpresa);
-        kardex.setSecuencial_Producto(secuencialProducto);
+        kardex.setSecuencialEmpresa(secuencialEmpresa);
+        kardex.setSecuencialProducto(secuencialProducto);
         kardex.setDescripcion(descripcion);
         kardex.setCantidad(cantidadUnidades);
         kardex.setCosto(costo);
         kardex.setVenta(venta);
         kardex.setMovimiento(movimiento);
         kardex.setSaldo(saldoNuevo);
-        kardex.setCosto_Total(Math.round(cantidadUnidades * costo * 100.0) / 100.0);
-        kardex.setVenta_Total(Math.round(cantidadUnidades * venta * 100.0) / 100.0);
+        kardex.setCostoTotal(Math.round(cantidadUnidades * costo * 100.0) / 100.0);
+        kardex.setVentaTotal(Math.round(cantidadUnidades * venta * 100.0) / 100.0);
         kardex.setFecha(LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
 
         EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
