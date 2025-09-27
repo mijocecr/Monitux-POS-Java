@@ -1811,7 +1811,7 @@ dialogo.setVisible(true);
     private void jButton7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton7ActionPerformed
       
   
-        //*************************************************************
+//*************************************************************
 
 icono_carga.setVisible(true);
 ActualizarNumeros();
@@ -1872,22 +1872,24 @@ try {
         em.persist(detalle);
 
         if (!"Servicio".equals(detalle.getTipo())) {
-            // ✅ Corrección en Kardex: registrar cantidad comprada y precio de compra
-            Util.registrarMovimientoKardex(
-                pro.producto.getSecuencial(),
-                pro.getCantidadSelecccion(),
-                pro.producto.getDescripcion(),
-                pro.getCantidadSelecccion(),
-                pro.producto.getPrecio_Costo(),
-                pro.producto.getPrecio_Costo(),
-                "Entrada",
-                Secuencial_Empresa
-            );
+            Producto productoBD = em.find(Producto.class, pro.producto.getSecuencial());
+            if (productoBD != null) {
+                double cantidadActual = productoBD.getCantidad();
+                double cantidadAgregar = pro.getCantidadSelecccion();
 
-            Producto producto = em.find(Producto.class, pro.producto.getSecuencial());
-            if (producto != null) {
-                producto.setCantidad(producto.getCantidad() + pro.getCantidadSelecccion()); // ✅ Usar cantidad actual desde BD
-                em.merge(producto);
+                Util.registrarMovimientoKardex(
+                    productoBD.getSecuencial(),
+                    cantidadActual,
+                    productoBD.getDescripcion(),
+                    cantidadAgregar,
+                    productoBD.getPrecio_Costo(),
+                    productoBD.getPrecio_Costo(),
+                    "Entrada",
+                    Secuencial_Empresa
+                );
+
+                productoBD.setCantidad(cantidadActual + cantidadAgregar);
+                em.merge(productoBD);
             }
         }
     }
@@ -1910,6 +1912,7 @@ try {
             cuenta.setFecha_Vencimiento(fechaFormateada);
         } else {
             JOptionPane.showMessageDialog(null, "Debe seleccionar una fecha de vencimiento válida.", "Error", JOptionPane.ERROR_MESSAGE);
+            em.getTransaction().rollback();
             return;
         }
 
@@ -1998,7 +2001,9 @@ try {
     emf.close();
     icono_carga.setVisible(false);
 }
-
+        
+        
+        
 //*************************************************************
 
         

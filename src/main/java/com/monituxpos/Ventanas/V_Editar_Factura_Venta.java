@@ -792,8 +792,7 @@ Guardar_Cambios();
        
     }//GEN-LAST:event_jButton7ActionPerformed
 
-    
-    public void Guardar_Cambios() {
+public void Guardar_Cambios() {
     EntityManagerFactory emf = null;
     EntityManager em = null;
 
@@ -864,16 +863,25 @@ Guardar_Cambios();
                     if (diferencia != 0) {
                         String tipoMovimiento = diferencia > 0 ? "Salida" : "Entrada";
                         double cantidadMovimiento = Math.abs(diferencia);
+                        double existenciaAnterior = productoBD.getCantidad();
 
-                        Util.registrarMovimientoKardex(productoBD.getSecuencial(), productoBD.getCantidad(), productoBD.getDescripcion(),
-                            cantidadMovimiento, productoBD.getPrecio_Costo(), productoBD.getPrecio_Venta(), tipoMovimiento, Secuencial_Empresa);
+                        Util.registrarMovimientoKardex(
+                            productoBD.getSecuencial(),
+                            existenciaAnterior,
+                            productoBD.getDescripcion(),
+                            cantidadMovimiento,
+                            productoBD.getPrecio_Costo(),
+                            productoBD.getPrecio_Venta(),
+                            tipoMovimiento,
+                            Secuencial_Empresa
+                        );
 
                         String accion = diferencia > 0 ? "Agregó" : "Quitó";
                         Util.registrarActividad(Secuencial_Usuario,
                             accion + " " + cantidadMovimiento + " unidades de " + productoBD.getCodigo() + " en modificación de factura No: " + venta.getSecuencial(),
                             Secuencial_Empresa);
 
-                        productoBD.setCantidad(productoBD.getCantidad() - diferencia);
+                        productoBD.setCantidad(existenciaAnterior - diferencia);
                         em.merge(productoBD);
                     }
                 }
@@ -907,10 +915,20 @@ Guardar_Cambios();
                     Secuencial_Empresa);
 
                 if (!"Servicio".equalsIgnoreCase(productoBD.getTipo())) {
-                    Util.registrarMovimientoKardex(productoBD.getSecuencial(), productoBD.getCantidad(), productoBD.getDescripcion(),
-                        nuevaCantidad, productoBD.getPrecio_Costo(), productoBD.getPrecio_Venta(), "Salida", Secuencial_Empresa);
+                    double existenciaAnterior = productoBD.getCantidad();
 
-                    productoBD.setCantidad(productoBD.getCantidad() - nuevaCantidad);
+                    Util.registrarMovimientoKardex(
+                        productoBD.getSecuencial(),
+                        existenciaAnterior,
+                        productoBD.getDescripcion(),
+                        nuevaCantidad,
+                        productoBD.getPrecio_Costo(),
+                        productoBD.getPrecio_Venta(),
+                        "Salida",
+                        Secuencial_Empresa
+                    );
+
+                    productoBD.setCantidad(existenciaAnterior - nuevaCantidad);
                     em.merge(productoBD);
                 }
             }
@@ -937,17 +955,16 @@ Guardar_Cambios();
             .setParameter("empresa", venta.getSecuencial_Empresa())
             .getResultStream().findFirst().orElse(null);
 
-       if (ingreso != null) {
-    ingreso.setTotal(venta.getGran_Total());
-    ingreso.setDescripcion("Actualización de ingreso por compra No. " + venta.getSecuencial());
-    ingreso.setFecha(Util.fechaActualCompleta());
-    ingreso.setTipo_Ingreso(venta.getTipo());
-    ingreso.setSecuencial_Usuario(venta.getSecuencial_Usuario());
-    em.merge(ingreso);
-} else {
-    System.out.println("⚠️ No se encontró ingreso asociado a la factura No. " + venta.getSecuencial());
-}
-
+        if (ingreso != null) {
+            ingreso.setTotal(venta.getGran_Total());
+            ingreso.setDescripcion("Actualización de ingreso por compra No. " + venta.getSecuencial());
+            ingreso.setFecha(Util.fechaActualCompleta());
+            ingreso.setTipo_Ingreso(venta.getTipo());
+            ingreso.setSecuencial_Usuario(venta.getSecuencial_Usuario());
+            em.merge(ingreso);
+        } else {
+            System.out.println("⚠️ No se encontró ingreso asociado a la factura No. " + venta.getSecuencial());
+        }
 
         FacturaCompletaPDF_Venta factura = new FacturaCompletaPDF_Venta();
         factura.setSecuencial(venta.getSecuencial());
@@ -958,11 +975,13 @@ Guardar_Cambios();
         factura.setItems(ObtenerItemsDesdeGrid(jTable1));
         factura.setISV(venta.getImpuesto());
         factura.setOtrosCargos(venta.getOtros_Cargos());
-        factura.setDescuento(venta.getDescuento());
+        
+                
+                      factura.setDescuento(venta.getDescuento());
 
         venta.setDocumento(factura.GeneratePdfToBytes());
-
         em.merge(venta);
+
         em.getTransaction().commit();
 
         listaDeItems.clear();
@@ -972,11 +991,12 @@ Guardar_Cambios();
         form.cargar_Datos_Venta();
         this.dispose();
 
-   } catch (Exception ex) {
+    } catch (Exception ex) {
         if (em != null && em.getTransaction().isActive()) {
             em.getTransaction().rollback();
         }
         JOptionPane.showMessageDialog(null, "Error al actualizar factura:\n" + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        ex.printStackTrace();
     } finally {
         if (em != null && em.isOpen()) {
             em.close();
@@ -986,9 +1006,7 @@ Guardar_Cambios();
         }
     }
 }
-
-                
-                
+  
     
              
                 
@@ -1190,123 +1208,123 @@ Guardar_Cambios();
         // TODO add your handling code here:
     }//GEN-LAST:event_lbl_impuestoKeyReleased
 
-    
-     public void Quitar_Elemento(EntityManager em) {
+   public void Quitar_Elemento(EntityManager em) {
     List<Component> paraEliminar = new ArrayList<>();
     double totalRestado = 0.0;
-jButton7.setEnabled(false);
-    for (Component comp : contenedor_selector.getComponents()) {
-        if (!(comp instanceof SelectorCantidad selector)) continue;
+    jButton7.setEnabled(false);
 
-        String codigo = selector.getCodigo();
-        if (!selector.isSeleccionado() || !listaDeItems.containsKey(codigo)) {
-            if (!listaDeItems.containsKey(codigo)) selector.setBackground(Color.RED);
-            continue;
+    try {
+        em.getTransaction().begin();
+
+        for (Component comp : contenedor_selector.getComponents()) {
+            if (!(comp instanceof SelectorCantidad selector)) continue;
+
+            String codigo = selector.getCodigo();
+            if (!selector.isSeleccionado() || !listaDeItems.containsKey(codigo)) {
+                if (!listaDeItems.containsKey(codigo)) selector.setBackground(Color.RED);
+                continue;
+            }
+
+            Miniatura_Producto original = listaDeItems.get(codigo);
+            Miniatura_Producto copia = Util.clonarControl(original);
+            copia.setCantidadSelecccion(original.getCantidadSelecccion());
+            copia.setUnidadesAgregar(copia.getCantidadSelecccion());
+
+            listaDeItemsEliminar.put(codigo, copia);
+            listaDeItems.remove(codigo);
+            paraEliminar.add(selector);
+
+            double cantidad = copia.getCantidadSelecccion();
+            double precio = copia.producto.getPrecio_Venta();
+            totalRestado += cantidad * precio;
+
+            // Eliminar detalle de venta
+            List<Venta_Detalle> detalles = em.createQuery(
+                "SELECT vd FROM Venta_Detalle vd WHERE vd.Codigo = :codigo AND vd.Secuencial_Factura = :factura AND vd.Secuencial_Empresa = :empresa",
+                Venta_Detalle.class)
+                .setParameter("codigo", codigo)
+                .setParameter("factura", Secuencial)
+                .setParameter("empresa", Secuencial_Empresa)
+                .getResultList();
+
+            if (!detalles.isEmpty()) {
+                em.remove(detalles.get(0));
+            }
+
+            // Actualizar inventario y Kardex si no es servicio
+            if (!"Servicio".equalsIgnoreCase(copia.producto.getTipo())) {
+                Producto producto = em.find(Producto.class, copia.producto.getSecuencial());
+                if (producto != null) {
+                    double existenciaAnterior = producto.getCantidad();
+
+                    Util.registrarMovimientoKardex(
+                        producto.getSecuencial(),
+                        existenciaAnterior,
+                        producto.getDescripcion(),
+                        cantidad,
+                        producto.getPrecio_Costo(),
+                        producto.getPrecio_Venta(),
+                        "Entrada",
+                        Secuencial_Empresa
+                    );
+
+                    producto.setCantidad(existenciaAnterior + cantidad);
+                    em.merge(producto);
+                }
+            }
+
+            Util.registrarActividad(Secuencial_Usuario,
+                "Eliminó el Item: " + codigo + " de la Factura No. " + Secuencial + "\n" +
+                "Registrado a: " + precio + ", cantidad: " + cantidad + "\n" +
+                "Total: " + (cantidad * precio),
+                Secuencial_Empresa);
         }
 
-        Miniatura_Producto original = listaDeItems.get(codigo);
-        Miniatura_Producto copia = Util.clonarControl(original);
-        copia.setCantidadSelecccion(original.getCantidadSelecccion());
-        copia.setUnidadesAgregar(copia.getCantidadSelecccion());
+        for (Component comp : paraEliminar) {
+            contenedor_selector.remove(comp);
+        }
 
-        listaDeItemsEliminar.put(codigo, copia);
-        listaDeItems.remove(codigo);
-        paraEliminar.add(selector);
+        // Actualizar totales en Venta
+        Venta venta = em.find(Venta.class, Secuencial);
+        if (venta != null) {
+            venta.setTotal(venta.getTotal() - totalRestado);
+            venta.setGran_Total(venta.getGran_Total() - totalRestado);
+            em.merge(venta);
+        }
 
-        double cantidad = copia.getCantidadSelecccion();
-        double precio = copia.producto.getPrecio_Venta();
-        totalRestado += cantidad * precio;
-
-        // Eliminar detalle de venta
-        List<Venta_Detalle> detalles = em.createQuery(
-            "SELECT vd FROM Venta_Detalle vd WHERE vd.Codigo = :codigo AND vd.Secuencial_Factura = :factura AND vd.Secuencial_Empresa = :empresa",
-            Venta_Detalle.class)
-            .setParameter("codigo", codigo)
+        // Actualizar cuentas por cobrar si aplica
+        List<Cuentas_Cobrar> cuentas = em.createQuery(
+            "SELECT c FROM Cuentas_Cobrar c WHERE c.Secuencial_Factura = :factura AND c.Secuencial_Empresa = :empresa",
+            Cuentas_Cobrar.class)
             .setParameter("factura", Secuencial)
             .setParameter("empresa", Secuencial_Empresa)
             .getResultList();
 
-        if (!detalles.isEmpty()) {
-            em.getTransaction().begin();
-            em.remove(detalles.get(0));
-            em.getTransaction().commit();
+        if (!cuentas.isEmpty()) {
+            Cuentas_Cobrar cuenta = cuentas.get(0);
+            cuenta.setTotal(cuenta.getTotal() - totalRestado);
+            cuenta.setGran_Total(cuenta.getGran_Total() - totalRestado);
+            cuenta.setSaldo(cuenta.getSaldo() - totalRestado);
+            em.merge(cuenta);
         }
 
-        // Actualizar inventario y Kardex si no es servicio
-     
-        if (!"Servicio".equalsIgnoreCase(copia.producto.getTipo())) {
-    Producto producto = em.find(Producto.class, copia.producto.getSecuencial());
-    if (producto != null) {
-        producto.setCantidad(producto.getCantidad() + cantidad);
-        em.getTransaction().begin();
-        em.merge(producto);
         em.getTransaction().commit();
 
-        // ✅ Usar método centralizado de Util
-        Util.registrarMovimientoKardex(
-            producto.getSecuencial(),
-            producto.getCantidad(), // existencia actualizada
-            producto.getDescripcion(),
-            cantidad,
-            producto.getPrecio_Costo(),
-            producto.getPrecio_Venta(),
-            "Entrada",
-            Secuencial_Empresa
-        );
+        jLabel3.setText(String.valueOf(listaDeItems.size()));
+        contenedor_selector.revalidate();
+        contenedor_selector.repaint();
+
+        JOptionPane.showMessageDialog(null, "Se ha modificado la factura y el elemento se ha retirado correctamente.");
+
+    } catch (Exception ex) {
+        if (em.getTransaction().isActive()) {
+            em.getTransaction().rollback();
+        }
+        JOptionPane.showMessageDialog(null, "Error al quitar el elemento:\n" + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        ex.printStackTrace();
     }
 }
-
-        
-
-        Util.registrarActividad(Secuencial_Usuario,
-            "Eliminó el Item: " + codigo + " de la Factura No. " + Secuencial + "\n" +
-            "Registrado a: " + precio + " " + ", cantidad: " + cantidad + "\n" +
-            "Total: " + (cantidad * precio),
-            Secuencial_Empresa);
-    }
-
-    for (Component comp : paraEliminar) {
-        contenedor_selector.remove(comp);
-    }
-
-    // Actualizar totales en Venta
-    Venta venta = em.find(Venta.class, Secuencial);
-    if (venta != null) {
-        venta.setTotal(venta.getTotal() - totalRestado);
-        venta.setGran_Total(venta.getGran_Total() - totalRestado);
-        em.getTransaction().begin();
-        em.merge(venta);
-        em.getTransaction().commit();
-    }
-
-    // Actualizar cuentas por cobrar si aplica
-    List<Cuentas_Cobrar> cuentas = em.createQuery(
-        "SELECT c FROM Cuentas_Cobrar c WHERE c.Secuencial_Factura = :factura AND c.Secuencial_Empresa = :empresa",
-        Cuentas_Cobrar.class)
-        .setParameter("factura", Secuencial)
-        .setParameter("empresa", Secuencial_Empresa)
-        .getResultList();
-
-    if (!cuentas.isEmpty()) {
-        Cuentas_Cobrar cuenta = cuentas.get(0);
-        cuenta.setTotal(cuenta.getTotal() - totalRestado);
-        cuenta.setGran_Total(cuenta.getGran_Total() - totalRestado);
-        cuenta.setSaldo(cuenta.getSaldo() - totalRestado);
-        em.getTransaction().begin();
-        em.merge(cuenta);
-        em.getTransaction().commit();
-    }
-
-    jLabel3.setText(String.valueOf(listaDeItems.size()));
-   // btnActualizarTotales.doClick(); Hay que revisar que hace este boton
-    contenedor_selector.revalidate();
-    contenedor_selector.repaint();
-    
-    JOptionPane.showMessageDialog(null, "Se ha modificado la factura y el elemento se ha retirado correctamente.");
-    
-}
-
-    
+ 
     
     
     

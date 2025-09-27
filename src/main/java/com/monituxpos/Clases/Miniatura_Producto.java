@@ -412,6 +412,69 @@ public String Fecha_Caducidad;
 }
 
     
+//    
+//    public void actualizarProductoAgregarUnidades() {
+//    if ("Servicio".equalsIgnoreCase(this.producto.getTipo())) {
+//        JOptionPane.showMessageDialog(null, "No se pueden agregar unidades a un servicio.", "Error", JOptionPane.ERROR_MESSAGE);
+//        return;
+//    }
+//
+//    EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
+//    EntityManager entityManager = emf.createEntityManager();
+//
+//    try {
+//        entityManager.getTransaction().begin();
+//
+//        Producto producto = entityManager.createQuery(
+//            "SELECT p FROM Producto p WHERE p.Secuencial = :secuencial AND p.Secuencial_Empresa = :empresa",
+//            Producto.class
+//        )
+//        .setParameter("secuencial", this.producto.getSecuencial())
+//        .setParameter("empresa", this.producto.getSecuencial_Empresa())
+//        .getResultStream()
+//        .findFirst()
+//        .orElse(null);
+//
+//        if (producto != null) {
+//            Util.registrarMovimientoKardex(
+//                producto.getSecuencial(),
+//                producto.getCantidad(),
+//                producto.getDescripcion(),
+//                getUnidadesAgregar(),
+//                producto.getPrecio_Costo(),
+//                producto.getPrecio_Venta(),
+//                "Entrada",
+//                this.producto.getSecuencial_Empresa()
+//            );
+//
+//            producto.setCantidad(producto.getCantidad() + unidadesAgregar);
+//            entityManager.merge(producto);
+//            entityManager.getTransaction().commit();
+//
+//            JOptionPane.showMessageDialog(null, "Se han agregado " + unidadesAgregar + " unidades al producto: " + this.producto.getCodigo(), "Agregar Unidades", JOptionPane.INFORMATION_MESSAGE);
+//            
+//
+//            Util.registrarActividad(
+//                this.Secuencial_Usuario,
+//                "Ha agregado " + unidadesAgregar + " unidades al producto: " + this.producto.getCodigo(),
+//                this.producto.getSecuencial_Empresa()
+//            );
+//        } else {
+//            entityManager.getTransaction().rollback();
+//        }
+//
+//    } catch (Exception e) {
+//        e.printStackTrace();
+//        entityManager.getTransaction().rollback();
+//    } finally {
+//        entityManager.close();
+//        emf.close();
+//    }
+//}
+//
+//    
+   
+    
     
     public void actualizarProductoAgregarUnidades() {
     if ("Servicio".equalsIgnoreCase(this.producto.getTipo())) {
@@ -419,13 +482,15 @@ public String Fecha_Caducidad;
         return;
     }
 
+    double unidades = getUnidadesAgregar(); // ← Consistencia en uso de unidades
+
     EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
     EntityManager entityManager = emf.createEntityManager();
 
     try {
         entityManager.getTransaction().begin();
 
-        Producto producto = entityManager.createQuery(
+        Producto productoBD = entityManager.createQuery(
             "SELECT p FROM Producto p WHERE p.Secuencial = :secuencial AND p.Secuencial_Empresa = :empresa",
             Producto.class
         )
@@ -435,33 +500,40 @@ public String Fecha_Caducidad;
         .findFirst()
         .orElse(null);
 
-        if (producto != null) {
-            Util.registrarMovimientoKardex(
-                producto.getSecuencial(),
-                producto.getCantidad(),
-                producto.getDescripcion(),
-                getUnidadesAgregar(),
-                producto.getPrecio_Costo(),
-                producto.getPrecio_Venta(),
-                "Entrada",
-                this.producto.getSecuencial_Empresa()
-            );
-
-            producto.setCantidad(producto.getCantidad() + unidadesAgregar);
-            entityManager.merge(producto);
-            entityManager.getTransaction().commit();
-
-            JOptionPane.showMessageDialog(null, "Se han agregado " + unidadesAgregar + " unidades al producto: " + this.producto.getCodigo(), "Agregar Unidades", JOptionPane.INFORMATION_MESSAGE);
-            
-
-            Util.registrarActividad(
-                this.Secuencial_Usuario,
-                "Ha agregado " + unidadesAgregar + " unidades al producto: " + this.producto.getCodigo(),
-                this.producto.getSecuencial_Empresa()
-            );
-        } else {
+        if (productoBD == null) {
+            JOptionPane.showMessageDialog(null, "Producto no encontrado. No se pudo agregar unidades.", "Error", JOptionPane.ERROR_MESSAGE);
             entityManager.getTransaction().rollback();
+            return;
         }
+
+        // Registrar movimiento en Kardex antes de modificar
+        Util.registrarMovimientoKardex(
+            productoBD.getSecuencial(),
+            productoBD.getCantidad(),
+            productoBD.getDescripcion(),
+            unidades,
+            productoBD.getPrecio_Costo(),
+            productoBD.getPrecio_Venta(),
+            "Entrada",
+            productoBD.getSecuencial_Empresa()
+        );
+
+        // Actualizar cantidad
+        productoBD.setCantidad(productoBD.getCantidad() + unidades);
+        entityManager.merge(productoBD);
+
+        entityManager.getTransaction().commit();
+
+        JOptionPane.showMessageDialog(null, "Se han agregado " + unidades + " unidades al producto: " + productoBD.getCodigo(), "Agregar Unidades", JOptionPane.INFORMATION_MESSAGE);
+
+        Util.registrarActividad(
+            this.Secuencial_Usuario,
+            "Ha agregado " + unidades + " unidades al producto: " + productoBD.getCodigo(),
+            productoBD.getSecuencial_Empresa()
+        );
+
+        // Sincronizar this.producto si es necesario
+        this.producto.setCantidad(productoBD.getCantidad());
 
     } catch (Exception e) {
         e.printStackTrace();
@@ -473,7 +545,6 @@ public String Fecha_Caducidad;
 }
 
     
-   
     
     
     

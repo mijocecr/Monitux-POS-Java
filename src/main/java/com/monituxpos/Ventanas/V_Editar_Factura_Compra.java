@@ -804,6 +804,199 @@ Guardar_Cambios();
     //**************************************
     
     
+//    public void Guardar_Cambios() {
+//    EntityManagerFactory emf = null;
+//    EntityManager em = null;
+//
+//    try {
+//        emf = Persistence.createEntityManagerFactory("MonituxPU");
+//        em = emf.createEntityManager();
+//        em.getTransaction().begin();
+//
+//        Compra compra = em.find(Compra.class, Secuencial);
+//        if (compra == null || compra.getSecuencial_Empresa() != Secuencial_Empresa) {
+//            JOptionPane.showMessageDialog(null, "No se encontró la compra para actualizar.", "Error", JOptionPane.ERROR_MESSAGE);
+//            return;
+//        }
+//
+//        compra.setSecuencial_Proveedor(Secuencial_Proveedor);
+//        compra.setSecuencial_Usuario(Secuencial_Usuario);
+//        compra.setTipo(jComboBox3.getSelectedItem() != null ? jComboBox3.getSelectedItem().toString() : "Sin tipo");
+//        compra.setForma_Pago(jComboBox4.getSelectedItem() != null ? jComboBox4.getSelectedItem().toString() : "Sin forma de pago");
+//        compra.setFecha(Util.fechaActualCompleta());
+//        compra.setTotal(Util.redondear(subTotal));
+//        compra.setGran_Total(Util.redondear(total));
+//        compra.setImpuesto(impuesto);
+//        compra.setOtros_Cargos(otrosCargos);
+//        compra.setDescuento(descuento);
+//
+//        List<String> codigos = listaDeItems.values().stream()
+//            .map(pro -> pro.producto.getCodigo())
+//            .filter(Objects::nonNull)
+//            .distinct()
+//            .toList();
+//
+//        List<Producto> productos = em.createQuery(
+//            "SELECT p FROM Producto p WHERE p.Codigo IN :codigos", Producto.class)
+//            .setParameter("codigos", codigos)
+//            .getResultList();
+//
+//        Map<String, Producto> productosCache = productos.stream()
+//            .collect(Collectors.toMap(Producto::getCodigo, p -> p));
+//
+//        for (Miniatura_Producto pro : listaDeItems.values()) {
+//            String codigo = pro.producto.getCodigo().trim();
+//            Producto productoBD = productosCache.get(codigo);
+//
+//            if (productoBD == null) {
+//                System.out.println("❌ Producto no encontrado en BD para código: " + codigo);
+//                continue;
+//            }
+//
+//            pro.producto.setPrecio_Costo(productoBD.getPrecio_Costo());
+//            pro.producto.setPrecio_Venta(productoBD.getPrecio_Venta());
+//            pro.producto.setCantidad(productoBD.getCantidad());
+//
+//            double nuevaCantidad = pro.getCantidadSelecccion();
+//
+//            Compra_Detalle detalle = em.createQuery(
+//                "SELECT d FROM Compra_Detalle d WHERE d.Secuencial_Factura = :compra AND d.Secuencial_Producto = :producto AND d.Secuencial_Empresa = :empresa",
+//                Compra_Detalle.class)
+//                .setParameter("compra", compra.getSecuencial())
+//                .setParameter("producto", productoBD.getSecuencial())
+//                .setParameter("empresa", compra.getSecuencial_Empresa())
+//                .getResultStream().findFirst().orElse(null);
+//
+//            if (detalle != null) {
+//                if (!"Servicio".equalsIgnoreCase(pro.producto.getTipo())) {
+//                    double cantidadAnterior = detalle.getCantidad();
+//                    double diferencia = nuevaCantidad - cantidadAnterior;
+//
+//                    if (diferencia != 0) {
+//                        Util.registrarMovimientoKardex(productoBD.getSecuencial(), productoBD.getCantidad(), productoBD.getDescripcion(),
+//                            Math.abs(diferencia), productoBD.getPrecio_Costo(), productoBD.getPrecio_Venta(), "Entrada", Secuencial_Empresa);
+//
+//                        Util.registrarActividad(Secuencial_Usuario,
+//                            "Modificó cantidad de " + productoBD.getCodigo() + " en compra No. " + compra.getSecuencial(),
+//                            Secuencial_Empresa);
+//
+//                        productoBD.setCantidad(productoBD.getCantidad() + diferencia);
+//                        em.merge(productoBD);
+//                    }
+//                }
+//
+//                detalle.setCantidad(nuevaCantidad);
+//                detalle.setPrecio(Util.redondear(productoBD.getPrecio_Costo()));
+//                detalle.setTotal(Util.redondear(nuevaCantidad * productoBD.getPrecio_Costo()));
+//                detalle.setDescripcion(productoBD.getDescripcion());
+//                detalle.setTipo(productoBD.getTipo());
+//                detalle.setFecha(compra.getFecha());
+//                detalle.setSecuencial_Usuario(compra.getSecuencial_Usuario());
+//                detalle.setSecuencial_Proveedor(compra.getSecuencial_Proveedor());
+//            } else {
+//                Compra_Detalle nuevo = new Compra_Detalle();
+//                nuevo.setSecuencial_Empresa(compra.getSecuencial_Empresa());
+//                nuevo.setSecuencial_Factura(compra.getSecuencial());
+//                nuevo.setSecuencial_Proveedor(compra.getSecuencial_Proveedor());
+//                nuevo.setSecuencial_Usuario(compra.getSecuencial_Usuario());
+//                nuevo.setFecha(compra.getFecha());
+//                nuevo.setSecuencial_Producto(productoBD.getSecuencial());
+//                nuevo.setCodigo(productoBD.getCodigo());
+//                nuevo.setDescripcion(productoBD.getDescripcion());
+//                nuevo.setCantidad(nuevaCantidad);
+//                nuevo.setPrecio(Util.redondear(productoBD.getPrecio_Costo()));
+//                nuevo.setTotal(Util.redondear(nuevaCantidad * productoBD.getPrecio_Costo()));
+//                nuevo.setTipo(productoBD.getTipo());
+//                em.persist(nuevo);
+//
+//                Util.registrarActividad(Secuencial_Usuario,
+//                    "Agregó " + nuevaCantidad + " de " + productoBD.getCodigo() + " a compra No. " + compra.getSecuencial(),
+//                    Secuencial_Empresa);
+//
+//                if (!"Servicio".equalsIgnoreCase(productoBD.getTipo())) {
+//                    Util.registrarMovimientoKardex(productoBD.getSecuencial(), productoBD.getCantidad(), productoBD.getDescripcion(),
+//                        nuevaCantidad, productoBD.getPrecio_Costo(), productoBD.getPrecio_Venta(), "Entrada", Secuencial_Empresa);
+//
+//                    productoBD.setCantidad(productoBD.getCantidad() + nuevaCantidad);
+//                    em.merge(productoBD);
+//                }
+//            }
+//
+//            Cuentas_Pagar cuenta = em.createQuery(
+//                "SELECT c FROM Cuentas_Pagar c WHERE c.Secuencial_Factura = :compra AND c.Secuencial_Proveedor = :proveedor AND c.Secuencial_Empresa = :empresa",
+//                Cuentas_Pagar.class)
+//                .setParameter("compra", compra.getSecuencial())
+//                .setParameter("proveedor", compra.getSecuencial_Proveedor())
+//                .setParameter("empresa", compra.getSecuencial_Empresa())
+//                .getResultStream().findFirst().orElse(null);
+//
+//            if (cuenta != null) {
+//                cuenta.setGran_Total(Util.redondear(compra.getGran_Total()));
+//                cuenta.setTotal(Util.redondear(compra.getTotal()));
+//                cuenta.setSaldo(Util.redondear(cuenta.getGran_Total() - cuenta.getPagado()));
+//            }
+//        }
+//
+//        Egreso egreso = em.createQuery(
+//            "SELECT e FROM Egreso e WHERE e.Secuencial_Factura = :compra AND e.Secuencial_Empresa = :empresa",
+//            Egreso.class)
+//            .setParameter("compra", compra.getSecuencial())
+//            .setParameter("empresa", compra.getSecuencial_Empresa())
+//            .getResultStream().findFirst().orElse(null);
+//
+//        if (egreso != null) {
+//            egreso.setTotal(compra.getGran_Total());
+//            egreso.setDescripcion("Actualización de egreso por compra No. " + compra.getSecuencial());
+//            egreso.setFecha(Util.fechaActualCompleta());
+//            egreso.setTipo_Egreso(compra.getTipo());
+//            egreso.setSecuencial_Usuario(compra.getSecuencial_Usuario());
+//            em.merge(egreso);
+//        } else {
+//            System.out.println("⚠️ No se encontró egreso asociado a la compra No. " + compra.getSecuencial());
+//        }
+//
+//        FacturaCompletaPDF_Compra factura = new FacturaCompletaPDF_Compra();
+//        factura.setSecuencial(compra.getSecuencial());
+//        factura.setProveedor(comboProveedor.getSelectedItem().toString().split("- ")[1].trim());
+//        factura.setTipoCompra(compra.getTipo());
+//        factura.setMetodoPago(compra.getForma_Pago());
+//        factura.setFecha(compra.getFecha());
+//        factura.setItems(ObtenerItemsDesdeGrid(jTable1));
+//        factura.setISV(compra.getImpuesto());
+//        factura.setOtrosCargos(compra.getOtros_Cargos());
+//        factura.setDescuento(compra.getDescuento());
+//
+//        compra.setDocumento(factura.GeneratePdfToBytes());
+//
+//        em.merge(compra);
+//        em.getTransaction().commit();
+//
+//        listaDeItems.clear();
+//        listaDeItemsEliminar.clear();
+//
+//        JOptionPane.showMessageDialog(null, "Compra No. " + compra.getSecuencial() + " actualizada correctamente.", "Compras", JOptionPane.INFORMATION_MESSAGE);
+//        form.cargar_Datos_Compra();
+//        this.dispose();
+//
+//        } catch (Exception ex) {
+//        if (em != null && em.getTransaction().isActive()) {
+//            em.getTransaction().rollback();
+//        }
+//        JOptionPane.showMessageDialog(null, "Error al actualizar compra:\n" + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+//    } finally {
+//        if (em != null && em.isOpen()) {
+//            em.close();
+//        }
+//        if (emf != null && emf.isOpen()) {
+//            emf.close();
+//        }
+//    }
+//}
+//
+//    
+    //**************************************
+   
+    
     public void Guardar_Cambios() {
     EntityManagerFactory emf = null;
     EntityManager em = null;
@@ -873,14 +1066,27 @@ Guardar_Cambios();
                     double diferencia = nuevaCantidad - cantidadAnterior;
 
                     if (diferencia != 0) {
-                        Util.registrarMovimientoKardex(productoBD.getSecuencial(), productoBD.getCantidad(), productoBD.getDescripcion(),
-                            Math.abs(diferencia), productoBD.getPrecio_Costo(), productoBD.getPrecio_Venta(), "Entrada", Secuencial_Empresa);
+                        double existenciaAnterior = productoBD.getCantidad();
+                        String tipoMovimiento = diferencia > 0 ? "Entrada" : "Salida";
+                        double cantidadMovimiento = Math.abs(diferencia);
 
+                        Util.registrarMovimientoKardex(
+                            productoBD.getSecuencial(),
+                            existenciaAnterior,
+                            productoBD.getDescripcion(),
+                            cantidadMovimiento,
+                            productoBD.getPrecio_Costo(),
+                            productoBD.getPrecio_Venta(),
+                            tipoMovimiento,
+                            Secuencial_Empresa
+                        );
+
+                        String accion = diferencia > 0 ? "Agregó" : "Quitó";
                         Util.registrarActividad(Secuencial_Usuario,
-                            "Modificó cantidad de " + productoBD.getCodigo() + " en compra No. " + compra.getSecuencial(),
+                            accion + " " + cantidadMovimiento + " unidades de " + productoBD.getCodigo() + " en modificación de compra No. " + compra.getSecuencial(),
                             Secuencial_Empresa);
 
-                        productoBD.setCantidad(productoBD.getCantidad() + diferencia);
+                        productoBD.setCantidad(existenciaAnterior + diferencia);
                         em.merge(productoBD);
                     }
                 }
@@ -914,10 +1120,20 @@ Guardar_Cambios();
                     Secuencial_Empresa);
 
                 if (!"Servicio".equalsIgnoreCase(productoBD.getTipo())) {
-                    Util.registrarMovimientoKardex(productoBD.getSecuencial(), productoBD.getCantidad(), productoBD.getDescripcion(),
-                        nuevaCantidad, productoBD.getPrecio_Costo(), productoBD.getPrecio_Venta(), "Entrada", Secuencial_Empresa);
+                    double existenciaAnterior = productoBD.getCantidad();
 
-                    productoBD.setCantidad(productoBD.getCantidad() + nuevaCantidad);
+                    Util.registrarMovimientoKardex(
+                        productoBD.getSecuencial(),
+                        existenciaAnterior,
+                        productoBD.getDescripcion(),
+                        nuevaCantidad,
+                        productoBD.getPrecio_Costo(),
+                        productoBD.getPrecio_Venta(),
+                        "Entrada",
+                        Secuencial_Empresa
+                    );
+
+                    productoBD.setCantidad(existenciaAnterior + nuevaCantidad);
                     em.merge(productoBD);
                 }
             }
@@ -967,7 +1183,6 @@ Guardar_Cambios();
         factura.setDescuento(compra.getDescuento());
 
         compra.setDocumento(factura.GeneratePdfToBytes());
-
         em.merge(compra);
         em.getTransaction().commit();
 
@@ -978,11 +1193,14 @@ Guardar_Cambios();
         form.cargar_Datos_Compra();
         this.dispose();
 
-        } catch (Exception ex) {
+    
+            
+                } catch (Exception ex) {
         if (em != null && em.getTransaction().isActive()) {
             em.getTransaction().rollback();
         }
         JOptionPane.showMessageDialog(null, "Error al actualizar compra:\n" + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        ex.printStackTrace();
     } finally {
         if (em != null && em.isOpen()) {
             em.close();
@@ -994,8 +1212,12 @@ Guardar_Cambios();
 }
 
     
-    //**************************************
-   
+    
+   //****************************************      
+                
+    
+    
+    
     
     
     
@@ -1213,121 +1435,121 @@ Guardar_Cambios();
     
      
      
-     
-     
-     public void Quitar_Elemento(EntityManager em) {
+ public void Quitar_Elemento(EntityManager em) {
     List<Component> paraEliminar = new ArrayList<>();
     double totalRestado = 0.0;
     jButton7.setEnabled(false);
 
-    for (Component comp : contenedor_selector.getComponents()) {
-        if (!(comp instanceof SelectorCantidad selector)) continue;
+    try {
+        em.getTransaction().begin();
 
-        String codigo = selector.getCodigo();
-        if (!selector.isSeleccionado() || !listaDeItems.containsKey(codigo)) {
-            if (!listaDeItems.containsKey(codigo)) selector.setBackground(Color.RED);
-            continue;
+        for (Component comp : contenedor_selector.getComponents()) {
+            if (!(comp instanceof SelectorCantidad selector)) continue;
+
+            String codigo = selector.getCodigo();
+            if (!selector.isSeleccionado() || !listaDeItems.containsKey(codigo)) {
+                if (!listaDeItems.containsKey(codigo)) selector.setBackground(Color.RED);
+                continue;
+            }
+
+            Miniatura_Producto original = listaDeItems.get(codigo);
+            Miniatura_Producto copia = Util.clonarControl(original);
+            copia.setCantidadSelecccion(original.getCantidadSelecccion());
+            copia.setUnidadesAgregar(copia.getCantidadSelecccion());
+
+            listaDeItemsEliminar.put(codigo, copia);
+            listaDeItems.remove(codigo);
+            paraEliminar.add(selector);
+
+            double cantidad = copia.getCantidadSelecccion();
+            double precio = copia.producto.getPrecio_Costo();
+            totalRestado += cantidad * precio;
+
+            // Eliminar detalle de compra
+            List<Compra_Detalle> detalles = em.createQuery(
+                "SELECT cd FROM Compra_Detalle cd WHERE cd.Codigo = :codigo AND cd.Secuencial_Factura = :compra AND cd.Secuencial_Empresa = :empresa",
+                Compra_Detalle.class)
+                .setParameter("codigo", codigo)
+                .setParameter("compra", Secuencial)
+                .setParameter("empresa", Secuencial_Empresa)
+                .getResultList();
+
+            if (!detalles.isEmpty()) {
+                em.remove(detalles.get(0));
+            }
+
+            // Actualizar inventario y Kardex si no es servicio
+            if (!"Servicio".equalsIgnoreCase(copia.producto.getTipo())) {
+                Producto producto = em.find(Producto.class, copia.producto.getSecuencial());
+                if (producto != null) {
+                    double existenciaAnterior = producto.getCantidad();
+
+                    Util.registrarMovimientoKardex(
+                        producto.getSecuencial(),
+                        existenciaAnterior,
+                        producto.getDescripcion(),
+                        cantidad,
+                        producto.getPrecio_Costo(),
+                        producto.getPrecio_Venta(),
+                        "Salida",
+                        Secuencial_Empresa
+                    );
+
+                    producto.setCantidad(existenciaAnterior - cantidad);
+                    em.merge(producto);
+                }
+            }
+
+            Util.registrarActividad(Secuencial_Usuario,
+                "Eliminó el Item: " + codigo + " de la Compra No. " + Secuencial + "\n" +
+                "Registrado a: " + precio + ", cantidad: " + cantidad + "\n" +
+                "Total: " + (cantidad * precio),
+                Secuencial_Empresa);
         }
 
-        Miniatura_Producto original = listaDeItems.get(codigo);
-        Miniatura_Producto copia = Util.clonarControl(original);
-        copia.setCantidadSelecccion(original.getCantidadSelecccion());
-        copia.setUnidadesAgregar(copia.getCantidadSelecccion());
+        for (Component comp : paraEliminar) {
+            contenedor_selector.remove(comp);
+        }
 
-        listaDeItemsEliminar.put(codigo, copia);
-        listaDeItems.remove(codigo);
-        paraEliminar.add(selector);
+        // Actualizar totales en Compra
+        Compra compra = em.find(Compra.class, Secuencial);
+        if (compra != null) {
+            compra.setTotal(compra.getTotal() - totalRestado);
+            compra.setGran_Total(compra.getGran_Total() - totalRestado);
+            em.merge(compra);
+        }
 
-        double cantidad = copia.getCantidadSelecccion();
-        double precio = copia.producto.getPrecio_Costo(); // ← Costo en compras
-        totalRestado += cantidad * precio;
-
-        // Eliminar detalle de compra
-        List<Compra_Detalle> detalles = em.createQuery(
-            "SELECT cd FROM Compra_Detalle cd WHERE cd.Codigo = :codigo AND cd.Secuencial_Factura = :compra AND cd.Secuencial_Empresa = :empresa",
-            Compra_Detalle.class)
-            .setParameter("codigo", codigo)
+        // Actualizar cuentas por pagar si aplica
+        List<Cuentas_Pagar> cuentas = em.createQuery(
+            "SELECT c FROM Cuentas_Pagar c WHERE c.Secuencial_Factura = :compra AND c.Secuencial_Empresa = :empresa",
+            Cuentas_Pagar.class)
             .setParameter("compra", Secuencial)
             .setParameter("empresa", Secuencial_Empresa)
             .getResultList();
 
-        if (!detalles.isEmpty()) {
-            em.getTransaction().begin();
-            em.remove(detalles.get(0));
-            em.getTransaction().commit();
+        if (!cuentas.isEmpty()) {
+            Cuentas_Pagar cuenta = cuentas.get(0);
+            cuenta.setTotal(cuenta.getTotal() - totalRestado);
+            cuenta.setGran_Total(cuenta.getGran_Total() - totalRestado);
+            cuenta.setSaldo(cuenta.getSaldo() - totalRestado);
+            em.merge(cuenta);
         }
 
-        // Actualizar inventario y Kardex si no es servicio
-        if (!"Servicio".equalsIgnoreCase(copia.producto.getTipo())) {
-            Producto producto = em.find(Producto.class, copia.producto.getSecuencial());
-            if (producto != null) {
-                producto.setCantidad(producto.getCantidad() - cantidad); // ← Salida por eliminación
-                em.getTransaction().begin();
-                em.merge(producto);
-                em.getTransaction().commit();
-
-                Util.registrarMovimientoKardex(
-                    producto.getSecuencial(),
-                    producto.getCantidad(),
-                    producto.getDescripcion(),
-                    cantidad,
-                    producto.getPrecio_Costo(),
-                    producto.getPrecio_Venta(),
-                    "Salida",
-                    Secuencial_Empresa
-                );
-            }
-        }
-
-        Util.registrarActividad(Secuencial_Usuario,
-            "Eliminó el Item: " + codigo + " de la Compra No. " + Secuencial + "\n" +
-            "Registrado a: " + precio + ", cantidad: " + cantidad + "\n" +
-            "Total: " + (cantidad * precio),
-            Secuencial_Empresa);
-    }
-
-    for (Component comp : paraEliminar) {
-        contenedor_selector.remove(comp);
-    }
-
-    // Actualizar totales en Compra
-    Compra compra = em.find(Compra.class, Secuencial);
-    if (compra != null) {
-        compra.setTotal(compra.getTotal() - totalRestado);
-        compra.setGran_Total(compra.getGran_Total() - totalRestado);
-        em.getTransaction().begin();
-        em.merge(compra);
         em.getTransaction().commit();
+
+        jLabel3.setText(String.valueOf(listaDeItems.size()));
+        contenedor_selector.revalidate();
+        contenedor_selector.repaint();
+
+        JOptionPane.showMessageDialog(null, "Se ha modificado la compra y el elemento se ha retirado correctamente.");
+
+    } catch (Exception ex) {
+        em.getTransaction().rollback();
+        JOptionPane.showMessageDialog(null, "Error al quitar el elemento: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        ex.printStackTrace();
     }
-
-    // Actualizar cuentas por pagar si aplica
-    List<Cuentas_Pagar> cuentas = em.createQuery(
-        "SELECT c FROM Cuentas_Pagar c WHERE c.Secuencial_Factura = :compra AND c.Secuencial_Empresa = :empresa",
-        Cuentas_Pagar.class)
-        .setParameter("compra", Secuencial)
-        .setParameter("empresa", Secuencial_Empresa)
-        .getResultList();
-
-    if (!cuentas.isEmpty()) {
-        Cuentas_Pagar cuenta = cuentas.get(0);
-        cuenta.setTotal(cuenta.getTotal() - totalRestado);
-        cuenta.setGran_Total(cuenta.getGran_Total() - totalRestado);
-        cuenta.setSaldo(cuenta.getSaldo() - totalRestado);
-        em.getTransaction().begin();
-        em.merge(cuenta);
-        em.getTransaction().commit();
-    }
-
-    jLabel3.setText(String.valueOf(listaDeItems.size()));
-    contenedor_selector.revalidate();
-    contenedor_selector.repaint();
-
-    JOptionPane.showMessageDialog(null, "Se ha modificado la compra y el elemento se ha retirado correctamente.");
 }
 
-     
-     
-    
     
     
     private void lbl_descuentoKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_lbl_descuentoKeyReleased

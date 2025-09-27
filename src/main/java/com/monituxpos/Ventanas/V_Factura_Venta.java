@@ -1931,7 +1931,7 @@ dialogo.setVisible(true);
         
         //*************************************************************
 
-icono_carga.setVisible(true);
+        icono_carga.setVisible(true);
 ActualizarNumeros();
 
 if (listaDeItems.isEmpty()) {
@@ -1990,22 +1990,24 @@ try {
         em.persist(detalle);
 
         if (!"Servicio".equals(detalle.getTipo())) {
-            // ✅ Corrección en Kardex
-            Util.registrarMovimientoKardex(
-                pro.producto.getSecuencial(),
-                pro.getCantidadSelecccion(),
-                pro.producto.getDescripcion(),
-                pro.getCantidadSelecccion(),
-                pro.producto.getPrecio_Costo(),
-                pro.producto.getPrecio_Venta(),
-                "Salida",
-                Secuencial_Empresa
-            );
+            Producto productoBD = em.find(Producto.class, pro.producto.getSecuencial());
+            if (productoBD != null) {
+                double cantidadActual = productoBD.getCantidad();
+                double cantidadVender = pro.getCantidadSelecccion();
 
-            Producto producto = em.find(Producto.class, pro.producto.getSecuencial());
-            if (producto != null) {
-                producto.setCantidad(producto.getCantidad() - pro.getCantidadSelecccion()); // ✅ Usar cantidad actual desde BD
-                em.merge(producto);
+                Util.registrarMovimientoKardex(
+                    productoBD.getSecuencial(),
+                    cantidadActual,
+                    productoBD.getDescripcion(),
+                    cantidadVender,
+                    productoBD.getPrecio_Costo(),
+                    productoBD.getPrecio_Venta(),
+                    "Salida",
+                    Secuencial_Empresa
+                );
+
+                productoBD.setCantidad(cantidadActual - cantidadVender);
+                em.merge(productoBD);
             }
         }
     }
@@ -2028,6 +2030,7 @@ try {
             cuenta.setFecha_Vencimiento(fechaFormateada);
         } else {
             JOptionPane.showMessageDialog(null, "Debe seleccionar una fecha de vencimiento válida.", "Error", JOptionPane.ERROR_MESSAGE);
+            em.getTransaction().rollback();
             return;
         }
 
@@ -2127,7 +2130,7 @@ try {
 
     em.getTransaction().commit();
 
-     Util.registrarActividad(
+    Util.registrarActividad(
         Secuencial_Usuario,
         "Ha registrado una venta" + ("Credito".equals(venta.getTipo()) ? " al crédito" : "") +
         ", factura: " + venta.getSecuencial() + ", por un valor de: " + venta.getTotal() + " Lps",
@@ -2145,8 +2148,10 @@ try {
     emf.close();
     icono_carga.setVisible(false);
 }
-    
-    
+
+        
+        
+    //**************************************
         
         // TODO add your handling code here:
     }//GEN-LAST:event_jButton7ActionPerformed
