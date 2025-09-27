@@ -332,13 +332,15 @@ public class Util {
 }
 
     
-    
     public static void registrarMovimientoKardex(
     int secuencialProducto, double existencia,
     String descripcion, double cantidadUnidades,
     double costo, double venta,
     String movimiento, int secuencialEmpresa
 ) {
+    EntityManagerFactory emf = null;
+    EntityManager em = null;
+
     try {
         if (cantidadUnidades < 0 || costo < 0 || venta < 0) {
             throw new IllegalArgumentException("Valores inválidos para movimiento de inventario.");
@@ -348,34 +350,41 @@ public class Util {
             ? existencia + cantidadUnidades
             : existencia - cantidadUnidades;
 
+        emf = Persistence.createEntityManagerFactory("MonituxPU");
+        em = emf.createEntityManager();
+
+        Producto producto = em.find(Producto.class, secuencialProducto);
+        if (producto == null) {
+            throw new IllegalStateException("Producto no encontrado: " + secuencialProducto);
+        }
+
         Kardex kardex = new Kardex();
-        kardex.setSecuencialEmpresa(secuencialEmpresa);
-        kardex.setSecuencialProducto(secuencialProducto);
+        kardex.setProducto(producto); // ← Asignación correcta del objeto
+        kardex.setSecuencial_Empresa(secuencialEmpresa);
         kardex.setDescripcion(descripcion);
         kardex.setCantidad(cantidadUnidades);
         kardex.setCosto(costo);
         kardex.setVenta(venta);
         kardex.setMovimiento(movimiento);
         kardex.setSaldo(saldoNuevo);
-        kardex.setCostoTotal(Math.round(cantidadUnidades * costo * 100.0) / 100.0);
-        kardex.setVentaTotal(Math.round(cantidadUnidades * venta * 100.0) / 100.0);
+        kardex.setCosto_Total(Math.round(cantidadUnidades * costo * 100.0) / 100.0);
+        kardex.setVenta_Total(Math.round(cantidadUnidades * venta * 100.0) / 100.0);
         kardex.setFecha(LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
-
-        EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
-        EntityManager em = emf.createEntityManager();
 
         em.getTransaction().begin();
         em.persist(kardex);
         em.getTransaction().commit();
 
-        em.close();
-        emf.close();
-
     } catch (Exception ex) {
-        JOptionPane.showMessageDialog(null,"Error al registrar movimiento en Kardex:\n" + ex.getMessage());
+        JOptionPane.showMessageDialog(null, "Error al registrar movimiento en Kardex:\n" + ex.getMessage());
+        ex.printStackTrace();
+    } finally {
+        if (em != null && em.isOpen()) em.close();
+        if (emf != null && emf.isOpen()) emf.close();
     }
 }
 
+    
     
     public static double redondear(double valor) {
     return Math.round(valor * 100.0) / 100.0;

@@ -15,7 +15,7 @@ public class Kardex {
     private String fecha; // formato dd/MM/yyyy
 
     @Column(name = "Secuencial_Producto", insertable = false, updatable = false)
-    private int secuencialProducto;
+    private int Secuencial_Producto;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "Secuencial_Producto")
@@ -31,13 +31,13 @@ public class Kardex {
     private double costo;
 
     @Column(name = "Costo_Total")
-    private double costoTotal;
+    private double Costo_Total;
 
     @Column(name = "Venta")
     private double venta;
 
     @Column(name = "Venta_Total")
-    private double ventaTotal;
+    private double Venta_Total;
 
     @Column(name = "Saldo")
     private double saldo;
@@ -46,7 +46,7 @@ public class Kardex {
     private String movimiento;
 
     @Column(name = "Secuencial_Empresa")
-    private int secuencialEmpresa;
+    private int Secuencial_Empresa;
 
     // Getters y setters
     public int getSecuencial() { return secuencial; }
@@ -55,8 +55,8 @@ public class Kardex {
     public String getFecha() { return fecha; }
     public void setFecha(String fecha) { this.fecha = fecha; }
 
-    public int getSecuencialProducto() { return secuencialProducto; }
-    public void setSecuencialProducto(int secuencialProducto) { this.secuencialProducto = secuencialProducto; }
+    public int getSecuencial_Producto() { return Secuencial_Producto; }
+    public void setSecuencial_Producto(int Secuencial_Producto) { this.Secuencial_Producto = Secuencial_Producto; }
 
     public Producto getProducto() { return producto; }
     public void setProducto(Producto producto) { this.producto = producto; }
@@ -70,14 +70,14 @@ public class Kardex {
     public double getCosto() { return costo; }
     public void setCosto(double costo) { this.costo = costo; }
 
-    public double getCostoTotal() { return costoTotal; }
-    public void setCostoTotal(double costoTotal) { this.costoTotal = costoTotal; }
+    public double getCosto_Total() { return Costo_Total; }
+    public void setCosto_Total(double Costo_Total) { this.Costo_Total = Costo_Total; }
 
     public double getVenta() { return venta; }
     public void setVenta(double venta) { this.venta = venta; }
 
-    public double getVentaTotal() { return ventaTotal; }
-    public void setVentaTotal(double ventaTotal) { this.ventaTotal = ventaTotal; }
+    public double getVenta_Total() { return Venta_Total; }
+    public void setVenta_Total(double Venta_Total) { this.Venta_Total = Venta_Total; }
 
     public double getSaldo() { return saldo; }
     public void setSaldo(double saldo) { this.saldo = saldo; }
@@ -85,6 +85,6 @@ public class Kardex {
     public String getMovimiento() { return movimiento; }
     public void setMovimiento(String movimiento) { this.movimiento = movimiento; }
 
-    public int getSecuencialEmpresa() { return secuencialEmpresa; }
-    public void setSecuencialEmpresa(int secuencialEmpresa) { this.secuencialEmpresa = secuencialEmpresa; }
+    public int getSecuencial_Empresa() { return Secuencial_Empresa; }
+    public void setSecuencial_Empresa(int Secuencial_Empresa) { this.Secuencial_Empresa = Secuencial_Empresa; }
 }

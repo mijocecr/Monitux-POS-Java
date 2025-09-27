@@ -238,7 +238,7 @@ public class V_Inventario extends javax.swing.JPanel {
         jScrollPane1.setViewportView(contenedor);
 
         add(jScrollPane1);
-        jScrollPane1.setBounds(6, 162, 840, 390);
+        jScrollPane1.setBounds(6, 162, 840, 400);
 
         jButton1.setBackground(new java.awt.Color(44, 117, 255));
         jButton1.setForeground(new java.awt.Color(255, 255, 255));
@@ -1923,7 +1923,7 @@ Filtrar_Lista_Fecha(Secuencial_Empresa, fechaTexto, lista_tabla, em);
 
     // Consulta base sin filtro de fecha
     List<Kardex> todos = entityManager.createQuery(
-        "SELECT k FROM Kardex k WHERE k.secuencialEmpresa = :empresa", Kardex.class)
+        "SELECT k FROM Kardex k WHERE k.Secuencial_Empresa = :empresa", Kardex.class)
         .setParameter("empresa", secuencialEmpresa)
         .getResultList();
 
@@ -1972,12 +1972,12 @@ Filtrar_Lista_Fecha(Secuencial_Empresa, fechaTexto, lista_tabla, em);
             k.getMovimiento(),
             k.getCantidad(),
             Util.redondear(k.getCosto()),
-            Util.redondear(k.getCostoTotal()),
+            Util.redondear(k.getCosto_Total()),
             Util.redondear(k.getVenta()),
-            Util.redondear(k.getVentaTotal()),
+            Util.redondear(k.getVenta_Total()),
             Util.redondear(k.getSaldo()),
-            k.getSecuencialProducto(),
-            k.getSecuencialEmpresa()
+            k.getSecuencial_Producto(),
+            k.getSecuencial_Empresa()
         });
     }
 
@@ -2417,18 +2417,18 @@ public void cargar_ItemsFiltrados_Kardex(
 
     if (aplicarFiltro && camposProducto.contains(campoFiltro)) {
         jpql = "SELECT k FROM Kardex k JOIN FETCH k.producto p " +
-               "WHERE k.secuencialEmpresa = :empresa AND LOWER(p." + campoFiltro + ") LIKE :valorFiltro";
+               "WHERE k.Secuencial_Empresa = :empresa AND LOWER(p." + campoFiltro + ") LIKE :valorFiltro";
         query = entityManager.createQuery(jpql, Kardex.class);
         query.setParameter("empresa", secuencialEmpresa);
         query.setParameter("valorFiltro", "%" + valorFiltro + "%");
     } else if (aplicarFiltro) {
         jpql = "SELECT k FROM Kardex k JOIN FETCH k.producto " +
-               "WHERE k.secuencialEmpresa = :empresa AND LOWER(k." + campoFiltro + ") LIKE :valorFiltro";
+               "WHERE k.Secuencial_Empresa = :empresa AND LOWER(k." + campoFiltro + ") LIKE :valorFiltro";
         query = entityManager.createQuery(jpql, Kardex.class);
         query.setParameter("empresa", secuencialEmpresa);
         query.setParameter("valorFiltro", "%" + valorFiltro + "%");
     } else {
-        jpql = "SELECT k FROM Kardex k JOIN FETCH k.producto WHERE k.secuencialEmpresa = :empresa";
+        jpql = "SELECT k FROM Kardex k JOIN FETCH k.producto WHERE k.Secuencial_Empresa = :empresa";
         query = entityManager.createQuery(jpql, Kardex.class);
         query.setParameter("empresa", secuencialEmpresa);
     }
@@ -2456,12 +2456,12 @@ public void cargar_ItemsFiltrados_Kardex(
             k.getMovimiento(),
             k.getCantidad(),
             Util.redondear(k.getCosto()),
-            Util.redondear(k.getCostoTotal()),
+            Util.redondear(k.getCosto_Total()),
             Util.redondear(k.getVenta()),
-            Util.redondear(k.getVentaTotal()),
+            Util.redondear(k.getVenta_Total()),
             Util.redondear(k.getSaldo()),
-            k.getSecuencialProducto(),
-            k.getSecuencialEmpresa()
+            k.getSecuencial_Producto(),
+            k.getSecuencial_Empresa()
         });
     }
 
@@ -3520,7 +3520,7 @@ public void cargar_Items_Kardex(int secuencialEmpresa, JTable tabla) {
                 em = emf.createEntityManager();
 
                 kardexList = em.createQuery(
-                    "SELECT k FROM Kardex k JOIN FETCH k.producto WHERE k.secuencialEmpresa = :empresa", Kardex.class)
+                    "SELECT k FROM Kardex k JOIN FETCH k.producto WHERE k.Secuencial_Empresa = :empresa", Kardex.class)
                     .setParameter("empresa", secuencialEmpresa)
                     .getResultList();
 
@@ -3562,12 +3562,12 @@ public void cargar_Items_Kardex(int secuencialEmpresa, JTable tabla) {
                         k.getMovimiento(),
                         k.getCantidad(),
                         Util.redondear(k.getCosto()),
-                        Util.redondear(k.getCostoTotal()),
+                        Util.redondear(k.getCosto_Total()),
                         Util.redondear(k.getVenta()),
-                        Util.redondear(k.getVentaTotal()),
+                        Util.redondear(k.getVenta_Total()),
                         Util.redondear(k.getSaldo()),
-                        k.getSecuencialProducto(),
-                        k.getSecuencialEmpresa()
+                        k.getSecuencial_Producto(),
+                        k.getSecuencial_Empresa()
                     });
                 }
 
@@ -3603,8 +3603,11 @@ public void cargar_Items_Kardex(int secuencialEmpresa, JTable tabla) {
                                     .orElse(null);
 
                                 if (seleccionado != null) {
-                                    JOptionPane.showMessageDialog(null, "Doble clic en: " + seleccionado.getDescripcion());
-                                    // Aquí puedes abrir un formulario de edición si lo deseas
+                                    
+                                    V_Kardex kardex = new V_Kardex(seleccionado.getProducto().getSecuencial(),seleccionado.getProducto().getCodigo());
+                                    kardex.setVisible(true);
+                                    kardex.setLocationRelativeTo(null);
+                                    
                                 }
                             }
                         }
