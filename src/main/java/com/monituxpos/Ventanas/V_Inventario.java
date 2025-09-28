@@ -94,6 +94,7 @@ public class V_Inventario extends javax.swing.JPanel {
         jSeparator1 = new javax.swing.JPopupMenu.Separator();
         jMenuItem6 = new javax.swing.JMenuItem();
         jMenuItem8 = new javax.swing.JMenuItem();
+        jMenuItem9 = new javax.swing.JMenuItem();
         jLabel1 = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
         contenedor = new javax.swing.JPanel();
@@ -136,6 +137,7 @@ public class V_Inventario extends javax.swing.JPanel {
         lista_tabla = new javax.swing.JTable();
         jScrollPane3 = new javax.swing.JScrollPane();
         kardex_tabla = new javax.swing.JTable();
+        jLabel14 = new javax.swing.JLabel();
 
         jMenu1.setText("Imagen");
 
@@ -209,6 +211,8 @@ public class V_Inventario extends javax.swing.JPanel {
             }
         });
         menu_contextual.add(jMenuItem8);
+
+        jMenuItem9.setText("Exportar a Excel");
 
         setBackground(new java.awt.Color(44, 117, 255));
         setPreferredSize(new java.awt.Dimension(847, 609));
@@ -318,10 +322,10 @@ public class V_Inventario extends javax.swing.JPanel {
         jLabel5.setForeground(new java.awt.Color(255, 255, 255));
         jLabel5.setText("Buscar Por:");
         add(jLabel5);
-        jLabel5.setBounds(20, 570, 70, 20);
+        jLabel5.setBounds(10, 570, 70, 20);
 
         add(jComboBox3);
-        jComboBox3.setBounds(100, 570, 130, 26);
+        jComboBox3.setBounds(80, 570, 130, 26);
 
         jTextField1.setToolTipText("<html>Para efectuar la busqueda debe presionar Enter. <br>El filtro se restablecera al presionar Enter si la casilla esta vacia.</br></html>");
         jTextField1.addActionListener(new java.awt.event.ActionListener() {
@@ -335,7 +339,7 @@ public class V_Inventario extends javax.swing.JPanel {
             }
         });
         add(jTextField1);
-        jTextField1.setBounds(240, 570, 120, 26);
+        jTextField1.setBounds(220, 570, 120, 26);
 
         jPanel1.setBackground(new java.awt.Color(44, 117, 255));
         jPanel1.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255)));
@@ -503,7 +507,7 @@ public class V_Inventario extends javax.swing.JPanel {
             }
         });
         add(jLabel6);
-        jLabel6.setBounds(430, 570, 107, 26);
+        jLabel6.setBounds(390, 570, 107, 26);
 
         jLabel7.setBackground(new java.awt.Color(35, 32, 45));
         jLabel7.setForeground(new java.awt.Color(255, 0, 0));
@@ -522,7 +526,7 @@ public class V_Inventario extends javax.swing.JPanel {
             }
         });
         add(jLabel7);
-        jLabel7.setBounds(550, 570, 63, 26);
+        jLabel7.setBounds(510, 570, 63, 26);
 
         jPanel2.setBackground(new java.awt.Color(44, 117, 255));
         jPanel2.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255)));
@@ -616,18 +620,18 @@ public class V_Inventario extends javax.swing.JPanel {
             }
         });
         add(jLabel8);
-        jLabel8.setBounds(800, 570, 32, 32);
+        jLabel8.setBounds(780, 570, 32, 32);
 
         jLabel9.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         jLabel9.setForeground(new java.awt.Color(255, 255, 255));
         jLabel9.setText("Modo: Cuadricula");
         add(jLabel9);
-        jLabel9.setBounds(640, 570, 108, 30);
+        jLabel9.setBounds(620, 570, 108, 30);
 
         icono_carga.setIcon(new javax.swing.ImageIcon(getClass().getResource("/gifs/spinner1-r.gif"))); // NOI18N
         icono_carga.setVisible(false);
         add(icono_carga);
-        icono_carga.setBounds(750, 570, 32, 32);
+        icono_carga.setBounds(810, 570, 32, 32);
 
         lista_tabla.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -663,6 +667,17 @@ public class V_Inventario extends javax.swing.JPanel {
 
         add(jScrollPane3);
         jScrollPane3.setBounds(10, 160, 830, 400);
+
+        jLabel14.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/page_excel.png"))); // NOI18N
+        jLabel14.setToolTipText("Exportar a Excel");
+        jLabel14.setVisible(false);
+        jLabel14.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jLabel14MouseClicked(evt);
+            }
+        });
+        add(jLabel14);
+        jLabel14.setBounds(740, 570, 30, 30);
     }// </editor-fold>//GEN-END:initComponents
 
     private void contenedorMouseMoved(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_contenedorMouseMoved
@@ -829,6 +844,9 @@ public class V_Inventario extends javax.swing.JPanel {
             // Evento doble clic izquierdo
             Producto productoSeleccionado = miniatura.producto;
             
+             V_Kardex kardex = new V_Kardex(productoSeleccionado.getProducto().getSecuencial(),productoSeleccionado.getProducto().getCodigo());
+                                    kardex.setVisible(true);
+                                    kardex.setLocationRelativeTo(null);
             // Aquí puedes abrir un diálogo, mostrar detalles, o iniciar edición
             
         }
@@ -878,6 +896,7 @@ public class V_Inventario extends javax.swing.JPanel {
     
     
     public void Modo_Cuadricula(){
+        jLabel14.setVisible(false);
      jLabel9.setText("Modo: Cuadricula");
             jScrollPane2.setVisible(false);
             lista_tabla.setVisible(false);
@@ -920,6 +939,7 @@ public class V_Inventario extends javax.swing.JPanel {
     
     
     public void Modo_Lista(){
+        jLabel14.setVisible(true);
      jLabel9.setText("Modo: Lista");
           
         contenedor.setVisible(false);
@@ -968,7 +988,7 @@ public class V_Inventario extends javax.swing.JPanel {
     }//GEN-LAST:event_jButton3ActionPerformed
 
     public void Modo_Kardex(){
-    
+    jLabel14.setVisible(true);
         jLabel6.setVisible(false);
         jLabel7.setVisible(false);
         jLabel9.setText("Modo: Kardex");
@@ -2010,6 +2030,22 @@ Filtrar_Lista_Fecha(Secuencial_Empresa, fechaTexto, lista_tabla, em);
         // TODO add your handling code here:
     }//GEN-LAST:event_jButton11ActionPerformed
 
+    private void jLabel14MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel14MouseClicked
+
+
+        if (Modo=="Lista"){
+        Util.exportarJTableAExcel(lista_tabla, "Vista_Inventario", "Vista_Inventario");
+
+        }
+        if (Modo=="Kardex"){
+        Util.exportarJTableAExcel(kardex_tabla, "Vista_Kardex", "Vista_Kardex");
+
+        }
+        
+        
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jLabel14MouseClicked
+
  
 public void cargarItems_Cuadricula(int secuencialEmpresa, JPanel contenedor, EntityManager entityManager) {
 
@@ -2044,8 +2080,9 @@ public void cargarItems_Cuadricula(int secuencialEmpresa, JPanel contenedor, Ent
             // Evento doble clic izquierdo
             Producto productoSeleccionado = miniatura.producto;
             
-            // Aquí puedes abrir un diálogo, mostrar detalles, o iniciar edición
-            
+             V_Kardex kardex = new V_Kardex(productoSeleccionado.getProducto().getSecuencial(),productoSeleccionado.getProducto().getCodigo());
+                                    kardex.setVisible(true);
+                                    kardex.setLocationRelativeTo(null);
         }
     }
         });
@@ -2563,7 +2600,11 @@ public void cargarItemsFiltrados_Cuadricula(
             // Evento doble clic izquierdo
             Producto productoSeleccionado = miniatura.producto;
             
-            // Aquí puedes abrir un diálogo, mostrar detalles, o iniciar edición
+             V_Kardex kardex = new V_Kardex(productoSeleccionado.getProducto().getSecuencial(),productoSeleccionado.getProducto().getCodigo());
+                                    kardex.setVisible(true);
+                                    kardex.setLocationRelativeTo(null);
+                                    
+                                    // A Ver
             
         }
     }
@@ -2640,7 +2681,9 @@ public void Filtrar_Cuadricula_Proveedor(
             // Evento doble clic izquierdo
             Producto productoSeleccionado = miniatura.producto;
             
-            
+             V_Kardex kardex = new V_Kardex(productoSeleccionado.getProducto().getSecuencial(),productoSeleccionado.getProducto().getCodigo());
+                                    kardex.setVisible(true);
+                                    kardex.setLocationRelativeTo(null);
             //Aqui el codigo para abrir Kardex
             
             
@@ -2819,6 +2862,10 @@ public void Filtrar_Existencia_Minima_Cuadricula(
             // Evento doble clic izquierdo
             Producto productoSeleccionado = miniatura.producto;
             
+            
+             V_Kardex kardex = new V_Kardex(productoSeleccionado.getProducto().getSecuencial(),productoSeleccionado.getProducto().getCodigo());
+                                    kardex.setVisible(true);
+                                    kardex.setLocationRelativeTo(null);
           //Aqui el codigo para abrir Kardex
             
         }
@@ -3092,6 +3139,10 @@ public void Filtrar_Agotados_Cuadricula(
             // Evento doble clic izquierdo
             Producto productoSeleccionado = miniatura.producto;
             
+            
+             V_Kardex kardex = new V_Kardex(productoSeleccionado.getProducto().getSecuencial(),productoSeleccionado.getProducto().getCodigo());
+                                    kardex.setVisible(true);
+                                    kardex.setLocationRelativeTo(null);
             //Aqui el codigo para abrir Kardex
             
         }
@@ -3259,6 +3310,9 @@ public void Filtrar_Cuadricula_Categoria(
             // Evento doble clic izquierdo
             Producto productoSeleccionado = miniatura.producto;
             
+             V_Kardex kardex = new V_Kardex(productoSeleccionado.getProducto().getSecuencial(),productoSeleccionado.getProducto().getCodigo());
+                                    kardex.setVisible(true);
+                                    kardex.setLocationRelativeTo(null);
             //Aqui el codigo para abrir Kardex
            
         }
@@ -3340,7 +3394,13 @@ public void cargar_Items_Cuadricula(int secuencialEmpresa, JPanel contenedor, En
             Producto productoSeleccionado = miniatura.producto;
             
             if (!"Servicio".equals(productoSeleccionado.getTipo())){
-            JOptionPane.showMessageDialog(null, "Doble Click");
+            
+                 V_Kardex kardex = new V_Kardex(productoSeleccionado.getProducto().getSecuencial(),productoSeleccionado.getProducto().getCodigo());
+                                    kardex.setVisible(true);
+                                    kardex.setLocationRelativeTo(null);
+                                    
+                                    //A ver
+            
             }            
 // Aquí puedes abrir un diálogo, mostrar detalles, o iniciar edición
             
@@ -3455,7 +3515,7 @@ public void cargar_Items_Lista(int secuencialEmpresa, JTable tabla) {
 
                 tabla.setModel(modelo);
                 tabla.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-
+               
                 for (MouseListener ml : tabla.getMouseListeners()) {
                     tabla.removeMouseListener(ml);
                 }
@@ -3470,6 +3530,9 @@ tabla.addMouseListener(new MouseAdapter() {
             }
         }
     }
+    
+    
+    
 
     @Override
     public void mouseClicked(MouseEvent e) {
@@ -3761,6 +3824,7 @@ public void cargar_ItemsFiltrados_Cuadricula( //este es el original
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel13;
+    private javax.swing.JLabel jLabel14;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
@@ -3779,6 +3843,7 @@ public void cargar_ItemsFiltrados_Cuadricula( //este es el original
     private javax.swing.JMenuItem jMenuItem6;
     private javax.swing.JMenuItem jMenuItem7;
     private javax.swing.JMenuItem jMenuItem8;
+    private javax.swing.JMenuItem jMenuItem9;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane1;
