@@ -1131,14 +1131,36 @@ public class V_Inventario extends javax.swing.JPanel {
 
     private void jMenuItem3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem3ActionPerformed
 
-        Component invocador = menu_contextual.getInvoker();
-        if (invocador instanceof Miniatura_Producto) {
-            Miniatura_Producto miniatura = (Miniatura_Producto) invocador;
+//        Component invocador = menu_contextual.getInvoker();
+//        if (invocador instanceof Miniatura_Producto) {
+//            Miniatura_Producto miniatura = (Miniatura_Producto) invocador;
+//
+//            miniatura.actualizarImagenCamara();
+//            cargarItems_Cuadricula();
+//
+//        }
 
-            miniatura.actualizarImagenCamara();
-            cargarItems_Cuadricula();
 
+
+Component invocador = menu_contextual.getInvoker();
+if (invocador instanceof Miniatura_Producto) {
+    Miniatura_Producto miniatura = (Miniatura_Producto) invocador;
+
+    new SwingWorker<Void, Void>() {
+        @Override
+        protected Void doInBackground() throws Exception {
+            miniatura.actualizarImagenCamara(); // operación pesada
+            return null;
         }
+
+        @Override
+        protected void done() {
+            cargarItems_Cuadricula(); // actualizar UI después
+        }
+    }.execute();
+}
+
+
 
         // TODO add your handling code here:
     }//GEN-LAST:event_jMenuItem3ActionPerformed

@@ -2314,15 +2314,29 @@ public void cargar_Items(int secuencialEmpresa, JPanel contenedor, JPanel conten
 
     private void jMenuItem3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem3ActionPerformed
 
+        
         Component invocador = menu_contextual.getInvoker();
-        if (invocador instanceof Miniatura_Producto) {
-            Miniatura_Producto miniatura = (Miniatura_Producto) invocador;
+if (invocador instanceof Miniatura_Producto) {
+    Miniatura_Producto miniatura = (Miniatura_Producto) invocador;
 
-            miniatura.actualizarImagenCamara();
-            cargarItems();
-
+    new SwingWorker<Void, Void>() {
+        @Override
+        protected Void doInBackground() throws Exception {
+            miniatura.actualizarImagenCamara(); // operación potencialmente pesada
+            cargarItems(); // si también implica carga de datos, mejor aquí
+            return null;
         }
 
+        @Override
+        protected void done() {
+            // Si necesitas actualizar componentes visuales, hazlo aquí
+            // Por ejemplo: panel.repaint(); o actualizar etiquetas
+        }
+    }.execute();
+}
+
+        
+        
         // TODO add your handling code here:
     }//GEN-LAST:event_jMenuItem3ActionPerformed
 
