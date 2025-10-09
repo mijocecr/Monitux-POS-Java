@@ -5,6 +5,7 @@
 package com.monituxpos.Ventanas;
 
 import com.monituxpos.Clases.Egreso;
+import com.monituxpos.Clases.MonituxDBContext;
 import com.monituxpos.Clases.Util;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
@@ -390,87 +391,82 @@ int viewRowIndex = jTable1.getSelectedRow();
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
 
+int confirmResult = JOptionPane.showConfirmDialog(
+        null,
+        "¿Está seguro de eliminar el egreso seleccionado?",
+        "Confirmar Eliminación",
+        JOptionPane.YES_NO_OPTION
+    );
 
-        int confirmResult = JOptionPane.showConfirmDialog(
-    null,
-    "¿Está seguro de eliminar el egreso seleccionado?",
-    "Confirmar Eliminación",
-    JOptionPane.YES_NO_OPTION
-);
+    if (confirmResult != JOptionPane.YES_OPTION) {
+        return;
+    }
 
-if (confirmResult != JOptionPane.YES_OPTION) {
-    return;
-}
+    EntityManager em = MonituxDBContext.getEntityManager();
 
-EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
-EntityManager em = emf.createEntityManager();
+    try {
+        Egreso egreso = em.createQuery(
+            "SELECT e FROM Egreso e WHERE e.Secuencial = :secuencial " +
+            "AND (e.Secuencial_Factura = 0 OR e.Secuencial_Factura IS NULL) " +
+            "AND e.Secuencial_Empresa = :empresa", Egreso.class)
+            .setParameter("secuencial", this.Secuencial)
+            .setParameter("empresa", this.Secuencial_Empresa)
+            .setMaxResults(1)
+            .getResultStream()
+            .findFirst()
+            .orElse(null);
 
-try {
-    Egreso egreso = em.createQuery(
-        "SELECT e FROM Egreso e WHERE e.Secuencial = :secuencial " +
-        "AND (e.Secuencial_Factura = 0 OR e.Secuencial_Factura IS NULL) " +
-        "AND e.Secuencial_Empresa = :empresa", Egreso.class)
-        .setParameter("secuencial", this.Secuencial)
-        .setParameter("empresa", this.Secuencial_Empresa)
-        .setMaxResults(1)
-        .getResultStream()
-        .findFirst()
-        .orElse(null);
+        if (egreso != null) {
+            em.getTransaction().begin();
+            em.remove(egreso);
 
-    if (egreso != null) {
-        em.getTransaction().begin();
-        em.remove(egreso);
+            Util.registrarActividad(
+                this.Secuencial_Usuario,
+                "Eliminó egreso sin factura asociada. Monto: " + egreso.getTotal() +
+                " | Tipo: " + egreso.getTipo_Egreso() +
+                " | Fecha: " + egreso.getFecha(),
+                this.Secuencial_Empresa
+            );
 
-        Util.registrarActividad(
-            this.Secuencial_Usuario,
-            "Eliminó egreso sin factura asociada. Monto: " + egreso.getTotal() +
-            " | Tipo: " + egreso.getTipo_Egreso() +
-            " | Fecha: " + egreso.getFecha(),
-            this.Secuencial_Empresa
-        );
+            em.getTransaction().commit();
 
-        em.getTransaction().commit();
+            JOptionPane.showMessageDialog(null,
+                "Egreso sin factura asociada eliminado correctamente.",
+                "Éxito",
+                JOptionPane.INFORMATION_MESSAGE);
 
+            cargarDatos(); // Refrescar tabla
+        } else {
+            JOptionPane.showMessageDialog(null,
+                "No es posible eliminar el egreso seleccionado.",
+                "Error",
+                JOptionPane.ERROR_MESSAGE);
+        }
+
+        System.out.println("✅ Egreso eliminado correctamente.");
+    } catch (Exception e) {
+        if (em.getTransaction().isActive()) {
+            em.getTransaction().rollback();
+        }
         JOptionPane.showMessageDialog(null,
-            "Egreso sin factura asociada eliminado correctamente.",
-            "Éxito",
-            JOptionPane.INFORMATION_MESSAGE);
-
-        cargarDatos(); // Método que refresca la tabla
-    } else {
-        JOptionPane.showMessageDialog(null,
-            "No es posible eliminar el egreso seleccionado.",
+            "Error al eliminar egreso: " + e.getMessage(),
             "Error",
             JOptionPane.ERROR_MESSAGE);
+        e.printStackTrace();
     }
-} catch (Exception e) {
-    if (em.getTransaction().isActive()) {
-        em.getTransaction().rollback();
-    }
-    JOptionPane.showMessageDialog(null,
-        "Error al eliminar egreso: " + e.getMessage(),
-        "Error",
-        JOptionPane.ERROR_MESSAGE);
-    e.printStackTrace();
-} finally {
-    em.close();
-    emf.close();
-}
-
 
         // TODO add your handling code here:
     }//GEN-LAST:event_jButton2ActionPerformed
 
     
-    public void cargarDatos() {
+   public void cargarDatos() {
     double totalEgresos = 0;
     double totalOtros = 0;
 
     DefaultTableModel modelo = (DefaultTableModel) jTable1.getModel();
     modelo.setRowCount(0);
 
-    EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
-    EntityManager em = emf.createEntityManager();
+    EntityManager em = MonituxDBContext.getEntityManager();
 
     try {
         List<Egreso> egresos = em.createQuery(
@@ -488,7 +484,7 @@ try {
             modelo.addRow(new Object[] {
                 e.getSecuencial(),
                 e.getUsuario() != null ? e.getUsuario().getNombre() : "Desconocido",
-                e.getFecha(), // ya es String
+                e.getFecha(),
                 e.getTipo_Egreso(),
                 e.getTotal(),
                 e.getDescripcion()
@@ -504,12 +500,10 @@ try {
         jLabel8.setText(String.format("%.2f", totalOtros));
         jLabel7.setText(String.format("%.2f", totalEgresos));
 
+        System.out.println("✅ Datos de egresos cargados correctamente.");
     } catch (Exception e) {
-        JOptionPane.showMessageDialog(null, "Error al cargar datos: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(null, "❌ Error al cargar datos: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         e.printStackTrace();
-    } finally {
-        em.close();
-        emf.close();
     }
 }
 
@@ -540,16 +534,14 @@ try {
  
  
     
-    
-    public void cargarDatosFecha(LocalDate fechaInicio, LocalDate fechaFin) {
+   public void cargarDatosFecha(LocalDate fechaInicio, LocalDate fechaFin) {
     double totalEgresos = 0;
     double totalOtros = 0;
 
     DefaultTableModel modelo = (DefaultTableModel) jTable1.getModel();
     modelo.setRowCount(0);
 
-    EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
-    EntityManager em = emf.createEntityManager();
+    EntityManager em = MonituxDBContext.getEntityManager();
 
     try {
         // Convertir rango a LocalDateTime
@@ -574,7 +566,7 @@ try {
             try {
                 fechaConvertida = LocalDateTime.parse(e.getFecha().trim(), formatter);
             } catch (DateTimeParseException ex) {
-                System.out.println("Fecha mal formateada: " + e.getFecha());
+                System.out.println("⚠️ Fecha mal formateada: " + e.getFecha());
                 continue;
             }
 
@@ -601,12 +593,10 @@ try {
         jLabel8.setText(String.format("%.2f", totalOtros));
         jLabel7.setText(String.format("%.2f", totalEgresos));
 
+        System.out.println("✅ Datos de egresos filtrados por fecha cargados correctamente.");
     } catch (Exception e) {
-        JOptionPane.showMessageDialog(null, "Error al cargar datos por fecha: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(null, "❌ Error al cargar datos por fecha: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         e.printStackTrace();
-    } finally {
-        em.close();
-        emf.close();
     }
 }
 

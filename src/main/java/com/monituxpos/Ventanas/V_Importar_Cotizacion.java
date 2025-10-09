@@ -6,6 +6,7 @@ package com.monituxpos.Ventanas;
 
 import com.monituxpos.Clases.Cotizacion;
 import com.monituxpos.Clases.Cotizacion_Detalle;
+import com.monituxpos.Clases.MonituxDBContext;
 import com.monituxpos.Clases.Orden;
 import com.monituxpos.Clases.SelectorCantidad;
 import com.monituxpos.Clases.Util;
@@ -159,16 +160,16 @@ public Runnable onAceptar; // El callback
     tabla.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 }
 
-    
   public void cargarDatosOrden(JTable tabla) {
     // Limpiar la tabla
     DefaultTableModel modelo = (DefaultTableModel) tabla.getModel();
     modelo.setRowCount(0);
 
-    EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
-    EntityManager em = emf.createEntityManager();
+    EntityManager em = null;
 
     try {
+        em = MonituxDBContext.getEntityManager();
+
         List<Orden> ordenes = em.createQuery(
             "SELECT o FROM Orden o WHERE o.Secuencial_Empresa = :empresa", Orden.class)
             .setParameter("empresa", Secuencial_Empresa)
@@ -189,14 +190,15 @@ public Runnable onAceptar; // El callback
             "Error al cargar órdenes de compra: " + e.getMessage(),
             "Error",
             JOptionPane.ERROR_MESSAGE);
+        e.printStackTrace();
     } finally {
-        em.close();
-        emf.close();
+        if (em != null && em.isOpen()) {
+            em.close();
+        }
     }
 }
 
 
-    
     public void filtrarCotizacion(int secuencialCliente, JTable tablaCotizacion, JTable tablaDetalle) {
     // Verificar y configurar columnas si no existen
     if (tablaCotizacion.getColumnCount() == 0) {
@@ -207,10 +209,11 @@ public Runnable onAceptar; // El callback
     DefaultTableModel modelo = (DefaultTableModel) tablaCotizacion.getModel();
     modelo.setRowCount(0);
 
-    EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
-    EntityManager em = emf.createEntityManager();
+    EntityManager em = null;
 
     try {
+        em = MonituxDBContext.getEntityManager();
+
         List<Cotizacion> cotizaciones = em.createQuery(
             "SELECT c FROM Cotizacion c WHERE c.Secuencial_Cliente = :cliente AND c.Secuencial_Empresa = :empresa",
             Cotizacion.class)
@@ -241,9 +244,11 @@ public Runnable onAceptar; // El callback
             "Error al filtrar cotizaciones: " + e.getMessage(),
             "Error",
             JOptionPane.ERROR_MESSAGE);
+        e.printStackTrace();
     } finally {
-        em.close();
-        emf.close();
+        if (em != null && em.isOpen()) {
+            em.close();
+        }
     }
 }
 
@@ -259,10 +264,11 @@ public Runnable onAceptar; // El callback
     DefaultTableModel modelo = (DefaultTableModel) tablaDetalle.getModel();
     modelo.setRowCount(0);
 
-    EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
-    EntityManager em = emf.createEntityManager();
+    EntityManager em = null;
 
     try {
+        em = MonituxDBContext.getEntityManager();
+
         List<Cotizacion_Detalle> detalles = em.createQuery(
             "SELECT d FROM Cotizacion_Detalle d WHERE d.Secuencial_Cotizacion = :cotizacion AND d.Secuencial_Empresa = :empresa",
             Cotizacion_Detalle.class)
@@ -290,9 +296,11 @@ public Runnable onAceptar; // El callback
             "Error al filtrar detalles: " + e.getMessage(),
             "Error",
             JOptionPane.ERROR_MESSAGE);
+        e.printStackTrace();
     } finally {
-        em.close();
-        emf.close();
+        if (em != null && em.isOpen()) {
+            em.close();
+        }
     }
 }
 
@@ -536,7 +544,7 @@ if (jComboBox1.getItemCount() > 0) {
 
         
          if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
-        Util.llenarComboClientePorTelefono(jComboBox1, jTextField1, Secuencial_Empresa);
+        Util.llenarComboClientePorTelefono(jComboBox1, jTextField1.getText(), Secuencial_Empresa);
 
         if (jTextField1.getText().trim().isEmpty()) {
             Util.llenarComboCliente(jComboBox1, Secuencial_Empresa);
@@ -546,16 +554,18 @@ if (jComboBox1.getItemCount() > 0) {
     }//GEN-LAST:event_jTextField1KeyReleased
 
     private void jComboBox1ItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_jComboBox1ItemStateChanged
+  Object seleccionadoObj = jComboBox1.getSelectedItem();
+    if (seleccionadoObj == null) {
+        return; // Evita error si no hay selección
+    }
 
-        DefaultTableModel modelo = (DefaultTableModel) jTable2.getModel();
-modelo.setRowCount(0);
-        
-        String seleccionado = jComboBox1.getSelectedItem().toString();
-int secuencialCliente = Integer.parseInt(seleccionado.split("-")[0].trim());
-filtrarCotizacion(secuencialCliente, jTable1, jTable2);
+    String seleccionado = seleccionadoObj.toString();
+    int secuencialCliente = Integer.parseInt(seleccionado.split("-")[0].trim());
 
+    DefaultTableModel modelo = (DefaultTableModel) jTable2.getModel();
+    modelo.setRowCount(0);
 
-        
+    filtrarCotizacion(secuencialCliente, jTable1, jTable2);
         // TODO add your handling code here:
     }//GEN-LAST:event_jComboBox1ItemStateChanged
 
@@ -582,30 +592,29 @@ filtrarCotizacion(secuencialCliente, jTable1, jTable2);
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
 
-   
-        //***************************************************
-        lista.clear();
-V_Factura_Venta.listaDeItems.clear();
+     lista.clear();
+    V_Factura_Venta.listaDeItems.clear();
 
-if (jTable1.getRowCount() == 0) {
-    JOptionPane.showMessageDialog(null, "No hay cotizaciones disponibles para importar.", "Error", JOptionPane.ERROR_MESSAGE);
-    return;
-}
+    if (jTable1.getRowCount() == 0) {
+        JOptionPane.showMessageDialog(null, "No hay cotizaciones disponibles para importar.", "Error", JOptionPane.ERROR_MESSAGE);
+        return;
+    }
 
-if (jTable2.getRowCount() == 0) {
-    JOptionPane.showMessageDialog(null, "Debe seleccionar una cotizacion.", "Error", JOptionPane.ERROR_MESSAGE);
-    return;
-}
+    if (jTable2.getRowCount() == 0) {
+        JOptionPane.showMessageDialog(null, "Debe seleccionar una cotización.", "Error", JOptionPane.ERROR_MESSAGE);
+        return;
+    }
 
-int opt = JOptionPane.showConfirmDialog(
-    null,
-    "¿Desea importar la cotización seleccionada?\nAdvertencia: Esta se eliminará de los registros.",
-    "Importar Cotización",
-    JOptionPane.YES_NO_OPTION,
-    JOptionPane.WARNING_MESSAGE
-);
+    int opt = JOptionPane.showConfirmDialog(
+        null,
+        "¿Desea importar la cotización seleccionada?\nAdvertencia: Esta se eliminará de los registros.",
+        "Importar Cotización",
+        JOptionPane.YES_NO_OPTION,
+        JOptionPane.WARNING_MESSAGE
+    );
 
-if (opt == JOptionPane.YES_OPTION) {
+    if (opt != JOptionPane.YES_OPTION) return;
+
     clienteSeleccionado = jComboBox1.getSelectedItem().toString();
     lista.clear();
 
@@ -627,10 +636,11 @@ if (opt == JOptionPane.YES_OPTION) {
         }
     }
 
-    EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
-    EntityManager em = emf.createEntityManager();
+    EntityManager em = null;
 
     try {
+        em = MonituxDBContext.getEntityManager();
+
         Cotizacion cotizacion = em.createQuery(
             "SELECT c FROM Cotizacion c WHERE c.Secuencial = :secuencial AND c.Secuencial_Empresa = :empresa",
             Cotizacion.class)
@@ -640,47 +650,45 @@ if (opt == JOptionPane.YES_OPTION) {
 
         if (cotizacion != null) {
             em.getTransaction().begin();
+
+            // Eliminar cabecera
             em.remove(cotizacion);
+
+            // Eliminar detalles asociados
+            List<Cotizacion_Detalle> detalles = em.createQuery(
+                "SELECT d FROM Cotizacion_Detalle d WHERE d.Secuencial_Cotizacion = :cotizacion AND d.Secuencial_Empresa = :empresa",
+                Cotizacion_Detalle.class)
+                .setParameter("cotizacion", this.secuencial)
+                .setParameter("empresa", Secuencial_Empresa)
+                .getResultList();
+
+            for (Cotizacion_Detalle detalle : detalles) {
+                em.remove(detalle);
+            }
+
             em.getTransaction().commit();
         }
 
-        EntityManager em2 = emf.createEntityManager();
-        List<Cotizacion_Detalle> detalles = em2.createQuery(
-            "SELECT d FROM Cotizacion_Detalle d WHERE d.Secuencial_Cotizacion = :cotizacion AND d.Secuencial_Empresa = :empresa",
-            Cotizacion_Detalle.class)
-            .setParameter("cotizacion", this.secuencial)
-            .setParameter("empresa", Secuencial_Empresa)
-            .getResultList();
+        JOptionPane.showMessageDialog(null, "Cotización importada correctamente.", "Importación Exitosa", JOptionPane.INFORMATION_MESSAGE);
 
-        if (!detalles.isEmpty()) {
-            em2.getTransaction().begin();
-            for (Cotizacion_Detalle detalle : detalles) {
-                em2.remove(detalle);
-            }
-            em2.getTransaction().commit();
+        if (onAceptar != null) {
+            onAceptar.run(); // Ejecuta el callback
         }
 
-        em2.close();
-
-        JOptionPane.showMessageDialog(null, "Cotización importada correctamente.", "Importación Exitosa", JOptionPane.INFORMATION_MESSAGE);
-       
-         if (onAceptar != null) {
-        onAceptar.run(); // Ejecuta el callback
-    }
-        
         this.dispose();
 
     } catch (Exception e) {
         JOptionPane.showMessageDialog(null, "Error al importar cotización: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         e.printStackTrace();
+        if (em != null && em.getTransaction().isActive()) {
+            em.getTransaction().rollback();
+        }
     } finally {
-        em.close();
-        emf.close();
+        if (em != null && em.isOpen()) {
+            em.close();
+        }
     }
-}
-
-        //***************************************************
-
+  
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void jComboBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox1ActionPerformed

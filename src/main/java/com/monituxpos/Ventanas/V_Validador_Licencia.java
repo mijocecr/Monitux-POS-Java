@@ -4,8 +4,15 @@
  */
 package com.monituxpos.Ventanas;
 
-import com.monituxpos.Clases.GestorLicencia;
+
+import com.monituxpos.Clases.LicenciaManager;
+import com.monituxpos.Clases.SettingsManager;
 import java.awt.Color;
+import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.prefs.Preferences;
@@ -25,6 +32,15 @@ public class V_Validador_Licencia extends javax.swing.JFrame {
     public V_Validador_Licencia() {
         initComponents();
         this.getContentPane().setBackground(Color.black);
+        this.setLocationRelativeTo(null);
+        
+       // SettingsManager.guardarLicencia("Codigo", "Nombre", "Fecha");
+//
+//if (SettingsManager.esLicenciaValida()) {
+//    System.out.println("Licencia activa para: " + SettingsManager.obtenerNombreCliente());
+//}
+
+        
         
     }
 
@@ -40,14 +56,14 @@ public class V_Validador_Licencia extends javax.swing.JFrame {
         jPanel1 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
-        jTextField1 = new javax.swing.JTextField();
+        txtLicencia = new javax.swing.JTextField();
         jButton1 = new javax.swing.JButton();
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
-        jLabel6 = new javax.swing.JLabel();
-        jLabel7 = new javax.swing.JLabel();
-        jLabel8 = new javax.swing.JLabel();
+        lblCliente = new javax.swing.JLabel();
+        lblResultado = new javax.swing.JLabel();
+        lblExpira = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -56,6 +72,11 @@ public class V_Validador_Licencia extends javax.swing.JFrame {
         jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
         jLabel1.setForeground(new java.awt.Color(255, 255, 255));
         jLabel1.setText("Monitux-POS");
+        jLabel1.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jLabel1MouseClicked(evt);
+            }
+        });
 
         jLabel2.setForeground(new java.awt.Color(255, 255, 255));
         jLabel2.setText("Codigo de Licencia:");
@@ -79,14 +100,14 @@ public class V_Validador_Licencia extends javax.swing.JFrame {
         jLabel5.setForeground(new java.awt.Color(255, 255, 255));
         jLabel5.setText("Expira:");
 
-        jLabel6.setForeground(new java.awt.Color(0, 192, 192));
-        jLabel6.setText("Cliente No Registrado");
+        lblCliente.setForeground(new java.awt.Color(0, 192, 192));
+        lblCliente.setText("Cliente No Registrado");
 
-        jLabel7.setForeground(new java.awt.Color(0, 192, 192));
-        jLabel7.setText("Sin Licencia");
+        lblResultado.setForeground(new java.awt.Color(0, 192, 192));
+        lblResultado.setText("Sin Licencia");
 
-        jLabel8.setForeground(new java.awt.Color(0, 192, 192));
-        jLabel8.setText("Duracion Desconocida");
+        lblExpira.setForeground(new java.awt.Color(0, 192, 192));
+        lblExpira.setText("Duracion Desconocida");
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -96,7 +117,7 @@ public class V_Validador_Licencia extends javax.swing.JFrame {
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jLabel2)
                 .addGap(18, 18, 18)
-                .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(txtLicencia, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(91, 91, 91))
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -108,9 +129,9 @@ public class V_Validador_Licencia extends javax.swing.JFrame {
                             .addComponent(jLabel5))
                         .addGap(28, 28, 28)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel8)
-                            .addComponent(jLabel7)
-                            .addComponent(jLabel6)))
+                            .addComponent(lblExpira)
+                            .addComponent(lblResultado)
+                            .addComponent(lblCliente)))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGap(65, 65, 65)
                         .addComponent(jLabel1))
@@ -127,21 +148,21 @@ public class V_Validador_Licencia extends javax.swing.JFrame {
                 .addGap(18, 18, 18)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel2)
-                    .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(txtLicencia, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel3)
-                    .addComponent(jLabel7))
+                    .addComponent(lblResultado))
                 .addGap(18, 18, 18)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel4)
-                    .addComponent(jLabel6))
+                    .addComponent(lblCliente))
                 .addGap(18, 18, 18)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel5)
-                    .addComponent(jLabel8))
+                    .addComponent(lblExpira))
                 .addContainerGap(15, Short.MAX_VALUE))
         );
 
@@ -167,44 +188,41 @@ public class V_Validador_Licencia extends javax.swing.JFrame {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
 
-// Mostrar imagen (equivalente a pictureBox1.Visible = true)
-//pictureBox1.setVisible(true);
+        validarLicencia();
+        
+      if (LicenciaManager.esLicenciaValida()) {
+            lblResultado.setText("✅ Licencia ya activada");
+           // lblTipo.setText("Tipo: " + LicenciaManager.obtenerTipoLicencia());
+          //  lblEstado.setText("Estado: " + LicenciaManager.obtenerEstado());
+            lblExpira.setText("Expira: " + LicenciaManager.obtenerFechaExpiracion());
+        }
+   
+     
+    }//GEN-LAST:event_jButton1ActionPerformed
 
-// Crear instancia del gestor
-GestorLicencia gestor = new GestorLicencia();
-
-// Validar y activar licencia
-String codigoLicencia = jTextField1.getText().trim();
-boolean ok = gestor.validarYActivarLicencia(codigoLicencia);
-
-if (ok) {
-    JOptionPane.showMessageDialog(null,
-        "✅ Licencia activada correctamente",
-        "Monitux-POS",
-        JOptionPane.INFORMATION_MESSAGE);
-
-    jLabel7.setText("✅ Licencia válida");
-
-    Preferences prefs = Preferences.userRoot().node("Monitux_POS");
-    jLabel6.setText(prefs.get("NombreCliente", ""));
-    jLabel8.setText(
-        LocalDate.parse(prefs.get("FechaExpiracion", ""))
-                 .format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
-    );
-
-    prefs.put("Codigo_Licencia", codigoLicencia);
     
-    // this.dispose(); // Si estás en un JFrame y quieres cerrar la ventana
-} else {
-    JOptionPane.showMessageDialog(null,
-        "❌ Licencia inválida, vencida o ya usada\nContacte con: hn.one.click.solutions@gmail.com",
-        "Monitux-POS",
-        JOptionPane.ERROR_MESSAGE);
-}
+    
+    private void validarLicencia() {
+        String codigo = txtLicencia.getText().trim();
+        if (LicenciaManager.validarYActivar(codigo)) {
+            lblResultado.setText("✅ Licencia válida");
+          //  lblTipo.setText("Tipo: " + LicenciaManager.obtenerTipoLicencia());
+           // lblEstado.setText("Estado: " + LicenciaManager.obtenerEstado());
+            lblExpira.setText("Expira: " + LicenciaManager.obtenerFechaExpiracion());
+        } else {
+            lblResultado.setText("❌ Licencia no válida");
+          //  lblTipo.setText("Tipo: ");
+          //  lblEstado.setText("Estado: ");
+            lblExpira.setText("Expira: ");
+        }
+    }
+    
+    
+    
+    private void jLabel1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel1MouseClicked
 
         
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton1ActionPerformed
+    }//GEN-LAST:event_jLabel1MouseClicked
 
     /**
      * @param args the command line arguments
@@ -238,10 +256,10 @@ if (ok) {
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
-    private javax.swing.JLabel jLabel6;
-    private javax.swing.JLabel jLabel7;
-    private javax.swing.JLabel jLabel8;
     private javax.swing.JPanel jPanel1;
-    private javax.swing.JTextField jTextField1;
+    private javax.swing.JLabel lblCliente;
+    private javax.swing.JLabel lblExpira;
+    private javax.swing.JLabel lblResultado;
+    private javax.swing.JTextField txtLicencia;
     // End of variables declaration//GEN-END:variables
 }

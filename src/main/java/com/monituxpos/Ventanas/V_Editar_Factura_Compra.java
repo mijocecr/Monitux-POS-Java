@@ -15,6 +15,7 @@ import com.monituxpos.Clases.Ingreso;
 import com.monituxpos.Clases.Item_Factura;
 import com.monituxpos.Clases.Kardex;
 import com.monituxpos.Clases.Miniatura_Producto;
+import com.monituxpos.Clases.MonituxDBContext;
 import com.monituxpos.Clases.Producto;
 import com.monituxpos.Clases.SelectorCantidad;
 import com.monituxpos.Clases.Util;
@@ -28,6 +29,7 @@ import static com.monituxpos.Ventanas.V_Factura_Venta.listaDeItems;
 import static com.monituxpos.Ventanas.V_Factura_Venta.selectoresCantidad;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.EntityTransaction;
 import jakarta.persistence.Persistence;
 import jakarta.persistence.TypedQuery;
 import java.awt.Color;
@@ -134,16 +136,17 @@ double descuento = 0.0;
      * Creates new form V_Editar_Factura_Venta
      */
     public V_Editar_Factura_Compra(V_Compras_Ventas x) {
+       
         initComponents();
-        
-         EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
-         em = emf.createEntityManager();
-         
-         this.getContentPane().setBackground(Color.BLACK);
-         
-         form=x;
-         
-         Secuencial_Proveedor= form.Secuencial_Proveedor;
+
+    em = MonituxDBContext.getEntityManager(); // ← Uso centralizado del contexto
+
+    this.getContentPane().setBackground(Color.BLACK);
+
+    form = x;
+    Secuencial_Proveedor = form.Secuencial_Proveedor;
+
+    System.out.println("✅ V_Editar_Factura_Compra inicializado con proveedor: " + Secuencial_Proveedor);
     }
 
     /**
@@ -800,218 +803,25 @@ Guardar_Cambios();
        
     }//GEN-LAST:event_jButton7ActionPerformed
 
-    
-    //**************************************
-    
-    
-//    public void Guardar_Cambios() {
-//    EntityManagerFactory emf = null;
-//    EntityManager em = null;
-//
-//    try {
-//        emf = Persistence.createEntityManagerFactory("MonituxPU");
-//        em = emf.createEntityManager();
-//        em.getTransaction().begin();
-//
-//        Compra compra = em.find(Compra.class, Secuencial);
-//        if (compra == null || compra.getSecuencial_Empresa() != Secuencial_Empresa) {
-//            JOptionPane.showMessageDialog(null, "No se encontró la compra para actualizar.", "Error", JOptionPane.ERROR_MESSAGE);
-//            return;
-//        }
-//
-//        compra.setSecuencial_Proveedor(Secuencial_Proveedor);
-//        compra.setSecuencial_Usuario(Secuencial_Usuario);
-//        compra.setTipo(jComboBox3.getSelectedItem() != null ? jComboBox3.getSelectedItem().toString() : "Sin tipo");
-//        compra.setForma_Pago(jComboBox4.getSelectedItem() != null ? jComboBox4.getSelectedItem().toString() : "Sin forma de pago");
-//        compra.setFecha(Util.fechaActualCompleta());
-//        compra.setTotal(Util.redondear(subTotal));
-//        compra.setGran_Total(Util.redondear(total));
-//        compra.setImpuesto(impuesto);
-//        compra.setOtros_Cargos(otrosCargos);
-//        compra.setDescuento(descuento);
-//
-//        List<String> codigos = listaDeItems.values().stream()
-//            .map(pro -> pro.producto.getCodigo())
-//            .filter(Objects::nonNull)
-//            .distinct()
-//            .toList();
-//
-//        List<Producto> productos = em.createQuery(
-//            "SELECT p FROM Producto p WHERE p.Codigo IN :codigos", Producto.class)
-//            .setParameter("codigos", codigos)
-//            .getResultList();
-//
-//        Map<String, Producto> productosCache = productos.stream()
-//            .collect(Collectors.toMap(Producto::getCodigo, p -> p));
-//
-//        for (Miniatura_Producto pro : listaDeItems.values()) {
-//            String codigo = pro.producto.getCodigo().trim();
-//            Producto productoBD = productosCache.get(codigo);
-//
-//            if (productoBD == null) {
-//                System.out.println("❌ Producto no encontrado en BD para código: " + codigo);
-//                continue;
-//            }
-//
-//            pro.producto.setPrecio_Costo(productoBD.getPrecio_Costo());
-//            pro.producto.setPrecio_Venta(productoBD.getPrecio_Venta());
-//            pro.producto.setCantidad(productoBD.getCantidad());
-//
-//            double nuevaCantidad = pro.getCantidadSelecccion();
-//
-//            Compra_Detalle detalle = em.createQuery(
-//                "SELECT d FROM Compra_Detalle d WHERE d.Secuencial_Factura = :compra AND d.Secuencial_Producto = :producto AND d.Secuencial_Empresa = :empresa",
-//                Compra_Detalle.class)
-//                .setParameter("compra", compra.getSecuencial())
-//                .setParameter("producto", productoBD.getSecuencial())
-//                .setParameter("empresa", compra.getSecuencial_Empresa())
-//                .getResultStream().findFirst().orElse(null);
-//
-//            if (detalle != null) {
-//                if (!"Servicio".equalsIgnoreCase(pro.producto.getTipo())) {
-//                    double cantidadAnterior = detalle.getCantidad();
-//                    double diferencia = nuevaCantidad - cantidadAnterior;
-//
-//                    if (diferencia != 0) {
-//                        Util.registrarMovimientoKardex(productoBD.getSecuencial(), productoBD.getCantidad(), productoBD.getDescripcion(),
-//                            Math.abs(diferencia), productoBD.getPrecio_Costo(), productoBD.getPrecio_Venta(), "Entrada", Secuencial_Empresa);
-//
-//                        Util.registrarActividad(Secuencial_Usuario,
-//                            "Modificó cantidad de " + productoBD.getCodigo() + " en compra No. " + compra.getSecuencial(),
-//                            Secuencial_Empresa);
-//
-//                        productoBD.setCantidad(productoBD.getCantidad() + diferencia);
-//                        em.merge(productoBD);
-//                    }
-//                }
-//
-//                detalle.setCantidad(nuevaCantidad);
-//                detalle.setPrecio(Util.redondear(productoBD.getPrecio_Costo()));
-//                detalle.setTotal(Util.redondear(nuevaCantidad * productoBD.getPrecio_Costo()));
-//                detalle.setDescripcion(productoBD.getDescripcion());
-//                detalle.setTipo(productoBD.getTipo());
-//                detalle.setFecha(compra.getFecha());
-//                detalle.setSecuencial_Usuario(compra.getSecuencial_Usuario());
-//                detalle.setSecuencial_Proveedor(compra.getSecuencial_Proveedor());
-//            } else {
-//                Compra_Detalle nuevo = new Compra_Detalle();
-//                nuevo.setSecuencial_Empresa(compra.getSecuencial_Empresa());
-//                nuevo.setSecuencial_Factura(compra.getSecuencial());
-//                nuevo.setSecuencial_Proveedor(compra.getSecuencial_Proveedor());
-//                nuevo.setSecuencial_Usuario(compra.getSecuencial_Usuario());
-//                nuevo.setFecha(compra.getFecha());
-//                nuevo.setSecuencial_Producto(productoBD.getSecuencial());
-//                nuevo.setCodigo(productoBD.getCodigo());
-//                nuevo.setDescripcion(productoBD.getDescripcion());
-//                nuevo.setCantidad(nuevaCantidad);
-//                nuevo.setPrecio(Util.redondear(productoBD.getPrecio_Costo()));
-//                nuevo.setTotal(Util.redondear(nuevaCantidad * productoBD.getPrecio_Costo()));
-//                nuevo.setTipo(productoBD.getTipo());
-//                em.persist(nuevo);
-//
-//                Util.registrarActividad(Secuencial_Usuario,
-//                    "Agregó " + nuevaCantidad + " de " + productoBD.getCodigo() + " a compra No. " + compra.getSecuencial(),
-//                    Secuencial_Empresa);
-//
-//                if (!"Servicio".equalsIgnoreCase(productoBD.getTipo())) {
-//                    Util.registrarMovimientoKardex(productoBD.getSecuencial(), productoBD.getCantidad(), productoBD.getDescripcion(),
-//                        nuevaCantidad, productoBD.getPrecio_Costo(), productoBD.getPrecio_Venta(), "Entrada", Secuencial_Empresa);
-//
-//                    productoBD.setCantidad(productoBD.getCantidad() + nuevaCantidad);
-//                    em.merge(productoBD);
-//                }
-//            }
-//
-//            Cuentas_Pagar cuenta = em.createQuery(
-//                "SELECT c FROM Cuentas_Pagar c WHERE c.Secuencial_Factura = :compra AND c.Secuencial_Proveedor = :proveedor AND c.Secuencial_Empresa = :empresa",
-//                Cuentas_Pagar.class)
-//                .setParameter("compra", compra.getSecuencial())
-//                .setParameter("proveedor", compra.getSecuencial_Proveedor())
-//                .setParameter("empresa", compra.getSecuencial_Empresa())
-//                .getResultStream().findFirst().orElse(null);
-//
-//            if (cuenta != null) {
-//                cuenta.setGran_Total(Util.redondear(compra.getGran_Total()));
-//                cuenta.setTotal(Util.redondear(compra.getTotal()));
-//                cuenta.setSaldo(Util.redondear(cuenta.getGran_Total() - cuenta.getPagado()));
-//            }
-//        }
-//
-//        Egreso egreso = em.createQuery(
-//            "SELECT e FROM Egreso e WHERE e.Secuencial_Factura = :compra AND e.Secuencial_Empresa = :empresa",
-//            Egreso.class)
-//            .setParameter("compra", compra.getSecuencial())
-//            .setParameter("empresa", compra.getSecuencial_Empresa())
-//            .getResultStream().findFirst().orElse(null);
-//
-//        if (egreso != null) {
-//            egreso.setTotal(compra.getGran_Total());
-//            egreso.setDescripcion("Actualización de egreso por compra No. " + compra.getSecuencial());
-//            egreso.setFecha(Util.fechaActualCompleta());
-//            egreso.setTipo_Egreso(compra.getTipo());
-//            egreso.setSecuencial_Usuario(compra.getSecuencial_Usuario());
-//            em.merge(egreso);
-//        } else {
-//            System.out.println("⚠️ No se encontró egreso asociado a la compra No. " + compra.getSecuencial());
-//        }
-//
-//        FacturaCompletaPDF_Compra factura = new FacturaCompletaPDF_Compra();
-//        factura.setSecuencial(compra.getSecuencial());
-//        factura.setProveedor(comboProveedor.getSelectedItem().toString().split("- ")[1].trim());
-//        factura.setTipoCompra(compra.getTipo());
-//        factura.setMetodoPago(compra.getForma_Pago());
-//        factura.setFecha(compra.getFecha());
-//        factura.setItems(ObtenerItemsDesdeGrid(jTable1));
-//        factura.setISV(compra.getImpuesto());
-//        factura.setOtrosCargos(compra.getOtros_Cargos());
-//        factura.setDescuento(compra.getDescuento());
-//
-//        compra.setDocumento(factura.GeneratePdfToBytes());
-//
-//        em.merge(compra);
-//        em.getTransaction().commit();
-//
-//        listaDeItems.clear();
-//        listaDeItemsEliminar.clear();
-//
-//        JOptionPane.showMessageDialog(null, "Compra No. " + compra.getSecuencial() + " actualizada correctamente.", "Compras", JOptionPane.INFORMATION_MESSAGE);
-//        form.cargar_Datos_Compra();
-//        this.dispose();
-//
-//        } catch (Exception ex) {
-//        if (em != null && em.getTransaction().isActive()) {
-//            em.getTransaction().rollback();
-//        }
-//        JOptionPane.showMessageDialog(null, "Error al actualizar compra:\n" + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-//    } finally {
-//        if (em != null && em.isOpen()) {
-//            em.close();
-//        }
-//        if (emf != null && emf.isOpen()) {
-//            emf.close();
-//        }
-//    }
-//}
-//
-//    
-    //**************************************
    
-    
-    public void Guardar_Cambios() {
-    EntityManagerFactory emf = null;
+  public void Guardar_Cambios() {
     EntityManager em = null;
-
+    EntityTransaction tx = null;
+    List<Object[]> movimientosPendientes = new ArrayList<>();
+    List<String> actividadesPendientes = new ArrayList<>();
     try {
-        emf = Persistence.createEntityManagerFactory("MonituxPU");
-        em = emf.createEntityManager();
-        em.getTransaction().begin();
-
+        em = MonituxDBContext.getEntityManager();
+        if (em == null || !em.isOpen()) {
+            throw new IllegalStateException("EntityManager no disponible.");
+        }
+        tx = em.getTransaction();
+        tx.begin();
         Compra compra = em.find(Compra.class, Secuencial);
         if (compra == null || compra.getSecuencial_Empresa() != Secuencial_Empresa) {
             JOptionPane.showMessageDialog(null, "No se encontró la compra para actualizar.", "Error", JOptionPane.ERROR_MESSAGE);
+            tx.rollback();
             return;
         }
-
         compra.setSecuencial_Proveedor(Secuencial_Proveedor);
         compra.setSecuencial_Usuario(Secuencial_Usuario);
         compra.setTipo(jComboBox3.getSelectedItem() != null ? jComboBox3.getSelectedItem().toString() : "Sin tipo");
@@ -1022,36 +832,28 @@ Guardar_Cambios();
         compra.setImpuesto(impuesto);
         compra.setOtros_Cargos(otrosCargos);
         compra.setDescuento(descuento);
-
         List<String> codigos = listaDeItems.values().stream()
             .map(pro -> pro.producto.getCodigo())
             .filter(Objects::nonNull)
             .distinct()
             .toList();
-
         List<Producto> productos = em.createQuery(
             "SELECT p FROM Producto p WHERE p.Codigo IN :codigos", Producto.class)
             .setParameter("codigos", codigos)
             .getResultList();
-
         Map<String, Producto> productosCache = productos.stream()
             .collect(Collectors.toMap(Producto::getCodigo, p -> p));
-
         for (Miniatura_Producto pro : listaDeItems.values()) {
             String codigo = pro.producto.getCodigo().trim();
             Producto productoBD = productosCache.get(codigo);
-
             if (productoBD == null) {
                 System.out.println("❌ Producto no encontrado en BD para código: " + codigo);
                 continue;
             }
-
             pro.producto.setPrecio_Costo(productoBD.getPrecio_Costo());
             pro.producto.setPrecio_Venta(productoBD.getPrecio_Venta());
             pro.producto.setCantidad(productoBD.getCantidad());
-
             double nuevaCantidad = pro.getCantidadSelecccion();
-
             Compra_Detalle detalle = em.createQuery(
                 "SELECT d FROM Compra_Detalle d WHERE d.Secuencial_Factura = :compra AND d.Secuencial_Producto = :producto AND d.Secuencial_Empresa = :empresa",
                 Compra_Detalle.class)
@@ -1059,38 +861,32 @@ Guardar_Cambios();
                 .setParameter("producto", productoBD.getSecuencial())
                 .setParameter("empresa", compra.getSecuencial_Empresa())
                 .getResultStream().findFirst().orElse(null);
-
             if (detalle != null) {
                 if (!"Servicio".equalsIgnoreCase(pro.producto.getTipo())) {
-                    double cantidadAnterior = detalle.getCantidad();
-                    double diferencia = nuevaCantidad - cantidadAnterior;
-
+                    double diferencia = nuevaCantidad - detalle.getCantidad();
                     if (diferencia != 0) {
-                        double existenciaAnterior = productoBD.getCantidad();
                         String tipoMovimiento = diferencia > 0 ? "Entrada" : "Salida";
                         double cantidadMovimiento = Math.abs(diferencia);
-
-                        Util.registrarMovimientoKardex(
+                        movimientosPendientes.add(new Object[] {
                             productoBD.getSecuencial(),
-                            existenciaAnterior,
+                            productoBD.getCantidad(),
                             productoBD.getDescripcion(),
                             cantidadMovimiento,
                             productoBD.getPrecio_Costo(),
                             productoBD.getPrecio_Venta(),
                             tipoMovimiento,
                             Secuencial_Empresa
-                        );
+                        });
+                        productoBD.setCantidad(productoBD.getCantidad() + diferencia);
+                        em.merge(productoBD);
 
                         String accion = diferencia > 0 ? "Agregó" : "Quitó";
-                        Util.registrarActividad(Secuencial_Usuario,
-                            accion + " " + cantidadMovimiento + " unidades de " + productoBD.getCodigo() + " en modificación de compra No. " + compra.getSecuencial(),
-                            Secuencial_Empresa);
-
-                        productoBD.setCantidad(existenciaAnterior + diferencia);
-                        em.merge(productoBD);
+                        actividadesPendientes.add(
+                            accion + " " + cantidadMovimiento + " unidades de " + productoBD.getCodigo() +
+                            " en modificación de compra No. " + compra.getSecuencial()
+                        );
                     }
                 }
-
                 detalle.setCantidad(nuevaCantidad);
                 detalle.setPrecio(Util.redondear(productoBD.getPrecio_Costo()));
                 detalle.setTotal(Util.redondear(nuevaCantidad * productoBD.getPrecio_Costo()));
@@ -1114,30 +910,25 @@ Guardar_Cambios();
                 nuevo.setTotal(Util.redondear(nuevaCantidad * productoBD.getPrecio_Costo()));
                 nuevo.setTipo(productoBD.getTipo());
                 em.persist(nuevo);
-
-                Util.registrarActividad(Secuencial_Usuario,
-                    "Agregó " + nuevaCantidad + " de " + productoBD.getCodigo() + " a compra No. " + compra.getSecuencial(),
-                    Secuencial_Empresa);
-
+                actividadesPendientes.add(
+                    "Agregó " + nuevaCantidad + " de " + productoBD.getCodigo() +
+                    " a compra No. " + compra.getSecuencial()
+                );
                 if (!"Servicio".equalsIgnoreCase(productoBD.getTipo())) {
-                    double existenciaAnterior = productoBD.getCantidad();
-
-                    Util.registrarMovimientoKardex(
+                    movimientosPendientes.add(new Object[] {
                         productoBD.getSecuencial(),
-                        existenciaAnterior,
+                        productoBD.getCantidad(),
                         productoBD.getDescripcion(),
                         nuevaCantidad,
                         productoBD.getPrecio_Costo(),
                         productoBD.getPrecio_Venta(),
                         "Entrada",
                         Secuencial_Empresa
-                    );
-
-                    productoBD.setCantidad(existenciaAnterior + nuevaCantidad);
+                    });
+                    productoBD.setCantidad(productoBD.getCantidad() + nuevaCantidad);
                     em.merge(productoBD);
                 }
             }
-
             Cuentas_Pagar cuenta = em.createQuery(
                 "SELECT c FROM Cuentas_Pagar c WHERE c.Secuencial_Factura = :compra AND c.Secuencial_Proveedor = :proveedor AND c.Secuencial_Empresa = :empresa",
                 Cuentas_Pagar.class)
@@ -1152,14 +943,12 @@ Guardar_Cambios();
                 cuenta.setSaldo(Util.redondear(cuenta.getGran_Total() - cuenta.getPagado()));
             }
         }
-
         Egreso egreso = em.createQuery(
             "SELECT e FROM Egreso e WHERE e.Secuencial_Factura = :compra AND e.Secuencial_Empresa = :empresa",
             Egreso.class)
             .setParameter("compra", compra.getSecuencial())
             .setParameter("empresa", compra.getSecuencial_Empresa())
             .getResultStream().findFirst().orElse(null);
-
         if (egreso != null) {
             egreso.setTotal(compra.getGran_Total());
             egreso.setDescripcion("Actualización de egreso por compra No. " + compra.getSecuencial());
@@ -1167,10 +956,7 @@ Guardar_Cambios();
             egreso.setTipo_Egreso(compra.getTipo());
             egreso.setSecuencial_Usuario(compra.getSecuencial_Usuario());
             em.merge(egreso);
-        } else {
-            System.out.println("⚠️ No se encontró egreso asociado a la compra No. " + compra.getSecuencial());
         }
-
         FacturaCompletaPDF_Compra factura = new FacturaCompletaPDF_Compra();
         factura.setSecuencial(compra.getSecuencial());
         factura.setProveedor(comboProveedor.getSelectedItem().toString().split("- ")[1].trim());
@@ -1181,23 +967,17 @@ Guardar_Cambios();
         factura.setISV(compra.getImpuesto());
         factura.setOtrosCargos(compra.getOtros_Cargos());
         factura.setDescuento(compra.getDescuento());
-
         compra.setDocumento(factura.GeneratePdfToBytes());
         em.merge(compra);
-        em.getTransaction().commit();
-
+        tx.commit();
         listaDeItems.clear();
         listaDeItemsEliminar.clear();
-
-        JOptionPane.showMessageDialog(null, "Compra No. " + compra.getSecuencial() + " actualizada correctamente.", "Compras", JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(null, "Compra No. " + compra.getSecuencial() + " actualizada correctamente.", "Compras", JOptionPane.INFORMATION_MESSAGE);
         form.cargar_Datos_Compra();
         this.dispose();
-
-    
-            
-                } catch (Exception ex) {
-        if (em != null && em.getTransaction().isActive()) {
-            em.getTransaction().rollback();
+    } catch (Exception ex) {
+        if (tx != null && tx.isActive()) {
+            tx.rollback();
         }
         JOptionPane.showMessageDialog(null, "Error al actualizar compra:\n" + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         ex.printStackTrace();
@@ -1205,14 +985,26 @@ Guardar_Cambios();
         if (em != null && em.isOpen()) {
             em.close();
         }
-        if (emf != null && emf.isOpen()) {
-            emf.close();
-        }
+    }
+    // Ejecutar Kardex y actividad fuera del contexto transaccional
+    for (Object[] mov : movimientosPendientes) {
+        Util.registrarMovimientoKardex(
+            (int) mov[0],
+            (double) mov[1],
+            (String) mov[2],
+            (double) mov[3],
+            (double) mov[4],
+            (double) mov[5],
+            (String) mov[6],
+            (int) mov[7]
+        );
+    }
+    for (String actividad : actividadesPendientes) {
+        Util.registrarActividad(Secuencial_Usuario, actividad, Secuencial_Empresa);
     }
 }
 
-    
-    
+        
    //****************************************      
                 
     
@@ -1434,14 +1226,24 @@ Guardar_Cambios();
 
     
      
-     
- public void Quitar_Elemento(EntityManager em) {
+ public void Quitar_Elemento() {
     List<Component> paraEliminar = new ArrayList<>();
     double totalRestado = 0.0;
     jButton7.setEnabled(false);
 
+    EntityManager em = null;
+    EntityTransaction tx = null;
+    List<Object[]> movimientosPendientes = new ArrayList<>();
+    List<String> actividadesPendientes = new ArrayList<>();
+
     try {
-        em.getTransaction().begin();
+        em = MonituxDBContext.getEntityManager();
+        if (em == null || !em.isOpen()) {
+            throw new IllegalStateException("EntityManager no disponible.");
+        }
+
+        tx = em.getTransaction();
+        tx.begin();
 
         for (Component comp : contenedor_selector.getComponents()) {
             if (!(comp instanceof SelectorCantidad selector)) continue;
@@ -1465,7 +1267,6 @@ Guardar_Cambios();
             double precio = copia.producto.getPrecio_Costo();
             totalRestado += cantidad * precio;
 
-            // Eliminar detalle de compra
             List<Compra_Detalle> detalles = em.createQuery(
                 "SELECT cd FROM Compra_Detalle cd WHERE cd.Codigo = :codigo AND cd.Secuencial_Factura = :compra AND cd.Secuencial_Empresa = :empresa",
                 Compra_Detalle.class)
@@ -1478,13 +1279,12 @@ Guardar_Cambios();
                 em.remove(detalles.get(0));
             }
 
-            // Actualizar inventario y Kardex si no es servicio
             if (!"Servicio".equalsIgnoreCase(copia.producto.getTipo())) {
                 Producto producto = em.find(Producto.class, copia.producto.getSecuencial());
                 if (producto != null) {
                     double existenciaAnterior = producto.getCantidad();
 
-                    Util.registrarMovimientoKardex(
+                    movimientosPendientes.add(new Object[] {
                         producto.getSecuencial(),
                         existenciaAnterior,
                         producto.getDescripcion(),
@@ -1493,25 +1293,24 @@ Guardar_Cambios();
                         producto.getPrecio_Venta(),
                         "Salida",
                         Secuencial_Empresa
-                    );
+                    });
 
                     producto.setCantidad(existenciaAnterior - cantidad);
                     em.merge(producto);
                 }
             }
 
-            Util.registrarActividad(Secuencial_Usuario,
+            actividadesPendientes.add(
                 "Eliminó el Item: " + codigo + " de la Compra No. " + Secuencial + "\n" +
                 "Registrado a: " + precio + ", cantidad: " + cantidad + "\n" +
-                "Total: " + (cantidad * precio),
-                Secuencial_Empresa);
+                "Total: " + (cantidad * precio)
+            );
         }
 
         for (Component comp : paraEliminar) {
             contenedor_selector.remove(comp);
         }
 
-        // Actualizar totales en Compra
         Compra compra = em.find(Compra.class, Secuencial);
         if (compra != null) {
             compra.setTotal(compra.getTotal() - totalRestado);
@@ -1519,7 +1318,6 @@ Guardar_Cambios();
             em.merge(compra);
         }
 
-        // Actualizar cuentas por pagar si aplica
         List<Cuentas_Pagar> cuentas = em.createQuery(
             "SELECT c FROM Cuentas_Pagar c WHERE c.Secuencial_Factura = :compra AND c.Secuencial_Empresa = :empresa",
             Cuentas_Pagar.class)
@@ -1535,7 +1333,7 @@ Guardar_Cambios();
             em.merge(cuenta);
         }
 
-        em.getTransaction().commit();
+        tx.commit();
 
         jLabel3.setText(String.valueOf(listaDeItems.size()));
         contenedor_selector.revalidate();
@@ -1544,9 +1342,33 @@ Guardar_Cambios();
         JOptionPane.showMessageDialog(null, "Se ha modificado la compra y el elemento se ha retirado correctamente.");
 
     } catch (Exception ex) {
-        em.getTransaction().rollback();
+        if (tx != null && tx.isActive()) {
+            tx.rollback();
+        }
         JOptionPane.showMessageDialog(null, "Error al quitar el elemento: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         ex.printStackTrace();
+    } finally {
+        if (em != null && em.isOpen()) {
+            em.close();
+        }
+    }
+
+    // Ejecutar Kardex y actividad fuera del contexto principal
+    for (Object[] mov : movimientosPendientes) {
+        Util.registrarMovimientoKardex(
+            (int) mov[0],
+            (double) mov[1],
+            (String) mov[2],
+            (double) mov[3],
+            (double) mov[4],
+            (double) mov[5],
+            (String) mov[6],
+            (int) mov[7]
+        );
+    }
+
+    for (String actividad : actividadesPendientes) {
+        Util.registrarActividad(Secuencial_Usuario, actividad, Secuencial_Empresa);
     }
 }
 
@@ -1588,89 +1410,81 @@ Guardar_Cambios();
     
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
 
-        
-        icono_carga.setVisible(true);
+      icono_carga.setVisible(true);
 
-try {
-    int secuencialCompra = Secuencial;
+    List<Object[]> movimientosPendientes = new ArrayList<>();
+    List<String> actividadesPendientes = new ArrayList<>();
 
-    int confirmResult = JOptionPane.showConfirmDialog(
-        null,
-        "¿Está seguro de eliminar la Compra No. " + secuencialCompra + "?",
-        "Confirmar Eliminación",
-        JOptionPane.YES_NO_OPTION
-    );
+    try {
+        int secuencialCompra = Secuencial;
 
-    if (confirmResult != JOptionPane.YES_OPTION) return;
+        int confirmResult = JOptionPane.showConfirmDialog(
+            null,
+            "¿Está seguro de eliminar la Compra No. " + secuencialCompra + "?",
+            "Confirmar Eliminación",
+            JOptionPane.YES_NO_OPTION
+        );
 
-    EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
-    try (EntityManager em = emf.createEntityManager()) {
-        em.getTransaction().begin();
+        if (confirmResult != JOptionPane.YES_OPTION) return;
+
+        EntityManager em = MonituxDBContext.getEntityManager();
+        EntityTransaction tx = em.getTransaction();
+        tx.begin();
 
         Compra compra = em.find(Compra.class, secuencialCompra);
         if (compra == null) {
             JOptionPane.showMessageDialog(null, "Compra no encontrada.", "Error", JOptionPane.ERROR_MESSAGE);
+            tx.rollback();
             return;
         }
 
-        // 🔁 Eliminar ingreso equivalente: Egreso
         Egreso egresoAsociado = em.createQuery(
             "SELECT e FROM Egreso e WHERE e.Secuencial_Factura = :factura AND e.Secuencial_Empresa = :empresa",
-            Egreso.class
-        )
-        .setParameter("factura", secuencialCompra)
-        .setParameter("empresa", Secuencial_Empresa)
-        .getResultStream()
-        .findFirst()
-        .orElse(null);
+            Egreso.class)
+            .setParameter("factura", secuencialCompra)
+            .setParameter("empresa", Secuencial_Empresa)
+            .getResultStream()
+            .findFirst()
+            .orElse(null);
 
         if (egresoAsociado != null) {
             em.remove(egresoAsociado);
-            Util.registrarActividad(
-                Secuencial_Usuario,
-                "Se eliminó el egreso relacionado a la Compra No. " + secuencialCompra,
-                Secuencial_Empresa
-            );
+            actividadesPendientes.add("Se eliminó el egreso relacionado a la Compra No. " + secuencialCompra);
         }
 
-        // 💳 Eliminar cuenta por pagar
         Cuentas_Pagar ctap = em.createQuery(
             "SELECT c FROM Cuentas_Pagar c WHERE c.Secuencial_Factura = :compra AND c.Secuencial_Proveedor = :proveedor AND c.Secuencial_Empresa = :empresa",
-            Cuentas_Pagar.class
-        )
-        .setParameter("compra", secuencialCompra)
-        .setParameter("proveedor", Secuencial_Proveedor)
-        .setParameter("empresa", Secuencial_Empresa)
-        .getResultStream()
-        .findFirst()
-        .orElse(null);
+            Cuentas_Pagar.class)
+            .setParameter("compra", secuencialCompra)
+            .setParameter("proveedor", Secuencial_Proveedor)
+            .setParameter("empresa", Secuencial_Empresa)
+            .getResultStream()
+            .findFirst()
+            .orElse(null);
 
         if (ctap != null) {
             em.remove(ctap);
         }
 
-        // 📦 Recuperar detalles de compra
         List<Compra_Detalle> detalles = em.createQuery(
             "SELECT cd FROM Compra_Detalle cd WHERE cd.Secuencial_Factura = :factura",
-            Compra_Detalle.class
-        )
-        .setParameter("factura", secuencialCompra)
-        .getResultList();
+            Compra_Detalle.class)
+            .setParameter("factura", secuencialCompra)
+            .getResultList();
 
         for (Compra_Detalle detalle : detalles) {
             Producto producto = em.createQuery(
                 "SELECT p FROM Producto p WHERE p.Codigo = :codigo",
-                Producto.class
-            )
-            .setParameter("codigo", detalle.getCodigo())
-            .getResultStream()
-            .findFirst()
-            .orElse(null);
+                Producto.class)
+                .setParameter("codigo", detalle.getCodigo())
+                .getResultStream()
+                .findFirst()
+                .orElse(null);
 
             if (producto != null && !"Servicio".equals(producto.getTipo()) && detalle.getCantidad() != null) {
                 double cantidadRetirada = detalle.getCantidad();
 
-                Util.registrarMovimientoKardex(
+                movimientosPendientes.add(new Object[] {
                     producto.getSecuencial(),
                     producto.getCantidad(),
                     producto.getDescripcion(),
@@ -1679,27 +1493,39 @@ try {
                     producto.getPrecio_Venta(),
                     "Salida",
                     Secuencial_Empresa
-                );
+                });
 
                 producto.setCantidad(producto.getCantidad() - cantidadRetirada);
                 em.merge(producto);
             }
         }
 
-        for (Compra_Detalle detalle : detalles) {
-            em.remove(detalle);
-        }
-
+        detalles.forEach(em::remove);
         em.remove(compra);
 
-        Util.registrarActividad(
-            Secuencial_Usuario,
+        actividadesPendientes.add(
             "Eliminó la Compra No. " + secuencialCompra + " con " + detalles.size() +
-            " productos. Registrada por un monto de " + compra.getGran_Total(),
-            Secuencial_Empresa
+            " productos. Registrada por un monto de " + compra.getGran_Total()
         );
 
-        em.getTransaction().commit();
+        tx.commit();
+
+        for (Object[] mov : movimientosPendientes) {
+            Util.registrarMovimientoKardex(
+                (int) mov[0],
+                (double) mov[1],
+                (String) mov[2],
+                (double) mov[3],
+                (double) mov[4],
+                (double) mov[5],
+                (String) mov[6],
+                (int) mov[7]
+            );
+        }
+
+        for (String actividad : actividadesPendientes) {
+            Util.registrarActividad(Secuencial_Usuario, actividad, Secuencial_Empresa);
+        }
 
         JOptionPane.showMessageDialog(
             null,
@@ -1710,19 +1536,20 @@ try {
 
         this.dispose();
         form.cargar_Datos_Compra();
-    }
-} catch (Exception ex) {
-    JOptionPane.showMessageDialog(
-        null,
-        "Error al eliminar compra: " + ex.getMessage(),
-        "Error",
-        JOptionPane.ERROR_MESSAGE
-    );
-} finally {
-    icono_carga.setVisible(false);
-}
 
-        
+        System.out.println("✅ Compra eliminada correctamente: " + secuencialCompra);
+
+    } catch (Exception ex) {
+        JOptionPane.showMessageDialog(
+            null,
+            "Error al eliminar compra: " + ex.getMessage(),
+            "Error",
+            JOptionPane.ERROR_MESSAGE
+        );
+        ex.printStackTrace();
+    } finally {
+        icono_carga.setVisible(false);
+    }
         
         // TODO add your handling code here:
     }//GEN-LAST:event_jButton4ActionPerformed
@@ -1731,7 +1558,7 @@ try {
 
       
      
-        Quitar_Elemento(em);
+        Quitar_Elemento();
         
         
          Actualizar_Detalle();
@@ -1917,34 +1744,46 @@ jButton7.setEnabled(true);
     
  
  //*************
-    
-public void cargar_Items(int secuencialEmpresa, JPanel contenedor, JPanel contenedor_selector, EntityManager entityManager) {
+public void cargar_Items(int secuencialEmpresa, JPanel contenedor, JPanel contenedor_selector) {
     icono_carga.setVisible(true);
 
-    // Usamos GridBagLayout para evitar el ajuste automático de tamaño
     contenedor.setLayout(new GridBagLayout());
-    contenedor_selector.setLayout(new GridLayout(0, 1, 5, 5)); // Selector puede seguir con GridLayout
-
+    contenedor_selector.setLayout(new GridLayout(0, 1, 5, 5));
     contenedor.removeAll();
-    //contenedor_selector.removeAll();
-   // listaDeItems.clear();
-    //selectoresCantidad.clear();
 
-    List<Producto> productos = entityManager
-        .createQuery("SELECT p FROM Producto p WHERE p.Secuencial_Empresa = :empresa", Producto.class)
-        .setParameter("empresa", secuencialEmpresa)
-        .getResultList();
+    EntityManager em = null;
+    List<Producto> productos = new ArrayList<>();
+
+    try {
+        em = MonituxDBContext.getEntityManager();
+        if (em == null || !em.isOpen()) {
+            throw new IllegalStateException("EntityManager no disponible.");
+        }
+
+        productos = em.createQuery(
+            "SELECT p FROM Producto p WHERE p.Secuencial_Empresa = :empresa", Producto.class)
+            .setParameter("empresa", secuencialEmpresa)
+            .getResultList();
+
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(null, "Error al cargar productos: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        e.printStackTrace();
+    } finally {
+        if (em != null && em.isOpen()) {
+            em.close();
+        }
+    }
 
     GridBagConstraints gbc = new GridBagConstraints();
-    gbc.insets = new Insets(5, 5, 5, 5); // Espaciado entre miniaturas
-    gbc.fill = GridBagConstraints.NONE; // No expandir
+    gbc.insets = new Insets(5, 5, 5, 5);
+    gbc.fill = GridBagConstraints.NONE;
     gbc.anchor = GridBagConstraints.NORTHWEST;
 
     int col = 0, row = 0;
 
     for (Producto producto : productos) {
         Miniatura_Producto miniatura = new Miniatura_Producto(producto, false);
-        miniatura.setPreferredSize(new Dimension(120, 170)); // Tamaño fijo para cada miniatura
+        miniatura.setPreferredSize(new Dimension(120, 170));
 
         miniatura.addMouseListener(new MouseAdapter() {
             @Override
@@ -1980,7 +1819,7 @@ public void cargar_Items(int secuencialEmpresa, JPanel contenedor, JPanel conten
             }
         });
 
-        String comentario = miniatura.cargarComentario();
+        String comentario = miniatura.cargarComentario(); // Este método debe abrir su propio EM si lo necesita
         String descripcion = miniatura.producto.getDescripcion();
         miniatura.setToolTipText(
             comentario != null
@@ -1988,12 +1827,9 @@ public void cargar_Items(int secuencialEmpresa, JPanel contenedor, JPanel conten
                 : "<html><b>" + descripcion + "</b><br></html>"
         );
 
-        // Posicionamiento en la cuadrícula
         gbc.gridx = col;
         gbc.gridy = row;
         contenedor.add(miniatura, gbc);
-        
-        
 
         col++;
         if (col == 3) {
@@ -2005,23 +1841,24 @@ public void cargar_Items(int secuencialEmpresa, JPanel contenedor, JPanel conten
     contenedor.revalidate();
     contenedor.repaint();
     icono_carga.setVisible(false);
-    
 }
 
  
     public void cargarItems() {
-    
-        contenedor.removeAll();
-        icono_carga.setVisible(true); // Mostrar ícono de carga
+    contenedor.removeAll();
+    icono_carga.setVisible(true); // Mostrar ícono de carga
 
     SwingWorker<Void, Void> worker = new SwingWorker<>() {
         @Override
         protected Void doInBackground() {
-            EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
-            EntityManager em = emf.createEntityManager();
-            cargar_Items(Secuencial_Empresa, contenedor, contenedor_selector, em);
-            em.close();
-            emf.close();
+            EntityManager em = MonituxDBContext.getEntityManager();
+            try {
+                cargar_Items(Secuencial_Empresa, contenedor, contenedor_selector);
+                System.out.println("✅ Items cargados correctamente para empresa: " + Secuencial_Empresa);
+            } catch (Exception ex) {
+                System.err.println("❌ Error al cargar items: " + ex.getMessage());
+                ex.printStackTrace();
+            }
             return null;
         }
 
@@ -2036,7 +1873,6 @@ public void cargar_Items(int secuencialEmpresa, JPanel contenedor, JPanel conten
     worker.execute(); // Ejecutar en segundo plano
 }
 
-    
     
     
     public void cargarItems_Filtrados( // Original
@@ -2240,15 +2076,16 @@ public void cargar_Items(int secuencialEmpresa, JPanel contenedor, JPanel conten
     private void jTextField1KeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextField1KeyReleased
 
         if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
-            EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
-            EntityManager em = emf.createEntityManager();
+        EntityManager em = MonituxDBContext.getEntityManager();
 
+        try {
             cargarItemsFiltrados(Secuencial_Empresa, jComboBox2, jTextField1, contenedor, contenedor_selector, em);
-
-            // Opcional: cerrar el EntityManager si no lo necesitas después
-            em.close();
-            emf.close();
+            System.out.println("✅ Items filtrados correctamente para empresa: " + Secuencial_Empresa);
+        } catch (Exception ex) {
+            System.err.println("❌ Error al filtrar items: " + ex.getMessage());
+            ex.printStackTrace();
         }
+    }
 
         // TODO add your handling code here:
     }//GEN-LAST:event_jTextField1KeyReleased
@@ -2264,16 +2101,16 @@ public void cargar_Items(int secuencialEmpresa, JPanel contenedor, JPanel conten
     private void jTextField3KeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextField3KeyReleased
 
         if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
-            EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
-            EntityManager em = emf.createEntityManager();
+        EntityManager em = MonituxDBContext.getEntityManager();
 
+        try {
             cargarItemsFiltrados(Secuencial_Empresa, jComboBox2, jTextField3, contenedor, contenedor_selector, em);
-
-            // Opcional: cerrar el EntityManager si no lo necesitas después
-            em.close();
-            emf.close();
+            System.out.println("✅ Items filtrados correctamente con texto: " + jTextField3.getText());
+        } catch (Exception ex) {
+            System.err.println("❌ Error al filtrar items: " + ex.getMessage());
+            ex.printStackTrace();
         }
-
+    }
         // TODO add your handling code here:
     }//GEN-LAST:event_jTextField3KeyReleased
 
@@ -2491,7 +2328,7 @@ lbl_total.setText(String.format("%.2f", total));
 
 
 
-cargarItemsDesdeLista(V_Compras_Ventas.lista,Secuencial_Empresa,contenedor,contenedor_selector,em);
+cargarItemsDesdeLista(V_Compras_Ventas.lista,Secuencial_Empresa,contenedor,contenedor_selector);
 
 ActualizarNumeros(); // Actualizar totales y visuales
 
@@ -2502,10 +2339,10 @@ ActualizarNumeros(); // Actualizar totales y visuales
     }//GEN-LAST:event_formWindowOpened
 
     
-public void cargarItemsDesdeLista(Map<String, Double> lista, int secuencialEmpresa, JPanel contenedor, JPanel contenedor_selector, EntityManager entityManager) {
+public void cargarItemsDesdeLista(Map<String, Double> lista, int secuencialEmpresa, JPanel contenedor, JPanel contenedor_selector) {
     icono_carga.setVisible(true);
 
-    contenedor.setLayout(new GridBagLayout()); // Igual que el método original
+    contenedor.setLayout(new GridBagLayout());
     contenedor_selector.setLayout(new GridLayout(0, 1, 5, 5));
 
     contenedor.removeAll();
@@ -2514,23 +2351,41 @@ public void cargarItemsDesdeLista(Map<String, Double> lista, int secuencialEmpre
     selectoresCantidad.clear();
 
     GridBagConstraints gbc = new GridBagConstraints();
-    gbc.insets = new Insets(5, 5, 5, 5); // Espaciado entre miniaturas
+    gbc.insets = new Insets(5, 5, 5, 5);
     gbc.fill = GridBagConstraints.NONE;
     gbc.anchor = GridBagConstraints.NORTHWEST;
 
     int col = 0, row = 0;
 
     for (Map.Entry<String, Double> itemC : lista.entrySet()) {
-        List<Producto> productos = entityManager
-            .createQuery("SELECT p FROM Producto p WHERE p.Codigo = :codigo AND p.Secuencial_Empresa = :empresa", Producto.class)
-            .setParameter("codigo", itemC.getKey())
-            .setParameter("empresa", secuencialEmpresa)
-            .getResultList();
+        EntityManager em = null;
+        List<Producto> productos = new ArrayList<>();
+
+        try {
+            em = MonituxDBContext.getEntityManager();
+            if (em == null || !em.isOpen()) {
+                throw new IllegalStateException("EntityManager no disponible.");
+            }
+
+            productos = em.createQuery(
+                "SELECT p FROM Producto p WHERE p.Codigo = :codigo AND p.Secuencial_Empresa = :empresa", Producto.class)
+                .setParameter("codigo", itemC.getKey())
+                .setParameter("empresa", secuencialEmpresa)
+                .getResultList();
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, "Error al cargar producto: " + itemC.getKey() + "\n" + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+        } finally {
+            if (em != null && em.isOpen()) {
+                em.close();
+            }
+        }
 
         for (Producto producto : productos) {
             Miniatura_Producto miniatura = new Miniatura_Producto(producto, true);
             miniatura.setCantidadSelecccionItem(itemC.getValue().intValue());
-            miniatura.setPreferredSize(new Dimension(120, 170)); // Igual que en cargar_Items
+            miniatura.setPreferredSize(new Dimension(120, 170));
 
             SelectorCantidad selector = new SelectorCantidad(producto.getCodigo(), itemC.getValue().intValue());
             selectoresCantidad.put(producto.getCodigo(), selector);
@@ -2538,12 +2393,12 @@ public void cargarItemsDesdeLista(Map<String, Double> lista, int secuencialEmpre
             listaDeItems.put(producto.getCodigo(), miniatura);
             contenedor_selector.add(selector);
 
-            String comentario = miniatura.cargarComentario();
-            if (comentario != null) {
-                miniatura.setToolTipText("<html><b>" + producto.getDescripcion() + "</b><br>" + comentario + "</html>");
-            } else {
-                miniatura.setToolTipText("<html><b>" + producto.getDescripcion() + "</b><br></html>");
-            }
+            String comentario = miniatura.cargarComentario(); // Este método debe abrir su propio EM internamente
+            miniatura.setToolTipText(
+                comentario != null
+                    ? "<html><b>" + producto.getDescripcion() + "</b><br>" + comentario + "</html>"
+                    : "<html><b>" + producto.getDescripcion() + "</b><br></html>"
+            );
 
             miniatura.addMouseListener(new MouseAdapter() {
                 @Override
@@ -2561,7 +2416,6 @@ public void cargarItemsDesdeLista(Map<String, Double> lista, int secuencialEmpre
                 }
             });
 
-            // Posicionamiento visual en la cuadrícula
             gbc.gridx = col;
             gbc.gridy = row;
             contenedor.add(miniatura, gbc);

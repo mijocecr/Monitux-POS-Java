@@ -7,6 +7,7 @@ package com.monituxpos.Ventanas;
 import com.monituxpos.Clases.Actividad;
 import com.monituxpos.Clases.Categoria;
 import com.monituxpos.Clases.Cliente;
+import com.monituxpos.Clases.MonituxDBContext;
 import java.awt.Color;
 import com.monituxpos.Clases.Util;
 import jakarta.persistence.EntityManager;
@@ -354,142 +355,143 @@ public void setImagen(byte[] imagen) {
         //**********************************************************
 
         // Obtener imagen como byte[]
+     
         byte[] imagenBytes = null;
-        Icon icono = labelImagen.getIcon();
-        if (icono instanceof ImageIcon) {
-            Image imagen = ((ImageIcon) icono).getImage();
-            BufferedImage copia = new BufferedImage(imagen.getWidth(null), imagen.getHeight(null), BufferedImage.TYPE_INT_RGB);
-            Graphics2D g2d = copia.createGraphics();
-            g2d.drawImage(imagen, 0, 0, null);
-            g2d.dispose();
+Icon icono = labelImagen.getIcon();
+if (icono instanceof ImageIcon) {
+    Image imagen = ((ImageIcon) icono).getImage();
+    BufferedImage copia = new BufferedImage(imagen.getWidth(null), imagen.getHeight(null), BufferedImage.TYPE_INT_RGB);
+    Graphics2D g2d = copia.createGraphics();
+    g2d.drawImage(imagen, 0, 0, null);
+    g2d.dispose();
 
-            imagenBytes = Util.comprimirImagen(copia, 100f); // Calidad ajustable
-        }
+    imagenBytes = Util.comprimirImagen(copia, 100f); // Calidad ajustable
+}
 
-        // Validaciones comunes
-        if (txt_Nombre.getText().isBlank()) {
-            JOptionPane.showMessageDialog(null,"El nombre no puede estar vacío.");
-            return;
-        }
-       
-        if (txt_Descripcion.getText().isBlank()) {
-            JOptionPane.showMessageDialog(null,"La descripcion no puede estar vacía.");
-            return;
-        }
+// Validaciones comunes
+if (txt_Nombre.getText().isBlank()) {
+    JOptionPane.showMessageDialog(null, "El nombre no puede estar vacío.");
+    return;
+}
 
-        EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
-        EntityManager em = emf.createEntityManager();
+if (txt_Descripcion.getText().isBlank()) {
+    JOptionPane.showMessageDialog(null, "La descripción no puede estar vacía.");
+    return;
+}
 
-        if (Secuencial != 0) {
-            // MODO EDICIÓN
-            Categoria categoria = em.find(Categoria.class, Secuencial);
-            if (categoria != null) {
-                em.getTransaction().begin();
-                categoria.setSecuencial_Empresa(Secuencial_Empresa);
-                categoria.setDescripcion(txt_Descripcion.getText());
-                categoria.setNombre(txt_Nombre.getText());
-                
-                
-              
-                if (imagenBytes != null) {
-                    categoria.setImagen(imagenBytes);
-                }
-                em.getTransaction().commit();
+EntityManager em = MonituxDBContext.getEntityManager();
 
-                Util.registrarActividad(Secuencial_Usuario, "Ha modificado la categoria: " + categoria.getNombre(), Secuencial_Empresa);
-                JOptionPane.showMessageDialog(null,"Categoria actualizada correctamente.");
-            }
-        } else {
-            // MODO CREACIÓN
-            Categoria categoria = new Categoria();
+try {
+    if (Secuencial != 0) {
+        // MODO EDICIÓN
+        Categoria categoria = em.find(Categoria.class, Secuencial);
+        if (categoria != null) {
+            em.getTransaction().begin();
             categoria.setSecuencial_Empresa(Secuencial_Empresa);
-            categoria.setNombre(txt_Nombre.getText());
             categoria.setDescripcion(txt_Descripcion.getText());
-          
-            categoria.setImagen(imagenBytes);
+            categoria.setNombre(txt_Nombre.getText());
 
-            try {
-                em.getTransaction().begin();
-                em.persist(categoria);
-                em.getTransaction().commit();
-
-                JOptionPane.showMessageDialog(null,"Categoria creada correctamente.");
-                Util.registrarActividad(Secuencial_Usuario, "Ha creado la categoria: " + categoria.getNombre(), Secuencial_Empresa);
-            } catch (Exception e) {
-                JOptionPane.showMessageDialog(null,"Error al crear categoria: Ya existe o los datos proporcionados no son válidos.");
-                em.getTransaction().rollback();
-                return;
+            if (imagenBytes != null) {
+                categoria.setImagen(imagenBytes);
             }
+
+            em.getTransaction().commit();
+
+            Util.registrarActividad(Secuencial_Usuario, "Ha modificado la categoría: " + categoria.getNombre(), Secuencial_Empresa);
+            JOptionPane.showMessageDialog(null, "Categoría actualizada correctamente.");
         }
+    } else {
+        // MODO CREACIÓN
+        Categoria categoria = new Categoria();
+        categoria.setSecuencial_Empresa(Secuencial_Empresa);
+        categoria.setNombre(txt_Nombre.getText());
+        categoria.setDescripcion(txt_Descripcion.getText());
+        categoria.setImagen(imagenBytes);
 
-        em.close();
-        emf.close();
+        try {
+            em.getTransaction().begin();
+            em.persist(categoria);
+            em.getTransaction().commit();
 
-        dispose();             // Cierra el formulario actual
+            JOptionPane.showMessageDialog(null, "Categoría creada correctamente.");
+            Util.registrarActividad(Secuencial_Usuario, "Ha creado la categoría: " + categoria.getNombre(), Secuencial_Empresa);
+        } catch (Exception e) {
+            em.getTransaction().rollback();
+            JOptionPane.showMessageDialog(null, "Error al crear categoría: Ya existe o los datos proporcionados no son válidos.");
+            return;
+        }
+    }
 
+    System.out.println("✅ Operación de categoría completada.");
+} catch (Exception e) {
+    JOptionPane.showMessageDialog(null, "❌ Error al guardar categoría: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+    e.printStackTrace();
+}
+
+dispose(); // Cierra el formulario actual
+
+        
+        
         //**********************************************************
 
     }//GEN-LAST:event_Menu_GuardarActionPerformed
 
     private void Menu_EliminarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Menu_EliminarActionPerformed
 
-        int res = JOptionPane.showConfirmDialog(null, "¿Está seguro de eliminar esta categoria?", "Confirmación", JOptionPane.YES_NO_OPTION);
+       int res = JOptionPane.showConfirmDialog(null, "¿Está seguro de eliminar esta categoría?", "Confirmación", JOptionPane.YES_NO_OPTION);
 
-        if (res == JOptionPane.YES_OPTION) {
-            try {
-                // Liberar imagen actual
-                Icon icono = labelImagen.getIcon();
-                if (icono instanceof ImageIcon) {
-                    ((ImageIcon) icono).getImage().flush(); // Libera recursos
-                }
-                labelImagen.setIcon(null);
-                imagen = null; // Variable de clase si la usas
-
-            } catch (Exception e) {
-                // Silenciar errores de liberación de imagen
-            }
-
-            EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
-            EntityManager em = emf.createEntityManager();
-
-            try {
-                Categoria categoria = em.createQuery(
-                    "SELECT c FROM Categoria c WHERE c.Secuencial = :secuencial AND c.Secuencial_Empresa = :empresa", Categoria.class)
-                .setParameter("secuencial", this.Secuencial)
-                .setParameter("empresa", Secuencial_Empresa)
-                .getResultStream()
-                .findFirst()
-                .orElse(null);
-
-                if (categoria != null) {
-                    // Si tiene imagen, la mostramos antes de eliminar
-                    if (categoria.getImagen() != null && categoria.getImagen().length > 0) {
-                        try (ByteArrayInputStream bis = new ByteArrayInputStream(categoria.getImagen())) {
-                            BufferedImage img = ImageIO.read(bis);
-                            labelImagen.setIcon(new ImageIcon(img));
-                        } catch (IOException ex) {
-                            labelImagen.setIcon(null);
-                        }
-                    } else {
-                        labelImagen.setIcon(null);
-                    }
-
-                    // Eliminar categoria
-                    em.getTransaction().begin();
-                    em.remove(categoria);
-                    em.getTransaction().commit();
-
-                    Util.registrarActividad(Secuencial_Usuario, "Ha eliminado la  categoria: " + categoria.getNombre(), Secuencial_Empresa);
-                    JOptionPane.showMessageDialog(null, "Categoria eliminada correctamente", "Éxito", JOptionPane.INFORMATION_MESSAGE);
-                    this.dispose();
-                }
-            } catch (Exception e) {
-                JOptionPane.showMessageDialog(null, "Error al eliminar categoria: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-            } finally {
-                em.close();
-                emf.close();
-            }
+if (res == JOptionPane.YES_OPTION) {
+    try {
+        // Liberar imagen actual
+        Icon icono = labelImagen.getIcon();
+        if (icono instanceof ImageIcon) {
+            ((ImageIcon) icono).getImage().flush(); // Libera recursos
         }
+        labelImagen.setIcon(null);
+        imagen = null; // Variable de clase si la usas
+    } catch (Exception e) {
+        // Silenciar errores de liberación de imagen
+    }
+
+    EntityManager em = MonituxDBContext.getEntityManager();
+
+    try {
+        Categoria categoria = em.createQuery(
+            "SELECT c FROM Categoria c WHERE c.Secuencial = :secuencial AND c.Secuencial_Empresa = :empresa", Categoria.class)
+            .setParameter("secuencial", this.Secuencial)
+            .setParameter("empresa", Secuencial_Empresa)
+            .getResultStream()
+            .findFirst()
+            .orElse(null);
+
+        if (categoria != null) {
+            // Mostrar imagen antes de eliminar (opcional)
+            if (categoria.getImagen() != null && categoria.getImagen().length > 0) {
+                try (ByteArrayInputStream bis = new ByteArrayInputStream(categoria.getImagen())) {
+                    BufferedImage img = ImageIO.read(bis);
+                    labelImagen.setIcon(new ImageIcon(img));
+                } catch (IOException ex) {
+                    labelImagen.setIcon(null);
+                }
+            } else {
+                labelImagen.setIcon(null);
+            }
+
+            // Eliminar categoría
+            em.getTransaction().begin();
+            em.remove(categoria);
+            em.getTransaction().commit();
+
+            Util.registrarActividad(Secuencial_Usuario, "Ha eliminado la categoría: " + categoria.getNombre(), Secuencial_Empresa);
+            JOptionPane.showMessageDialog(null, "Categoría eliminada correctamente", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+            this.dispose();
+        }
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(null, "❌ Error al eliminar categoría: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        e.printStackTrace();
+    }
+}
+
 
     }//GEN-LAST:event_Menu_EliminarActionPerformed
 
@@ -544,27 +546,23 @@ public void setImagen(byte[] imagen) {
     }//GEN-LAST:event_labelImagenMouseClicked
 
     
-    private void Filtrar(String campo, String valor) {
-
+   private void Filtrar(String campo, String valor) {
     tableCategorias.removeAll();
 
-    // Crear modelo si la tabla está vacía
     DefaultTableModel model = (DefaultTableModel) tableCategorias.getModel();
     if (tableCategorias.getColumnCount() == 0) {
         model.setColumnIdentifiers(new String[] { "S", "Nombre", "Descripción", "Imagen" });
 
-        // Ajustar anchos
-        tableCategorias.getColumnModel().getColumn(0).setPreferredWidth(30);  // S
-        tableCategorias.getColumnModel().getColumn(1).setPreferredWidth(150); // Nombre
-        tableCategorias.getColumnModel().getColumn(2).setPreferredWidth(250); // Descripción
-        tableCategorias.getColumnModel().getColumn(3).setPreferredWidth(100); // Imagen
+        tableCategorias.getColumnModel().getColumn(0).setPreferredWidth(30);   // S
+        tableCategorias.getColumnModel().getColumn(1).setPreferredWidth(150);  // Nombre
+        tableCategorias.getColumnModel().getColumn(2).setPreferredWidth(250);  // Descripción
+        tableCategorias.getColumnModel().getColumn(3).setPreferredWidth(100);  // Imagen
     }
 
-    // Limpiar filas existentes
-    model.setRowCount(0);
+    model.setRowCount(0); // Limpiar filas existentes
 
-    // Conectar con JPA y filtrar categorías
-    EntityManager em = Persistence.createEntityManagerFactory("MonituxPU").createEntityManager();
+    EntityManager em = MonituxDBContext.getEntityManager();
+
     try {
         String jpql = "SELECT c FROM Categoria c WHERE c.Secuencial_Empresa = :empresa AND FUNCTION('REPLACE', c." + campo + ", ' ', '') LIKE :valor";
 
@@ -587,11 +585,10 @@ public void setImagen(byte[] imagen) {
             tableCategorias.setRowSelectionInterval(0, 0);
         }
 
+        System.out.println("✅ Categorías filtradas correctamente.");
     } catch (Exception e) {
-        JOptionPane.showMessageDialog(null, "Error al filtrar categorías: " + e.getMessage());
-        System.err.println(e.getMessage());
-    } finally {
-        em.close();
+        JOptionPane.showMessageDialog(null, "❌ Error al filtrar categorías: " + e.getMessage());
+        e.printStackTrace();
     }
 }
 
@@ -672,57 +669,54 @@ if (imagenCapturada != null) {
     
     private void tableCategoriasMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tableCategoriasMouseClicked
 
-        try {
-            int rowIndex = tableCategorias.getSelectedRow();
-            if (rowIndex < 0) return; // No hay fila seleccionada
+       try {
+        int rowIndex = tableCategorias.getSelectedRow();
+        if (rowIndex < 0) return; // No hay fila seleccionada
 
-            DefaultTableModel model = (DefaultTableModel) tableCategorias.getModel();
+        DefaultTableModel model = (DefaultTableModel) tableCategorias.getModel();
 
-            // Asignar valores si existen
-            Object secuencialObj = model.getValueAt(rowIndex, 0); // Columna "S"
-            if (secuencialObj != null) {
-                this.Secuencial = Integer.parseInt(secuencialObj.toString());
-            }
-
-          
-            txt_Nombre.setText(getCellValue(model, rowIndex, 1));   // "Nombre"
-          
-            txt_Descripcion.setText(getCellValue(model, rowIndex, 2));// "Descripcion"
-            
-
-            
-
-
-            // Cargar imagen desde la base de datos
-            try (EntityManager em = Persistence.createEntityManagerFactory("MonituxPU").createEntityManager()) {
-                Categoria categoria = em.createQuery(
-                    "SELECT c FROM Categoria c WHERE c.Secuencial = :Secuencial AND c.Secuencial_Empresa = :empresa", Categoria.class)
-                .setParameter("Secuencial", this.Secuencial)
-                .setParameter("empresa", Secuencial_Empresa)
-                .getResultStream()
-                .findFirst()
-                .orElse(null);
-
-                if (categoria != null && categoria.getImagen() != null && categoria.getImagen().length > 0) {
-                    try (ByteArrayInputStream bis = new ByteArrayInputStream(categoria.getImagen())) {
-                        BufferedImage img = ImageIO.read(bis);
-                        labelImagen.setIcon(new ImageIcon(img));
-                    } catch (IOException ex) {
-                        labelImagen.setIcon(null);
-                    }
-                } else {
-                    labelImagen.setIcon(null);
-                }
-            }
-
-        } catch (Exception ex) {
-            labelImagen.setIcon(null);
-            ex.printStackTrace(); // Para depuración
+        // Asignar valores si existen
+        Object secuencialObj = model.getValueAt(rowIndex, 0); // Columna "S"
+        if (secuencialObj != null) {
+            this.Secuencial = Integer.parseInt(secuencialObj.toString());
         }
 
+        txt_Nombre.setText(getCellValue(model, rowIndex, 1));       // "Nombre"
+        txt_Descripcion.setText(getCellValue(model, rowIndex, 2));  // "Descripción"
+
+        // Cargar imagen desde la base de datos
+        EntityManager em = MonituxDBContext.getEntityManager();
+
+        Categoria categoria = em.createQuery(
+            "SELECT c FROM Categoria c WHERE c.Secuencial = :Secuencial AND c.Secuencial_Empresa = :empresa", Categoria.class)
+            .setParameter("Secuencial", this.Secuencial)
+            .setParameter("empresa", Secuencial_Empresa)
+            .getResultStream()
+            .findFirst()
+            .orElse(null);
+
+        if (categoria != null && categoria.getImagen() != null && categoria.getImagen().length > 0) {
+            try (ByteArrayInputStream bis = new ByteArrayInputStream(categoria.getImagen())) {
+                BufferedImage img = ImageIO.read(bis);
+                labelImagen.setIcon(new ImageIcon(img));
+            } catch (IOException ex) {
+                labelImagen.setIcon(null);
+            }
+        } else {
+            labelImagen.setIcon(null);
+        }
+
+        System.out.println("✅ Categoría seleccionada cargada correctamente.");
+    } catch (Exception ex) {
+        labelImagen.setIcon(null);
+        System.err.println("❌ Error al cargar categoría seleccionada: " + ex.getMessage());
+        ex.printStackTrace();
+    }
+        
     }//GEN-LAST:event_tableCategoriasMouseClicked
 
     
+   
     private void cargarDatos() {
     // Limpiar tabla
     DefaultTableModel model = new DefaultTableModel(
@@ -734,8 +728,7 @@ if (imagenCapturada != null) {
         }
     };
 
-    EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
-    EntityManager em = emf.createEntityManager();
+    EntityManager em = MonituxDBContext.getEntityManager();
 
     try {
         List<Categoria> lista = em.createQuery(
@@ -746,10 +739,8 @@ if (imagenCapturada != null) {
         for (Categoria c : lista) {
             model.addRow(new Object[] {
                 c.getSecuencial(),
-                
                 c.getNombre(),
                 c.getDescripcion()
-                
             });
         }
 
@@ -774,123 +765,103 @@ if (imagenCapturada != null) {
             columnModel.getColumn(col).setPreferredWidth(ancho);
         }
 
+        System.out.println("✅ Categorías cargadas correctamente.");
     } catch (Exception e) {
-        // MenuPrincipal.MSG.show("Error al cargar categorías: " + e.getMessage(), "Error");
-    } finally {
-        em.close();
-        emf.close();
+        System.err.println("❌ Error al cargar categorías: " + e.getMessage());
     }
 }
-    
-    private void primera_carga(){
-    
-   
-         try {
-            int rowIndex = 0;
-            
 
-            DefaultTableModel model = (DefaultTableModel) tableCategorias.getModel();
+   private void primera_carga() {
+    try {
+        int rowIndex = 0;
+        DefaultTableModel model = (DefaultTableModel) tableCategorias.getModel();
 
-            // Asignar valores si existen
-            Object secuencialObj = model.getValueAt(rowIndex, 0); // Columna "S"
-            if (secuencialObj != null) {
-                this.Secuencial = Integer.parseInt(secuencialObj.toString());
-            }
-
-          
-            txt_Nombre.setText(getCellValue(model, rowIndex, 1));   // "Nombre"
-          
-            txt_Descripcion.setText(getCellValue(model, rowIndex, 2));// "Descripcion"
-            
-
-            
-
-
-            // Cargar imagen desde la base de datos
-            try (EntityManager em = Persistence.createEntityManagerFactory("MonituxPU").createEntityManager()) {
-                Categoria categoria = em.createQuery(
-                    "SELECT c FROM Categoria c WHERE c.Secuencial = :Secuencial AND c.Secuencial_Empresa = :empresa", Categoria.class)
-                .setParameter("Secuencial", this.Secuencial)
-                .setParameter("empresa", Secuencial_Empresa)
-                .getResultStream()
-                .findFirst()
-                .orElse(null);
-
-                if (categoria != null && categoria.getImagen() != null && categoria.getImagen().length > 0) {
-                    try (ByteArrayInputStream bis = new ByteArrayInputStream(categoria.getImagen())) {
-                        BufferedImage img = ImageIO.read(bis);
-                        labelImagen.setIcon(new ImageIcon(img));
-                    } catch (IOException ex) {
-                        labelImagen.setIcon(null);
-                    }
-                } else {
-                    labelImagen.setIcon(null);
-                }
-            }
-
-        } catch (Exception ex) {
-            labelImagen.setIcon(null);
-            ex.printStackTrace(); // Para depuración
+        // Asignar valores si existen
+        Object secuencialObj = model.getValueAt(rowIndex, 0); // Columna "S"
+        if (secuencialObj != null) {
+            this.Secuencial = Integer.parseInt(secuencialObj.toString());
         }
 
-        
-        
-        
+        txt_Nombre.setText(getCellValue(model, rowIndex, 1));   // "Nombre"
+        txt_Descripcion.setText(getCellValue(model, rowIndex, 2)); // "Descripcion"
+
+        // Cargar imagen desde la base de datos
+        EntityManager em = MonituxDBContext.getEntityManager();
+
+        Categoria categoria = em.createQuery(
+            "SELECT c FROM Categoria c WHERE c.Secuencial = :Secuencial AND c.Secuencial_Empresa = :empresa", Categoria.class)
+            .setParameter("Secuencial", this.Secuencial)
+            .setParameter("empresa", Secuencial_Empresa)
+            .getResultStream()
+            .findFirst()
+            .orElse(null);
+
+        if (categoria != null && categoria.getImagen() != null && categoria.getImagen().length > 0) {
+            try (ByteArrayInputStream bis = new ByteArrayInputStream(categoria.getImagen())) {
+                BufferedImage img = ImageIO.read(bis);
+                labelImagen.setIcon(new ImageIcon(img));
+            } catch (IOException ex) {
+                labelImagen.setIcon(null);
+            }
+        } else {
+            labelImagen.setIcon(null);
+        }
+
+        System.out.println("✅ Primera carga de categoría completada.");
+    } catch (Exception ex) {
+        labelImagen.setIcon(null);
+        System.err.println("❌ Error en primera carga: " + ex.getMessage());
+        ex.printStackTrace();
     }
-    
+}
+ 
     
     
     private void tableCategoriasKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tableCategoriasKeyReleased
 
          try {
-            int rowIndex = tableCategorias.getSelectedRow();
-            if (rowIndex < 0) return; // No hay fila seleccionada
+        int rowIndex = tableCategorias.getSelectedRow();
+        if (rowIndex < 0) return; // No hay fila seleccionada
 
-            DefaultTableModel model = (DefaultTableModel) tableCategorias.getModel();
+        DefaultTableModel model = (DefaultTableModel) tableCategorias.getModel();
 
-            // Asignar valores si existen
-            Object secuencialObj = model.getValueAt(rowIndex, 0); // Columna "S"
-            if (secuencialObj != null) {
-                this.Secuencial = Integer.parseInt(secuencialObj.toString());
-            }
-
-          
-            txt_Nombre.setText(getCellValue(model, rowIndex, 1));   // "Nombre"
-          
-            txt_Descripcion.setText(getCellValue(model, rowIndex, 2));// "Descripcion"
-            
-
-            
-
-
-            // Cargar imagen desde la base de datos
-            try (EntityManager em = Persistence.createEntityManagerFactory("MonituxPU").createEntityManager()) {
-                Categoria categoria = em.createQuery(
-                    "SELECT c FROM Categoria c WHERE c.Secuencial = :Secuencial AND c.Secuencial_Empresa = :empresa", Categoria.class)
-                .setParameter("Secuencial", this.Secuencial)
-                .setParameter("empresa", Secuencial_Empresa)
-                .getResultStream()
-                .findFirst()
-                .orElse(null);
-
-                if (categoria != null && categoria.getImagen() != null && categoria.getImagen().length > 0) {
-                    try (ByteArrayInputStream bis = new ByteArrayInputStream(categoria.getImagen())) {
-                        BufferedImage img = ImageIO.read(bis);
-                        labelImagen.setIcon(new ImageIcon(img));
-                    } catch (IOException ex) {
-                        labelImagen.setIcon(null);
-                    }
-                } else {
-                    labelImagen.setIcon(null);
-                }
-            }
-
-        } catch (Exception ex) {
-            labelImagen.setIcon(null);
-            ex.printStackTrace(); // Para depuración
+        // Asignar valores si existen
+        Object secuencialObj = model.getValueAt(rowIndex, 0); // Columna "S"
+        if (secuencialObj != null) {
+            this.Secuencial = Integer.parseInt(secuencialObj.toString());
         }
 
-        
+        txt_Nombre.setText(getCellValue(model, rowIndex, 1));       // "Nombre"
+        txt_Descripcion.setText(getCellValue(model, rowIndex, 2));  // "Descripción"
+
+        // Cargar imagen desde la base de datos
+        EntityManager em = MonituxDBContext.getEntityManager();
+
+        Categoria categoria = em.createQuery(
+            "SELECT c FROM Categoria c WHERE c.Secuencial = :Secuencial AND c.Secuencial_Empresa = :empresa", Categoria.class)
+            .setParameter("Secuencial", this.Secuencial)
+            .setParameter("empresa", Secuencial_Empresa)
+            .getResultStream()
+            .findFirst()
+            .orElse(null);
+
+        if (categoria != null && categoria.getImagen() != null && categoria.getImagen().length > 0) {
+            try (ByteArrayInputStream bis = new ByteArrayInputStream(categoria.getImagen())) {
+                BufferedImage img = ImageIO.read(bis);
+                labelImagen.setIcon(new ImageIcon(img));
+            } catch (IOException ex) {
+                labelImagen.setIcon(null);
+            }
+        } else {
+            labelImagen.setIcon(null);
+        }
+
+        System.out.println("✅ Categoría seleccionada cargada correctamente.");
+    } catch (Exception ex) {
+        labelImagen.setIcon(null);
+        System.err.println("❌ Error al cargar categoría seleccionada: " + ex.getMessage());
+        ex.printStackTrace();
+    }
        
     }//GEN-LAST:event_tableCategoriasKeyReleased
 

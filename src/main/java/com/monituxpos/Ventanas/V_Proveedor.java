@@ -5,6 +5,7 @@
 package com.monituxpos.Ventanas;
 
 import com.monituxpos.Clases.Cliente;
+import com.monituxpos.Clases.MonituxDBContext;
 import com.monituxpos.Clases.Proveedor;
 import com.monituxpos.Clases.Util;
 import jakarta.persistence.EntityManager;
@@ -433,120 +434,111 @@ public void setImagen(byte[] imagen) {
 
     private void Menu_GuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Menu_GuardarActionPerformed
 
-        //**********************************************************
-
-        //**********************************************************
-
-// Obtener imagen como byte[]
-byte[] imagenBytes = null;
-Icon icono = labelImagen.getIcon();
-if (icono instanceof ImageIcon) {
-    Image imagen = ((ImageIcon) icono).getImage();
-    BufferedImage copia = new BufferedImage(imagen.getWidth(null), imagen.getHeight(null), BufferedImage.TYPE_INT_RGB);
-    Graphics2D g2d = copia.createGraphics();
-    g2d.drawImage(imagen, 0, 0, null);
-    g2d.dispose();
-
-    imagenBytes = Util.comprimirImagen(copia, 100f); // Calidad ajustable
-}
-
-// Validaciones comunes
-if (txt_Nombre.getText().isBlank()) {
-    JOptionPane.showMessageDialog(null,"El nombre del proveedor no puede estar vacío.");
-    return;
-}
-if (txt_Telefono.getText().isBlank()) {
-    JOptionPane.showMessageDialog(null,"El teléfono no puede estar vacío.");
-    return;
-}
-if (txt_Contacto.getText().isBlank()) {
-    JOptionPane.showMessageDialog(null,"El contacto no puede estar vacío.");
-    return;
-}
-if (combo_Tipo.getSelectedIndex() == -1) {
-    JOptionPane.showMessageDialog(null,"Debe seleccionar un tipo de proveedor.");
-    return;
-}
-
-EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
-EntityManager em = emf.createEntityManager();
-
-if (Secuencial != 0) {
-    // MODO EDICIÓN
-    Proveedor proveedor = em.find(Proveedor.class, Secuencial);
-    if (proveedor != null) {
-        em.getTransaction().begin();
-        proveedor.setSecuencial_Empresa(Secuencial_Empresa);
-        proveedor.setNombre(txt_Nombre.getText());
-        proveedor.setTelefono(txt_Telefono.getText());
-        proveedor.setDireccion(txt_Direccion.getText());
-        proveedor.setEmail(txt_Email.getText());
-        proveedor.setContacto(txt_Contacto.getText());
-        proveedor.setTipo(combo_Tipo.getSelectedItem().toString());
-        proveedor.setActivo(checkBoxActivo.isSelected());
-        if (imagenBytes != null) {
-            proveedor.setImagen(imagenBytes);
-        }
-        em.getTransaction().commit();
-
-         Util.registrarActividad(Secuencial_Usuario, "Ha modificado al proveedor: " + proveedor.getNombre(), Secuencial_Empresa);
-        JOptionPane.showMessageDialog(null,"Proveedor actualizado correctamente.");
+        // Obtener imagen como byte[]
+    byte[] imagenBytes = null;
+    Icon icono = labelImagen.getIcon();
+    if (icono instanceof ImageIcon) {
+        Image imagen = ((ImageIcon) icono).getImage();
+        BufferedImage copia = new BufferedImage(imagen.getWidth(null), imagen.getHeight(null), BufferedImage.TYPE_INT_RGB);
+        Graphics2D g2d = copia.createGraphics();
+        g2d.drawImage(imagen, 0, 0, null);
+        g2d.dispose();
+        imagenBytes = Util.comprimirImagen(copia, 100f); // Calidad ajustable
     }
-} else {
-    // MODO CREACIÓN
-    Proveedor proveedor = new Proveedor();
-    proveedor.setSecuencial_Empresa(Secuencial_Empresa);
-    proveedor.setNombre(txt_Nombre.getText());
-    proveedor.setTelefono(txt_Telefono.getText());
-    proveedor.setDireccion(txt_Direccion.getText());
-    proveedor.setEmail(txt_Email.getText());
-    proveedor.setContacto(txt_Contacto.getText());
-    proveedor.setTipo(combo_Tipo.getSelectedItem().toString());
-    proveedor.setActivo(true);
-    proveedor.setImagen(imagenBytes);
 
-    try {
-        em.getTransaction().begin();
-        em.persist(proveedor);
-        em.getTransaction().commit();
-
-        JOptionPane.showMessageDialog(null,"Proveedor creado correctamente.");
-         Util.registrarActividad(Secuencial_Usuario, "Ha creado al proveedor: " + proveedor.getNombre(), Secuencial_Empresa);
-    } catch (Exception e) {
-        JOptionPane.showMessageDialog(null,"Error al crear proveedor: Ya existe o los datos proporcionados no son válidos.");
-        em.getTransaction().rollback();
+    // Validaciones comunes
+    if (txt_Nombre.getText().isBlank()) {
+        JOptionPane.showMessageDialog(null, "El nombre del proveedor no puede estar vacío.");
         return;
     }
-}
+    if (txt_Telefono.getText().isBlank()) {
+        JOptionPane.showMessageDialog(null, "El teléfono no puede estar vacío.");
+        return;
+    }
+    if (txt_Contacto.getText().isBlank()) {
+        JOptionPane.showMessageDialog(null, "El contacto no puede estar vacío.");
+        return;
+    }
+    if (combo_Tipo.getSelectedIndex() == -1) {
+        JOptionPane.showMessageDialog(null, "Debe seleccionar un tipo de proveedor.");
+        return;
+    }
 
-em.close();
-emf.close();
+    EntityManager em = MonituxDBContext.getEntityManager();
 
+    try {
+        if (Secuencial != 0) {
+            // MODO EDICIÓN
+            Proveedor proveedor = em.find(Proveedor.class, Secuencial);
+            if (proveedor != null) {
+                em.getTransaction().begin();
+                proveedor.setSecuencial_Empresa(Secuencial_Empresa);
+                proveedor.setNombre(txt_Nombre.getText());
+                proveedor.setTelefono(txt_Telefono.getText());
+                proveedor.setDireccion(txt_Direccion.getText());
+                proveedor.setEmail(txt_Email.getText());
+                proveedor.setContacto(txt_Contacto.getText());
+                proveedor.setTipo(combo_Tipo.getSelectedItem().toString());
+                proveedor.setActivo(checkBoxActivo.isSelected());
+                if (imagenBytes != null) {
+                    proveedor.setImagen(imagenBytes);
+                }
+                em.getTransaction().commit();
 
-dispose();     // Cierra el formulario actual
+                Util.registrarActividad(Secuencial_Usuario, "Ha modificado al proveedor: " + proveedor.getNombre(), Secuencial_Empresa);
+                JOptionPane.showMessageDialog(null, "Proveedor actualizado correctamente.");
+            }
+        } else {
+            // MODO CREACIÓN
+            Proveedor proveedor = new Proveedor();
+            proveedor.setSecuencial_Empresa(Secuencial_Empresa);
+            proveedor.setNombre(txt_Nombre.getText());
+            proveedor.setTelefono(txt_Telefono.getText());
+            proveedor.setDireccion(txt_Direccion.getText());
+            proveedor.setEmail(txt_Email.getText());
+            proveedor.setContacto(txt_Contacto.getText());
+            proveedor.setTipo(combo_Tipo.getSelectedItem().toString());
+            proveedor.setActivo(true);
+            proveedor.setImagen(imagenBytes);
 
-//**********************************************************
+            try {
+                em.getTransaction().begin();
+                em.persist(proveedor);
+                em.getTransaction().commit();
 
-        
+                JOptionPane.showMessageDialog(null, "Proveedor creado correctamente.");
+                Util.registrarActividad(Secuencial_Usuario, "Ha creado al proveedor: " + proveedor.getNombre(), Secuencial_Empresa);
+            } catch (Exception e) {
+                em.getTransaction().rollback();
+                JOptionPane.showMessageDialog(null, "Error al crear proveedor: Ya existe o los datos proporcionados no son válidos.");
+                return;
+            }
+        }
+
+        System.out.println("✅ Proveedor " + (Secuencial != 0 ? "actualizado" : "creado") + " correctamente.");
+        dispose(); // Cierra el formulario actual
+    } catch (Exception ex) {
+        JOptionPane.showMessageDialog(null, "❌ Error al guardar proveedor: " + ex.getMessage());
+        ex.printStackTrace();
+    }
         
         //**********************************************************
 
     }//GEN-LAST:event_Menu_GuardarActionPerformed
 
   
-    private void cargarDatos() {
+   private void cargarDatos() {
     // Limpiar tabla
     DefaultTableModel model = new DefaultTableModel(
         new String[] { "S", "Nombre", "Telefono", "Direccion", "Email", "Contacto", "Activo", "Tipo" }, 0
     ) {
         @Override
         public boolean isCellEditable(int row, int column) {
-            return false; // Todas las celdas no editables
+            return false;
         }
     };
 
-    EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
-    EntityManager em = emf.createEntityManager();
+    EntityManager em = MonituxDBContext.getEntityManager();
 
     try {
         List<Proveedor> lista = em.createQuery(
@@ -568,7 +560,7 @@ dispose();     // Cierra el formulario actual
         }
 
         tableProveedores.setModel(model);
-        tableProveedores.setAutoResizeMode(JTable.AUTO_RESIZE_OFF); // Scroll horizontal
+        tableProveedores.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 
         // Estilo visual
         tableProveedores.setRowHeight(24);
@@ -588,81 +580,85 @@ dispose();     // Cierra el formulario actual
             columnModel.getColumn(col).setPreferredWidth(ancho);
         }
 
+        System.out.println("✅ Datos de proveedores cargados correctamente.");
     } catch (Exception e) {
-        // MenuPrincipal.MSG.show("Error al cargar proveedores: " + e.getMessage(), "Error");
-    } finally {
-        em.close();
-        emf.close();
+        JOptionPane.showMessageDialog(null, "❌ Error al cargar proveedores: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        e.printStackTrace();
     }
 }
 
-    
     
     
     private void Menu_EliminarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Menu_EliminarActionPerformed
 
-        
-        int res = JOptionPane.showConfirmDialog(null, "¿Está seguro de eliminar este proveedor?", "Confirmación", JOptionPane.YES_NO_OPTION);
+       
+        int res = JOptionPane.showConfirmDialog(
+        null,
+        "¿Está seguro de eliminar este proveedor?",
+        "Confirmación",
+        JOptionPane.YES_NO_OPTION
+    );
 
-if (res == JOptionPane.YES_OPTION) {
-    try {
-        // Liberar imagen actual
-        Icon icono = labelImagen.getIcon();
-        if (icono instanceof ImageIcon) {
-            ((ImageIcon) icono).getImage().flush(); // Libera recursos
+    if (res == JOptionPane.YES_OPTION) {
+        try {
+            // Liberar imagen actual
+            Icon icono = labelImagen.getIcon();
+            if (icono instanceof ImageIcon) {
+                ((ImageIcon) icono).getImage().flush();
+            }
+            labelImagen.setIcon(null);
+            imagen = null;
+        } catch (Exception e) {
+            // Silenciar errores de liberación de imagen
         }
-        labelImagen.setIcon(null);
-        imagen = null; // Variable de clase si la usas
 
-    } catch (Exception e) {
-        // Silenciar errores de liberación de imagen
-    }
+        EntityManager em = MonituxDBContext.getEntityManager();
 
-    EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
-    EntityManager em = emf.createEntityManager();
+        try {
+            Proveedor proveedor = em.createQuery(
+                "SELECT p FROM Proveedor p WHERE p.Secuencial = :Secuencial AND p.Secuencial_Empresa = :empresa", Proveedor.class)
+                .setParameter("Secuencial", this.Secuencial)
+                .setParameter("empresa", Secuencial_Empresa)
+                .getResultStream()
+                .findFirst()
+                .orElse(null);
 
-    try {
-        Proveedor proveedor = em.createQuery(
-            "SELECT p FROM Proveedor p WHERE p.Secuencial = :Secuencial AND p.Secuencial_Empresa = :empresa", Proveedor.class)
-        .setParameter("Secuencial", this.Secuencial)
-        .setParameter("empresa", Secuencial_Empresa)
-        .getResultStream()
-        .findFirst()
-        .orElse(null);
-
-        if (proveedor != null) {
-            // Mostrar imagen antes de eliminar (opcional)
-            if (proveedor.getImagen() != null && proveedor.getImagen().length > 0) {
-                try (ByteArrayInputStream bis = new ByteArrayInputStream(proveedor.getImagen())) {
-                    BufferedImage img = ImageIO.read(bis);
-                    labelImagen.setIcon(new ImageIcon(img));
-                } catch (IOException ex) {
+            if (proveedor != null) {
+                // Mostrar imagen antes de eliminar (opcional)
+                if (proveedor.getImagen() != null && proveedor.getImagen().length > 0) {
+                    try (ByteArrayInputStream bis = new ByteArrayInputStream(proveedor.getImagen())) {
+                        BufferedImage img = ImageIO.read(bis);
+                        labelImagen.setIcon(new ImageIcon(img));
+                    } catch (IOException ex) {
+                        labelImagen.setIcon(null);
+                    }
+                } else {
                     labelImagen.setIcon(null);
                 }
+
+                em.getTransaction().begin();
+                em.remove(proveedor);
+                em.getTransaction().commit();
+
+                Util.registrarActividad(
+                    Secuencial_Usuario,
+                    "Ha eliminado al proveedor: " + proveedor.getNombre(),
+                    Secuencial_Empresa
+                );
+
+                JOptionPane.showMessageDialog(null, "Proveedor eliminado correctamente", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+                this.dispose();
+                System.out.println("✅ Proveedor eliminado: " + proveedor.getNombre());
             } else {
-                labelImagen.setIcon(null);
+                JOptionPane.showMessageDialog(null, "El proveedor no existe en la base de datos.", "Aviso", JOptionPane.WARNING_MESSAGE);
             }
-
-            // Eliminar proveedor
-            em.getTransaction().begin();
-            em.remove(proveedor);
-            em.getTransaction().commit();
-
-             Util.registrarActividad(Secuencial_Usuario, "Ha eliminado al proveedor: " + proveedor.getNombre(), Secuencial_Empresa);
-            JOptionPane.showMessageDialog(null, "Proveedor eliminado correctamente", "Éxito", JOptionPane.INFORMATION_MESSAGE);
-            this.dispose();
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, "❌ Error al eliminar proveedor: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
         }
-    } catch (Exception e) {
-        JOptionPane.showMessageDialog(null, "Error al eliminar proveedor: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-    } finally {
-        em.close();
-        emf.close();
     }
-}
-
         
         
-       
     }//GEN-LAST:event_Menu_EliminarActionPerformed
 
     private void Menu_SalirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Menu_SalirActionPerformed
@@ -690,46 +686,44 @@ if (res == JOptionPane.YES_OPTION) {
 
     
     
-    private void Filtrar(String campo, String valor) {
-
+   private void Filtrar(String campo, String valor) {
     tableProveedores.removeAll();
 
-    // Crear modelo si la tabla está vacía
     DefaultTableModel model = (DefaultTableModel) tableProveedores.getModel();
-    if (tableProveedores.getColumnCount() == 0) {
-        model.setColumnIdentifiers(new String[] { "S", "Codigo", "Nombre", "Teléfono", "Email", "Activo" });
 
-        // Ajustar anchos
+    // Crear modelo si la tabla está vacía
+    if (tableProveedores.getColumnCount() == 0) {
+        model.setColumnIdentifiers(new String[] { "S", "Nombre", "Teléfono", "Email", "Activo" });
+
         tableProveedores.getColumnModel().getColumn(0).setPreferredWidth(20);  // S
-        tableProveedores.getColumnModel().getColumn(1).setPreferredWidth(80);  // Código
-        tableProveedores.getColumnModel().getColumn(2).setPreferredWidth(120); // Nombre
-        tableProveedores.getColumnModel().getColumn(3).setPreferredWidth(100); // Teléfono
-        tableProveedores.getColumnModel().getColumn(4).setPreferredWidth(150); // Email
+        
+        tableProveedores.getColumnModel().getColumn(1).setPreferredWidth(120); // Nombre
+        tableProveedores.getColumnModel().getColumn(2).setPreferredWidth(100); // Teléfono
+        tableProveedores.getColumnModel().getColumn(3).setPreferredWidth(150); // Email
     }
 
     // Limpiar filas existentes
     model.setRowCount(0);
 
-    // Conectar con JPA y filtrar proveedores
-    EntityManager em = Persistence.createEntityManagerFactory("MonituxPU").createEntityManager();
+    EntityManager em = MonituxDBContext.getEntityManager();
+
     try {
-        String jpql = "SELECT p FROM Proveedor p WHERE p.Secuencial_Empresa = :empresa AND FUNCTION('REPLACE', p." + campo + ", ' ', '') LIKE :valor";
+        String jpql = "SELECT p FROM Proveedor p WHERE p.Secuencial_Empresa = :empresa " +
+                      "AND FUNCTION('REPLACE', p." + campo + ", ' ', '') LIKE :valor";
 
         List<Proveedor> proveedores = em.createQuery(jpql, Proveedor.class)
             .setParameter("empresa", Secuencial_Empresa)
             .setParameter("valor", "%" + valor.toLowerCase().replace(" ", "") + "%")
             .getResultList();
 
-       for (Proveedor p : proveedores) {
+        for (Proveedor p : proveedores) {
             model.addRow(new Object[] {
                 p.getSecuencial(),
+                
                 p.getNombre(),
                 p.getTelefono(),
-                p.getDireccion(),
                 p.getEmail(),
-                p.getContacto(),
-                p.getActivo() ? "Sí" : "No",
-                p.getTipo()
+                p.getActivo() ? "Sí" : "No"
             });
         }
 
@@ -738,11 +732,10 @@ if (res == JOptionPane.YES_OPTION) {
             tableProveedores.setRowSelectionInterval(0, 0);
         }
 
+        System.out.println("✅ Proveedores filtrados correctamente por campo: " + campo);
     } catch (Exception e) {
-        JOptionPane.showMessageDialog(null, "Error al filtrar proveedores: " + e.getMessage());
-        System.err.println(e.getMessage());
-    } finally {
-        em.close();
+        JOptionPane.showMessageDialog(null, "❌ Error al filtrar proveedores: " + e.getMessage());
+        e.printStackTrace();
     }
 }
 
@@ -848,40 +841,36 @@ if (imagenCapturada != null) {
 
     private void tableProveedoresMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tableProveedoresMouseClicked
 
-      
-        
-        try {
-    int rowIndex = tableProveedores.getSelectedRow();
-    if (rowIndex < 0) return; // No hay fila seleccionada
+       try {
+        int rowIndex = tableProveedores.getSelectedRow();
+        if (rowIndex < 0) return;
 
-    DefaultTableModel model = (DefaultTableModel) tableProveedores.getModel();
+        DefaultTableModel model = (DefaultTableModel) tableProveedores.getModel();
 
-    // Asignar valores si existen
-    Object secuencialObj = model.getValueAt(rowIndex, 0); // Columna "S"
-    if (secuencialObj != null) {
-        this.Secuencial = Integer.parseInt(secuencialObj.toString());
-    }
+        Object secuencialObj = model.getValueAt(rowIndex, 0);
+        if (secuencialObj != null) {
+            this.Secuencial = Integer.parseInt(secuencialObj.toString());
+        }
 
-    
-    txt_Nombre.setText(getCellValue(model, rowIndex, 1));   // "Nombre"
-    txt_Telefono.setText(getCellValue(model, rowIndex, 2)); // "Teléfono"
-    txt_Direccion.setText(getCellValue(model, rowIndex, 3));// "Dirección"
-    txt_Email.setText(getCellValue(model, rowIndex, 4));    // "Email"
-    txt_Contacto.setText(getCellValue(model, rowIndex, 5));    // "Contacto"
+        txt_Nombre.setText(getCellValue(model, rowIndex, 1));
+        txt_Telefono.setText(getCellValue(model, rowIndex, 2));
+        txt_Direccion.setText(getCellValue(model, rowIndex, 3));
+        txt_Email.setText(getCellValue(model, rowIndex, 4));
+        txt_Contacto.setText(getCellValue(model, rowIndex, 5));
 
-    String activo = getCellValue(model, rowIndex, 6);       // "Activo"
-    checkBoxActivo.setSelected("Sí".equalsIgnoreCase(activo));
-combo_Tipo.setSelectedItem(getCellValue(model, rowIndex, 7));
-    
-    // Cargar imagen desde la base de datos
-    try (EntityManager em = Persistence.createEntityManagerFactory("MonituxPU").createEntityManager()) {
+        String activo = getCellValue(model, rowIndex, 6);
+        checkBoxActivo.setSelected("Sí".equalsIgnoreCase(activo));
+        combo_Tipo.setSelectedItem(getCellValue(model, rowIndex, 7));
+
+        EntityManager em = MonituxDBContext.getEntityManager();
+
         Proveedor proveedor = em.createQuery(
             "SELECT p FROM Proveedor p WHERE p.Secuencial = :secuencial AND p.Secuencial_Empresa = :empresa", Proveedor.class)
-        .setParameter("secuencial", this.Secuencial)
-        .setParameter("empresa", Secuencial_Empresa)
-        .getResultStream()
-        .findFirst()
-        .orElse(null);
+            .setParameter("secuencial", this.Secuencial)
+            .setParameter("empresa", Secuencial_Empresa)
+            .getResultStream()
+            .findFirst()
+            .orElse(null);
 
         if (proveedor != null && proveedor.getImagen() != null && proveedor.getImagen().length > 0) {
             try (ByteArrayInputStream bis = new ByteArrayInputStream(proveedor.getImagen())) {
@@ -893,57 +882,49 @@ combo_Tipo.setSelectedItem(getCellValue(model, rowIndex, 7));
         } else {
             labelImagen.setIcon(null);
         }
+
+        System.out.println("✅ Proveedor seleccionado desde clic en tabla.");
+    } catch (Exception ex) {
+        labelImagen.setIcon(null);
+        System.err.println("❌ Error al seleccionar proveedor desde tabla: " + ex.getMessage());
+        ex.printStackTrace();
     }
-
-} catch (Exception ex) {
-    labelImagen.setIcon(null);
-    ex.printStackTrace(); // Para depuración
-}
-
-        
-        
         
     }//GEN-LAST:event_tableProveedoresMouseClicked
 
     
-    public void primera_carga(){
-    
-              
-        try {
-    int rowIndex = 0;
-    
+   public void primera_carga() {
+    try {
+        int rowIndex = 0;
+        DefaultTableModel model = (DefaultTableModel) tableProveedores.getModel();
 
-    DefaultTableModel model = (DefaultTableModel) tableProveedores.getModel();
+        // Asignar valores si existen
+        Object secuencialObj = model.getValueAt(rowIndex, 0); // Columna "S"
+        if (secuencialObj != null) {
+            this.Secuencial = Integer.parseInt(secuencialObj.toString());
+        }
 
-    // Asignar valores si existen
-    Object secuencialObj = model.getValueAt(rowIndex, 0); // Columna "S"
-    if (secuencialObj != null) {
-        this.Secuencial = Integer.parseInt(secuencialObj.toString());
-    }
+        txt_Nombre.setText(getCellValue(model, rowIndex, 1));       // "Nombre"
+        txt_Telefono.setText(getCellValue(model, rowIndex, 2));     // "Teléfono"
+        txt_Direccion.setText(getCellValue(model, rowIndex, 3));    // "Dirección"
+        txt_Email.setText(getCellValue(model, rowIndex, 4));        // "Email"
+        txt_Contacto.setText(getCellValue(model, rowIndex, 5));     // "Contacto"
 
-    
-    txt_Nombre.setText(getCellValue(model, rowIndex, 1));   // "Nombre"
-    txt_Telefono.setText(getCellValue(model, rowIndex, 2)); // "Teléfono"
-    txt_Direccion.setText(getCellValue(model, rowIndex, 3));// "Dirección"
-    txt_Email.setText(getCellValue(model, rowIndex, 4));    // "Email"
+        String activo = getCellValue(model, rowIndex, 6);           // "Activo"
+        checkBoxActivo.setSelected("Sí".equalsIgnoreCase(activo));
 
-     txt_Contacto.setText(getCellValue(model, rowIndex, 5));    // "Contacto"
+        combo_Tipo.setSelectedItem(getCellValue(model, rowIndex, 7)); // "Tipo"
 
-    String activo = getCellValue(model, rowIndex, 6);       // "Activo"
-    
-    checkBoxActivo.setSelected("Sí".equalsIgnoreCase(activo));
-    combo_Tipo.setSelectedItem(getCellValue(model, rowIndex, 7));
-    
+        // Cargar imagen desde la base de datos
+        EntityManager em = MonituxDBContext.getEntityManager();
 
-    // Cargar imagen desde la base de datos
-    try (EntityManager em = Persistence.createEntityManagerFactory("MonituxPU").createEntityManager()) {
         Proveedor proveedor = em.createQuery(
             "SELECT p FROM Proveedor p WHERE p.Secuencial = :Secuencial AND p.Secuencial_Empresa = :empresa", Proveedor.class)
-        .setParameter("Secuencial", this.Secuencial)
-        .setParameter("empresa", Secuencial_Empresa)
-        .getResultStream()
-        .findFirst()
-        .orElse(null);
+            .setParameter("Secuencial", this.Secuencial)
+            .setParameter("empresa", Secuencial_Empresa)
+            .getResultStream()
+            .findFirst()
+            .orElse(null);
 
         if (proveedor != null && proveedor.getImagen() != null && proveedor.getImagen().length > 0) {
             try (ByteArrayInputStream bis = new ByteArrayInputStream(proveedor.getImagen())) {
@@ -955,57 +936,50 @@ combo_Tipo.setSelectedItem(getCellValue(model, rowIndex, 7));
         } else {
             labelImagen.setIcon(null);
         }
-    }
 
-} catch (Exception ex) {
-    labelImagen.setIcon(null);
-    ex.printStackTrace(); // Para depuración
+        System.out.println("✅ Primera carga de proveedor completada.");
+    } catch (Exception ex) {
+        labelImagen.setIcon(null);
+        System.err.println("❌ Error en primera carga: " + ex.getMessage());
+        ex.printStackTrace();
+    }
 }
 
-        
-    
-    }
-    
+
+ 
     
     private void tableProveedoresKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tableProveedoresKeyReleased
 
-       
-        
-        try {
-    int rowIndex = tableProveedores.getSelectedRow();
-    if (rowIndex < 0) return; // No hay fila seleccionada
+       try {
+        int rowIndex = tableProveedores.getSelectedRow();
+        if (rowIndex < 0) return;
 
-    DefaultTableModel model = (DefaultTableModel) tableProveedores.getModel();
+        DefaultTableModel model = (DefaultTableModel) tableProveedores.getModel();
 
-    // Asignar valores si existen
-    Object secuencialObj = model.getValueAt(rowIndex, 0); // Columna "S"
-    if (secuencialObj != null) {
-        this.Secuencial = Integer.parseInt(secuencialObj.toString());
-    }
+        Object secuencialObj = model.getValueAt(rowIndex, 0);
+        if (secuencialObj != null) {
+            this.Secuencial = Integer.parseInt(secuencialObj.toString());
+        }
 
-    
-    txt_Nombre.setText(getCellValue(model, rowIndex, 1));   // "Nombre"
-    txt_Telefono.setText(getCellValue(model, rowIndex, 2)); // "Teléfono"
-    txt_Direccion.setText(getCellValue(model, rowIndex, 3));// "Dirección"
-    txt_Email.setText(getCellValue(model, rowIndex, 4));    // "Email"
+        txt_Nombre.setText(getCellValue(model, rowIndex, 1));
+        txt_Telefono.setText(getCellValue(model, rowIndex, 2));
+        txt_Direccion.setText(getCellValue(model, rowIndex, 3));
+        txt_Email.setText(getCellValue(model, rowIndex, 4));
+        txt_Contacto.setText(getCellValue(model, rowIndex, 5));
 
-     txt_Contacto.setText(getCellValue(model, rowIndex, 5));    // "Contacto"
+        String activo = getCellValue(model, rowIndex, 6);
+        checkBoxActivo.setSelected("Sí".equalsIgnoreCase(activo));
+        combo_Tipo.setSelectedItem(getCellValue(model, rowIndex, 7));
 
-    String activo = getCellValue(model, rowIndex, 6);       // "Activo"
-    
-    checkBoxActivo.setSelected("Sí".equalsIgnoreCase(activo));
-    combo_Tipo.setSelectedItem(getCellValue(model, rowIndex, 7));
-    
+        EntityManager em = MonituxDBContext.getEntityManager();
 
-    // Cargar imagen desde la base de datos
-    try (EntityManager em = Persistence.createEntityManagerFactory("MonituxPU").createEntityManager()) {
         Proveedor proveedor = em.createQuery(
             "SELECT p FROM Proveedor p WHERE p.Secuencial = :secuencial AND p.Secuencial_Empresa = :empresa", Proveedor.class)
-        .setParameter("secuencial", this.Secuencial)
-        .setParameter("empresa", Secuencial_Empresa)
-        .getResultStream()
-        .findFirst()
-        .orElse(null);
+            .setParameter("secuencial", this.Secuencial)
+            .setParameter("empresa", Secuencial_Empresa)
+            .getResultStream()
+            .findFirst()
+            .orElse(null);
 
         if (proveedor != null && proveedor.getImagen() != null && proveedor.getImagen().length > 0) {
             try (ByteArrayInputStream bis = new ByteArrayInputStream(proveedor.getImagen())) {
@@ -1017,17 +991,16 @@ combo_Tipo.setSelectedItem(getCellValue(model, rowIndex, 7));
         } else {
             labelImagen.setIcon(null);
         }
-    }
 
-} catch (Exception ex) {
-    labelImagen.setIcon(null);
-    ex.printStackTrace(); // Para depuración
+        System.out.println("✅ Proveedor actualizado desde evento de teclado.");
+    } catch (Exception ex) {
+        labelImagen.setIcon(null);
+        System.err.println("❌ Error al actualizar proveedor desde tabla: " + ex.getMessage());
+        ex.printStackTrace();
+    }
+    
 }
 
-        
-        
-
-        }
 
         // Método auxiliar para obtener valor seguro de celda
         private String getCellValue(DefaultTableModel model, int row, int col) {

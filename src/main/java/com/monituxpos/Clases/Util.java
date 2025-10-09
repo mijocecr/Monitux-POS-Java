@@ -44,6 +44,7 @@ import javax.swing.JFileChooser;
 import com.monituxpos.Clases.*;
 
 import com.monituxpos.Ventanas.VisorPDFBox;
+import jakarta.persistence.EntityTransaction;
 import java.awt.Component;
 import java.awt.Font;
 import java.io.FileOutputStream;
@@ -287,30 +288,50 @@ public class Util {
     }
 //Fin Generar Codigo QR
     
+  
     
-    public static void registrarActividad(int secuencialUsuario, String descripcion, int secuencialEmpresa) {
-    EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
-    EntityManager em = emf.createEntityManager();
+   public static void registrarActividad(
+    int secuencialUsuario,
+    String descripcion,
+    int secuencialEmpresa
+) {
+    EntityManager em = null;
+    EntityTransaction tx = null;
 
     try {
+        em = MonituxDBContext.getEntityManager();
+        if (em == null || !em.isOpen()) {
+            throw new IllegalStateException("EntityManager no disponible.");
+        }
+
+        tx = em.getTransaction();
+        tx.begin();
+
         Actividad actividad = new Actividad();
         actividad.setSecuencial_Usuario(secuencialUsuario);
         actividad.setSecuencial_Empresa(secuencialEmpresa);
         actividad.setDescripcion(descripcion);
 
-        em.getTransaction().begin();
-        em.persist(actividad);
-        em.getTransaction().commit();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+        actividad.setFecha(LocalDateTime.now().format(formatter));
 
+        em.persist(actividad);
+
+        tx.commit();
+        System.out.println("✅ Actividad registrada correctamente.");
     } catch (Exception e) {
-        e.printStackTrace(); // Puedes mostrar un JOptionPane si lo prefieres
+        if (tx != null && tx.isActive()) {
+            tx.rollback();
+        }
+        System.err.println("❌ Error al registrar actividad: " + e.getMessage());
+        e.printStackTrace();
     } finally {
-        em.close();
-        emf.close();
+        if (em != null && em.isOpen()) {
+            em.close();
+        }
     }
 }
 
-    
      
     public static void redimensionarImagenEnLabel(JLabel label, ImageIcon imagenOriginal, int ancho, int alto) {
     if (imagenOriginal != null) {
@@ -331,6 +352,8 @@ public class Util {
     return LocalDateTime.now().format(formatter);
 }
 
+ 
+    
     
     public static void registrarMovimientoKardex(
     int secuencialProducto, double existencia,
@@ -338,20 +361,25 @@ public class Util {
     double costo, double venta,
     String movimiento, int secuencialEmpresa
 ) {
-    EntityManagerFactory emf = null;
+    if (cantidadUnidades < 0 || costo < 0 || venta < 0) {
+        throw new IllegalArgumentException("Valores inválidos para movimiento de inventario.");
+    }
+
     EntityManager em = null;
+    EntityTransaction tx = null;
 
     try {
-        if (cantidadUnidades < 0 || costo < 0 || venta < 0) {
-            throw new IllegalArgumentException("Valores inválidos para movimiento de inventario.");
+        em = MonituxDBContext.getEntityManager();
+        if (em == null || !em.isOpen()) {
+            throw new IllegalStateException("EntityManager no disponible.");
         }
+
+        tx = em.getTransaction();
+        tx.begin();
 
         double saldoNuevo = movimiento.equals("Entrada")
             ? existencia + cantidadUnidades
             : existencia - cantidadUnidades;
-
-        emf = Persistence.createEntityManagerFactory("MonituxPU");
-        em = emf.createEntityManager();
 
         Producto producto = em.find(Producto.class, secuencialProducto);
         if (producto == null) {
@@ -359,7 +387,7 @@ public class Util {
         }
 
         Kardex kardex = new Kardex();
-        kardex.setProducto(producto); // ← Asignación correcta del objeto
+        kardex.setProducto(producto);
         kardex.setSecuencial_Empresa(secuencialEmpresa);
         kardex.setDescripcion(descripcion);
         kardex.setCantidad(cantidadUnidades);
@@ -371,32 +399,36 @@ public class Util {
         kardex.setVenta_Total(Math.round(cantidadUnidades * venta * 100.0) / 100.0);
         kardex.setFecha(LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
 
-        em.getTransaction().begin();
         em.persist(kardex);
-        em.getTransaction().commit();
 
-    } catch (Exception ex) {
-        JOptionPane.showMessageDialog(null, "Error al registrar movimiento en Kardex:\n" + ex.getMessage());
-        ex.printStackTrace();
+        tx.commit();
+        System.out.println("✅ Movimiento registrado en Kardex correctamente.");
+    } catch (Exception e) {
+        if (tx != null && tx.isActive()) {
+            tx.rollback();
+        }
+        System.err.println("❌ Error al registrar movimiento en Kardex: " + e.getMessage());
+        e.printStackTrace();
     } finally {
-        if (em != null && em.isOpen()) em.close();
-        if (emf != null && emf.isOpen()) emf.close();
+        if (em != null && em.isOpen()) {
+            em.close();
+        }
     }
 }
 
+    
+    
     
     
     public static double redondear(double valor) {
     return Math.round(valor * 100.0) / 100.0;
 }
 
-   
 
-    public static void llenarComboCliente(JComboBox<String> combo,int secuencial_Empresa) {
+  public static void llenarComboCliente(JComboBox<String> combo, int secuencial_Empresa) {
     combo.removeAllItems(); // Limpiar combo
 
-    EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
-    EntityManager em = emf.createEntityManager();
+    EntityManager em = MonituxDBContext.getEntityManager();
 
     try {
         List<Cliente> clientes = em.createQuery(
@@ -408,47 +440,18 @@ public class Util {
             combo.addItem(c.getSecuencial() + " - " + c.getNombre());
         }
 
+        System.out.println("✅ Clientes cargados correctamente.");
     } catch (Exception e) {
-        JOptionPane.showMessageDialog(null, "Error al cargar clientes: " + e.getMessage());
-    } finally {
-        em.close();
-        emf.close();
+        JOptionPane.showMessageDialog(null, "❌ Error al cargar clientes: " + e.getMessage());
+        e.printStackTrace();
     }
 }
 
     
-    public static void llenarComboUsuario(JComboBox<String> combo, int secuencial_Empresa) {
+  public static void llenarComboProveedor(JComboBox<String> combo, int secuencial_Empresa) {
     combo.removeAllItems(); // Limpiar combo
 
-    EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
-    EntityManager em = emf.createEntityManager();
-
-    try {
-        List<Usuario> usuarios = em.createQuery(
-            "SELECT u FROM Usuario u WHERE u.Activo = true AND u.Secuencial_Empresa = :empresa", Usuario.class)
-            .setParameter("empresa", secuencial_Empresa)
-            .getResultList();
-
-        for (Usuario u : usuarios) {
-            combo.addItem(u.getSecuencial() + " - " + u.getNombre());
-        }
-
-    } catch (Exception e) {
-        JOptionPane.showMessageDialog(null, "Error al cargar usuarios: " + e.getMessage());
-    } finally {
-        em.close();
-        emf.close();
-    }
-}
-
-    
-    
-    
-    public static void llenarComboProveedor(JComboBox<String> combo, int secuencial_Empresa) {
-    combo.removeAllItems(); // Limpiar combo
-
-    EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
-    EntityManager em = emf.createEntityManager();
+    EntityManager em = MonituxDBContext.getEntityManager();
 
     try {
         List<Proveedor> proveedores = em.createQuery(
@@ -460,26 +463,53 @@ public class Util {
             combo.addItem(p.getSecuencial() + " - " + p.getNombre());
         }
 
+        System.out.println("✅ Proveedores cargados correctamente.");
     } catch (Exception e) {
-        JOptionPane.showMessageDialog(null, "Error al cargar proveedores: " + e.getMessage());
-    } finally {
-        em.close();
-        emf.close();
+        JOptionPane.showMessageDialog(null, "❌ Error al cargar proveedores: " + e.getMessage());
+        e.printStackTrace();
     }
 }
 
     
-    
-    
-    
-    public static void llenarComboClientePorTelefono(JComboBox<String> combo, JTextField campoTelefono, int secuencialEmpresa) {
+    public static void llenarComboUsuario(JComboBox<String> combo, int secuencial_Empresa) {
     combo.removeAllItems(); // Limpiar combo
 
-    EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
-    EntityManager em = emf.createEntityManager();
+    EntityManager em = MonituxDBContext.getEntityManager();
 
     try {
-        String textoTelefono = campoTelefono.getText().trim().toLowerCase();
+        List<Usuario> usuarios = em.createQuery(
+            "SELECT u FROM Usuario u WHERE u.Activo = true AND u.Secuencial_Empresa = :empresa", Usuario.class)
+            .setParameter("empresa", secuencial_Empresa)
+            .getResultList();
+
+        for (Usuario u : usuarios) {
+            combo.addItem(u.getSecuencial() + " - " + u.getNombre());
+        }
+
+        System.out.println("✅ Usuarios cargados correctamente.");
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(null, "❌ Error al cargar usuarios: " + e.getMessage());
+        e.printStackTrace();
+    }
+}
+
+    
+  public static void llenarComboClientePorTelefono(JComboBox<String> combo, String telefono, int secuencialEmpresa) {
+    combo.removeAllItems(); // Limpiar combo
+
+    EntityManager em = null;
+
+    try {
+        em = MonituxDBContext.getEntityManager();
+        if (em == null || !em.isOpen()) {
+            throw new IllegalStateException("EntityManager no disponible.");
+        }
+
+        String textoTelefono = telefono.trim().toLowerCase();
+        if (textoTelefono.isEmpty()) {
+            System.out.println("⚠️ Campo teléfono vacío, no se aplica filtro.");
+            return;
+        }
 
         List<Cliente> clientes = em.createQuery(
             "SELECT c FROM Cliente c WHERE c.Activo = true AND c.Secuencial_Empresa = :empresa AND LOWER(c.Telefono) LIKE :telefono",
@@ -489,28 +519,49 @@ public class Util {
         .setParameter("telefono", "%" + textoTelefono + "%")
         .getResultList();
 
+        if (clientes.isEmpty()) {
+            System.out.println("⚠️ No se encontraron clientes con ese teléfono.");
+            return;
+        }
+
         for (Cliente item : clientes) {
             String texto = item.getSecuencial() + " - " + item.getNombre();
             combo.addItem(texto);
-            combo.setSelectedItem(texto); // Selecciona el último encontrado
         }
 
+        // Seleccionar el primero si existe
+        if (combo.getItemCount() > 0) {
+            combo.setSelectedIndex(0);
+        }
+
+        System.out.println("✅ Clientes filtrados por teléfono cargados correctamente.");
+
     } catch (Exception e) {
-        JOptionPane.showMessageDialog(null, "Error al filtrar clientes: " + e.getMessage());
+        JOptionPane.showMessageDialog(null, "❌ Error al filtrar clientes: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        e.printStackTrace();
     } finally {
-        em.close();
-        emf.close();
+        if (em != null && em.isOpen()) {
+            em.close();
+        }
     }
 }
 
   public static void llenarComboProveedorPorTelefono(JComboBox<String> combo, String telefono, int secuencialEmpresa) {
     combo.removeAllItems(); // Limpiar combo
 
-    EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
-    EntityManager em = emf.createEntityManager();
+    EntityManager em = null;
 
     try {
-        String textoTelefono = telefono.trim().toLowerCase();
+        em = MonituxDBContext.getEntityManager();
+        if (em == null || !em.isOpen()) {
+            throw new IllegalStateException("EntityManager no disponible.");
+        }
+
+        String textoTelefono = telefono != null ? telefono.trim().toLowerCase() : "";
+        if (textoTelefono.isEmpty()) {
+            System.out.println("⚠️ Teléfono vacío, no se aplica filtro.");
+            return;
+        }
 
         List<Proveedor> proveedores = em.createQuery(
             "SELECT p FROM Proveedor p WHERE p.Activo = true AND p.Secuencial_Empresa = :empresa AND LOWER(p.Telefono) LIKE :telefono",
@@ -533,17 +584,22 @@ public class Util {
             combo.addItem(texto);
         }
 
-        combo.setSelectedIndex(0); // Selecciona el primero si hay resultados
+        if (combo.getItemCount() > 0) {
+            combo.setSelectedIndex(0); // Selecciona el primero si hay resultados
+        }
+
+        System.out.println("✅ Proveedores filtrados por teléfono cargados correctamente.");
 
     } catch (Exception e) {
         JOptionPane.showMessageDialog(null,
-            "Error al filtrar proveedores: " + e.getMessage(),
+            "❌ Error al filtrar proveedores: " + e.getMessage(),
             "Error",
             JOptionPane.ERROR_MESSAGE);
         e.printStackTrace();
     } finally {
-        em.close();
-        emf.close();
+        if (em != null && em.isOpen()) {
+            em.close();
+        }
     }
 }
 
@@ -758,31 +814,25 @@ public class Util {
 }
 
      
-     
-       
-    public static void llenar_Combo_Categoria(JComboBox comboCategoria, int Secuencial_Empresa ) {
+ public static void llenar_Combo_Categoria(JComboBox<String> comboCategoria, int secuencialEmpresa) {
     comboCategoria.removeAllItems(); // Limpiar combo
 
-    EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
-    EntityManager em = emf.createEntityManager();
+    EntityManager em = MonituxDBContext.getEntityManager();
 
     try {
         List<Categoria> categorias = em.createQuery(
             "SELECT c FROM Categoria c WHERE c.Secuencial_Empresa = :empresa", Categoria.class)
-            .setParameter("empresa", Secuencial_Empresa)
+            .setParameter("empresa", secuencialEmpresa)
             .getResultList();
 
-        
-            for (Categoria c : categorias) {
-                comboCategoria.addItem(c.getSecuencial() + " - " + c.getNombre());
-            }
+        for (Categoria c : categorias) {
+            comboCategoria.addItem(c.getSecuencial() + " - " + c.getNombre());
+        }
 
-
+        System.out.println("✅ Categorías cargadas correctamente.");
     } catch (Exception e) {
-        JOptionPane.showMessageDialog(null, "Error al cargar categorías: " + e.getMessage());
-    } finally {
-        em.close();
-        emf.close();
+        JOptionPane.showMessageDialog(null, "❌ Error al cargar categorías: " + e.getMessage());
+        e.printStackTrace();
     }
 }
 

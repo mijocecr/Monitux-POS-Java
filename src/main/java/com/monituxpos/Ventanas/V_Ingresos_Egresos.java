@@ -6,6 +6,7 @@ package com.monituxpos.Ventanas;
 
 import com.monituxpos.Clases.Egreso;
 import com.monituxpos.Clases.Ingreso;
+import com.monituxpos.Clases.MonituxDBContext;
 import com.monituxpos.Clases.Usuario;
 import com.monituxpos.Clases.Util;
 import jakarta.persistence.EntityManager;
@@ -14,6 +15,9 @@ import jakarta.persistence.Persistence;
 import java.awt.Color;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 import javax.swing.JOptionPane;
 
 /**
@@ -181,95 +185,88 @@ public  V_Egresos formulario_Principal_EG;
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
 
-        JOptionPane.showMessageDialog(null, this.Secuencial_Usuario);
+ 
+         try {
+        // Validar monto
+        String totalStr = txtTotal.getText().trim();
+        double total;
+        try {
+            total = Double.parseDouble(totalStr);
+            if (total <= 0) throw new NumberFormatException();
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(this, "Debe ingresar un monto válido.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
 
-EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
-EntityManager em = emf.createEntityManager();
+        EntityManager em = MonituxDBContext.getEntityManager();
 
-try {
-    // Validar monto
-    String totalStr = txtTotal.getText().trim();
-    double total;
-    try {
-        total = Double.parseDouble(totalStr);
-        if (total <= 0) throw new NumberFormatException();
-    } catch (NumberFormatException ex) {
-        JOptionPane.showMessageDialog(this, "Debe ingresar un monto válido.", "Error", JOptionPane.ERROR_MESSAGE);
-        return;
+        // Obtener el objeto Usuario desde la base de datos
+        Usuario usuario = em.find(Usuario.class, this.Secuencial_Usuario);
+        if (usuario == null) {
+            JOptionPane.showMessageDialog(this, "Usuario no encontrado.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        String fecha = LocalDateTime.now()
+            .format(DateTimeFormatter.ofPattern("dd/MM/yyyy hh:mm:ss a", new Locale("es", "ES")));
+
+        em.getTransaction().begin();
+
+        if (!this.isEgreso) {
+            Ingreso ingresoManual = new Ingreso();
+            ingresoManual.setFecha(fecha);
+            ingresoManual.setTipo_Ingreso("Ingreso Manual");
+            ingresoManual.setTotal(total);
+            ingresoManual.setDescripcion(txtDescripcion.getText().trim());
+            ingresoManual.setUsuario(usuario);
+            ingresoManual.setSecuencial_Usuario(Secuencial_Usuario);
+            ingresoManual.setSecuencial_Empresa(Secuencial_Empresa);
+            ingresoManual.setSecuencial_Factura(null);
+
+            em.persist(ingresoManual);
+            em.getTransaction().commit();
+
+            JOptionPane.showMessageDialog(this, "Ingreso registrado correctamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+            formulario_Principal_IN.cargarDatos();
+
+            Util.registrarActividad(
+                usuario.getSecuencial(),
+                "Ha registrado un ingreso manual de " + ingresoManual.getTotal() +
+                " por concepto de: " + ingresoManual.getDescripcion(),
+                ingresoManual.getSecuencial_Empresa()
+            );
+        } else {
+            Egreso egresoManual = new Egreso();
+            egresoManual.setFecha(fecha);
+            egresoManual.setTipo_Egreso("Egreso Manual");
+            egresoManual.setTotal(total);
+            egresoManual.setDescripcion(txtDescripcion.getText().trim());
+            egresoManual.setUsuario(usuario);
+            egresoManual.setSecuencial_Usuario(Secuencial_Usuario);
+            egresoManual.setSecuencial_Empresa(Secuencial_Empresa);
+            egresoManual.setSecuencial_Factura(null);
+
+            em.persist(egresoManual);
+            em.getTransaction().commit();
+
+            JOptionPane.showMessageDialog(this, "Egreso registrado correctamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+            formulario_Principal_EG.cargarDatos();
+
+            Util.registrarActividad(
+                usuario.getSecuencial(),
+                "Ha registrado un egreso manual de " + egresoManual.getTotal() +
+                " por concepto de: " + egresoManual.getDescripcion(),
+                egresoManual.getSecuencial_Empresa()
+            );
+        }
+
+        this.dispose();
+
+        System.out.println("✅ Registro manual completado correctamente.");
+    } catch (Exception ex) {
+        JOptionPane.showMessageDialog(this, "Error al registrar: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        ex.printStackTrace();
     }
-
-    // Obtener el objeto Usuario desde la base de datos
-    Usuario usuario = em.find(Usuario.class, this.Secuencial_Usuario);
-    if (usuario == null) {
-        JOptionPane.showMessageDialog(this, "Usuario no encontrado.", "Error", JOptionPane.ERROR_MESSAGE);
-        return;
-    }
-
-    // Formato de fecha con AM/PM
-    String fecha = java.time.LocalDateTime.now()
-        .format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy hh:mm:ss a", new java.util.Locale("es", "ES")));
-
-    em.getTransaction().begin();
-
-    if (!this.isEgreso) {
-        Ingreso ingresoManual = new Ingreso();
-        ingresoManual.setFecha(fecha);
-        ingresoManual.setTipo_Ingreso("Ingreso Manual");
-        ingresoManual.setTotal(total);
-        ingresoManual.setDescripcion(txtDescripcion.getText().trim());
-        ingresoManual.setUsuario(usuario); // ← relación asignada
-        ingresoManual.setSecuencial_Usuario(Secuencial_Usuario);
-        ingresoManual.setSecuencial_Empresa(Secuencial_Empresa);
-        ingresoManual.setSecuencial_Factura(null);
-
-        em.persist(ingresoManual);
-        em.getTransaction().commit();
-
-        JOptionPane.showMessageDialog(this, "Ingreso registrado correctamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
-formulario_Principal_IN.cargarDatos();
-        Util.registrarActividad(
-            usuario.getSecuencial(),
-            "Ha registrado un ingreso manual de " + ingresoManual.getTotal() +
-            " por concepto de: " + ingresoManual.getDescripcion(),
-            ingresoManual.getSecuencial_Empresa()
-        );
-    } else {
-        Egreso egresoManual = new Egreso();
-        egresoManual.setFecha(fecha);
-        egresoManual.setTipo_Egreso("Egreso Manual");
-        egresoManual.setTotal(total);
-        egresoManual.setDescripcion(txtDescripcion.getText().trim());
-        egresoManual.setUsuario(usuario); // ← relación asignada
-        egresoManual.setSecuencial_Usuario(Secuencial_Usuario);
-        egresoManual.setSecuencial_Empresa(Secuencial_Empresa);
-        egresoManual.setSecuencial_Factura(null);
-
-        em.persist(egresoManual);
-        em.getTransaction().commit();
-        formulario_Principal_EG.cargarDatos();
-        JOptionPane.showMessageDialog(this, "Egreso registrado correctamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
-
-        Util.registrarActividad(
-            usuario.getSecuencial(),
-            "Ha registrado un egreso manual de " + egresoManual.getTotal() +
-            " por concepto de: " + egresoManual.getDescripcion(),
-            egresoManual.getSecuencial_Empresa()
-        );
-    }
-
-    this.dispose(); // Cierra la ventana actual
-
-} catch (Exception ex) {
-    if (em.getTransaction().isActive()) em.getTransaction().rollback();
-    JOptionPane.showMessageDialog(this, "Error al registrar: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-    ex.printStackTrace();
-} finally {
-    em.close();
-    emf.close();
-}
-
-
-
         // TODO add your handling code here:
     }//GEN-LAST:event_jButton1ActionPerformed
 

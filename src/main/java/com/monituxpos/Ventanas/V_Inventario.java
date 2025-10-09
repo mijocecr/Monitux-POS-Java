@@ -6,6 +6,7 @@ package com.monituxpos.Ventanas;
 
 import com.monituxpos.Clases.Kardex;
 import com.monituxpos.Clases.Miniatura_Producto;
+import com.monituxpos.Clases.MonituxDBContext;
 import com.monituxpos.Clases.Producto;
 import com.monituxpos.Clases.SelectorCantidad;
 import com.monituxpos.Clases.Util;
@@ -35,6 +36,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -712,180 +714,239 @@ public class V_Inventario extends javax.swing.JPanel {
     }//GEN-LAST:event_jButton1ActionPerformed
 
     
-    
-    public void Filtrar_Lista_Fecha(
-    int secuencialEmpresa,
-    String fechaTexto, // formato dd/MM/yyyy
-    JTable tabla,
-    EntityManager entityManager
-) {
+   public void Filtrar_Lista_Fecha(int secuencialEmpresa, String fechaTexto, JTable tabla) {
     icono_carga.setVisible(true);
 
-    String jpql = "SELECT p FROM Producto p " +
-                  "WHERE p.Secuencial_Empresa = :empresa " +
-                  "AND p.Fecha_Caducidad = :fecha";
+    new SwingWorker<List<Producto>, Void>() {
+        EntityManager em = null;
 
-    TypedQuery<Producto> query = entityManager.createQuery(jpql, Producto.class);
-    query.setParameter("empresa", secuencialEmpresa);
-    query.setParameter("fecha", fechaTexto); // debe coincidir con el formato en BD
-
-    List<Producto> productos = query.getResultList();
-
-    DefaultTableModel modelo = new DefaultTableModel(new Object[]{
-        "S", "Codigo", "Descripción", "Marca", "Existencia", "E. mínima",
-        "C. Barra", "C. Fabricante", "F. Vencimiento", "P. Costo", "P. Venta"
-    }, 0) {
         @Override
-        public boolean isCellEditable(int row, int column) {
-            return false;
-        }
-    };
-
-    for (Producto producto : productos) {
-        modelo.addRow(new Object[]{
-            producto.getSecuencial(),
-            producto.getCodigo(),
-            producto.getDescripcion(),
-            producto.getMarca(),
-            producto.getCantidad(),
-            producto.getExistencia_Minima(),
-            producto.getCodigo_Barra(),
-            producto.getCodigo_Fabricante(),
-            producto.getFecha_Caducidad(),
-            producto.getPrecio_Costo(),
-            producto.getPrecio_Venta()
-        });
-    }
-
-    tabla.setModel(modelo);
-    tabla.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-
-    // Eliminar listeners previos para evitar duplicación
-    for (MouseListener ml : tabla.getMouseListeners()) {
-        tabla.removeMouseListener(ml);
-    }
-
-    // Agregar evento de clic y doble clic
-    tabla.addMouseListener(new MouseAdapter() {
-        @Override
-        public void mousePressed(MouseEvent e) {
-            if (SwingUtilities.isLeftMouseButton(e)) {
-                int fila = tabla.rowAtPoint(e.getPoint());
-                if (fila != -1) {
-                    tabla.setRowSelectionInterval(fila, fila);
+        protected List<Producto> doInBackground() {
+            try {
+                em = MonituxDBContext.getEntityManager();
+                if (em == null || !em.isOpen()) {
+                    throw new IllegalStateException("EntityManager no disponible.");
                 }
+
+                String jpql = "SELECT p FROM Producto p " +
+                              "WHERE p.Secuencial_Empresa = :empresa " +
+                              "AND p.Fecha_Caducidad = :fecha";
+
+                TypedQuery<Producto> query = em.createQuery(jpql, Producto.class);
+                query.setParameter("empresa", secuencialEmpresa);
+                query.setParameter("fecha", fechaTexto); // Asegúrate que el formato coincida con el tipo en BD
+
+                return query.getResultList();
+
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(tabla,
+                    "Error al consultar productos por fecha de caducidad: " + ex.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+                ex.printStackTrace();
+                return Collections.emptyList();
             }
         }
 
         @Override
-        public void mouseClicked(MouseEvent e) {
-            if (e.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(e)) {
-                int fila = tabla.rowAtPoint(e.getPoint());
-                if (fila != -1) {
-                    tabla.setRowSelectionInterval(fila, fila);
+        protected void done() {
+            try {
+                List<Producto> productos = get();
 
-                    String codigo = tabla.getValueAt(fila, 1).toString();
-                    Producto productoSeleccionado = productos.stream()
-                        .filter(p -> p.getCodigo().equals(codigo))
-                        .findFirst()
-                        .orElse(null);
+                DefaultTableModel modelo = new DefaultTableModel(new Object[]{
+                    "S", "Codigo", "Descripción", "Marca", "Existencia", "E. mínima",
+                    "C. Barra", "C. Fabricante", "F. Vencimiento", "P. Costo", "P. Venta"
+                }, 0) {
+                    @Override
+                    public boolean isCellEditable(int row, int column) {
+                        return false;
+                    }
+                };
 
-                    if (productoSeleccionado != null) {
-                    V_Producto form = new V_Producto(false, productoSeleccionado);
-                    form.setOnProductoEditado(() -> cargarItems_Cuadricula());
-                    form.setVisible(true);
+                for (Producto producto : productos) {
+                    modelo.addRow(new Object[]{
+                        producto.getSecuencial(),
+                        producto.getCodigo(),
+                        producto.getDescripcion(),
+                        producto.getMarca(),
+                        producto.getCantidad(),
+                        producto.getExistencia_Minima(),
+                        producto.getCodigo_Barra(),
+                        producto.getCodigo_Fabricante(),
+                        producto.getFecha_Caducidad(),
+                        producto.getPrecio_Costo(),
+                        producto.getPrecio_Venta()
+                    });
                 }
-                    
+
+                tabla.setModel(modelo);
+                tabla.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+                for (MouseListener ml : tabla.getMouseListeners()) {
+                    tabla.removeMouseListener(ml);
                 }
+
+                tabla.addMouseListener(new MouseAdapter() {
+                    @Override
+                    public void mousePressed(MouseEvent e) {
+                        if (SwingUtilities.isLeftMouseButton(e)) {
+                            int fila = tabla.rowAtPoint(e.getPoint());
+                            if (fila != -1) {
+                                tabla.setRowSelectionInterval(fila, fila);
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void mouseClicked(MouseEvent e) {
+                        if (e.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(e)) {
+                            int fila = tabla.rowAtPoint(e.getPoint());
+                            if (fila != -1) {
+                                tabla.setRowSelectionInterval(fila, fila);
+                                String codigo = tabla.getValueAt(fila, 1).toString();
+
+                                Producto productoSeleccionado = productos.stream()
+                                    .filter(p -> p.getCodigo().equals(codigo))
+                                    .findFirst()
+                                    .orElse(null);
+
+                                if (productoSeleccionado != null) {
+                                    V_Producto form = new V_Producto(false, productoSeleccionado);
+                                    form.setOnProductoEditado(() -> cargarItems_Cuadricula());
+                                    form.setVisible(true);
+                                }
+                            }
+                        }
+                    }
+                });
+
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(tabla,
+                    "Error al procesar productos por fecha: " + ex.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+                ex.printStackTrace();
+            } finally {
+                if (em != null && em.isOpen()) {
+                    em.close();
+                }
+                icono_carga.setVisible(false);
             }
         }
-    });
-
-    icono_carga.setVisible(false);
+    }.execute();
 }
 
     
     
-    
-    public void Filtrar_Fecha_Cuadricula(
-    int secuencialEmpresa,
-    String fechaTexto, // formato dd/MM/yyyy
-    JPanel contenedor,
-    EntityManager entityManager
-) {
+   public void Filtrar_Fecha_Cuadricula(int secuencialEmpresa, String fechaTexto, JPanel contenedor) {
     icono_carga.setVisible(true);
     contenedor.setLayout(new GridBagLayout());
     contenedor.removeAll();
 
-    String jpql = "SELECT p FROM Producto p " +
-                  "WHERE p.Secuencial_Empresa = :empresa " +
-                  "AND p.Fecha_Caducidad = :fecha";
+    new SwingWorker<List<Producto>, Void>() {
+        EntityManager em = null;
 
-    TypedQuery<Producto> query = entityManager.createQuery(jpql, Producto.class);
-    query.setParameter("empresa", secuencialEmpresa);
-    query.setParameter("fecha", fechaTexto); // debe coincidir exactamente con el formato en BD
-
-    GridBagConstraints gbc = new GridBagConstraints();
-    gbc.insets = new Insets(5, 5, 5, 5);
-    gbc.fill = GridBagConstraints.NONE;
-    gbc.anchor = GridBagConstraints.NORTHWEST;
-
-    int col = 0, row = 0;
-
-    for (Producto producto : query.getResultList()) {
-        Miniatura_Producto miniatura = new Miniatura_Producto(producto, false);
-        miniatura.setPreferredSize(new Dimension(120, 170));
-
-       
-         miniatura.addMouseListener(new MouseAdapter() {
-    @Override
-    public void mouseClicked(MouseEvent e) {
-        if (e.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(e)) {
-            // Evento doble clic izquierdo
-            Producto productoSeleccionado = miniatura.producto;
-            
-             V_Kardex kardex = new V_Kardex(productoSeleccionado.getProducto().getSecuencial(),productoSeleccionado.getProducto().getCodigo());
-                                    kardex.setVisible(true);
-                                    kardex.setLocationRelativeTo(null);
-            // Aquí puedes abrir un diálogo, mostrar detalles, o iniciar edición
-            
-        }
-    }
-        
-
-            @Override
-            public void mousePressed(MouseEvent e) {
-                if (e.isPopupTrigger()) {
-                    menu_contextual.show(e.getComponent(), e.getX(), e.getY());
+        @Override
+        protected List<Producto> doInBackground() {
+            try {
+                em = MonituxDBContext.getEntityManager();
+                if (em == null || !em.isOpen()) {
+                    throw new IllegalStateException("EntityManager no disponible.");
                 }
+
+                String jpql = "SELECT p FROM Producto p " +
+                              "WHERE p.Secuencial_Empresa = :empresa " +
+                              "AND p.Fecha_Caducidad = :fecha";
+
+                TypedQuery<Producto> query = em.createQuery(jpql, Producto.class);
+                query.setParameter("empresa", secuencialEmpresa);
+                query.setParameter("fecha", fechaTexto); // Asegúrate de que el formato coincida con el tipo en BD
+
+                return query.getResultList();
+
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(contenedor,
+                    "Error al consultar productos por fecha de caducidad: " + ex.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+                ex.printStackTrace();
+                return new ArrayList<>();
             }
-
-            @Override
-            public void mouseReleased(MouseEvent e) {
-                if (e.isPopupTrigger()) {
-                    menu_contextual.show(e.getComponent(), e.getX(), e.getY());
-                }
-            }
-        });
-
-        String comentario = miniatura.cargarComentario();
-        String descripcion = miniatura.producto.getDescripcion();
-        miniatura.setToolTipText("<html><b>" + descripcion + "</b><br>" + (comentario != null ? comentario : "") + "</html>");
-
-        gbc.gridx = col;
-        gbc.gridy = row;
-        contenedor.add(miniatura, gbc);
-
-        col++;
-        if (col == 6) {
-            col = 0;
-            row++;
         }
-    }
 
-    contenedor.revalidate();
-    contenedor.repaint();
-    icono_carga.setVisible(false);
+        @Override
+        protected void done() {
+            try {
+                List<Producto> productos = get();
+
+                GridBagConstraints gbc = new GridBagConstraints();
+                gbc.insets = new Insets(5, 5, 5, 5);
+                gbc.fill = GridBagConstraints.NONE;
+                gbc.anchor = GridBagConstraints.NORTHWEST;
+
+                int col = 0, row = 0;
+
+                for (Producto producto : productos) {
+                    Miniatura_Producto miniatura = new Miniatura_Producto(producto, false);
+                    miniatura.setPreferredSize(new Dimension(120, 170));
+
+                    miniatura.addMouseListener(new MouseAdapter() {
+                        @Override
+                        public void mouseClicked(MouseEvent e) {
+                            if (e.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(e)) {
+                                Producto productoSeleccionado = miniatura.producto;
+                                V_Kardex kardex = new V_Kardex(
+                                    productoSeleccionado.getProducto().getSecuencial(),
+                                    productoSeleccionado.getProducto().getCodigo()
+                                );
+                                kardex.setVisible(true);
+                                kardex.setLocationRelativeTo(null);
+                            }
+                        }
+
+                        @Override
+                        public void mousePressed(MouseEvent e) {
+                            if (e.isPopupTrigger()) {
+                                menu_contextual.show(e.getComponent(), e.getX(), e.getY());
+                            }
+                        }
+
+                        @Override
+                        public void mouseReleased(MouseEvent e) {
+                            if (e.isPopupTrigger()) {
+                                menu_contextual.show(e.getComponent(), e.getX(), e.getY());
+                            }
+                        }
+                    });
+
+                    String comentario = miniatura.cargarComentario();
+                    String descripcion = miniatura.producto.getDescripcion();
+                    miniatura.setToolTipText("<html><b>" + descripcion + "</b><br>" + (comentario != null ? comentario : "") + "</html>");
+
+                    gbc.gridx = col;
+                    gbc.gridy = row;
+                    contenedor.add(miniatura, gbc);
+
+                    col++;
+                    if (col == 6) {
+                        col = 0;
+                        row++;
+                    }
+                }
+
+                contenedor.revalidate();
+                contenedor.repaint();
+
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(contenedor,
+                    "Error al procesar productos por fecha: " + ex.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+                ex.printStackTrace();
+            } finally {
+                if (em != null && em.isOpen()) {
+                    em.close();
+                }
+                icono_carga.setVisible(false);
+            }
+        }
+    }.execute();
 }
 
     
@@ -894,39 +955,72 @@ public class V_Inventario extends javax.swing.JPanel {
     
     
     
-    
-    public void Modo_Cuadricula(){
-        jLabel14.setVisible(false);
-     jLabel9.setText("Modo: Cuadricula");
-            jScrollPane2.setVisible(false);
-            lista_tabla.setVisible(false);
-            jScrollPane3.setVisible(false);
-            jScrollPane1.setVisible(true);
-            
-        jLabel6.setVisible(true);
-        jLabel7.setVisible(true);
-        
-            contenedor.setVisible(true);
-        kardex_tabla.setVisible(false);
-      
-        
-      Modo="Cuadricula";
-        jComboBox3.removeAllItems();
-        jComboBox3.addItem("Codigo");
-        jComboBox3.addItem("Codigo_Barra");
-        jComboBox3.addItem("Codigo_Fabricante");
-        jComboBox3.addItem("Descripcion");
-        jComboBox3.addItem("Fecha_Caducidad");
-        jComboBox3.addItem("Marca");
-        jComboBox3.setSelectedIndex(0);
-        
-        jButton5.setVisible(true);
-        jPanel1.setVisible(true);
-        jPanel2.setVisible(false);
-        cargarItems_Cuadricula();
-       
-    }
-    
+    public void Modo_Cuadricula() {
+    jLabel14.setVisible(false);
+    jLabel9.setText("Modo: Cuadricula");
+
+    jScrollPane2.setVisible(false);
+    lista_tabla.setVisible(false);
+    jScrollPane3.setVisible(false);
+    jScrollPane1.setVisible(true);
+
+    jLabel6.setVisible(true);
+    jLabel7.setVisible(true);
+    contenedor.setVisible(true);
+    kardex_tabla.setVisible(false);
+
+    Modo = "Cuadricula";
+
+    jComboBox3.removeAllItems();
+    jComboBox3.addItem("Codigo");
+    jComboBox3.addItem("Codigo_Barra");
+    jComboBox3.addItem("Codigo_Fabricante");
+    jComboBox3.addItem("Descripcion");
+    jComboBox3.addItem("Fecha_Caducidad");
+    jComboBox3.addItem("Marca");
+    jComboBox3.setSelectedIndex(0);
+
+    jButton5.setVisible(true);
+    jPanel1.setVisible(true);
+    jPanel2.setVisible(false);
+
+    icono_carga.setVisible(true);
+
+    new SwingWorker<Void, Void>() {
+        EntityManager em = null;
+
+        @Override
+        protected Void doInBackground() {
+            try {
+                em = MonituxDBContext.getEntityManager();
+                if (em == null || !em.isOpen()) {
+                    throw new IllegalStateException("EntityManager no disponible.");
+                }
+
+                cargarItems_Cuadricula(Secuencial_Empresa, contenedor);
+
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(contenedor,
+                    "Error al cargar productos en modo cuadrícula: " + ex.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+                ex.printStackTrace();
+            } finally {
+                if (em != null && em.isOpen()) {
+                    em.close();
+                }
+            }
+            return null;
+        }
+
+        @Override
+        protected void done() {
+            icono_carga.setVisible(false);
+            contenedor.revalidate();
+            contenedor.repaint();
+        }
+    }.execute();
+}
+
     
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
 
@@ -938,45 +1032,72 @@ public class V_Inventario extends javax.swing.JPanel {
 
     
     
-    public void Modo_Lista(){
-        jLabel14.setVisible(true);
-     jLabel9.setText("Modo: Lista");
-          
-        contenedor.setVisible(false);
-        kardex_tabla.setVisible(false);
-        jScrollPane3.setVisible(false);
-         jScrollPane2.setVisible(true);
-         jScrollPane1.setVisible(false);   
-        lista_tabla.setVisible(true);
-       jLabel6.setVisible(true);
-        jLabel7.setVisible(true);
-        
-        Modo="Lista";
-        
-          jComboBox3.removeAllItems();
-        jComboBox3.addItem("Codigo");
-        jComboBox3.addItem("Codigo_Barra");
-        jComboBox3.addItem("Codigo_Fabricante");
-        jComboBox3.addItem("Descripcion");
-        jComboBox3.addItem("Fecha_Caducidad");
-        jComboBox3.addItem("Marca");
-        jComboBox3.setSelectedIndex(0);
-        jLabel9.setText("Modo: Lista");
-        jButton5.setVisible(true);
-        jPanel1.setVisible(true);
-        jPanel2.setVisible(false);
-           EntityManagerFactory emf = null;
+   public void Modo_Lista() {
+    jLabel14.setVisible(true);
+    jLabel9.setText("Modo: Lista");
+
+    contenedor.setVisible(false);
+    kardex_tabla.setVisible(false);
+    jScrollPane3.setVisible(false);
+    jScrollPane2.setVisible(true);
+    jScrollPane1.setVisible(false);
+    lista_tabla.setVisible(true);
+
+    jLabel6.setVisible(true);
+    jLabel7.setVisible(true);
+
+    Modo = "Lista";
+
+    jComboBox3.removeAllItems();
+    jComboBox3.addItem("Codigo");
+    jComboBox3.addItem("Codigo_Barra");
+    jComboBox3.addItem("Codigo_Fabricante");
+    jComboBox3.addItem("Descripcion");
+    jComboBox3.addItem("Fecha_Caducidad");
+    jComboBox3.addItem("Marca");
+    jComboBox3.setSelectedIndex(0);
+
+    jButton5.setVisible(true);
+    jPanel1.setVisible(true);
+    jPanel2.setVisible(false);
+
+    icono_carga.setVisible(true);
+
+    new SwingWorker<Void, Void>() {
         EntityManager em = null;
 
-         emf = Persistence.createEntityManagerFactory("MonituxPU");
-            em = emf.createEntityManager();
-            
-            cargar_Items_Lista(Secuencial_Empresa,lista_tabla);
-            
+        @Override
+        protected Void doInBackground() {
+            try {
+                em = MonituxDBContext.getEntityManager();
+                if (em == null || !em.isOpen()) {
+                    throw new IllegalStateException("EntityManager no disponible.");
+                }
 
-    
-    }
-    
+                cargar_Items_Lista(Secuencial_Empresa, lista_tabla);
+
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(lista_tabla,
+                    "Error al cargar productos en modo lista: " + ex.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+                ex.printStackTrace();
+            } finally {
+                if (em != null && em.isOpen()) {
+                    em.close();
+                }
+            }
+            return null;
+        }
+
+        @Override
+        protected void done() {
+            icono_carga.setVisible(false);
+            lista_tabla.revalidate();
+            lista_tabla.repaint();
+        }
+    }.execute();
+}
+ 
     
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
 
@@ -987,37 +1108,195 @@ public class V_Inventario extends javax.swing.JPanel {
         // TODO add your handling code here:
     }//GEN-LAST:event_jButton3ActionPerformed
 
-    public void Modo_Kardex(){
+    
+    public void Filtrar_Kardex_Proveedor(int secuencialEmpresa, int secuencialProveedor, JTable tabla) {
+    icono_carga.setVisible(true);
+
+    new SwingWorker<List<Kardex>, Void>() {
+        EntityManager em = null;
+
+        @Override
+        protected List<Kardex> doInBackground() {
+            try {
+                em = MonituxDBContext.getEntityManager();
+                if (em == null || !em.isOpen()) {
+                    throw new IllegalStateException("EntityManager no disponible.");
+                }
+
+                return em.createQuery(
+                    "SELECT k FROM Kardex k JOIN FETCH k.producto p WHERE k.Secuencial_Empresa = :empresa AND p.Secuencial_Proveedor = :proveedor",
+                    Kardex.class)
+                    .setParameter("empresa", secuencialEmpresa)
+                    .setParameter("proveedor", secuencialProveedor)
+                    .getResultList();
+
+            } catch (Exception ex) {
+                SwingUtilities.invokeLater(() ->
+                    JOptionPane.showMessageDialog(tabla,
+                        "Error al consultar Kardex por proveedor: " + ex.getMessage(),
+                        "Error", JOptionPane.ERROR_MESSAGE)
+                );
+                ex.printStackTrace();
+                return Collections.emptyList();
+            }
+        }
+
+        @Override
+        protected void done() {
+            try {
+                List<Kardex> kardexList = get();
+
+                DefaultTableModel modelo = new DefaultTableModel(new Object[]{
+                    "S", "Codigo", "Fecha", "Descripción", "Movimiento", "Cantidad",
+                    "Costo", "Costo Total", "Venta", "Venta Total", "Saldo",
+                    "Sec. Producto", "Sec. Empresa"
+                }, 0) {
+                    @Override
+                    public boolean isCellEditable(int row, int column) {
+                        return false;
+                    }
+                };
+
+                for (Kardex k : kardexList) {
+                    Producto p = k.getProducto();
+                    modelo.addRow(new Object[]{
+                        k.getSecuencial(),
+                        p != null ? p.getCodigo() : "",
+                        k.getFecha(),
+                        k.getDescripcion(),
+                        k.getMovimiento(),
+                        k.getCantidad(),
+                        Util.redondear(k.getCosto()),
+                        Util.redondear(k.getCosto_Total()),
+                        Util.redondear(k.getVenta()),
+                        Util.redondear(k.getVenta_Total()),
+                        Util.redondear(k.getSaldo()),
+                        k.getSecuencial_Producto(),
+                        k.getSecuencial_Empresa()
+                    });
+                }
+
+                tabla.setModel(modelo);
+                tabla.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+                for (MouseListener ml : tabla.getMouseListeners()) {
+                    tabla.removeMouseListener(ml);
+                }
+
+                tabla.addMouseListener(new MouseAdapter() {
+                    @Override
+                    public void mousePressed(MouseEvent e) {
+                        if (SwingUtilities.isLeftMouseButton(e)) {
+                            int fila = tabla.rowAtPoint(e.getPoint());
+                            if (fila != -1) {
+                                tabla.setRowSelectionInterval(fila, fila);
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void mouseClicked(MouseEvent e) {
+                        if (e.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(e)) {
+                            int fila = tabla.rowAtPoint(e.getPoint());
+                            if (fila != -1) {
+                                tabla.setRowSelectionInterval(fila, fila);
+
+                                int secuencial = Integer.parseInt(tabla.getValueAt(fila, 0).toString());
+                                Kardex seleccionado = kardexList.stream()
+                                    .filter(k -> k.getSecuencial() == secuencial)
+                                    .findFirst()
+                                    .orElse(null);
+
+                                if (seleccionado != null && seleccionado.getProducto() != null) {
+                                    V_Kardex kardex = new V_Kardex(
+                                        seleccionado.getProducto().getSecuencial(),
+                                        seleccionado.getProducto().getCodigo()
+                                    );
+                                    kardex.setVisible(true);
+                                    kardex.setLocationRelativeTo(null);
+                                }
+                            }
+                        }
+                    }
+                });
+
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(tabla,
+                    "Error al procesar Kardex por proveedor: " + ex.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+                ex.printStackTrace();
+            } finally {
+                if (em != null && em.isOpen()) {
+                    em.close();
+                }
+                icono_carga.setVisible(false);
+            }
+        }
+    }.execute();
+}
+
+    
+   public void Modo_Kardex() {
     jLabel14.setVisible(true);
-        jLabel6.setVisible(false);
-        jLabel7.setVisible(false);
-        jLabel9.setText("Modo: Kardex");
-         jComboBox3.removeAllItems();
-         
- jComboBox3.addItem("Codigo");
- jComboBox3.addItem("Descripcion");
- jComboBox3.addItem("Fecha");
-        
-        jPanel2.setVisible(true);
-        jPanel1.setVisible(false);
-        jButton5.setVisible(false);
-        Modo="Kardex";
-        
-        jScrollPane3.setVisible(true);
-        jScrollPane1.setVisible(false);
-        jScrollPane2.setVisible(false);
-        lista_tabla.setVisible(false);
-        contenedor.setVisible(false);
-        kardex_tabla.setVisible(true);
-        
-        
-        cargar_Items_Kardex(Secuencial_Empresa,kardex_tabla);
-        
-        
-    
-    
-    }
-    
+    jLabel6.setVisible(false);
+    jLabel7.setVisible(false);
+    jLabel9.setText("Modo: Kardex");
+
+    jComboBox3.removeAllItems();
+    jComboBox3.addItem("Codigo");
+    jComboBox3.addItem("Descripcion");
+    jComboBox3.addItem("Fecha");
+    jComboBox3.setSelectedIndex(0);
+
+    jPanel2.setVisible(true);
+    jPanel1.setVisible(false);
+    jButton5.setVisible(false);
+    Modo = "Kardex";
+
+    jScrollPane3.setVisible(true);
+    jScrollPane1.setVisible(false);
+    jScrollPane2.setVisible(false);
+    lista_tabla.setVisible(false);
+    contenedor.setVisible(false);
+    kardex_tabla.setVisible(true);
+
+    icono_carga.setVisible(true);
+
+    new SwingWorker<Void, Void>() {
+        EntityManager em = null;
+
+        @Override
+        protected Void doInBackground() {
+            try {
+                em = MonituxDBContext.getEntityManager();
+                if (em == null || !em.isOpen()) {
+                    throw new IllegalStateException("EntityManager no disponible.");
+                }
+
+                cargar_Items_Kardex(Secuencial_Empresa, kardex_tabla);
+
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(kardex_tabla,
+                    "Error al cargar registros de Kardex: " + ex.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+                ex.printStackTrace();
+            } finally {
+                if (em != null && em.isOpen()) {
+                    em.close();
+                }
+            }
+            return null;
+        }
+
+        @Override
+        protected void done() {
+            icono_carga.setVisible(false);
+            kardex_tabla.revalidate();
+            kardex_tabla.repaint();
+        }
+    }.execute();
+}
+
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
 
         Modo_Kardex();
@@ -1029,33 +1308,62 @@ public class V_Inventario extends javax.swing.JPanel {
 
     private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
 
-         EntityManagerFactory emf = null;
+      icono_carga.setVisible(true);
+
+    new SwingWorker<Void, Void>() {
         EntityManager em = null;
 
-         emf = Persistence.createEntityManagerFactory("MonituxPU");
-            em = emf.createEntityManager();
+        @Override
+        protected Void doInBackground() {
+            try {
+                em = MonituxDBContext.getEntityManager();
+                if (em == null || !em.isOpen()) {
+                    throw new IllegalStateException("EntityManager no disponible.");
+                }
 
+                switch (Modo) {
+                    case "Cuadricula":
+                        Filtrar_Servicios_Cuadricula(Secuencial_Empresa, contenedor);
+                        break;
+                    case "Lista":
+                        Filtrar_Servicios_Lista(Secuencial_Empresa, lista_tabla);
+                        break;
+                    default:
+                        SwingUtilities.invokeLater(() ->
+                            JOptionPane.showMessageDialog(null,
+                                "Modo visual no reconocido: " + Modo,
+                                "Error", JOptionPane.ERROR_MESSAGE)
+                        );
+                        break;
+                }
 
-        if (Modo=="Cuadricula"){
-         
-            Filtrar_Servicios_Cuadricula(Secuencial_Empresa,contenedor,em);
-           
+            } catch (Exception ex) {
+                SwingUtilities.invokeLater(() ->
+                    JOptionPane.showMessageDialog(null,
+                        "Error al filtrar servicios: " + ex.getMessage(),
+                        "Error", JOptionPane.ERROR_MESSAGE)
+                );
+                ex.printStackTrace();
+            } finally {
+                if (em != null && em.isOpen()) {
+                    em.close();
+                }
+            }
+            return null;
         }
-        
-        if (Modo=="Lista"){
-         
-            Filtrar_Servicios_Lista(Secuencial_Empresa,lista_tabla,em);
-           
+
+        @Override
+        protected void done() {
+            icono_carga.setVisible(false);
+            if ("Cuadricula".equals(Modo)) {
+                contenedor.revalidate();
+                contenedor.repaint();
+            } else if ("Lista".equals(Modo)) {
+                lista_tabla.revalidate();
+                lista_tabla.repaint();
+            }
         }
-        
-        
-        
-
-        
-        
-
-
-
+    }.execute();
         // TODO add your handling code here:
     }//GEN-LAST:event_jButton5ActionPerformed
 
@@ -1275,67 +1583,82 @@ if (invocador instanceof Miniatura_Producto) {
 
     private void jTextField1KeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextField1KeyReleased
 
-      if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
+        
+        
+    if (evt.getKeyCode() != KeyEvent.VK_ENTER) return;
+
     icono_carga.setVisible(true);
 
-    SwingWorker<Void, Void> worker = new SwingWorker<>() {
+    new SwingWorker<Void, Void>() {
+        EntityManager em = null;
+
         @Override
         protected Void doInBackground() {
-            EntityManagerFactory emf = null;
-            EntityManager em = null;
-
             try {
-                emf = Persistence.createEntityManagerFactory("MonituxPU");
-                em = emf.createEntityManager();
+                em = MonituxDBContext.getEntityManager();
+                if (em == null || !em.isOpen()) {
+                    throw new IllegalStateException("EntityManager no disponible.");
+                }
 
                 switch (Modo) {
-                    case "Cuadricula": {
-                        cargarItemsFiltrados_Cuadricula(Secuencial_Empresa, jComboBox3, jTextField1, contenedor, em);
+                    case "Cuadricula":
+                        cargarItemsFiltrados_Cuadricula(Secuencial_Empresa, jComboBox3, jTextField1, contenedor);
                         break;
-                    }
 
                     case "Lista":
-                        cargar_ItemsFiltrados_Lista(Secuencial_Empresa, jComboBox3, jTextField1, lista_tabla, em);
+                        cargar_ItemsFiltrados_Lista(Secuencial_Empresa, jComboBox3, jTextField1, lista_tabla);
                         break;
 
                     case "Kardex":
-                       
-                        cargar_ItemsFiltrados_Kardex(Secuencial_Empresa, jComboBox3, jTextField1, kardex_tabla, em);
-
-
+                        cargar_ItemsFiltrados_Kardex(Secuencial_Empresa, jComboBox3, jTextField1, kardex_tabla);
                         break;
 
                     default:
+                        SwingUtilities.invokeLater(() ->
+                            JOptionPane.showMessageDialog(null,
+                                "Modo visual no reconocido: " + Modo,
+                                "Error", JOptionPane.ERROR_MESSAGE)
+                        );
                         break;
                 }
 
             } catch (Exception ex) {
                 SwingUtilities.invokeLater(() ->
-                    JOptionPane.showMessageDialog(null, "Error al cargar vista: " + ex.getMessage())
+                    JOptionPane.showMessageDialog(null,
+                        "Error al cargar vista: " + ex.getMessage(),
+                        "Error", JOptionPane.ERROR_MESSAGE)
                 );
+                ex.printStackTrace();
             } finally {
-                if (em != null) em.close();
-                if (emf != null) emf.close();
+                if (em != null && em.isOpen()) {
+                    em.close();
+                }
             }
-
             return null;
         }
 
         @Override
         protected void done() {
             icono_carga.setVisible(false);
+
+            switch (Modo) {
+                case "Cuadricula":
+                    contenedor.revalidate();
+                    contenedor.repaint();
+                    break;
+                case "Lista":
+                    lista_tabla.revalidate();
+                    lista_tabla.repaint();
+                    break;
+                case "Kardex":
+                    kardex_tabla.revalidate();
+                    kardex_tabla.repaint();
+                    break;
+            }
         }
-    };
+    }.execute();
 
-    worker.execute();
-}
 
-        
-            
-        
-        
-        
-       
         // TODO add your handling code here:
     }//GEN-LAST:event_jTextField1KeyReleased
 
@@ -1372,2253 +1695,198 @@ if (invocador instanceof Miniatura_Producto) {
 
 icono_carga.setVisible(true);
 
-SwingWorker<Void, Void> worker = new SwingWorker<>() {
-    @Override
-    protected Void doInBackground() {
-        EntityManagerFactory emf = null;
-        EntityManager em = null;
-
-        try {
-            emf = Persistence.createEntityManagerFactory("MonituxPU");
-            em = emf.createEntityManager();
-
-            switch (Modo) {
-                case "Cuadricula": {
-                    String seleccionado = jComboBox1.getSelectedItem().toString();
-                    int secuencialProveedor = Integer.parseInt(seleccionado.split("-")[0].trim());
-
-                    Filtrar_Cuadricula_Proveedor(Secuencial_Empresa, secuencialProveedor, contenedor, em);
-                    break;
-                }
-
-                case "Lista":
-                    
-                     String seleccionado = jComboBox1.getSelectedItem().toString();
-                    int secuencialProveedor = Integer.parseInt(seleccionado.split("-")[0].trim());
-
-                    Filtrar_Lista_Proveedor(Secuencial_Empresa, secuencialProveedor, lista_tabla, em);
-                 
-                    break;
-
-                case "Kardex":
-                    // lógica para modo Kardex
-                    break;
-
-                default:
-                    break;
-            }
-
-        } catch (Exception ex) {
-            SwingUtilities.invokeLater(() -> 
-                JOptionPane.showMessageDialog(null, "Error al cargar vista: " + ex.getMessage())
-            );
-        } finally {
-            if (em != null) em.close();
-            if (emf != null) emf.close();
-        }
-
-        return null;
-    }
-
-    @Override
-    protected void done() {
-        icono_carga.setVisible(false);
-    }
-};
-
-worker.execute();
-
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton10ActionPerformed
-
-    private void jButton9ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton9ActionPerformed
-
-        
-       icono_carga.setVisible(true);
-
-SwingWorker<Void, Void> worker = new SwingWorker<>() {
-    @Override
-    protected Void doInBackground() {
-        EntityManagerFactory emf = null;
-        EntityManager em = null;
-
-        try {
-            emf = Persistence.createEntityManagerFactory("MonituxPU");
-            em = emf.createEntityManager();
-
-            switch (Modo) {
-                case "Cuadricula": {
-                    String seleccionado = jComboBox2.getSelectedItem().toString();
-                    int secuencialCategoria = Integer.parseInt(seleccionado.split("-")[0].trim());
-
-                    Filtrar_Cuadricula_Categoria(Secuencial_Empresa, secuencialCategoria, contenedor, em);
-                    break;
-                }
-
-                case "Lista":
-                    
-                     String seleccionado = jComboBox2.getSelectedItem().toString();
-                    int secuencialCategoria = Integer.parseInt(seleccionado.split("-")[0].trim());
-
-                    Filtrar_Lista_Categoria(Secuencial_Empresa, secuencialCategoria, lista_tabla, em);
-                    
-                    break;
-
-                case "Kardex":
-                    // lógica para modo Kardex
-                    break;
-
-                default:
-                    // modo desconocido
-                    break;
-            }
-
-        } catch (Exception ex) {
-            SwingUtilities.invokeLater(() -> 
-                JOptionPane.showMessageDialog(null, "Error al cargar vista: " + ex.getMessage())
-            );
-        } finally {
-            if (em != null) em.close();
-            if (emf != null) emf.close();
-        }
-
-        return null;
-    }
-
-    @Override
-    protected void done() {
-        icono_carga.setVisible(false);
-    }
-};
-
-worker.execute();
-
-
-
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton9ActionPerformed
-
-    private void jLabel6MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel6MouseClicked
-
-       
-        switch (Modo) {
-    case "Cuadricula":
-        icono_carga.setVisible(true);
-
-        new SwingWorker<Void, Void>() {
-            @Override
-            protected Void doInBackground() {
-                EntityManagerFactory emf = null;
-                EntityManager em = null;
-
-                try {
-                    emf = Persistence.createEntityManagerFactory("MonituxPU");
-                    em = emf.createEntityManager();
-
-                    Filtrar_Existencia_Minima_Cuadricula(Secuencial_Empresa, contenedor, em);
-
-                } catch (Exception ex) {
-                    SwingUtilities.invokeLater(() ->
-                        JOptionPane.showMessageDialog(null, "Error al cargar productos: " + ex.getMessage())
-                    );
-                } finally {
-                    if (em != null) em.close();
-                    if (emf != null) emf.close();
-                }
-
-                return null;
-            }
-
-            @Override
-            protected void done() {
-                icono_carga.setVisible(false);
-            }
-        }.execute();
-
-        break;
-
-    case "Lista":
-        icono_carga.setVisible(true);
-
-        new SwingWorker<Void, Void>() {
-            @Override
-            protected Void doInBackground() {
-                EntityManagerFactory emf = null;
-                EntityManager em = null;
-
-                try {
-                    emf = Persistence.createEntityManagerFactory("MonituxPU");
-                    em = emf.createEntityManager();
-
-                    Filtrar_Existencia_Minima_Lista(Secuencial_Empresa, lista_tabla, em);
-
-                } catch (Exception ex) {
-                    SwingUtilities.invokeLater(() ->
-                        JOptionPane.showMessageDialog(null, "Error al cargar productos: " + ex.getMessage())
-                    );
-                } finally {
-                    if (em != null) em.close();
-                    if (emf != null) emf.close();
-                }
-
-                return null;
-            }
-
-            @Override
-            protected void done() {
-                icono_carga.setVisible(false);
-            }
-        }.execute();
-
-        break;
-
-    case "Kardex":
-        // Implementación futura
-        break;
-
-    default:
-        // Modo desconocido
-        break;
-}
-
-   
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jLabel6MouseClicked
-
-    private void jLabel7MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel7MouseClicked
-
-      switch (Modo) {
-    case "Cuadricula":
-        icono_carga.setVisible(true);
-
-        new SwingWorker<Void, Void>() {
-            @Override
-            protected Void doInBackground() {
-                EntityManagerFactory emf = null;
-                EntityManager em = null;
-
-                try {
-                    emf = Persistence.createEntityManagerFactory("MonituxPU");
-                    em = emf.createEntityManager();
-
-                    Filtrar_Agotados_Cuadricula(Secuencial_Empresa, contenedor, em);
-
-                } catch (Exception ex) {
-                    SwingUtilities.invokeLater(() ->
-                        JOptionPane.showMessageDialog(null, "Error al cargar productos: " + ex.getMessage())
-                    );
-                } finally {
-                    if (em != null) em.close();
-                    if (emf != null) emf.close();
-                }
-
-                return null;
-            }
-
-            @Override
-            protected void done() {
-                icono_carga.setVisible(false);
-            }
-        }.execute();
-
-        break;
-
-    case "Lista":
-        icono_carga.setVisible(true);
-
-        new SwingWorker<Void, Void>() {
-            @Override
-            protected Void doInBackground() {
-                EntityManagerFactory emf = null;
-                EntityManager em = null;
-
-                try {
-                    emf = Persistence.createEntityManagerFactory("MonituxPU");
-                    em = emf.createEntityManager();
-
-                    Filtrar_Agotados_Lista(Secuencial_Empresa, lista_tabla, em);
-
-                } catch (Exception ex) {
-                    SwingUtilities.invokeLater(() ->
-                        JOptionPane.showMessageDialog(null, "Error al cargar productos: " + ex.getMessage())
-                    );
-                } finally {
-                    if (em != null) em.close();
-                    if (emf != null) emf.close();
-                }
-
-                return null;
-            }
-
-            @Override
-            protected void done() {
-                icono_carga.setVisible(false);
-            }
-        }.execute();
-
-        break;
-
-    case "Kardex":
-        // Implementación futura
-        break;
-
-    default:
-        // Modo desconocido
-        break;
-}
-
-        
-
-    }//GEN-LAST:event_jLabel7MouseClicked
-
-    private void jButton7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton7ActionPerformed
-
-        
-                
-                 EntityManagerFactory emf = null;
-        EntityManager em = null;
-
-        
-         emf = Persistence.createEntityManagerFactory("MonituxPU");
-            em = emf.createEntityManager();
-
-             
-        LocalDate hoy = LocalDate.now();
-
-// Sumar 7 días
-LocalDate fechaMas7 = hoy.plusDays(7);
-
-// Formatear como dd/MM/yyyy
-DateTimeFormatter formato = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-String fechaTexto = fechaMas7.format(formato);
-
-
-        
-        switch (Modo){
-            
-            
-            case "Cuadricula":
-                
-        
-   // Usar como parámetro en el método de filtrado
-Filtrar_Fecha_Cuadricula(Secuencial_Empresa, fechaTexto, contenedor, em);
-      
-                break;
-                
-            case "Lista":
-                
-                
-Filtrar_Lista_Fecha(Secuencial_Empresa, fechaTexto, lista_tabla, em);
-                
-             
-                break;
-                
-            default:
-                
-                break;
-                
-        
-        }
-        
-
-// TODO add your handling code here:
-    }//GEN-LAST:event_jButton7ActionPerformed
-
-    private void jButton8ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton8ActionPerformed
-
-
-
-        
-        
-                
-                 EntityManagerFactory emf = null;
-        EntityManager em = null;
-
-        
-         emf = Persistence.createEntityManagerFactory("MonituxPU");
-            em = emf.createEntityManager();
-
-        
-              
-        
-        LocalDate hoy = LocalDate.now();
-
-// Sumar 7 días
-LocalDate fechaMas1mes = hoy.plusMonths(1);
-
-// Formatear como dd/MM/yyyy
-DateTimeFormatter formato = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-String fechaTexto = fechaMas1mes.format(formato);
-
-            
-            
-        
-        switch (Modo){
-            
-            
-            case "Cuadricula":
-                
-      
-// Usar como parámetro en el método de filtrado
-Filtrar_Fecha_Cuadricula(Secuencial_Empresa, fechaTexto, contenedor, em);
-        
-                
-                
-                break;
-                
-            case "Lista":
-                
-                Filtrar_Lista_Fecha(Secuencial_Empresa, fechaTexto,lista_tabla, em);
-        
-                break;
-                
-            default:
-                
-                break;
-                
-        
-        }
-        
-
-        
-        
-        
-
-
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton8ActionPerformed
-
-    private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
-
-
-
-        
-        
-                
-                 EntityManagerFactory emf = null;
-        EntityManager em = null;
-
-        
-         emf = Persistence.createEntityManagerFactory("MonituxPU");
-            em = emf.createEntityManager();
-
-             
-        LocalDate hoy = LocalDate.now();
-
-// Sumar 7 días
-LocalDate fechaMas1year = hoy.plusYears(1);
-
-// Formatear como dd/MM/yyyy
-DateTimeFormatter formato = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-String fechaTexto = fechaMas1year.format(formato);
-
-        
-        switch (Modo){
-            
-            
-            case "Cuadricula":
-                
-        
-   
-// Usar como parámetro en el método de filtrado
-Filtrar_Fecha_Cuadricula(Secuencial_Empresa, fechaTexto, contenedor, em);
-        
-                
-                
-                break;
-                
-            case "Lista":
-                
-                
-                // Usar como parámetro en el método de filtrado
-Filtrar_Lista_Fecha(Secuencial_Empresa, fechaTexto, lista_tabla, em);
-        
-       
-                break;
-                
-            default:
-                
-                break;
-                
-        
-        }
-        
-
-        
-        
-        
-
-
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton6ActionPerformed
-
-    private void fecha_txtKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_fecha_txtKeyReleased
-
-      if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
-    String fechaTexto = fecha_txt.getText().trim();
-
-    icono_carga.setVisible(true); // Mostrar animación antes de iniciar el trabajo
-
     new SwingWorker<Void, Void>() {
+        EntityManager em = null;
+
         @Override
         protected Void doInBackground() {
-            Date fechaValidada;
-
             try {
-                SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-                sdf.setLenient(false);
-                fechaValidada = sdf.parse(fechaTexto);
-            } catch (ParseException ex) {
-                SwingUtilities.invokeLater(() -> {
-                    JOptionPane.showMessageDialog(null, "Formato de fecha inválido. Usa dd/MM/yyyy.", "Error", JOptionPane.ERROR_MESSAGE);
-                    icono_carga.setVisible(false); // Ocultar animación si hay error
-                });
-                return null;
+                em = MonituxDBContext.getEntityManager();
+                if (em == null || !em.isOpen()) {
+                    throw new IllegalStateException("EntityManager no disponible.");
+                }
+
+                String seleccionado = (String) jComboBox1.getSelectedItem();
+                if (seleccionado == null || !seleccionado.contains("-")) {
+                    throw new IllegalArgumentException("Formato de proveedor inválido.");
+                }
+
+                int secuencialProveedor = Integer.parseInt(seleccionado.split("-")[0].trim());
+
+                switch (Modo) {
+                    case "Cuadricula":
+                        Filtrar_Cuadricula_Proveedor(Secuencial_Empresa, secuencialProveedor, contenedor);
+                        break;
+
+                    case "Lista":
+                        Filtrar_Lista_Proveedor(Secuencial_Empresa, secuencialProveedor, lista_tabla);
+                        break;
+
+                    case "Kardex":
+                        Filtrar_Kardex_Proveedor(Secuencial_Empresa, secuencialProveedor, kardex_tabla);
+                        break;
+
+                    default:
+                        SwingUtilities.invokeLater(() ->
+                            JOptionPane.showMessageDialog(null,
+                                "Modo visual no reconocido: " + Modo,
+                                "Error", JOptionPane.ERROR_MESSAGE)
+                        );
+                        break;
+                }
+
+            } catch (Exception ex) {
+                SwingUtilities.invokeLater(() ->
+                    JOptionPane.showMessageDialog(null,
+                        "Error al filtrar por proveedor: " + ex.getMessage(),
+                        "Error", JOptionPane.ERROR_MESSAGE)
+                );
+                ex.printStackTrace();
+            } finally {
+                if (em != null && em.isOpen()) {
+                    em.close();
+                }
             }
-
-            EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
-            EntityManager em = emf.createEntityManager();
-
-            switch (Modo) {
-                case "Cuadricula":
-                    Filtrar_Fecha_Cuadricula(Secuencial_Empresa, fechaTexto, contenedor, em);
-                    break;
-                case "Lista":
-                     Filtrar_Lista_Fecha(Secuencial_Empresa, fechaTexto, lista_tabla, em);
-                    break;
-                default:
-                    break;
-            }
-
             return null;
         }
 
         @Override
         protected void done() {
-            icono_carga.setVisible(false); // Ocultar animación al terminar
+            icono_carga.setVisible(false);
+
+            switch (Modo) {
+                case "Cuadricula":
+                    contenedor.revalidate();
+                    contenedor.repaint();
+                    break;
+                case "Lista":
+                    lista_tabla.revalidate();
+                    lista_tabla.repaint();
+                    break;
+                case "Kardex":
+                    kardex_tabla.revalidate();
+                    kardex_tabla.repaint();
+                    break;
+            }
         }
     }.execute();
-}
-
-        
         // TODO add your handling code here:
-    }//GEN-LAST:event_fecha_txtKeyReleased
+    }//GEN-LAST:event_jButton10ActionPerformed
 
-    private void fecha_txtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fecha_txtActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_fecha_txtActionPerformed
+    private void jButton9ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton9ActionPerformed
 
-    private void jLabel6MouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel6MouseEntered
+       icono_carga.setVisible(true);
 
-         jLabel6.setText("<html><u>Existencia Minima</u></html>");
-      
+    new SwingWorker<Void, Void>() {
+        EntityManager em = null;
 
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jLabel6MouseEntered
-
-    private void jLabel6MouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel6MouseExited
-
-         jLabel6.setText("<html>Existencia Minima</html>");
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jLabel6MouseExited
-
-    private void jLabel7MouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel7MouseEntered
-
-
-         jLabel7.setText("<html><u>Agotados</u></html>");
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jLabel7MouseEntered
-
-    private void jLabel7MouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel7MouseExited
-
-        jLabel7.setText("<html>Agotados</html>");
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jLabel7MouseExited
-
-    private void jButton9MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton9MouseClicked
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton9MouseClicked
-
-    
-    public void filtrarItemsKardexConsulta(
-    String fechaInicioTexto,
-    String fechaFinTexto,
-    String codigo,
-    String movimiento,
-    int secuencialEmpresa,
-    JTable tabla,
-    EntityManager entityManager
-) {
-    icono_carga.setVisible(true);
-
-    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-    LocalDate fechaInicio, fechaFin;
-
-    try {
-        fechaInicio = LocalDate.parse(fechaInicioTexto, formatter);
-        fechaFin = LocalDate.parse(fechaFinTexto, formatter);
-    } catch (DateTimeParseException ex) {
-        JOptionPane.showMessageDialog(null, "Las fechas ingresadas no son válidas.", "Error", JOptionPane.ERROR_MESSAGE);
-        icono_carga.setVisible(false);
-        return;
-    }
-
-    // Consulta base sin filtro de fecha
-    List<Kardex> todos = entityManager.createQuery(
-        "SELECT k FROM Kardex k WHERE k.Secuencial_Empresa = :empresa", Kardex.class)
-        .setParameter("empresa", secuencialEmpresa)
-        .getResultList();
-
-    // Filtrar en memoria por fecha, codigo y movimiento
-    List<Kardex> filtrados = todos.stream()
-        .filter(k -> {
+        @Override
+        protected Void doInBackground() {
             try {
-                LocalDate fechaKardex = LocalDate.parse(k.getFecha(), formatter);
-                return !fechaKardex.isBefore(fechaInicio) &&
-                       !fechaKardex.isAfter(fechaFin) &&
-                       k.getMovimiento().equalsIgnoreCase(movimiento) &&
-                       k.getProducto() != null &&
-                       k.getProducto().getCodigo().equalsIgnoreCase(codigo);
-            } catch (Exception ex) {
-                return false;
-            }
-        })
-        .collect(Collectors.toList());
-
-    if (filtrados.isEmpty()) {
-        JOptionPane.showMessageDialog(null, "No se encontraron registros que coincidan con los criterios de búsqueda.", "Kardex", JOptionPane.INFORMATION_MESSAGE);
-        icono_carga.setVisible(false);
-        return;
-    } else {
-        JOptionPane.showMessageDialog(null, "Registros obtenidos: " + filtrados.size(), "Kardex", JOptionPane.INFORMATION_MESSAGE);
-    }
-
-    // Crear modelo de tabla
-    DefaultTableModel modelo = new DefaultTableModel(new Object[]{
-        "Secuencial", "Codigo", "Fecha", "Descripción", "Movimiento", "Cantidad",
-        "Costo", "Costo Total", "Venta", "Venta Total", "Saldo", "Secuencial Producto", "Secuencial Empresa"
-    }, 0) {
-        @Override
-        public boolean isCellEditable(int row, int column) {
-            return false;
-        }
-    };
-
-    for (Kardex k : filtrados) {
-        Producto p = k.getProducto();
-        modelo.addRow(new Object[]{
-            k.getSecuencial(),
-            p != null ? p.getCodigo() : "",
-            k.getFecha(),
-            k.getDescripcion(),
-            k.getMovimiento(),
-            k.getCantidad(),
-            Util.redondear(k.getCosto()),
-            Util.redondear(k.getCosto_Total()),
-            Util.redondear(k.getVenta()),
-            Util.redondear(k.getVenta_Total()),
-            Util.redondear(k.getSaldo()),
-            k.getSecuencial_Producto(),
-            k.getSecuencial_Empresa()
-        });
-    }
-
-    tabla.setModel(modelo);
-    tabla.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-    icono_carga.setVisible(false);
-}
-
-   
-    
-   
-    
-    
-    private void jButton11ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton11ActionPerformed
-
-      
-        String fechaInicio = jTextField3.getText().trim(); // formato dd/MM/yyyy
-    String fechaFin = jTextField4.getText().trim();
-    String codigo = jTextField2.getText().trim();
-    String movimiento = jComboBox4.getSelectedItem().toString();
-    int empresa = V_Menu_Principal.Secuencial_Empresa; // o como lo tengas definido
-
-    EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
-    EntityManager em = emf.createEntityManager();
-
-    filtrarItemsKardexConsulta(fechaInicio, fechaFin, codigo, movimiento, empresa, kardex_tabla, em);
-
-    em.close();
-    emf.close();
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton11ActionPerformed
-
-    private void jLabel14MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel14MouseClicked
-
-
-        if (Modo=="Lista"){
-        Util.exportarJTableAExcel(lista_tabla, "Vista_Inventario", "Vista_Inventario");
-
-        }
-        if (Modo=="Kardex"){
-        Util.exportarJTableAExcel(kardex_tabla, "Vista_Kardex", "Vista_Kardex");
-
-        }
-        
-        
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jLabel14MouseClicked
-
- 
-public void cargarItems_Cuadricula(int secuencialEmpresa, JPanel contenedor, EntityManager entityManager) {
-
-    icono_carga.setVisible(true);
-    contenedor.setLayout(new GridLayout(0, 5, 5, 5)); // 3 columnas, filas dinámicas
-  
-    contenedor.removeAll();
-   
-    
-    // 🔍 Consulta JPA
-    List<Producto> productos = entityManager
-        .createQuery("SELECT p FROM Producto p WHERE p.Secuencial_Empresa = :empresa", Producto.class)
-        .setParameter("empresa", secuencialEmpresa)
-        .getResultList();
-
-    for (Producto producto : productos) {
-        ImageIcon imagenIcon = producto.getImagen() != null && producto.getImagen().length > 0
-            ? new ImageIcon(producto.getImagen())
-            : new ImageIcon(getClass().getResource("/icons/no-image-icon-10.png"));
-//ImageIcon icono = new ImageIcon(getClass().getResource("/icons/no-image-icon-10.png"));
-
-       
-        Miniatura_Producto miniatura = new Miniatura_Producto(producto,false);
-
-        
-      
-        
-            miniatura.addMouseListener(new MouseAdapter() {
-    @Override
-    public void mouseClicked(MouseEvent e) {
-        if (e.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(e)) {
-            // Evento doble clic izquierdo
-            Producto productoSeleccionado = miniatura.producto;
-            
-             V_Kardex kardex = new V_Kardex(productoSeleccionado.getProducto().getSecuencial(),productoSeleccionado.getProducto().getCodigo());
-                                    kardex.setVisible(true);
-                                    kardex.setLocationRelativeTo(null);
-        }
-    }
-        });
-        
-        
-        
-// Agregar el menú contextual
-miniatura.addMouseListener(new MouseAdapter() {
-    @Override
-    public void mousePressed(MouseEvent e) {
-        if (e.isPopupTrigger()) {
-            menu_contextual.show(e.getComponent(), e.getX(), e.getY());
-        }
-    }
-
-    @Override
-    public void mouseReleased(MouseEvent e) {
-        if (e.isPopupTrigger()) {
-            menu_contextual.show(e.getComponent(), e.getX(), e.getY());
-        }
-    }
-});
-
-if (miniatura.cargarComentario()!=null){
-
- //miniatura.setToolTipText(miniatura.cargarComentario());
- 
- 
- miniatura.setToolTipText("<html><b>" + miniatura.producto.getDescripcion() + "</b><br>"+miniatura.cargarComentario()+"</html>");
- 
- //<html><b>Actualizar</b><br>Detalle</html>
-}else{
-
-    miniatura.setToolTipText("<html><b>" + miniatura.producto.getDescripcion() + "</b><br></html>");
- 
-}
-
-        contenedor.add(miniatura);
-    }
-
-    contenedor.revalidate();
-    contenedor.repaint();
-    
-    icono_carga.setVisible(false);
-    
-}
-
-
-
-//***********
-
-
-public void Filtrar_Existencia_Minima_Lista(
-    int secuencialEmpresa,
-    JTable tabla,
-    EntityManager entityManager
-) {
-    icono_carga.setVisible(true);
-
-    String jpql = "SELECT p FROM Producto p " +
-                  "WHERE p.Secuencial_Empresa = :empresa " +
-                  "AND p.Cantidad = p.Existencia_Minima " +
-                  "AND p.Tipo <> 'Servicio'";
-
-    TypedQuery<Producto> query = entityManager.createQuery(jpql, Producto.class);
-    query.setParameter("empresa", secuencialEmpresa);
-
-    List<Producto> productos = query.getResultList();
-
-    DefaultTableModel modelo = new DefaultTableModel(new Object[]{
-        "S", "Codigo", "Descripción", "Marca", "Existencia", "E. mínima",
-        "C. Barra", "C. Fabricante", "F. Vencimiento", "P. Costo", "P. Venta"
-    }, 0) {
-        @Override
-        public boolean isCellEditable(int row, int column) {
-            return false;
-        }
-    };
-
-    for (Producto producto : productos) {
-        modelo.addRow(new Object[]{
-            producto.getSecuencial(),
-            producto.getCodigo(),
-            producto.getDescripcion(),
-            producto.getMarca(),
-            producto.getCantidad(),
-            producto.getExistencia_Minima(),
-            producto.getCodigo_Barra(),
-            producto.getCodigo_Fabricante(),
-            producto.getFecha_Caducidad(),
-            producto.getPrecio_Costo(),
-            producto.getPrecio_Venta()
-        });
-    }
-
-    tabla.setModel(modelo);
-    tabla.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-
-    
-    // Eliminar listeners previos para evitar duplicación
-for (MouseListener ml : tabla.getMouseListeners()) {
-    tabla.removeMouseListener(ml);
-}
-
-// Agregar solo uno
-tabla.addMouseListener(new MouseAdapter() {
-    @Override
-    public void mousePressed(MouseEvent e) {
-        if (SwingUtilities.isLeftMouseButton(e)) {
-            int fila = tabla.rowAtPoint(e.getPoint());
-            if (fila != -1) {
-                tabla.setRowSelectionInterval(fila, fila); // 🔹 Selección visual
-            }
-        }
-    }
-
-    @Override
-    public void mouseClicked(MouseEvent e) {
-        if (e.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(e)) {
-            int fila = tabla.rowAtPoint(e.getPoint());
-            if (fila != -1) {
-                tabla.setRowSelectionInterval(fila, fila); // Asegura selección en doble clic
-
-                String codigo = tabla.getValueAt(fila, 1).toString();
-                Producto productoSeleccionado = productos.stream()
-                    .filter(p -> p.getCodigo().equals(codigo))
-                    .findFirst()
-                    .orElse(null);
-
-                if (productoSeleccionado != null) {
-                    V_Producto form = new V_Producto(false, productoSeleccionado);
-                    form.setOnProductoEditado(() -> cargarItems_Cuadricula());
-                    form.setVisible(true);
+                em = MonituxDBContext.getEntityManager();
+                if (em == null || !em.isOpen()) {
+                    throw new IllegalStateException("EntityManager no disponible.");
                 }
-            }
-        }
-    }
-});
 
-    icono_carga.setVisible(false);
-}
-
-
-//***********
-
-
-
-public void Filtrar_Agotados_Lista(
-    int secuencialEmpresa,
-    JTable tabla,
-    EntityManager entityManager
-) {
-    icono_carga.setVisible(true);
-
-    String jpql = "SELECT p FROM Producto p " +
-                  "WHERE p.Secuencial_Empresa = :empresa " +
-                  "AND p.Cantidad < p.Existencia_Minima " +
-                  "AND p.Tipo <> 'Servicio'";
-
-    TypedQuery<Producto> query = entityManager.createQuery(jpql, Producto.class);
-    query.setParameter("empresa", secuencialEmpresa);
-
-    List<Producto> productos = query.getResultList();
-
-    DefaultTableModel modelo = new DefaultTableModel(new Object[]{
-        "S", "Codigo", "Descripción", "Marca", "Existencia", "E. mínima",
-        "C. Barra", "C. Fabricante", "F. Vencimiento", "P. Costo", "P. Venta"
-    }, 0) {
-        @Override
-        public boolean isCellEditable(int row, int column) {
-            return false;
-        }
-    };
-
-    for (Producto producto : productos) {
-        modelo.addRow(new Object[]{
-            producto.getSecuencial(),
-            producto.getCodigo(),
-            producto.getDescripcion(),
-            producto.getMarca(),
-            producto.getCantidad(),
-            producto.getExistencia_Minima(),
-            producto.getCodigo_Barra(),
-            producto.getCodigo_Fabricante(),
-            producto.getFecha_Caducidad(),
-            producto.getPrecio_Costo(),
-            producto.getPrecio_Venta()
-        });
-    }
-
-    tabla.setModel(modelo);
-    tabla.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-
-     
-    // Eliminar listeners previos para evitar duplicación
-for (MouseListener ml : tabla.getMouseListeners()) {
-    tabla.removeMouseListener(ml);
-}
-
-// Agregar solo uno
-tabla.addMouseListener(new MouseAdapter() {
-    @Override
-    public void mousePressed(MouseEvent e) {
-        if (SwingUtilities.isLeftMouseButton(e)) {
-            int fila = tabla.rowAtPoint(e.getPoint());
-            if (fila != -1) {
-                tabla.setRowSelectionInterval(fila, fila); // 🔹 Selección visual
-            }
-        }
-    }
-
-    @Override
-    public void mouseClicked(MouseEvent e) {
-        if (e.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(e)) {
-            int fila = tabla.rowAtPoint(e.getPoint());
-            if (fila != -1) {
-                tabla.setRowSelectionInterval(fila, fila); // Asegura selección en doble clic
-
-                String codigo = tabla.getValueAt(fila, 1).toString();
-                Producto productoSeleccionado = productos.stream()
-                    .filter(p -> p.getCodigo().equals(codigo))
-                    .findFirst()
-                    .orElse(null);
-
-                if (productoSeleccionado != null) {
-                    V_Producto form = new V_Producto(false, productoSeleccionado);
-                    form.setOnProductoEditado(() -> cargarItems_Cuadricula());
-                    form.setVisible(true);
+                String seleccionado = (String) jComboBox2.getSelectedItem();
+                if (seleccionado == null || !seleccionado.contains("-")) {
+                    throw new IllegalArgumentException("Formato de categoría inválido.");
                 }
-            }
-        }
-    }
-});
 
+                int secuencialCategoria = Integer.parseInt(seleccionado.split("-")[0].trim());
 
+                switch (Modo) {
+                    case "Cuadricula":
+                        Filtrar_Cuadricula_Categoria(Secuencial_Empresa, secuencialCategoria, contenedor);
+                        break;
 
+                    case "Lista":
+                        Filtrar_Lista_Categoria(Secuencial_Empresa, secuencialCategoria, lista_tabla);
+                        break;
 
-    icono_carga.setVisible(false);
-}
+                    case "Kardex":
+                        Filtrar_Kardex_Categoria(Secuencial_Empresa, secuencialCategoria, kardex_tabla);
+                        break;
 
-
-
-
-
-public void cargar_ItemsFiltrados_Lista(
-    int secuencialEmpresa,
-    JComboBox<String> comboFiltro,
-    JTextField campoValorFiltro,
-    JTable tabla,
-    EntityManager entityManager
-) {
-    icono_carga.setVisible(true);
-
-    String campoFiltro = (String) comboFiltro.getSelectedItem();
-    String valorFiltro = campoValorFiltro.getText();
-
-    boolean aplicarFiltro = campoFiltro != null && !campoFiltro.trim().isEmpty()
-                         && valorFiltro != null && !valorFiltro.trim().isEmpty();
-
-    String jpql = "SELECT p FROM Producto p WHERE p.Secuencial_Empresa = :empresa"
-                + (aplicarFiltro ? " AND LOWER(p." + campoFiltro + ") LIKE :valorFiltro" : "");
-
-    TypedQuery<Producto> query = entityManager.createQuery(jpql, Producto.class);
-    query.setParameter("empresa", secuencialEmpresa);
-    if (aplicarFiltro) {
-        query.setParameter("valorFiltro", "%" + valorFiltro.toLowerCase() + "%");
-    }
-
-    List<Producto> productos = query.getResultList();
-
-    DefaultTableModel modelo = new DefaultTableModel(new Object[]{
-        "S", "Codigo", "Descripción", "Marca", "Existencia", "E. mínima",
-        "C. Barra", "C. Fabricante", "F. Vencimiento", "P. Costo", "P. Venta"
-    }, 0) {
-        @Override
-        public boolean isCellEditable(int row, int column) {
-            return false;
-        }
-    };
-
-    for (Producto producto : productos) {
-        modelo.addRow(new Object[]{
-            producto.getSecuencial(),
-            producto.getCodigo(),
-            producto.getDescripcion(),
-            producto.getMarca(),
-            producto.getCantidad(),
-            producto.getExistencia_Minima(),
-            producto.getCodigo_Barra(),
-            producto.getCodigo_Fabricante(),
-            producto.getFecha_Caducidad(),
-            producto.getPrecio_Costo(),
-            producto.getPrecio_Venta()
-        });
-    }
-
-    tabla.setModel(modelo);
-    tabla.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-
-   
-    // Eliminar listeners previos para evitar duplicación
-for (MouseListener ml : tabla.getMouseListeners()) {
-    tabla.removeMouseListener(ml);
-}
-
-// Agregar solo uno
-tabla.addMouseListener(new MouseAdapter() {
-    @Override
-    public void mousePressed(MouseEvent e) {
-        if (SwingUtilities.isLeftMouseButton(e)) {
-            int fila = tabla.rowAtPoint(e.getPoint());
-            if (fila != -1) {
-                tabla.setRowSelectionInterval(fila, fila); // 🔹 Selección visual
-            }
-        }
-    }
-
-    @Override
-    public void mouseClicked(MouseEvent e) {
-        if (e.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(e)) {
-            int fila = tabla.rowAtPoint(e.getPoint());
-            if (fila != -1) {
-                tabla.setRowSelectionInterval(fila, fila); // Asegura selección en doble clic
-
-                String codigo = tabla.getValueAt(fila, 1).toString();
-                Producto productoSeleccionado = productos.stream()
-                    .filter(p -> p.getCodigo().equals(codigo))
-                    .findFirst()
-                    .orElse(null);
-
-                if (productoSeleccionado != null) {
-                    V_Producto form = new V_Producto(false, productoSeleccionado);
-                    form.setOnProductoEditado(() -> cargarItems_Cuadricula());
-                    form.setVisible(true);
+                    default:
+                        SwingUtilities.invokeLater(() ->
+                            JOptionPane.showMessageDialog(null,
+                                "Modo visual no reconocido: " + Modo,
+                                "Error", JOptionPane.ERROR_MESSAGE)
+                        );
+                        break;
                 }
-            }
-        }
-    }
-});
-
-    
-    
-    
-    icono_carga.setVisible(false);
-}
-
-
-
-
-public void cargar_ItemsFiltrados_Kardex(
-    int secuencialEmpresa,
-    JComboBox<String> comboFiltro,
-    JTextField campoValorFiltro,
-    JTable tabla,
-    EntityManager entityManager
-) {
-    icono_carga.setVisible(true);
-
-    String campoFiltro = comboFiltro.getSelectedItem().toString().trim();
-    String valorFiltro = campoValorFiltro.getText().trim().toLowerCase();
-
-    boolean aplicarFiltro = !campoFiltro.isEmpty() && !valorFiltro.isEmpty();
-
-    // Campos que pertenecen a Producto
-    Set<String> camposProducto = Set.of("Codigo", "Descripcion", "Marca", "Codigo_Barra", "Codigo_Fabricante");
-
-    String jpql;
-    TypedQuery<Kardex> query;
-
-    if (aplicarFiltro && camposProducto.contains(campoFiltro)) {
-        jpql = "SELECT k FROM Kardex k JOIN FETCH k.producto p " +
-               "WHERE k.Secuencial_Empresa = :empresa AND LOWER(p." + campoFiltro + ") LIKE :valorFiltro";
-        query = entityManager.createQuery(jpql, Kardex.class);
-        query.setParameter("empresa", secuencialEmpresa);
-        query.setParameter("valorFiltro", "%" + valorFiltro + "%");
-    } else if (aplicarFiltro) {
-        jpql = "SELECT k FROM Kardex k JOIN FETCH k.producto " +
-               "WHERE k.Secuencial_Empresa = :empresa AND LOWER(k." + campoFiltro + ") LIKE :valorFiltro";
-        query = entityManager.createQuery(jpql, Kardex.class);
-        query.setParameter("empresa", secuencialEmpresa);
-        query.setParameter("valorFiltro", "%" + valorFiltro + "%");
-    } else {
-        jpql = "SELECT k FROM Kardex k JOIN FETCH k.producto WHERE k.Secuencial_Empresa = :empresa";
-        query = entityManager.createQuery(jpql, Kardex.class);
-        query.setParameter("empresa", secuencialEmpresa);
-    }
-
-    List<Kardex> kardexList = query.getResultList();
-
-    DefaultTableModel modelo = new DefaultTableModel(new Object[]{
-        "S", "Código", "Fecha", "Descripción", "Movimiento", "Cantidad",
-        "Costo", "Costo Total", "Venta", "Venta Total", "Saldo",
-        "Sec. Producto", "Sec. Empresa"
-    }, 0) {
-        @Override
-        public boolean isCellEditable(int row, int column) {
-            return false;
-        }
-    };
-
-    for (Kardex k : kardexList) {
-        Producto p = k.getProducto();
-        modelo.addRow(new Object[]{
-            k.getSecuencial(),
-            p != null ? p.getCodigo() : "",
-            k.getFecha(),
-            k.getDescripcion(),
-            k.getMovimiento(),
-            k.getCantidad(),
-            Util.redondear(k.getCosto()),
-            Util.redondear(k.getCosto_Total()),
-            Util.redondear(k.getVenta()),
-            Util.redondear(k.getVenta_Total()),
-            Util.redondear(k.getSaldo()),
-            k.getSecuencial_Producto(),
-            k.getSecuencial_Empresa()
-        });
-    }
-
-    tabla.setModel(modelo);
-    tabla.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-
-    for (MouseListener ml : tabla.getMouseListeners()) {
-        tabla.removeMouseListener(ml);
-    }
-
-    tabla.addMouseListener(new MouseAdapter() {
-        @Override
-        public void mousePressed(MouseEvent e) {
-            if (SwingUtilities.isLeftMouseButton(e)) {
-                int fila = tabla.rowAtPoint(e.getPoint());
-                if (fila != -1) {
-                    tabla.setRowSelectionInterval(fila, fila);
-                }
-            }
-        }
-
-        @Override
-        public void mouseClicked(MouseEvent e) {
-            if (e.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(e)) {
-                int fila = tabla.rowAtPoint(e.getPoint());
-                if (fila != -1) {
-                    tabla.setRowSelectionInterval(fila, fila);
-
-                    int secuencial = Integer.parseInt(tabla.getValueAt(fila, 0).toString());
-                    Kardex seleccionado = kardexList.stream()
-                        .filter(k -> k.getSecuencial() == secuencial)
-                        .findFirst()
-                        .orElse(null);
-
-                    if (seleccionado != null) {
-                        JOptionPane.showMessageDialog(null, "Doble clic en: " + seleccionado.getDescripcion());
-                        // Aquí puedes abrir un formulario de edición si lo deseas
-                    }
-                }
-            }
-        }
-    });
-
-    icono_carga.setVisible(false);
-}
-
-
-
-
-
-
-
-public void cargarItemsFiltrados_Cuadricula(
-    int secuencialEmpresa,
-    JComboBox<String> comboFiltro,
-    JTextField campoValorFiltro,
-    JPanel contenedor,
-    
-    EntityManager entityManager
-) {
-    icono_carga.setVisible(true);
-
-    // Usamos GridBagLayout para evitar el ajuste automático de tamaño
-    contenedor.setLayout(new GridBagLayout());
-    
-    contenedor.removeAll();
-    
-
-    String campoFiltro = (String) comboFiltro.getSelectedItem();
-    String valorFiltro = campoValorFiltro.getText();
-
-    boolean aplicarFiltro = campoFiltro != null && !campoFiltro.trim().isEmpty()
-                         && valorFiltro != null && !valorFiltro.trim().isEmpty();
-
-    String jpql = "SELECT p FROM Producto p WHERE p.Secuencial_Empresa = :empresa"
-                + (aplicarFiltro ? " AND LOWER(p." + campoFiltro + ") LIKE :valorFiltro" : "");
-
-    TypedQuery<Producto> query = entityManager.createQuery(jpql, Producto.class);
-    query.setParameter("empresa", secuencialEmpresa);
-    if (aplicarFiltro) {
-        query.setParameter("valorFiltro", "%" + valorFiltro.toLowerCase() + "%");
-    }
-
-    GridBagConstraints gbc = new GridBagConstraints();
-    gbc.insets = new Insets(5, 5, 5, 5); // Espaciado entre miniaturas
-    gbc.fill = GridBagConstraints.NONE; // No expandir
-    gbc.anchor = GridBagConstraints.NORTHWEST;
-
-    int col = 0, row = 0;
-
-    for (Producto producto : query.getResultList()) {
-        Miniatura_Producto miniatura = new Miniatura_Producto(producto, false);
-        miniatura.setPreferredSize(new Dimension(120, 170)); // Tamaño fijo
-
-        miniatura.addMouseListener(new MouseAdapter() {
-    @Override
-    public void mouseClicked(MouseEvent e) {
-        if (e.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(e)) {
-            // Evento doble clic izquierdo
-            Producto productoSeleccionado = miniatura.producto;
-            
-             V_Kardex kardex = new V_Kardex(productoSeleccionado.getProducto().getSecuencial(),productoSeleccionado.getProducto().getCodigo());
-                                    kardex.setVisible(true);
-                                    kardex.setLocationRelativeTo(null);
-                                    
-                                    // A Ver
-            
-        }
-    }
-
-            @Override
-            public void mousePressed(MouseEvent e) {
-                if (e.isPopupTrigger()) {
-                    menu_contextual.show(e.getComponent(), e.getX(), e.getY());
-                }
-            }
-
-            @Override
-            public void mouseReleased(MouseEvent e) {
-                if (e.isPopupTrigger()) {
-                    menu_contextual.show(e.getComponent(), e.getX(), e.getY());
-                }
-            }
-        });
-
-        String comentario = miniatura.cargarComentario();
-        String descripcion = miniatura.producto.getDescripcion();
-        miniatura.setToolTipText("<html><b>" + descripcion + "</b><br>" + (comentario != null ? comentario : "") + "</html>");
-
-        // Posicionamiento en la cuadrícula
-        gbc.gridx = col;
-        gbc.gridy = row;
-        contenedor.add(miniatura, gbc);
-
-        col++;
-        if (col == 6) {
-            col = 0;
-            row++;
-        }
-    }
-
-    contenedor.revalidate();
-    contenedor.repaint();
-    icono_carga.setVisible(false);
-}
-
-//************************************
-
-public void Filtrar_Cuadricula_Proveedor(
-    int secuencialEmpresa,
-    int secuencialProveedor,
-    JPanel contenedor,
-    EntityManager entityManager
-) {
-    icono_carga.setVisible(true);
-    contenedor.setLayout(new GridBagLayout());
-    contenedor.removeAll();
-
-    String jpql = "SELECT p FROM Producto p WHERE p.Secuencial_Empresa = :empresa AND p.Secuencial_Proveedor = :proveedor";
-    TypedQuery<Producto> query = entityManager.createQuery(jpql, Producto.class);
-    query.setParameter("empresa", secuencialEmpresa);
-    query.setParameter("proveedor", secuencialProveedor);
-
-    GridBagConstraints gbc = new GridBagConstraints();
-    gbc.insets = new Insets(5, 5, 5, 5);
-    gbc.fill = GridBagConstraints.NONE;
-    gbc.anchor = GridBagConstraints.NORTHWEST;
-
-    int col = 0, row = 0;
-
-    for (Producto producto : query.getResultList()) {
-        Miniatura_Producto miniatura = new Miniatura_Producto(producto, false);
-        miniatura.setPreferredSize(new Dimension(120, 170));
-
-       
-         miniatura.addMouseListener(new MouseAdapter() {
-    @Override
-    public void mouseClicked(MouseEvent e) {
-        if (e.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(e)) {
-            // Evento doble clic izquierdo
-            Producto productoSeleccionado = miniatura.producto;
-            
-             V_Kardex kardex = new V_Kardex(productoSeleccionado.getProducto().getSecuencial(),productoSeleccionado.getProducto().getCodigo());
-                                    kardex.setVisible(true);
-                                    kardex.setLocationRelativeTo(null);
-            //Aqui el codigo para abrir Kardex
-            
-            
-            
-        }
-    }
-        
-            @Override
-            public void mousePressed(MouseEvent e) {
-                if (e.isPopupTrigger()) {
-                    menu_contextual.show(e.getComponent(), e.getX(), e.getY());
-                }
-            }
-
-            @Override
-            public void mouseReleased(MouseEvent e) {
-                if (e.isPopupTrigger()) {
-                    menu_contextual.show(e.getComponent(), e.getX(), e.getY());
-                }
-            }
-        });
-
-        String comentario = miniatura.cargarComentario();
-        String descripcion = miniatura.producto.getDescripcion();
-        miniatura.setToolTipText("<html><b>" + descripcion + "</b><br>" + (comentario != null ? comentario : "") + "</html>");
-
-        gbc.gridx = col;
-        gbc.gridy = row;
-        contenedor.add(miniatura, gbc);
-
-        col++;
-        if (col == 6) {
-            col = 0;
-            row++;
-        }
-    }
-
-    contenedor.revalidate();
-    contenedor.repaint();
-    icono_carga.setVisible(false);
-}
-
-
-
-//************************************
-
-
-public void Filtrar_Lista_Proveedor(
-    int secuencialEmpresa,
-    int secuencialProveedor,
-    JTable tabla,
-    EntityManager entityManager
-) {
-    icono_carga.setVisible(true);
-
-    String jpql = "SELECT p FROM Producto p " +
-                  "WHERE p.Secuencial_Empresa = :empresa " +
-                  "AND p.Secuencial_Proveedor = :proveedor";
-
-    TypedQuery<Producto> query = entityManager.createQuery(jpql, Producto.class);
-    query.setParameter("empresa", secuencialEmpresa);
-    query.setParameter("proveedor", secuencialProveedor);
-
-    List<Producto> productos = query.getResultList();
-
-    DefaultTableModel modelo = new DefaultTableModel(new Object[]{
-        "S", "Codigo", "Descripción", "Marca", "Existencia", "E. mínima",
-        "C. Barra", "C. Fabricante", "F. Vencimiento", "P. Costo", "P. Venta"
-    }, 0) {
-        @Override
-        public boolean isCellEditable(int row, int column) {
-            return false;
-        }
-    };
-
-    for (Producto producto : productos) {
-        modelo.addRow(new Object[]{
-            producto.getSecuencial(),
-            producto.getCodigo(),
-            producto.getDescripcion(),
-            producto.getMarca(),
-            producto.getCantidad(),
-            producto.getExistencia_Minima(),
-            producto.getCodigo_Barra(),
-            producto.getCodigo_Fabricante(),
-            producto.getFecha_Caducidad(),
-            producto.getPrecio_Costo(),
-            producto.getPrecio_Venta()
-        });
-    }
-
-    tabla.setModel(modelo);
-    tabla.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-
-    // Eliminar listeners previos para evitar duplicación
-    for (MouseListener ml : tabla.getMouseListeners()) {
-        tabla.removeMouseListener(ml);
-    }
-
-    // Agregar evento de clic y doble clic
-    tabla.addMouseListener(new MouseAdapter() {
-        @Override
-        public void mousePressed(MouseEvent e) {
-            if (SwingUtilities.isLeftMouseButton(e)) {
-                int fila = tabla.rowAtPoint(e.getPoint());
-                if (fila != -1) {
-                    tabla.setRowSelectionInterval(fila, fila);
-                }
-            }
-        }
-
-        @Override
-        public void mouseClicked(MouseEvent e) {
-            if (e.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(e)) {
-                int fila = tabla.rowAtPoint(e.getPoint());
-                if (fila != -1) {
-                    tabla.setRowSelectionInterval(fila, fila);
-
-                    String codigo = tabla.getValueAt(fila, 1).toString();
-                    Producto productoSeleccionado = productos.stream()
-                        .filter(p -> p.getCodigo().equals(codigo))
-                        .findFirst()
-                        .orElse(null);
-
-                     if (productoSeleccionado != null) {
-                    V_Producto form = new V_Producto(false, productoSeleccionado);
-                    form.setOnProductoEditado(() -> cargarItems_Cuadricula());
-                    form.setVisible(true);
-                }
-                }
-            }
-        }
-    });
-
-    icono_carga.setVisible(false);
-}
-
-
-
-
-//*****************************
-
-
-public void Filtrar_Existencia_Minima_Cuadricula(
-    int secuencialEmpresa,
-    JPanel contenedor,
-    EntityManager entityManager
-) {
-    icono_carga.setVisible(true);
-    contenedor.setLayout(new GridBagLayout());
-    contenedor.removeAll();
-
-    String jpql = "SELECT p FROM Producto p " +
-                  "WHERE p.Secuencial_Empresa = :empresa " +
-                  "AND p.Cantidad = p.Existencia_Minima " +
-                  "AND p.Tipo <> 'Servicio'";
-
-    TypedQuery<Producto> query = entityManager.createQuery(jpql, Producto.class);
-    query.setParameter("empresa", secuencialEmpresa);
-
-    GridBagConstraints gbc = new GridBagConstraints();
-    gbc.insets = new Insets(5, 5, 5, 5);
-    gbc.fill = GridBagConstraints.NONE;
-    gbc.anchor = GridBagConstraints.NORTHWEST;
-
-    int col = 0, row = 0;
-
-    for (Producto producto : query.getResultList()) {
-        Miniatura_Producto miniatura = new Miniatura_Producto(producto, false);
-        miniatura.setPreferredSize(new Dimension(120, 170));
-
-        miniatura.addMouseListener(new MouseAdapter() {
-    @Override
-    public void mouseClicked(MouseEvent e) {
-        if (e.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(e)) {
-            // Evento doble clic izquierdo
-            Producto productoSeleccionado = miniatura.producto;
-            
-            
-             V_Kardex kardex = new V_Kardex(productoSeleccionado.getProducto().getSecuencial(),productoSeleccionado.getProducto().getCodigo());
-                                    kardex.setVisible(true);
-                                    kardex.setLocationRelativeTo(null);
-          //Aqui el codigo para abrir Kardex
-            
-        }
-    }
-
-            @Override
-            public void mousePressed(MouseEvent e) {
-                if (e.isPopupTrigger()) {
-                    menu_contextual.show(e.getComponent(), e.getX(), e.getY());
-                }
-            }
-
-            @Override
-            public void mouseReleased(MouseEvent e) {
-                if (e.isPopupTrigger()) {
-                    menu_contextual.show(e.getComponent(), e.getX(), e.getY());
-                }
-            }
-        });
-
-        String comentario = miniatura.cargarComentario();
-        String descripcion = miniatura.producto.getDescripcion();
-        miniatura.setToolTipText("<html><b>" + descripcion + "</b><br>" + (comentario != null ? comentario : "") + "</html>");
-
-        gbc.gridx = col;
-        gbc.gridy = row;
-        contenedor.add(miniatura, gbc);
-
-        col++;
-        if (col == 6) {
-            col = 0;
-            row++;
-        }
-    }
-
-    contenedor.revalidate();
-    contenedor.repaint();
-    icono_carga.setVisible(false);
-}
-
-
-//************************************
-
-
-
-
-
-
-
-public void Filtrar_Servicios_Cuadricula(
-    int secuencialEmpresa,
-    JPanel contenedor,
-    EntityManager entityManager
-) {
-    icono_carga.setVisible(true);
-    contenedor.setLayout(new GridBagLayout());
-    contenedor.removeAll();
-
-    String jpql = "SELECT p FROM Producto p " +
-                  "WHERE p.Secuencial_Empresa = :empresa " +
-                  "AND p.Tipo = 'Servicio'";
-
-    TypedQuery<Producto> query = entityManager.createQuery(jpql, Producto.class);
-    query.setParameter("empresa", secuencialEmpresa);
-
-    GridBagConstraints gbc = new GridBagConstraints();
-    gbc.insets = new Insets(5, 5, 5, 5);
-    gbc.fill = GridBagConstraints.NONE;
-    gbc.anchor = GridBagConstraints.NORTHWEST;
-
-    int col = 0, row = 0;
-
-    for (Producto producto : query.getResultList()) {
-        Miniatura_Producto miniatura = new Miniatura_Producto(producto, false);
-        miniatura.setPreferredSize(new Dimension(120, 170));
-
-        
-      
-        
-        
-        miniatura.addMouseListener(new MouseAdapter() {
-            @Override
-    public void mouseClicked(MouseEvent e) {
-        if (e.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(e)) {
-            // Evento doble clic izquierdo
-            Producto productoSeleccionado = miniatura.producto;
-            
-           
-             if (productoSeleccionado != null) {
-                    V_Producto form = new V_Producto(false, productoSeleccionado);
-                    form.setOnProductoEditado(() -> cargarItems_Cuadricula());
-                    form.setVisible(true);
-                }
-            
-            
-        }
-    }
-
-            @Override
-            public void mousePressed(MouseEvent e) {
-                if (e.isPopupTrigger()) {
-                    menu_contextual.show(e.getComponent(), e.getX(), e.getY());
-                }
-            }
-
-            @Override
-            public void mouseReleased(MouseEvent e) {
-                if (e.isPopupTrigger()) {
-                    menu_contextual.show(e.getComponent(), e.getX(), e.getY());
-                }
-            }
-        });
-
-        String comentario = miniatura.cargarComentario();
-        String descripcion = miniatura.producto.getDescripcion();
-        miniatura.setToolTipText("<html><b>" + descripcion + "</b><br>" + (comentario != null ? comentario : "") + "</html>");
-
-        gbc.gridx = col;
-        gbc.gridy = row;
-        contenedor.add(miniatura, gbc);
-
-        col++;
-        if (col == 6) {
-            col = 0;
-            row++;
-        }
-    }
-
-    contenedor.revalidate();
-    contenedor.repaint();
-    icono_carga.setVisible(false);
-}
-
-
-
-
-
-
-
-
-
-
-
-//*************************************
-
-
-
-
-public void Filtrar_Servicios_Lista(
-    int secuencialEmpresa,
-    JTable tabla,
-    EntityManager entityManager
-) {
-    icono_carga.setVisible(true);
-
-    String jpql = "SELECT p FROM Producto p " +
-                  "WHERE p.Secuencial_Empresa = :empresa " +
-                  "AND p.Tipo = 'Servicio'";
-
-    TypedQuery<Producto> query = entityManager.createQuery(jpql, Producto.class);
-    query.setParameter("empresa", secuencialEmpresa);
-
-    List<Producto> productos = query.getResultList();
-
-    DefaultTableModel modelo = new DefaultTableModel(new Object[]{
-        "S", "Codigo", "Descripción", "Marca", "Existencia", "E. mínima",
-        "C. Barra", "C. Fabricante", "F. Vencimiento", "P. Costo", "P. Venta"
-    }, 0) {
-        @Override
-        public boolean isCellEditable(int row, int column) {
-            return false;
-        }
-    };
-
-    for (Producto producto : productos) {
-        modelo.addRow(new Object[]{
-            producto.getSecuencial(),
-            producto.getCodigo(),
-            producto.getDescripcion(),
-            producto.getMarca(),
-            producto.getCantidad(),
-            producto.getExistencia_Minima(),
-            producto.getCodigo_Barra(),
-            producto.getCodigo_Fabricante(),
-            producto.getFecha_Caducidad(),
-            producto.getPrecio_Costo(),
-            producto.getPrecio_Venta()
-        });
-    }
-
-    tabla.setModel(modelo);
-    tabla.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
- 
-    // Eliminar listeners previos para evitar duplicación
-for (MouseListener ml : tabla.getMouseListeners()) {
-    tabla.removeMouseListener(ml);
-}
-
-// Agregar solo uno
-tabla.addMouseListener(new MouseAdapter() {
-    @Override
-    public void mousePressed(MouseEvent e) {
-        if (SwingUtilities.isLeftMouseButton(e)) {
-            int fila = tabla.rowAtPoint(e.getPoint());
-            if (fila != -1) {
-                tabla.setRowSelectionInterval(fila, fila); // 🔹 Selección visual
-            }
-        }
-    }
-
-    @Override
-    public void mouseClicked(MouseEvent e) {
-        if (e.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(e)) {
-            int fila = tabla.rowAtPoint(e.getPoint());
-            if (fila != -1) {
-                tabla.setRowSelectionInterval(fila, fila); // Asegura selección en doble clic
-
-                String codigo = tabla.getValueAt(fila, 1).toString();
-                Producto productoSeleccionado = productos.stream()
-                    .filter(p -> p.getCodigo().equals(codigo))
-                    .findFirst()
-                    .orElse(null);
-
-                if (productoSeleccionado != null) {
-                    V_Producto form = new V_Producto(false, productoSeleccionado);
-                    form.setOnProductoEditado(() -> cargarItems_Cuadricula());
-                    form.setVisible(true);
-                }
-            }
-        }
-    }
-});
-
-
-    icono_carga.setVisible(false);
-}
-
-
-public void Filtrar_Agotados_Cuadricula(
-    int secuencialEmpresa,
-    JPanel contenedor,
-    EntityManager entityManager
-) {
-    icono_carga.setVisible(true);
-    contenedor.setLayout(new GridBagLayout());
-    contenedor.removeAll();
-
-    String jpql = "SELECT p FROM Producto p " +
-                  "WHERE p.Secuencial_Empresa = :empresa " +
-                  "AND p.Cantidad < p.Existencia_Minima " +
-                  "AND p.Tipo <> 'Servicio'";
-
-    TypedQuery<Producto> query = entityManager.createQuery(jpql, Producto.class);
-    query.setParameter("empresa", secuencialEmpresa);
-
-    GridBagConstraints gbc = new GridBagConstraints();
-    gbc.insets = new Insets(5, 5, 5, 5);
-    gbc.fill = GridBagConstraints.NONE;
-    gbc.anchor = GridBagConstraints.NORTHWEST;
-
-    int col = 0, row = 0;
-
-    for (Producto producto : query.getResultList()) {
-        Miniatura_Producto miniatura = new Miniatura_Producto(producto, false);
-        miniatura.setPreferredSize(new Dimension(120, 170));
-
-        miniatura.addMouseListener(new MouseAdapter() {
-    @Override
-    public void mouseClicked(MouseEvent e) {
-        if (e.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(e)) {
-            // Evento doble clic izquierdo
-            Producto productoSeleccionado = miniatura.producto;
-            
-            
-             V_Kardex kardex = new V_Kardex(productoSeleccionado.getProducto().getSecuencial(),productoSeleccionado.getProducto().getCodigo());
-                                    kardex.setVisible(true);
-                                    kardex.setLocationRelativeTo(null);
-            //Aqui el codigo para abrir Kardex
-            
-        }
-    }
-
-            @Override
-            public void mousePressed(MouseEvent e) {
-                if (e.isPopupTrigger()) {
-                    menu_contextual.show(e.getComponent(), e.getX(), e.getY());
-                }
-            }
-
-            @Override
-            public void mouseReleased(MouseEvent e) {
-                if (e.isPopupTrigger()) {
-                    menu_contextual.show(e.getComponent(), e.getX(), e.getY());
-                }
-            }
-        });
-
-        String comentario = miniatura.cargarComentario();
-        String descripcion = miniatura.producto.getDescripcion();
-        miniatura.setToolTipText("<html><b>" + descripcion + "</b><br>" + (comentario != null ? comentario : "") + "</html>");
-
-        gbc.gridx = col;
-        gbc.gridy = row;
-        contenedor.add(miniatura, gbc);
-
-        col++;
-        if (col == 6) {
-            col = 0;
-            row++;
-        }
-    }
-
-    contenedor.revalidate();
-    contenedor.repaint();
-    icono_carga.setVisible(false);
-}
-
-public void Filtrar_Lista_Categoria(
-    int secuencialEmpresa,
-    int secuencialCategoria,
-    JTable tabla,
-    EntityManager entityManager
-) {
-    icono_carga.setVisible(true);
-
-    String jpql = "SELECT p FROM Producto p " +
-                  "WHERE p.Secuencial_Empresa = :empresa " +
-                  "AND p.Secuencial_Categoria = :categoria";
-
-    TypedQuery<Producto> query = entityManager.createQuery(jpql, Producto.class);
-    query.setParameter("empresa", secuencialEmpresa);
-    query.setParameter("categoria", secuencialCategoria);
-
-    List<Producto> productos = query.getResultList();
-
-    DefaultTableModel modelo = new DefaultTableModel(new Object[]{
-        "S", "Codigo", "Descripción", "Marca", "Existencia", "E. mínima",
-        "C. Barra", "C. Fabricante", "F. Vencimiento", "P. Costo", "P. Venta"
-    }, 0) {
-        @Override
-        public boolean isCellEditable(int row, int column) {
-            return false;
-        }
-    };
-
-    for (Producto producto : productos) {
-        modelo.addRow(new Object[]{
-            producto.getSecuencial(),
-            producto.getCodigo(),
-            producto.getDescripcion(),
-            producto.getMarca(),
-            producto.getCantidad(),
-            producto.getExistencia_Minima(),
-            producto.getCodigo_Barra(),
-            producto.getCodigo_Fabricante(),
-            producto.getFecha_Caducidad(),
-            producto.getPrecio_Costo(),
-            producto.getPrecio_Venta()
-        });
-    }
-
-    tabla.setModel(modelo);
-    tabla.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-
-    // Eliminar listeners previos para evitar duplicación
-    for (MouseListener ml : tabla.getMouseListeners()) {
-        tabla.removeMouseListener(ml);
-    }
-
-    // Agregar evento de clic y doble clic
-    tabla.addMouseListener(new MouseAdapter() {
-        @Override
-        public void mousePressed(MouseEvent e) {
-            if (SwingUtilities.isLeftMouseButton(e)) {
-                int fila = tabla.rowAtPoint(e.getPoint());
-                if (fila != -1) {
-                    tabla.setRowSelectionInterval(fila, fila);
-                }
-            }
-        }
-
-        @Override
-        public void mouseClicked(MouseEvent e) {
-            if (e.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(e)) {
-                int fila = tabla.rowAtPoint(e.getPoint());
-                if (fila != -1) {
-                    tabla.setRowSelectionInterval(fila, fila);
-
-                    String codigo = tabla.getValueAt(fila, 1).toString();
-                    Producto productoSeleccionado = productos.stream()
-                        .filter(p -> p.getCodigo().equals(codigo))
-                        .findFirst()
-                        .orElse(null);
-
-                     if (productoSeleccionado != null) {
-                    V_Producto form = new V_Producto(false, productoSeleccionado);
-                    form.setOnProductoEditado(() -> cargarItems_Cuadricula());
-                    form.setVisible(true);
-                }
-                }
-            }
-        }
-    });
-
-    icono_carga.setVisible(false);
-}
-
-
-
-//************************************
-public void Filtrar_Cuadricula_Categoria(
-    int secuencialEmpresa,
-    int secuencialCategoria,
-    JPanel contenedor,
-    EntityManager entityManager
-) {
-    icono_carga.setVisible(true);
-    contenedor.setLayout(new GridBagLayout());
-    contenedor.removeAll();
-
-    String jpql = "SELECT p FROM Producto p WHERE p.Secuencial_Empresa = :empresa AND p.Secuencial_Categoria = :categoria";
-    TypedQuery<Producto> query = entityManager.createQuery(jpql, Producto.class);
-    query.setParameter("empresa", secuencialEmpresa);
-    query.setParameter("categoria", secuencialCategoria);
-
-    GridBagConstraints gbc = new GridBagConstraints();
-    gbc.insets = new Insets(5, 5, 5, 5);
-    gbc.fill = GridBagConstraints.NONE;
-    gbc.anchor = GridBagConstraints.NORTHWEST;
-
-    int col = 0, row = 0;
-
-    for (Producto producto : query.getResultList()) {
-        Miniatura_Producto miniatura = new Miniatura_Producto(producto, false);
-        miniatura.setPreferredSize(new Dimension(120, 170));
-
-       
-         miniatura.addMouseListener(new MouseAdapter() {
-    @Override
-    public void mouseClicked(MouseEvent e) {
-        if (e.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(e)) {
-            // Evento doble clic izquierdo
-            Producto productoSeleccionado = miniatura.producto;
-            
-             V_Kardex kardex = new V_Kardex(productoSeleccionado.getProducto().getSecuencial(),productoSeleccionado.getProducto().getCodigo());
-                                    kardex.setVisible(true);
-                                    kardex.setLocationRelativeTo(null);
-            //Aqui el codigo para abrir Kardex
-           
-        }
-    }
-        
-
-            @Override
-            public void mousePressed(MouseEvent e) {
-                if (e.isPopupTrigger()) {
-                    menu_contextual.show(e.getComponent(), e.getX(), e.getY());
-                }
-            }
-
-            @Override
-            public void mouseReleased(MouseEvent e) {
-                if (e.isPopupTrigger()) {
-                    menu_contextual.show(e.getComponent(), e.getX(), e.getY());
-                }
-            }
-        });
-
-        String comentario = miniatura.cargarComentario();
-        String descripcion = miniatura.producto.getDescripcion();
-        miniatura.setToolTipText("<html><b>" + descripcion + "</b><br>" + (comentario != null ? comentario : "") + "</html>");
-
-        gbc.gridx = col;
-        gbc.gridy = row;
-        contenedor.add(miniatura, gbc);
-
-        col++;
-        if (col == 6) {
-            col = 0;
-            row++;
-        }
-    }
-
-    contenedor.revalidate();
-    contenedor.repaint();
-    icono_carga.setVisible(false);
-}
-
-
-
-
-
-//************************************
-
-public void cargar_Items_Cuadricula(int secuencialEmpresa, JPanel contenedor, EntityManager entityManager) {
-    icono_carga.setVisible(true);
-
-    // Usamos GridBagLayout para evitar el ajuste automático de tamaño
-    contenedor.setLayout(new GridBagLayout());
-    
-    contenedor.removeAll();
-    
-   
-    List<Producto> productos = entityManager
-        .createQuery("SELECT p FROM Producto p WHERE p.Secuencial_Empresa = :empresa", Producto.class)
-        .setParameter("empresa", secuencialEmpresa)
-        .getResultList();
-
-    GridBagConstraints gbc = new GridBagConstraints();
-    gbc.insets = new Insets(5, 5, 5, 5); // Espaciado entre miniaturas
-    gbc.fill = GridBagConstraints.NONE; // No expandir
-    gbc.anchor = GridBagConstraints.NORTHWEST;
-
-    int col = 0, row = 0;
-
-    for (Producto producto : productos) {
-        Miniatura_Producto miniatura = new Miniatura_Producto(producto, false);
-        miniatura.setPreferredSize(new Dimension(120, 170)); // Tamaño fijo para cada miniatura
-
-       
-        miniatura.addMouseListener(new MouseAdapter() {
-    @Override
-    public void mouseClicked(MouseEvent e) {
-        if (e.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(e)) {
-            // Evento doble clic izquierdo
-            Producto productoSeleccionado = miniatura.producto;
-            
-            if (!"Servicio".equals(productoSeleccionado.getTipo())){
-            
-                 V_Kardex kardex = new V_Kardex(productoSeleccionado.getProducto().getSecuencial(),productoSeleccionado.getProducto().getCodigo());
-                                    kardex.setVisible(true);
-                                    kardex.setLocationRelativeTo(null);
-                                    
-                                    //A ver
-            
-            }            
-// Aquí puedes abrir un diálogo, mostrar detalles, o iniciar edición
-            
-        }
-    }
-        
-
-            @Override
-            public void mousePressed(MouseEvent e) {
-                if (e.isPopupTrigger()) {
-                    menu_contextual.show(e.getComponent(), e.getX(), e.getY());
-                }
-            }
-
-            @Override
-            public void mouseReleased(MouseEvent e) {
-                if (e.isPopupTrigger()) {
-                    menu_contextual.show(e.getComponent(), e.getX(), e.getY());
-                }
-            }
-        });
-
-        String comentario = miniatura.cargarComentario();
-        String descripcion = miniatura.producto.getDescripcion();
-        miniatura.setToolTipText(
-            comentario != null
-                ? "<html><b>" + descripcion + "</b><br>" + comentario + "</html>"
-                : "<html><b>" + descripcion + "</b><br></html>"
-        );
-
-        // Posicionamiento en la cuadrícula
-        gbc.gridx = col;
-        gbc.gridy = row;
-        contenedor.add(miniatura, gbc);
-
-        col++;
-        if (col == 6) {
-            col = 0;
-            row++;
-        }
-    }
-
-    contenedor.revalidate();
-    contenedor.repaint();
-    icono_carga.setVisible(false);
-}
-
-
-
-
-public void cargar_Items_Lista(int secuencialEmpresa, JTable tabla) {
-    icono_carga.setVisible(true);
-
-    new SwingWorker<List<Producto>, Void>() {
-        @Override
-        protected List<Producto> doInBackground() {
-            EntityManagerFactory emf = null;
-            EntityManager em = null;
-            List<Producto> productos = new ArrayList<>();
-
-            try {
-                emf = Persistence.createEntityManagerFactory("MonituxPU");
-                em = emf.createEntityManager();
-
-                productos = em.createQuery(
-                    "SELECT p FROM Producto p WHERE p.Secuencial_Empresa = :empresa", Producto.class)
-                    .setParameter("empresa", secuencialEmpresa)
-                    .getResultList();
 
             } catch (Exception ex) {
                 SwingUtilities.invokeLater(() ->
-                    JOptionPane.showMessageDialog(null, "Error al cargar productos: " + ex.getMessage())
+                    JOptionPane.showMessageDialog(null,
+                        "Error al filtrar por categoría: " + ex.getMessage(),
+                        "Error", JOptionPane.ERROR_MESSAGE)
                 );
+                ex.printStackTrace();
             } finally {
-                if (em != null) em.close();
-                if (emf != null) emf.close();
+                if (em != null && em.isOpen()) {
+                    em.close();
+                }
             }
-
-            return productos;
+            return null;
         }
 
         @Override
         protected void done() {
-            try {
-                List<Producto> productos = get();
+            icono_carga.setVisible(false);
 
-                DefaultTableModel modelo = new DefaultTableModel(new Object[]{
-                    "S", "Codigo", "Descripción", "Marca", "Existencia", "E. mínima",
-                    "C. Barra", "C. Fabricante", "F. Vencimiento", "P. Costo", "P. Venta"
-                }, 0) {
-                    @Override
-                    public boolean isCellEditable(int row, int column) {
-                        return false;
-                    }
-                };
-
-                for (Producto producto : productos) {
-                    modelo.addRow(new Object[]{
-                        producto.getSecuencial(),
-                        producto.getCodigo(),
-                        producto.getDescripcion(),
-                        producto.getMarca(),
-                        producto.getCantidad(),
-                        producto.getExistencia_Minima(),
-                        producto.getCodigo_Barra(),
-                        producto.getCodigo_Fabricante(),
-                        producto.getFecha_Caducidad(),
-                        producto.getPrecio_Costo(),
-                        producto.getPrecio_Venta()
-                    });
-                }
-
-                tabla.setModel(modelo);
-                tabla.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-               
-                for (MouseListener ml : tabla.getMouseListeners()) {
-                    tabla.removeMouseListener(ml);
-                }
-
-tabla.addMouseListener(new MouseAdapter() {
-    @Override
-    public void mousePressed(MouseEvent e) {
-        if (SwingUtilities.isLeftMouseButton(e)) {
-            int fila = tabla.rowAtPoint(e.getPoint());
-            if (fila != -1) {
-                tabla.setRowSelectionInterval(fila, fila); // 🔹 Selección visual
-            }
-        }
-    }
-    
-    
-    
-
-    @Override
-    public void mouseClicked(MouseEvent e) {
-        if (e.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(e)) {
-            int fila = tabla.rowAtPoint(e.getPoint());
-            if (fila != -1) {
-                tabla.setRowSelectionInterval(fila, fila); // Asegura selección en doble clic
-
-                String codigo = tabla.getValueAt(fila, 1).toString();
-                Producto productoSeleccionado = productos.stream()
-                    .filter(p -> p.getCodigo().equals(codigo))
-                    .findFirst()
-                    .orElse(null);
-
-                if (productoSeleccionado != null) {
-                    V_Producto form = new V_Producto(false, productoSeleccionado);
-                    form.setOnProductoEditado(() -> cargarItems_Cuadricula());
-                    form.setVisible(true);
-                }
-            }
-        }
-    }
-});             
-
-
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(null, "Error al procesar productos: " + ex.getMessage());
-            } finally {
-                icono_carga.setVisible(false);
+            switch (Modo) {
+                case "Cuadricula":
+                    contenedor.revalidate();
+                    contenedor.repaint();
+                    break;
+                case "Lista":
+                    lista_tabla.revalidate();
+                    lista_tabla.repaint();
+                    break;
+                case "Kardex":
+                    kardex_tabla.revalidate();
+                    kardex_tabla.repaint();
+                    break;
             }
         }
     }.execute();
-}
 
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButton9ActionPerformed
 
-public void cargar_Items_Kardex(int secuencialEmpresa, JTable tabla) {
+    
+    public void Filtrar_Kardex_Categoria(int secuencialEmpresa, int secuencialCategoria, JTable tabla) {
     icono_carga.setVisible(true);
 
     new SwingWorker<List<Kardex>, Void>() {
+        EntityManager em = null;
+
         @Override
         protected List<Kardex> doInBackground() {
-            EntityManagerFactory emf = null;
-            EntityManager em = null;
-            List<Kardex> kardexList = new ArrayList<>();
-
             try {
-                emf = Persistence.createEntityManagerFactory("MonituxPU");
-                em = emf.createEntityManager();
+                em = MonituxDBContext.getEntityManager();
+                if (em == null || !em.isOpen()) {
+                    throw new IllegalStateException("EntityManager no disponible.");
+                }
 
-                kardexList = em.createQuery(
-                    "SELECT k FROM Kardex k JOIN FETCH k.producto WHERE k.Secuencial_Empresa = :empresa", Kardex.class)
+                return em.createQuery(
+                    "SELECT k FROM Kardex k JOIN FETCH k.producto p WHERE k.Secuencial_Empresa = :empresa AND p.Secuencial_Categoria = :categoria",
+                    Kardex.class)
                     .setParameter("empresa", secuencialEmpresa)
+                    .setParameter("categoria", secuencialCategoria)
                     .getResultList();
 
             } catch (Exception ex) {
                 SwingUtilities.invokeLater(() ->
-                    JOptionPane.showMessageDialog(null, "Error al cargar Kardex: " + ex.getMessage())
+                    JOptionPane.showMessageDialog(tabla,
+                        "Error al consultar Kardex por categoría: " + ex.getMessage(),
+                        "Error", JOptionPane.ERROR_MESSAGE)
                 );
-            } finally {
-                if (em != null) em.close();
-                if (emf != null) emf.close();
+                ex.printStackTrace();
+                return Collections.emptyList();
             }
-
-            return kardexList;
         }
 
         @Override
@@ -3687,12 +1955,13 @@ public void cargar_Items_Kardex(int secuencialEmpresa, JTable tabla) {
                                     .findFirst()
                                     .orElse(null);
 
-                                if (seleccionado != null) {
-                                    
-                                    V_Kardex kardex = new V_Kardex(seleccionado.getProducto().getSecuencial(),seleccionado.getProducto().getCodigo());
+                                if (seleccionado != null && seleccionado.getProducto() != null) {
+                                    V_Kardex kardex = new V_Kardex(
+                                        seleccionado.getProducto().getSecuencial(),
+                                        seleccionado.getProducto().getCodigo()
+                                    );
                                     kardex.setVisible(true);
                                     kardex.setLocationRelativeTo(null);
-                                    
                                 }
                             }
                         }
@@ -3700,8 +1969,1470 @@ public void cargar_Items_Kardex(int secuencialEmpresa, JTable tabla) {
                 });
 
             } catch (Exception ex) {
-                JOptionPane.showMessageDialog(null, "Error al procesar Kardex: " + ex.getMessage());
+                JOptionPane.showMessageDialog(tabla,
+                    "Error al procesar Kardex por categoría: " + ex.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+                ex.printStackTrace();
             } finally {
+                if (em != null && em.isOpen()) {
+                    em.close();
+                }
+                icono_carga.setVisible(false);
+            }
+        }
+    }.execute();
+}
+
+    
+    private void jLabel6MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel6MouseClicked
+
+        icono_carga.setVisible(true);
+
+    new SwingWorker<Void, Void>() {
+        EntityManager em = null;
+
+        @Override
+        protected Void doInBackground() {
+            try {
+                em = MonituxDBContext.getEntityManager();
+                if (em == null || !em.isOpen()) {
+                    throw new IllegalStateException("EntityManager no disponible.");
+                }
+
+                switch (Modo) {
+                    case "Cuadricula":
+                        Filtrar_Existencia_Minima_Cuadricula(Secuencial_Empresa, contenedor);
+                        break;
+
+                    case "Lista":
+                        Filtrar_Existencia_Minima_Lista(Secuencial_Empresa, lista_tabla);
+                        break;
+
+                    case "Kardex":
+                        Filtrar_Existencia_Minima_Kardex(Secuencial_Empresa, kardex_tabla);
+                        break;
+
+                    default:
+                        SwingUtilities.invokeLater(() ->
+                            JOptionPane.showMessageDialog(null,
+                                "Modo visual no reconocido: " + Modo,
+                                "Error", JOptionPane.ERROR_MESSAGE)
+                        );
+                        break;
+                }
+
+            } catch (Exception ex) {
+                SwingUtilities.invokeLater(() ->
+                    JOptionPane.showMessageDialog(null,
+                        "Error al cargar productos con existencia mínima: " + ex.getMessage(),
+                        "Error", JOptionPane.ERROR_MESSAGE)
+                );
+                ex.printStackTrace();
+            } finally {
+                if (em != null && em.isOpen()) {
+                    em.close();
+                }
+            }
+            return null;
+        }
+
+        @Override
+        protected void done() {
+            icono_carga.setVisible(false);
+
+            switch (Modo) {
+                case "Cuadricula":
+                    contenedor.revalidate();
+                    contenedor.repaint();
+                    break;
+                case "Lista":
+                    lista_tabla.revalidate();
+                    lista_tabla.repaint();
+                    break;
+                case "Kardex":
+                    kardex_tabla.revalidate();
+                    kardex_tabla.repaint();
+                    break;
+            }
+        }
+    }.execute();
+    
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jLabel6MouseClicked
+
+    public void Filtrar_Existencia_Minima_Kardex(int secuencialEmpresa, JTable tabla) {
+    icono_carga.setVisible(true);
+
+    new SwingWorker<List<Kardex>, Void>() {
+        EntityManager em = null;
+
+        @Override
+        protected List<Kardex> doInBackground() {
+            try {
+                em = MonituxDBContext.getEntityManager();
+                if (em == null || !em.isOpen()) {
+                    throw new IllegalStateException("EntityManager no disponible.");
+                }
+
+                return em.createQuery(
+                    "SELECT k FROM Kardex k JOIN FETCH k.producto p WHERE k.Secuencial_Empresa = :empresa AND k.Saldo <= p.Existencia_Minima",
+                    Kardex.class)
+                    .setParameter("empresa", secuencialEmpresa)
+                    .getResultList();
+
+            } catch (Exception ex) {
+                SwingUtilities.invokeLater(() ->
+                    JOptionPane.showMessageDialog(tabla,
+                        "Error al consultar Kardex con existencia mínima: " + ex.getMessage(),
+                        "Error", JOptionPane.ERROR_MESSAGE)
+                );
+                ex.printStackTrace();
+                return Collections.emptyList();
+            }
+        }
+
+        @Override
+        protected void done() {
+            try {
+                List<Kardex> kardexList = get();
+
+                DefaultTableModel modelo = new DefaultTableModel(new Object[]{
+                    "S", "Codigo", "Fecha", "Descripción", "Movimiento", "Cantidad",
+                    "Costo", "Costo Total", "Venta", "Venta Total", "Saldo",
+                    "Sec. Producto", "Sec. Empresa"
+                }, 0) {
+                    @Override
+                    public boolean isCellEditable(int row, int column) {
+                        return false;
+                    }
+                };
+
+                for (Kardex k : kardexList) {
+                    Producto p = k.getProducto();
+                    modelo.addRow(new Object[]{
+                        k.getSecuencial(),
+                        p != null ? p.getCodigo() : "",
+                        k.getFecha(),
+                        k.getDescripcion(),
+                        k.getMovimiento(),
+                        k.getCantidad(),
+                        Util.redondear(k.getCosto()),
+                        Util.redondear(k.getCosto_Total()),
+                        Util.redondear(k.getVenta()),
+                        Util.redondear(k.getVenta_Total()),
+                        Util.redondear(k.getSaldo()),
+                        k.getSecuencial_Producto(),
+                        k.getSecuencial_Empresa()
+                    });
+                }
+
+                tabla.setModel(modelo);
+                tabla.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+                for (MouseListener ml : tabla.getMouseListeners()) {
+                    tabla.removeMouseListener(ml);
+                }
+
+                tabla.addMouseListener(new MouseAdapter() {
+                    @Override
+                    public void mousePressed(MouseEvent e) {
+                        if (SwingUtilities.isLeftMouseButton(e)) {
+                            int fila = tabla.rowAtPoint(e.getPoint());
+                            if (fila != -1) {
+                                tabla.setRowSelectionInterval(fila, fila);
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void mouseClicked(MouseEvent e) {
+                        if (e.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(e)) {
+                            int fila = tabla.rowAtPoint(e.getPoint());
+                            if (fila != -1) {
+                                tabla.setRowSelectionInterval(fila, fila);
+
+                                int secuencial = Integer.parseInt(tabla.getValueAt(fila, 0).toString());
+                                Kardex seleccionado = kardexList.stream()
+                                    .filter(k -> k.getSecuencial() == secuencial)
+                                    .findFirst()
+                                    .orElse(null);
+
+                                if (seleccionado != null && seleccionado.getProducto() != null) {
+                                    V_Kardex kardex = new V_Kardex(
+                                        seleccionado.getProducto().getSecuencial(),
+                                        seleccionado.getProducto().getCodigo()
+                                    );
+                                    kardex.setVisible(true);
+                                    kardex.setLocationRelativeTo(null);
+                                }
+                            }
+                        }
+                    }
+                });
+
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(tabla,
+                    "Error al procesar Kardex con existencia mínima: " + ex.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+                ex.printStackTrace();
+            } finally {
+                if (em != null && em.isOpen()) {
+                    em.close();
+                }
+                icono_carga.setVisible(false);
+            }
+        }
+    }.execute();
+}
+
+    
+    
+    
+    private void jLabel7MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel7MouseClicked
+
+      icono_carga.setVisible(true);
+
+    new SwingWorker<Void, Void>() {
+        EntityManager em = null;
+
+        @Override
+        protected Void doInBackground() {
+            try {
+                em = MonituxDBContext.getEntityManager();
+                if (em == null || !em.isOpen()) {
+                    throw new IllegalStateException("EntityManager no disponible.");
+                }
+
+                switch (Modo) {
+                    case "Cuadricula":
+                        Filtrar_Agotados_Cuadricula(Secuencial_Empresa, contenedor);
+                        break;
+
+                    case "Lista":
+                        Filtrar_Agotados_Lista(Secuencial_Empresa, lista_tabla);
+                        break;
+
+                    case "Kardex":
+                        Filtrar_Agotados_Kardex(Secuencial_Empresa, kardex_tabla);
+                        break;
+
+                    default:
+                        SwingUtilities.invokeLater(() ->
+                            JOptionPane.showMessageDialog(null,
+                                "Modo visual no reconocido: " + Modo,
+                                "Error", JOptionPane.ERROR_MESSAGE)
+                        );
+                        break;
+                }
+
+            } catch (Exception ex) {
+                SwingUtilities.invokeLater(() ->
+                    JOptionPane.showMessageDialog(null,
+                        "Error al cargar productos agotados: " + ex.getMessage(),
+                        "Error", JOptionPane.ERROR_MESSAGE)
+                );
+                ex.printStackTrace();
+            } finally {
+                if (em != null && em.isOpen()) {
+                    em.close();
+                }
+            }
+            return null;
+        }
+
+        @Override
+        protected void done() {
+            icono_carga.setVisible(false);
+
+            switch (Modo) {
+                case "Cuadricula":
+                    contenedor.revalidate();
+                    contenedor.repaint();
+                    break;
+                case "Lista":
+                    lista_tabla.revalidate();
+                    lista_tabla.repaint();
+                    break;
+                case "Kardex":
+                    kardex_tabla.revalidate();
+                    kardex_tabla.repaint();
+                    break;
+            }
+        }
+    }.execute();
+
+    }//GEN-LAST:event_jLabel7MouseClicked
+
+    
+    public void Filtrar_Agotados_Kardex(int secuencialEmpresa, JTable tabla) {
+    icono_carga.setVisible(true);
+
+    new SwingWorker<List<Kardex>, Void>() {
+        EntityManager em = null;
+
+        @Override
+        protected List<Kardex> doInBackground() {
+            try {
+                em = MonituxDBContext.getEntityManager();
+                if (em == null || !em.isOpen()) {
+                    throw new IllegalStateException("EntityManager no disponible.");
+                }
+
+                return em.createQuery(
+                    "SELECT k FROM Kardex k JOIN FETCH k.producto p WHERE k.Secuencial_Empresa = :empresa AND k.Saldo <= 0",
+                    Kardex.class)
+                    .setParameter("empresa", secuencialEmpresa)
+                    .getResultList();
+
+            } catch (Exception ex) {
+                SwingUtilities.invokeLater(() ->
+                    JOptionPane.showMessageDialog(tabla,
+                        "Error al consultar productos agotados: " + ex.getMessage(),
+                        "Error", JOptionPane.ERROR_MESSAGE)
+                );
+                ex.printStackTrace();
+                return Collections.emptyList();
+            }
+        }
+
+        @Override
+        protected void done() {
+            try {
+                List<Kardex> kardexList = get();
+
+                DefaultTableModel modelo = new DefaultTableModel(new Object[]{
+                    "S", "Codigo", "Fecha", "Descripción", "Movimiento", "Cantidad",
+                    "Costo", "Costo Total", "Venta", "Venta Total", "Saldo",
+                    "Sec. Producto", "Sec. Empresa"
+                }, 0) {
+                    @Override
+                    public boolean isCellEditable(int row, int column) {
+                        return false;
+                    }
+                };
+
+                for (Kardex k : kardexList) {
+                    Producto p = k.getProducto();
+                    modelo.addRow(new Object[]{
+                        k.getSecuencial(),
+                        p != null ? p.getCodigo() : "",
+                        k.getFecha(),
+                        k.getDescripcion(),
+                        k.getMovimiento(),
+                        k.getCantidad(),
+                        Util.redondear(k.getCosto()),
+                        Util.redondear(k.getCosto_Total()),
+                        Util.redondear(k.getVenta()),
+                        Util.redondear(k.getVenta_Total()),
+                        Util.redondear(k.getSaldo()),
+                        k.getSecuencial_Producto(),
+                        k.getSecuencial_Empresa()
+                    });
+                }
+
+                tabla.setModel(modelo);
+                tabla.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+                for (MouseListener ml : tabla.getMouseListeners()) {
+                    tabla.removeMouseListener(ml);
+                }
+
+                tabla.addMouseListener(new MouseAdapter() {
+                    @Override
+                    public void mousePressed(MouseEvent e) {
+                        if (SwingUtilities.isLeftMouseButton(e)) {
+                            int fila = tabla.rowAtPoint(e.getPoint());
+                            if (fila != -1) {
+                                tabla.setRowSelectionInterval(fila, fila);
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void mouseClicked(MouseEvent e) {
+                        if (e.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(e)) {
+                            int fila = tabla.rowAtPoint(e.getPoint());
+                            if (fila != -1) {
+                                tabla.setRowSelectionInterval(fila, fila);
+
+                                int secuencial = Integer.parseInt(tabla.getValueAt(fila, 0).toString());
+                                Kardex seleccionado = kardexList.stream()
+                                    .filter(k -> k.getSecuencial() == secuencial)
+                                    .findFirst()
+                                    .orElse(null);
+
+                                if (seleccionado != null && seleccionado.getProducto() != null) {
+                                    V_Kardex kardex = new V_Kardex(
+                                        seleccionado.getProducto().getSecuencial(),
+                                        seleccionado.getProducto().getCodigo()
+                                    );
+                                    kardex.setVisible(true);
+                                    kardex.setLocationRelativeTo(null);
+                                }
+                            }
+                        }
+                    }
+                });
+
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(tabla,
+                    "Error al procesar productos agotados: " + ex.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+                ex.printStackTrace();
+            } finally {
+                if (em != null && em.isOpen()) {
+                    em.close();
+                }
+                icono_carga.setVisible(false);
+            }
+        }
+    }.execute();
+}
+
+    
+    
+    private void jButton7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton7ActionPerformed
+
+      icono_carga.setVisible(true);
+
+    new SwingWorker<Void, Void>() {
+        EntityManager em = null;
+
+        @Override
+        protected Void doInBackground() {
+            try {
+                em = MonituxDBContext.getEntityManager();
+                if (em == null || !em.isOpen()) {
+                    throw new IllegalStateException("EntityManager no disponible.");
+                }
+
+                LocalDate hoy = LocalDate.now();
+                LocalDate fechaMas7 = hoy.plusDays(7);
+                DateTimeFormatter formato = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+                String fechaTexto = fechaMas7.format(formato);
+
+                switch (Modo) {
+                    case "Cuadricula":
+                        Filtrar_Fecha_Cuadricula(Secuencial_Empresa, fechaTexto, contenedor);
+                        break;
+
+                    case "Lista":
+                        Filtrar_Lista_Fecha(Secuencial_Empresa, fechaTexto, lista_tabla);
+                        break;
+
+                    case "Kardex":
+                        Filtrar_Kardex_Fecha(Secuencial_Empresa, fechaTexto, kardex_tabla);
+                        break;
+
+                    default:
+                        SwingUtilities.invokeLater(() ->
+                            JOptionPane.showMessageDialog(null,
+                                "Modo visual no reconocido: " + Modo,
+                                "Error", JOptionPane.ERROR_MESSAGE)
+                        );
+                        break;
+                }
+
+            } catch (Exception ex) {
+                SwingUtilities.invokeLater(() ->
+                    JOptionPane.showMessageDialog(null,
+                        "Error al filtrar por fecha: " + ex.getMessage(),
+                        "Error", JOptionPane.ERROR_MESSAGE)
+                );
+                ex.printStackTrace();
+            } finally {
+                if (em != null && em.isOpen()) {
+                    em.close();
+                }
+            }
+            return null;
+        }
+
+        @Override
+        protected void done() {
+            icono_carga.setVisible(false);
+
+            switch (Modo) {
+                case "Cuadricula":
+                    contenedor.revalidate();
+                    contenedor.repaint();
+                    break;
+                case "Lista":
+                    lista_tabla.revalidate();
+                    lista_tabla.repaint();
+                    break;
+                case "Kardex":
+                    kardex_tabla.revalidate();
+                    kardex_tabla.repaint();
+                    break;
+            }
+        }
+    }.execute();
+    }//GEN-LAST:event_jButton7ActionPerformed
+
+    
+    public void Filtrar_Kardex_Fecha(int secuencialEmpresa, String fechaTexto, JTable tabla) {
+    icono_carga.setVisible(true);
+
+    new SwingWorker<List<Kardex>, Void>() {
+        EntityManager em = null;
+
+        @Override
+        protected List<Kardex> doInBackground() {
+            try {
+                em = MonituxDBContext.getEntityManager();
+                if (em == null || !em.isOpen()) {
+                    throw new IllegalStateException("EntityManager no disponible.");
+                }
+
+                return em.createQuery(
+                    "SELECT k FROM Kardex k JOIN FETCH k.producto p WHERE k.Secuencial_Empresa = :empresa AND FUNCTION('DATE_FORMAT', k.Fecha, '%d/%m/%Y') = :fecha",
+                    Kardex.class)
+                    .setParameter("empresa", secuencialEmpresa)
+                    .setParameter("fecha", fechaTexto)
+                    .getResultList();
+
+            } catch (Exception ex) {
+                SwingUtilities.invokeLater(() ->
+                    JOptionPane.showMessageDialog(tabla,
+                        "Error al consultar Kardex por fecha: " + ex.getMessage(),
+                        "Error", JOptionPane.ERROR_MESSAGE)
+                );
+                ex.printStackTrace();
+                return Collections.emptyList();
+            }
+        }
+
+        @Override
+        protected void done() {
+            try {
+                List<Kardex> kardexList = get();
+
+                DefaultTableModel modelo = new DefaultTableModel(new Object[]{
+                    "S", "Codigo", "Fecha", "Descripción", "Movimiento", "Cantidad",
+                    "Costo", "Costo Total", "Venta", "Venta Total", "Saldo",
+                    "Sec. Producto", "Sec. Empresa"
+                }, 0) {
+                    @Override
+                    public boolean isCellEditable(int row, int column) {
+                        return false;
+                    }
+                };
+
+                for (Kardex k : kardexList) {
+                    Producto p = k.getProducto();
+                    modelo.addRow(new Object[]{
+                        k.getSecuencial(),
+                        p != null ? p.getCodigo() : "",
+                        k.getFecha(),
+                        k.getDescripcion(),
+                        k.getMovimiento(),
+                        k.getCantidad(),
+                        Util.redondear(k.getCosto()),
+                        Util.redondear(k.getCosto_Total()),
+                        Util.redondear(k.getVenta()),
+                        Util.redondear(k.getVenta_Total()),
+                        Util.redondear(k.getSaldo()),
+                        k.getSecuencial_Producto(),
+                        k.getSecuencial_Empresa()
+                    });
+                }
+
+                tabla.setModel(modelo);
+                tabla.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+                for (MouseListener ml : tabla.getMouseListeners()) {
+                    tabla.removeMouseListener(ml);
+                }
+
+                tabla.addMouseListener(new MouseAdapter() {
+                    @Override
+                    public void mousePressed(MouseEvent e) {
+                        if (SwingUtilities.isLeftMouseButton(e)) {
+                            int fila = tabla.rowAtPoint(e.getPoint());
+                            if (fila != -1) {
+                                tabla.setRowSelectionInterval(fila, fila);
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void mouseClicked(MouseEvent e) {
+                        if (e.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(e)) {
+                            int fila = tabla.rowAtPoint(e.getPoint());
+                            if (fila != -1) {
+                                tabla.setRowSelectionInterval(fila, fila);
+
+                                int secuencial = Integer.parseInt(tabla.getValueAt(fila, 0).toString());
+                                Kardex seleccionado = kardexList.stream()
+                                    .filter(k -> k.getSecuencial() == secuencial)
+                                    .findFirst()
+                                    .orElse(null);
+
+                                if (seleccionado != null && seleccionado.getProducto() != null) {
+                                    V_Kardex kardex = new V_Kardex(
+                                        seleccionado.getProducto().getSecuencial(),
+                                        seleccionado.getProducto().getCodigo()
+                                    );
+                                    kardex.setVisible(true);
+                                    kardex.setLocationRelativeTo(null);
+                                }
+                            }
+                        }
+                    }
+                });
+
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(tabla,
+                    "Error al procesar Kardex por fecha: " + ex.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+                ex.printStackTrace();
+            } finally {
+                if (em != null && em.isOpen()) {
+                    em.close();
+                }
+                icono_carga.setVisible(false);
+            }
+        }
+    }.execute();
+}
+
+    
+    
+    
+    private void jButton8ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton8ActionPerformed
+
+{
+    icono_carga.setVisible(true);
+
+    new SwingWorker<Void, Void>() {
+        EntityManager em = null;
+
+        @Override
+        protected Void doInBackground() {
+            try {
+                em = MonituxDBContext.getEntityManager();
+                if (em == null || !em.isOpen()) {
+                    throw new IllegalStateException("EntityManager no disponible.");
+                }
+
+                LocalDate hoy = LocalDate.now();
+                LocalDate fechaMas1Mes = hoy.plusMonths(1);
+                DateTimeFormatter formato = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+                String fechaTexto = fechaMas1Mes.format(formato);
+
+                switch (Modo) {
+                    case "Cuadricula":
+                        Filtrar_Fecha_Cuadricula(Secuencial_Empresa, fechaTexto, contenedor);
+                        break;
+
+                    case "Lista":
+                        Filtrar_Lista_Fecha(Secuencial_Empresa, fechaTexto, lista_tabla);
+                        break;
+
+                    case "Kardex":
+                        Filtrar_Kardex_Fecha(Secuencial_Empresa, fechaTexto, kardex_tabla);
+                        break;
+
+                    default:
+                        SwingUtilities.invokeLater(() ->
+                            JOptionPane.showMessageDialog(null,
+                                "Modo visual no reconocido: " + Modo,
+                                "Error", JOptionPane.ERROR_MESSAGE)
+                        );
+                        break;
+                }
+
+            } catch (Exception ex) {
+                SwingUtilities.invokeLater(() ->
+                    JOptionPane.showMessageDialog(null,
+                        "Error al filtrar por fecha: " + ex.getMessage(),
+                        "Error", JOptionPane.ERROR_MESSAGE)
+                );
+                ex.printStackTrace();
+            } finally {
+                if (em != null && em.isOpen()) {
+                    em.close();
+                }
+            }
+            return null;
+        }
+
+        @Override
+        protected void done() {
+            icono_carga.setVisible(false);
+
+            switch (Modo) {
+                case "Cuadricula":
+                    contenedor.revalidate();
+                    contenedor.repaint();
+                    break;
+                case "Lista":
+                    lista_tabla.revalidate();
+                    lista_tabla.repaint();
+                    break;
+                case "Kardex":
+                    kardex_tabla.revalidate();
+                    kardex_tabla.repaint();
+                    break;
+            }
+        }
+    }.execute();
+}
+    }//GEN-LAST:event_jButton8ActionPerformed
+
+    private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
+
+icono_carga.setVisible(true);
+
+    new SwingWorker<Void, Void>() {
+        EntityManager em = null;
+
+        @Override
+        protected Void doInBackground() {
+            try {
+                em = MonituxDBContext.getEntityManager();
+                if (em == null || !em.isOpen()) {
+                    throw new IllegalStateException("EntityManager no disponible.");
+                }
+
+                LocalDate hoy = LocalDate.now();
+                LocalDate fechaMas1Year = hoy.plusYears(1);
+                DateTimeFormatter formato = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+                String fechaTexto = fechaMas1Year.format(formato);
+
+                switch (Modo) {
+                    case "Cuadricula":
+                        Filtrar_Fecha_Cuadricula(Secuencial_Empresa, fechaTexto, contenedor);
+                        break;
+
+                    case "Lista":
+                        Filtrar_Lista_Fecha(Secuencial_Empresa, fechaTexto, lista_tabla);
+                        break;
+
+                    case "Kardex":
+                        Filtrar_Kardex_Fecha(Secuencial_Empresa, fechaTexto, kardex_tabla);
+                        break;
+
+                    default:
+                        SwingUtilities.invokeLater(() ->
+                            JOptionPane.showMessageDialog(null,
+                                "Modo visual no reconocido: " + Modo,
+                                "Error", JOptionPane.ERROR_MESSAGE)
+                        );
+                        break;
+                }
+
+            } catch (Exception ex) {
+                SwingUtilities.invokeLater(() ->
+                    JOptionPane.showMessageDialog(null,
+                        "Error al filtrar por fecha: " + ex.getMessage(),
+                        "Error", JOptionPane.ERROR_MESSAGE)
+                );
+                ex.printStackTrace();
+            } finally {
+                if (em != null && em.isOpen()) {
+                    em.close();
+                }
+            }
+            return null;
+        }
+
+        @Override
+        protected void done() {
+            icono_carga.setVisible(false);
+
+            switch (Modo) {
+                case "Cuadricula":
+                    contenedor.revalidate();
+                    contenedor.repaint();
+                    break;
+                case "Lista":
+                    lista_tabla.revalidate();
+                    lista_tabla.repaint();
+                    break;
+                case "Kardex":
+                    kardex_tabla.revalidate();
+                    kardex_tabla.repaint();
+                    break;
+            }
+        }
+    }.execute();
+        
+    }//GEN-LAST:event_jButton6ActionPerformed
+
+    private void fecha_txtKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_fecha_txtKeyReleased
+
+    if (evt.getKeyCode() != KeyEvent.VK_ENTER) return;
+
+    String fechaTexto = fecha_txt.getText().trim();
+    icono_carga.setVisible(true);
+
+    new SwingWorker<Void, Void>() {
+        EntityManager em = null;
+
+        @Override
+        protected Void doInBackground() {
+            try {
+                SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+                sdf.setLenient(false);
+                sdf.parse(fechaTexto); // Validación estricta
+
+                em = MonituxDBContext.getEntityManager();
+                if (em == null || !em.isOpen()) {
+                    throw new IllegalStateException("EntityManager no disponible.");
+                }
+
+                switch (Modo) {
+                    case "Cuadricula":
+                        Filtrar_Fecha_Cuadricula(Secuencial_Empresa, fechaTexto, contenedor);
+                        break;
+
+                    case "Lista":
+                        Filtrar_Lista_Fecha(Secuencial_Empresa, fechaTexto, lista_tabla);
+                        break;
+
+                    case "Kardex":
+                        Filtrar_Kardex_Fecha(Secuencial_Empresa, fechaTexto, kardex_tabla);
+                        break;
+
+                    default:
+                        SwingUtilities.invokeLater(() ->
+                            JOptionPane.showMessageDialog(null,
+                                "Modo visual no reconocido: " + Modo,
+                                "Error", JOptionPane.ERROR_MESSAGE)
+                        );
+                        break;
+                }
+
+            } catch (ParseException ex) {
+                SwingUtilities.invokeLater(() -> {
+                    JOptionPane.showMessageDialog(null,
+                        "Formato de fecha inválido. Usa dd/MM/yyyy.",
+                        "Error", JOptionPane.ERROR_MESSAGE);
+                });
+            } catch (Exception ex) {
+                SwingUtilities.invokeLater(() ->
+                    JOptionPane.showMessageDialog(null,
+                        "Error al filtrar por fecha: " + ex.getMessage(),
+                        "Error", JOptionPane.ERROR_MESSAGE)
+                );
+                ex.printStackTrace();
+            } finally {
+                if (em != null && em.isOpen()) {
+                    em.close();
+                }
+            }
+            return null;
+        }
+
+        @Override
+        protected void done() {
+            icono_carga.setVisible(false);
+
+            switch (Modo) {
+                case "Cuadricula":
+                    contenedor.revalidate();
+                    contenedor.repaint();
+                    break;
+                case "Lista":
+                    lista_tabla.revalidate();
+                    lista_tabla.repaint();
+                    break;
+                case "Kardex":
+                    kardex_tabla.revalidate();
+                    kardex_tabla.repaint();
+                    break;
+            }
+        }
+    }.execute();
+    }//GEN-LAST:event_fecha_txtKeyReleased
+
+    private void fecha_txtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fecha_txtActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_fecha_txtActionPerformed
+
+    private void jLabel6MouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel6MouseEntered
+
+         jLabel6.setText("<html><u>Existencia Minima</u></html>");
+      
+
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jLabel6MouseEntered
+
+    private void jLabel6MouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel6MouseExited
+
+         jLabel6.setText("<html>Existencia Minima</html>");
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jLabel6MouseExited
+
+    private void jLabel7MouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel7MouseEntered
+
+
+         jLabel7.setText("<html><u>Agotados</u></html>");
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jLabel7MouseEntered
+
+    private void jLabel7MouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel7MouseExited
+
+        jLabel7.setText("<html>Agotados</html>");
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jLabel7MouseExited
+
+    private void jButton9MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton9MouseClicked
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButton9MouseClicked
+
+   public void filtrarItemsKardexConsulta(String fechaInicioTexto, String fechaFinTexto, String codigo, String movimiento, int secuencialEmpresa, JTable tabla) {
+    icono_carga.setVisible(true);
+
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    LocalDate fechaInicio, fechaFin;
+
+    try {
+        fechaInicio = LocalDate.parse(fechaInicioTexto, formatter);
+        fechaFin = LocalDate.parse(fechaFinTexto, formatter);
+    } catch (DateTimeParseException ex) {
+        JOptionPane.showMessageDialog(null, "Las fechas ingresadas no son válidas.", "Error", JOptionPane.ERROR_MESSAGE);
+        icono_carga.setVisible(false);
+        return;
+    }
+
+    new SwingWorker<List<Kardex>, Void>() {
+        EntityManager em = null;
+
+        @Override
+        protected List<Kardex> doInBackground() {
+            try {
+                em = MonituxDBContext.getEntityManager();
+                if (em == null || !em.isOpen()) {
+                    throw new IllegalStateException("EntityManager no disponible.");
+                }
+
+                List<Kardex> todos = em.createQuery(
+                    "SELECT k FROM Kardex k WHERE k.Secuencial_Empresa = :empresa", Kardex.class)
+                    .setParameter("empresa", secuencialEmpresa)
+                    .getResultList();
+
+                return todos.stream()
+                    .filter(k -> {
+                        try {
+                            LocalDate fechaKardex = LocalDate.parse(k.getFecha(), formatter);
+                            return !fechaKardex.isBefore(fechaInicio) &&
+                                   !fechaKardex.isAfter(fechaFin) &&
+                                   k.getMovimiento().equalsIgnoreCase(movimiento) &&
+                                   k.getProducto() != null &&
+                                   k.getProducto().getCodigo().equalsIgnoreCase(codigo);
+                        } catch (Exception ex) {
+                            return false;
+                        }
+                    })
+                    .collect(Collectors.toList());
+
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(tabla,
+                    "Error al consultar registros de Kardex: " + ex.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+                ex.printStackTrace();
+                return Collections.emptyList();
+            }
+        }
+
+        @Override
+        protected void done() {
+            try {
+                List<Kardex> filtrados = get();
+
+                if (filtrados.isEmpty()) {
+                    JOptionPane.showMessageDialog(null,
+                        "No se encontraron registros que coincidan con los criterios de búsqueda.",
+                        "Kardex", JOptionPane.INFORMATION_MESSAGE);
+                } else {
+                    JOptionPane.showMessageDialog(null,
+                        "Registros obtenidos: " + filtrados.size(),
+                        "Kardex", JOptionPane.INFORMATION_MESSAGE);
+                }
+
+                DefaultTableModel modelo = new DefaultTableModel(new Object[]{
+                    "Secuencial", "Codigo", "Fecha", "Descripción", "Movimiento", "Cantidad",
+                    "Costo", "Costo Total", "Venta", "Venta Total", "Saldo", "Secuencial Producto", "Secuencial Empresa"
+                }, 0) {
+                    @Override
+                    public boolean isCellEditable(int row, int column) {
+                        return false;
+                    }
+                };
+
+                for (Kardex k : filtrados) {
+                    Producto p = k.getProducto();
+                    modelo.addRow(new Object[]{
+                        k.getSecuencial(),
+                        p != null ? p.getCodigo() : "",
+                        k.getFecha(),
+                        k.getDescripcion(),
+                        k.getMovimiento(),
+                        k.getCantidad(),
+                        Util.redondear(k.getCosto()),
+                        Util.redondear(k.getCosto_Total()),
+                        Util.redondear(k.getVenta()),
+                        Util.redondear(k.getVenta_Total()),
+                        Util.redondear(k.getSaldo()),
+                        k.getSecuencial_Producto(),
+                        k.getSecuencial_Empresa()
+                    });
+                }
+
+                tabla.setModel(modelo);
+                tabla.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(tabla,
+                    "Error al procesar registros de Kardex: " + ex.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+                ex.printStackTrace();
+            } finally {
+                if (em != null && em.isOpen()) {
+                    em.close();
+                }
+                icono_carga.setVisible(false);
+            }
+        }
+    }.execute();
+}
+
+    
+   
+    
+    
+    private void jButton11ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton11ActionPerformed
+
+   String fechaInicio = jTextField3.getText().trim(); // formato dd/MM/yyyy
+    String fechaFin = jTextField4.getText().trim();
+    String codigo = jTextField2.getText().trim();
+    String movimiento = jComboBox4.getSelectedItem() != null ? jComboBox4.getSelectedItem().toString() : "";
+    int empresa = V_Menu_Principal.Secuencial_Empresa;
+
+    icono_carga.setVisible(true);
+
+    new SwingWorker<Void, Void>() {
+        EntityManager em = null;
+
+        @Override
+        protected Void doInBackground() {
+            try {
+                SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+                sdf.setLenient(false);
+                sdf.parse(fechaInicio);
+                sdf.parse(fechaFin);
+
+                em = MonituxDBContext.getEntityManager();
+                if (em == null || !em.isOpen()) {
+                    throw new IllegalStateException("EntityManager no disponible.");
+                }
+
+                filtrarItemsKardexConsulta(fechaInicio, fechaFin, codigo, movimiento, empresa, kardex_tabla);
+
+            } catch (ParseException ex) {
+                SwingUtilities.invokeLater(() ->
+                    JOptionPane.showMessageDialog(null,
+                        "Formato de fecha inválido. Usa dd/MM/yyyy.",
+                        "Error", JOptionPane.ERROR_MESSAGE)
+                );
+            } catch (Exception ex) {
+                SwingUtilities.invokeLater(() ->
+                    JOptionPane.showMessageDialog(null,
+                        "Error al consultar Kardex: " + ex.getMessage(),
+                        "Error", JOptionPane.ERROR_MESSAGE)
+                );
+                ex.printStackTrace();
+            } finally {
+                if (em != null && em.isOpen()) {
+                    em.close();
+                }
+            }
+            return null;
+        }
+
+        @Override
+        protected void done() {
+            icono_carga.setVisible(false);
+            kardex_tabla.revalidate();
+            kardex_tabla.repaint();
+        }
+    }.execute();
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButton11ActionPerformed
+
+    private void jLabel14MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel14MouseClicked
+
+
+        if (Modo=="Lista"){
+        Util.exportarJTableAExcel(lista_tabla, "Vista_Inventario", "Vista_Inventario");
+
+        }
+        if (Modo=="Kardex"){
+        Util.exportarJTableAExcel(kardex_tabla, "Vista_Kardex", "Vista_Kardex");
+
+        }
+        
+        
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jLabel14MouseClicked
+
+    
+    
+ public void cargarItems_Cuadricula(int secuencialEmpresa, JPanel contenedor) {
+    icono_carga.setVisible(true);
+    contenedor.setLayout(new GridBagLayout());
+    contenedor.removeAll();
+
+    new SwingWorker<List<Producto>, Void>() {
+        EntityManager em = null;
+
+        @Override
+        protected List<Producto> doInBackground() {
+            try {
+                em = MonituxDBContext.getEntityManager();
+                if (em == null || !em.isOpen()) {
+                    throw new IllegalStateException("EntityManager no disponible.");
+                }
+
+                return em.createQuery(
+                    "SELECT p FROM Producto p WHERE p.Secuencial_Empresa = :empresa", Producto.class)
+                    .setParameter("empresa", secuencialEmpresa)
+                    .getResultList();
+
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(contenedor,
+                    "Error al consultar productos: " + ex.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+                ex.printStackTrace();
+                return Collections.emptyList();
+            }
+        }
+
+        @Override
+        protected void done() {
+            try {
+                List<Producto> productos = get();
+
+                GridBagConstraints gbc = new GridBagConstraints();
+                gbc.insets = new Insets(5, 5, 5, 5);
+                gbc.fill = GridBagConstraints.NONE;
+                gbc.anchor = GridBagConstraints.NORTHWEST;
+
+                int col = 0, row = 0;
+
+                for (Producto producto : productos) {
+                    Miniatura_Producto miniatura = new Miniatura_Producto(producto, false);
+                    miniatura.setPreferredSize(new Dimension(120, 170));
+
+                    miniatura.addMouseListener(new MouseAdapter() {
+                        @Override
+                        public void mouseClicked(MouseEvent e) {
+                            if (e.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(e)) {
+                                Producto productoSeleccionado = miniatura.producto;
+                                if (!"Servicio".equals(productoSeleccionado.getTipo())) {
+                                    V_Kardex kardex = new V_Kardex(
+                                        productoSeleccionado.getProducto().getSecuencial(),
+                                        productoSeleccionado.getProducto().getCodigo()
+                                    );
+                                    kardex.setVisible(true);
+                                    kardex.setLocationRelativeTo(null);
+                                }
+                            }
+                        }
+
+                        @Override
+                        public void mousePressed(MouseEvent e) {
+                            if (e.isPopupTrigger()) {
+                                menu_contextual.show(e.getComponent(), e.getX(), e.getY());
+                            }
+                        }
+
+                        @Override
+                        public void mouseReleased(MouseEvent e) {
+                            if (e.isPopupTrigger()) {
+                                menu_contextual.show(e.getComponent(), e.getX(), e.getY());
+                            }
+                        }
+                    });
+
+                    String comentario = miniatura.cargarComentario();
+                    String descripcion = miniatura.producto.getDescripcion();
+                    miniatura.setToolTipText(
+                        comentario != null
+                            ? "<html><b>" + descripcion + "</b><br>" + comentario + "</html>"
+                            : "<html><b>" + descripcion + "</b><br></html>"
+                    );
+
+                    gbc.gridx = col;
+                    gbc.gridy = row;
+                    contenedor.add(miniatura, gbc);
+
+                    col++;
+                    if (col == 6) {
+                        col = 0;
+                        row++;
+                    }
+                }
+
+                contenedor.revalidate();
+                contenedor.repaint();
+
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(contenedor,
+                    "Error al procesar productos: " + ex.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+                ex.printStackTrace();
+            } finally {
+                if (em != null && em.isOpen()) {
+                    em.close();
+                }
+                icono_carga.setVisible(false);
+            }
+        }
+    }.execute();
+}
+
+
+//***********
+
+public void Filtrar_Existencia_Minima_Lista(int secuencialEmpresa, JTable tabla) {
+    icono_carga.setVisible(true);
+
+    new SwingWorker<List<Producto>, Void>() {
+        EntityManager em = null;
+
+        @Override
+        protected List<Producto> doInBackground() {
+            try {
+                em = MonituxDBContext.getEntityManager();
+                if (em == null || !em.isOpen()) {
+                    throw new IllegalStateException("EntityManager no disponible.");
+                }
+
+                String jpql = "SELECT p FROM Producto p " +
+                              "WHERE p.Secuencial_Empresa = :empresa " +
+                              "AND p.Cantidad = p.Existencia_Minima " +
+                              "AND p.Tipo <> 'Servicio'";
+
+                TypedQuery<Producto> query = em.createQuery(jpql, Producto.class);
+                query.setParameter("empresa", secuencialEmpresa);
+                return query.getResultList();
+
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(tabla,
+                    "Error al consultar productos con existencia mínima: " + ex.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+                ex.printStackTrace();
+                return new ArrayList<>();
+            }
+        }
+
+        @Override
+        protected void done() {
+            try {
+                List<Producto> productos = get();
+
+                DefaultTableModel modelo = new DefaultTableModel(new Object[]{
+                    "S", "Codigo", "Descripción", "Marca", "Existencia", "E. mínima",
+                    "C. Barra", "C. Fabricante", "F. Vencimiento", "P. Costo", "P. Venta"
+                }, 0) {
+                    @Override
+                    public boolean isCellEditable(int row, int column) {
+                        return false;
+                    }
+                };
+
+                for (Producto producto : productos) {
+                    modelo.addRow(new Object[]{
+                        producto.getSecuencial(),
+                        producto.getCodigo(),
+                        producto.getDescripcion(),
+                        producto.getMarca(),
+                        producto.getCantidad(),
+                        producto.getExistencia_Minima(),
+                        producto.getCodigo_Barra(),
+                        producto.getCodigo_Fabricante(),
+                        producto.getFecha_Caducidad(),
+                        producto.getPrecio_Costo(),
+                        producto.getPrecio_Venta()
+                    });
+                }
+
+                tabla.setModel(modelo);
+                tabla.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+                for (MouseListener ml : tabla.getMouseListeners()) {
+                    tabla.removeMouseListener(ml);
+                }
+
+                tabla.addMouseListener(new MouseAdapter() {
+                    @Override
+                    public void mousePressed(MouseEvent e) {
+                        if (SwingUtilities.isLeftMouseButton(e)) {
+                            int fila = tabla.rowAtPoint(e.getPoint());
+                            if (fila != -1) {
+                                tabla.setRowSelectionInterval(fila, fila);
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void mouseClicked(MouseEvent e) {
+                        if (e.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(e)) {
+                            int fila = tabla.rowAtPoint(e.getPoint());
+                            if (fila != -1) {
+                                tabla.setRowSelectionInterval(fila, fila);
+                                String codigo = tabla.getValueAt(fila, 1).toString();
+
+                                Producto productoSeleccionado = productos.stream()
+                                    .filter(p -> p.getCodigo().equals(codigo))
+                                    .findFirst()
+                                    .orElse(null);
+
+                                if (productoSeleccionado != null) {
+                                    V_Producto form = new V_Producto(false, productoSeleccionado);
+                                    form.setOnProductoEditado(() -> cargarItems_Cuadricula());
+                                    form.setVisible(true);
+                                }
+                            }
+                        }
+                    }
+                });
+
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(tabla,
+                    "Error al procesar productos con existencia mínima: " + ex.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+                ex.printStackTrace();
+            } finally {
+                if (em != null && em.isOpen()) {
+                    em.close();
+                }
+                icono_carga.setVisible(false);
+            }
+        }
+    }.execute();
+}
+
+//***********
+
+
+public void Filtrar_Agotados_Lista(int secuencialEmpresa, JTable tabla) {
+    icono_carga.setVisible(true);
+
+    new SwingWorker<List<Producto>, Void>() {
+        EntityManager em = null;
+
+        @Override
+        protected List<Producto> doInBackground() {
+            try {
+                em = MonituxDBContext.getEntityManager();
+                if (em == null || !em.isOpen()) {
+                    throw new IllegalStateException("EntityManager no disponible.");
+                }
+
+                String jpql = "SELECT p FROM Producto p " +
+                              "WHERE p.Secuencial_Empresa = :empresa " +
+                              "AND p.Cantidad < p.Existencia_Minima " +
+                              "AND p.Tipo <> 'Servicio'";
+
+                TypedQuery<Producto> query = em.createQuery(jpql, Producto.class);
+                query.setParameter("empresa", secuencialEmpresa);
+                return query.getResultList();
+
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(tabla,
+                    "Error al consultar productos agotados: " + ex.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+                ex.printStackTrace();
+                return new ArrayList<>();
+            }
+        }
+
+        @Override
+        protected void done() {
+            try {
+                List<Producto> productos = get();
+
+                DefaultTableModel modelo = new DefaultTableModel(new Object[]{
+                    "S", "Codigo", "Descripción", "Marca", "Existencia", "E. mínima",
+                    "C. Barra", "C. Fabricante", "F. Vencimiento", "P. Costo", "P. Venta"
+                }, 0) {
+                    @Override
+                    public boolean isCellEditable(int row, int column) {
+                        return false;
+                    }
+                };
+
+                for (Producto producto : productos) {
+                    modelo.addRow(new Object[]{
+                        producto.getSecuencial(),
+                        producto.getCodigo(),
+                        producto.getDescripcion(),
+                        producto.getMarca(),
+                        producto.getCantidad(),
+                        producto.getExistencia_Minima(),
+                        producto.getCodigo_Barra(),
+                        producto.getCodigo_Fabricante(),
+                        producto.getFecha_Caducidad(),
+                        producto.getPrecio_Costo(),
+                        producto.getPrecio_Venta()
+                    });
+                }
+
+                tabla.setModel(modelo);
+                tabla.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+                for (MouseListener ml : tabla.getMouseListeners()) {
+                    tabla.removeMouseListener(ml);
+                }
+
+                tabla.addMouseListener(new MouseAdapter() {
+                    @Override
+                    public void mousePressed(MouseEvent e) {
+                        if (SwingUtilities.isLeftMouseButton(e)) {
+                            int fila = tabla.rowAtPoint(e.getPoint());
+                            if (fila != -1) {
+                                tabla.setRowSelectionInterval(fila, fila);
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void mouseClicked(MouseEvent e) {
+                        if (e.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(e)) {
+                            int fila = tabla.rowAtPoint(e.getPoint());
+                            if (fila != -1) {
+                                tabla.setRowSelectionInterval(fila, fila);
+                                String codigo = tabla.getValueAt(fila, 1).toString();
+
+                                Producto productoSeleccionado = productos.stream()
+                                    .filter(p -> p.getCodigo().equals(codigo))
+                                    .findFirst()
+                                    .orElse(null);
+
+                                if (productoSeleccionado != null) {
+                                    V_Producto form = new V_Producto(false, productoSeleccionado);
+                                    form.setOnProductoEditado(() -> cargarItems_Cuadricula());
+                                    form.setVisible(true);
+                                }
+                            }
+                        }
+                    }
+                });
+
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(tabla,
+                    "Error al procesar productos agotados: " + ex.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+                ex.printStackTrace();
+            } finally {
+                if (em != null && em.isOpen()) {
+                    em.close();
+                }
                 icono_carga.setVisible(false);
             }
         }
@@ -3710,20 +3441,285 @@ public void cargar_Items_Kardex(int secuencialEmpresa, JTable tabla) {
 
 
 
-public void cargar_ItemsFiltrados_Cuadricula( //este es el original
-    int secuencialEmpresa,
-    JComboBox<String> comboFiltro,
-    JTextField campoValorFiltro,
-    JPanel contenedor,
-    
-    EntityManager entityManager
-) {
+public void cargar_ItemsFiltrados_Lista(int secuencialEmpresa, JComboBox<String> comboFiltro, JTextField campoValorFiltro, JTable tabla) {
     icono_carga.setVisible(true);
 
-    contenedor.setLayout(new GridLayout(0, 6, 5, 5));
-    
+    String campoFiltro = (String) comboFiltro.getSelectedItem();
+    String valorFiltro = campoValorFiltro.getText();
 
-    
+    boolean aplicarFiltro = campoFiltro != null && !campoFiltro.trim().isEmpty()
+                         && valorFiltro != null && !valorFiltro.trim().isEmpty();
+
+    new SwingWorker<List<Producto>, Void>() {
+        EntityManager em = null;
+
+        @Override
+        protected List<Producto> doInBackground() {
+            try {
+                em = MonituxDBContext.getEntityManager();
+                if (em == null || !em.isOpen()) {
+                    throw new IllegalStateException("EntityManager no disponible.");
+                }
+
+                String jpql = "SELECT p FROM Producto p WHERE p.Secuencial_Empresa = :empresa"
+                            + (aplicarFiltro ? " AND LOWER(p." + campoFiltro + ") LIKE :valorFiltro" : "");
+
+                TypedQuery<Producto> query = em.createQuery(jpql, Producto.class);
+                query.setParameter("empresa", secuencialEmpresa);
+                if (aplicarFiltro) {
+                    query.setParameter("valorFiltro", "%" + valorFiltro.toLowerCase() + "%");
+                }
+
+                return query.getResultList();
+
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(tabla,
+                    "Error al consultar productos filtrados: " + ex.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+                ex.printStackTrace();
+                return Collections.emptyList();
+            }
+        }
+
+        @Override
+        protected void done() {
+            try {
+                List<Producto> productos = get();
+
+                DefaultTableModel modelo = new DefaultTableModel(new Object[]{
+                    "S", "Codigo", "Descripción", "Marca", "Existencia", "E. mínima",
+                    "C. Barra", "C. Fabricante", "F. Vencimiento", "P. Costo", "P. Venta"
+                }, 0) {
+                    @Override
+                    public boolean isCellEditable(int row, int column) {
+                        return false;
+                    }
+                };
+
+                for (Producto producto : productos) {
+                    modelo.addRow(new Object[]{
+                        producto.getSecuencial(),
+                        producto.getCodigo(),
+                        producto.getDescripcion(),
+                        producto.getMarca(),
+                        producto.getCantidad(),
+                        producto.getExistencia_Minima(),
+                        producto.getCodigo_Barra(),
+                        producto.getCodigo_Fabricante(),
+                        producto.getFecha_Caducidad(),
+                        producto.getPrecio_Costo(),
+                        producto.getPrecio_Venta()
+                    });
+                }
+
+                tabla.setModel(modelo);
+                tabla.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+                for (MouseListener ml : tabla.getMouseListeners()) {
+                    tabla.removeMouseListener(ml);
+                }
+
+                tabla.addMouseListener(new MouseAdapter() {
+                    @Override
+                    public void mousePressed(MouseEvent e) {
+                        if (SwingUtilities.isLeftMouseButton(e)) {
+                            int fila = tabla.rowAtPoint(e.getPoint());
+                            if (fila != -1) {
+                                tabla.setRowSelectionInterval(fila, fila);
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void mouseClicked(MouseEvent e) {
+                        if (e.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(e)) {
+                            int fila = tabla.rowAtPoint(e.getPoint());
+                            if (fila != -1) {
+                                tabla.setRowSelectionInterval(fila, fila);
+                                String codigo = tabla.getValueAt(fila, 1).toString();
+
+                                Producto productoSeleccionado = productos.stream()
+                                    .filter(p -> p.getCodigo().equals(codigo))
+                                    .findFirst()
+                                    .orElse(null);
+
+                                if (productoSeleccionado != null) {
+                                    V_Producto form = new V_Producto(false, productoSeleccionado);
+                                    form.setOnProductoEditado(() -> cargarItems_Cuadricula());
+                                    form.setVisible(true);
+                                }
+                            }
+                        }
+                    }
+                });
+
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(tabla,
+                    "Error al procesar productos filtrados: " + ex.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+                ex.printStackTrace();
+            } finally {
+                if (em != null && em.isOpen()) {
+                    em.close();
+                }
+                icono_carga.setVisible(false);
+            }
+        }
+    }.execute();
+}
+
+
+
+public void cargar_ItemsFiltrados_Kardex(int secuencialEmpresa, JComboBox<String> comboFiltro, JTextField campoValorFiltro, JTable tabla) {
+    icono_carga.setVisible(true);
+
+    String campoFiltro = comboFiltro.getSelectedItem().toString().trim();
+    String valorFiltro = campoValorFiltro.getText().trim().toLowerCase();
+    boolean aplicarFiltro = !campoFiltro.isEmpty() && !valorFiltro.isEmpty();
+
+    Set<String> camposProducto = Set.of("Codigo", "Descripcion", "Marca", "Codigo_Barra", "Codigo_Fabricante");
+
+    new SwingWorker<List<Kardex>, Void>() {
+        EntityManager em = null;
+
+        @Override
+        protected List<Kardex> doInBackground() {
+            try {
+                em = MonituxDBContext.getEntityManager();
+                if (em == null || !em.isOpen()) {
+                    throw new IllegalStateException("EntityManager no disponible.");
+                }
+
+                String jpql;
+                TypedQuery<Kardex> query;
+
+                if (aplicarFiltro && camposProducto.contains(campoFiltro)) {
+                    jpql = "SELECT k FROM Kardex k JOIN FETCH k.producto p " +
+                           "WHERE k.Secuencial_Empresa = :empresa AND LOWER(p." + campoFiltro + ") LIKE :valorFiltro";
+                    query = em.createQuery(jpql, Kardex.class);
+                    query.setParameter("empresa", secuencialEmpresa);
+                    query.setParameter("valorFiltro", "%" + valorFiltro + "%");
+                } else if (aplicarFiltro) {
+                    jpql = "SELECT k FROM Kardex k JOIN FETCH k.producto " +
+                           "WHERE k.Secuencial_Empresa = :empresa AND LOWER(k." + campoFiltro + ") LIKE :valorFiltro";
+                    query = em.createQuery(jpql, Kardex.class);
+                    query.setParameter("empresa", secuencialEmpresa);
+                    query.setParameter("valorFiltro", "%" + valorFiltro + "%");
+                } else {
+                    jpql = "SELECT k FROM Kardex k JOIN FETCH k.producto WHERE k.Secuencial_Empresa = :empresa";
+                    query = em.createQuery(jpql, Kardex.class);
+                    query.setParameter("empresa", secuencialEmpresa);
+                }
+
+                return query.getResultList();
+
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(tabla,
+                    "Error al consultar registros de Kardex: " + ex.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+                ex.printStackTrace();
+                return Collections.emptyList();
+            }
+        }
+
+        @Override
+        protected void done() {
+            try {
+                List<Kardex> kardexList = get();
+
+                DefaultTableModel modelo = new DefaultTableModel(new Object[]{
+                    "S", "Código", "Fecha", "Descripción", "Movimiento", "Cantidad",
+                    "Costo", "Costo Total", "Venta", "Venta Total", "Saldo",
+                    "Sec. Producto", "Sec. Empresa"
+                }, 0) {
+                    @Override
+                    public boolean isCellEditable(int row, int column) {
+                        return false;
+                    }
+                };
+
+                for (Kardex k : kardexList) {
+                    Producto p = k.getProducto();
+                    modelo.addRow(new Object[]{
+                        k.getSecuencial(),
+                        p != null ? p.getCodigo() : "",
+                        k.getFecha(),
+                        k.getDescripcion(),
+                        k.getMovimiento(),
+                        k.getCantidad(),
+                        Util.redondear(k.getCosto()),
+                        Util.redondear(k.getCosto_Total()),
+                        Util.redondear(k.getVenta()),
+                        Util.redondear(k.getVenta_Total()),
+                        Util.redondear(k.getSaldo()),
+                        k.getSecuencial_Producto(),
+                        k.getSecuencial_Empresa()
+                    });
+                }
+
+                tabla.setModel(modelo);
+                tabla.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+                for (MouseListener ml : tabla.getMouseListeners()) {
+                    tabla.removeMouseListener(ml);
+                }
+
+                tabla.addMouseListener(new MouseAdapter() {
+                    @Override
+                    public void mousePressed(MouseEvent e) {
+                        if (SwingUtilities.isLeftMouseButton(e)) {
+                            int fila = tabla.rowAtPoint(e.getPoint());
+                            if (fila != -1) {
+                                tabla.setRowSelectionInterval(fila, fila);
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void mouseClicked(MouseEvent e) {
+                        if (e.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(e)) {
+                            int fila = tabla.rowAtPoint(e.getPoint());
+                            if (fila != -1) {
+                                tabla.setRowSelectionInterval(fila, fila);
+                                int secuencial = Integer.parseInt(tabla.getValueAt(fila, 0).toString());
+
+                                Kardex seleccionado = kardexList.stream()
+                                    .filter(k -> k.getSecuencial() == secuencial)
+                                    .findFirst()
+                                    .orElse(null);
+
+                                if (seleccionado != null) {
+                                    JOptionPane.showMessageDialog(null,
+                                        "Doble clic en: " + seleccionado.getDescripcion());
+                                    // Aquí puedes abrir un formulario de edición si lo deseas
+                                }
+                            }
+                        }
+                    }
+                });
+
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(tabla,
+                    "Error al procesar registros de Kardex: " + ex.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+                ex.printStackTrace();
+            } finally {
+                if (em != null && em.isOpen()) {
+                    em.close();
+                }
+                icono_carga.setVisible(false);
+            }
+        }
+    }.execute();
+}
+
+
+
+
+
+public void cargarItemsFiltrados_Cuadricula(int secuencialEmpresa, JComboBox<String> comboFiltro, JTextField campoValorFiltro, JPanel contenedor) {
+    icono_carga.setVisible(true);
+    contenedor.setLayout(new GridBagLayout());
     contenedor.removeAll();
 
     String campoFiltro = (String) comboFiltro.getSelectedItem();
@@ -3732,94 +3728,1563 @@ public void cargar_ItemsFiltrados_Cuadricula( //este es el original
     boolean aplicarFiltro = campoFiltro != null && !campoFiltro.trim().isEmpty()
                          && valorFiltro != null && !valorFiltro.trim().isEmpty();
 
-    String jpql = "SELECT p FROM Producto p WHERE p.Secuencial_Empresa = :empresa"
-                + (aplicarFiltro ? " AND LOWER(p." + campoFiltro + ") LIKE :valorFiltro" : "");
+    new SwingWorker<List<Producto>, Void>() {
+        EntityManager em = null;
 
-    TypedQuery<Producto> query = entityManager.createQuery(jpql, Producto.class);
-    query.setParameter("empresa", secuencialEmpresa);
-    if (aplicarFiltro) {
-        query.setParameter("valorFiltro", "%" + valorFiltro.toLowerCase() + "%");
-    }
+        @Override
+        protected List<Producto> doInBackground() {
+            try {
+                em = MonituxDBContext.getEntityManager();
+                if (em == null || !em.isOpen()) {
+                    throw new IllegalStateException("EntityManager no disponible.");
+                }
 
-    for (Producto producto : query.getResultList()) {
-        ImageIcon imagenIcon = (producto.getImagen() != null && producto.getImagen().length > 0)
-            ? new ImageIcon(producto.getImagen())
-            : new ImageIcon(getClass().getResource("/icons/no-image-icon-10.png"));
+                String jpql = "SELECT p FROM Producto p WHERE p.Secuencial_Empresa = :empresa"
+                            + (aplicarFiltro ? " AND LOWER(p." + campoFiltro + ") LIKE :valorFiltro" : "");
 
+                TypedQuery<Producto> query = em.createQuery(jpql, Producto.class);
+                query.setParameter("empresa", secuencialEmpresa);
+                if (aplicarFiltro) {
+                    query.setParameter("valorFiltro", "%" + valorFiltro.toLowerCase() + "%");
+                }
 
-        Miniatura_Producto miniatura = new Miniatura_Producto(producto,false);
+                return query.getResultList();
 
-       miniatura.addMouseListener(new MouseAdapter() {
-    @Override
-    public void mouseClicked(MouseEvent e) {
-        if (e.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(e)) {
-            // Evento doble clic izquierdo
-            Producto productoSeleccionado = miniatura.producto;
-            
-            // Aquí puedes abrir un diálogo, mostrar detalles, o iniciar edición
-            
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(contenedor,
+                    "Error al consultar productos filtrados: " + ex.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+                ex.printStackTrace();
+                return Collections.emptyList();
+            }
         }
-    }
 
-            @Override
-            public void mousePressed(MouseEvent e) {
-                if (e.isPopupTrigger()) {
-                    menu_contextual.show(e.getComponent(), e.getX(), e.getY());
+        @Override
+        protected void done() {
+            try {
+                List<Producto> productos = get();
+
+                GridBagConstraints gbc = new GridBagConstraints();
+                gbc.insets = new Insets(5, 5, 5, 5);
+                gbc.fill = GridBagConstraints.NONE;
+                gbc.anchor = GridBagConstraints.NORTHWEST;
+
+                int col = 0, row = 0;
+
+                for (Producto producto : productos) {
+                    Miniatura_Producto miniatura = new Miniatura_Producto(producto, false);
+                    miniatura.setPreferredSize(new Dimension(120, 170));
+
+                    miniatura.addMouseListener(new MouseAdapter() {
+                        @Override
+                        public void mouseClicked(MouseEvent e) {
+                            if (e.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(e)) {
+                                Producto productoSeleccionado = miniatura.producto;
+                                V_Kardex kardex = new V_Kardex(
+                                    productoSeleccionado.getProducto().getSecuencial(),
+                                    productoSeleccionado.getProducto().getCodigo()
+                                );
+                                kardex.setVisible(true);
+                                kardex.setLocationRelativeTo(null);
+                            }
+                        }
+
+                        @Override
+                        public void mousePressed(MouseEvent e) {
+                            if (e.isPopupTrigger()) {
+                                menu_contextual.show(e.getComponent(), e.getX(), e.getY());
+                            }
+                        }
+
+                        @Override
+                        public void mouseReleased(MouseEvent e) {
+                            if (e.isPopupTrigger()) {
+                                menu_contextual.show(e.getComponent(), e.getX(), e.getY());
+                            }
+                        }
+                    });
+
+                    String comentario = miniatura.cargarComentario();
+                    String descripcion = miniatura.producto.getDescripcion();
+                    miniatura.setToolTipText("<html><b>" + descripcion + "</b><br>" + (comentario != null ? comentario : "") + "</html>");
+
+                    gbc.gridx = col;
+                    gbc.gridy = row;
+                    contenedor.add(miniatura, gbc);
+
+                    col++;
+                    if (col == 6) {
+                        col = 0;
+                        row++;
+                    }
                 }
-            }
 
-            @Override
-            public void mouseReleased(MouseEvent e) {
-                if (e.isPopupTrigger()) {
-                    menu_contextual.show(e.getComponent(), e.getX(), e.getY());
+                contenedor.revalidate();
+                contenedor.repaint();
+
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(contenedor,
+                    "Error al procesar productos filtrados: " + ex.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+                ex.printStackTrace();
+            } finally {
+                if (em != null && em.isOpen()) {
+                    em.close();
                 }
+                icono_carga.setVisible(false);
             }
-        });
+        }
+    }.execute();
+}
 
-        String comentario = miniatura.cargarComentario();
-        String descripcion = miniatura.producto.getDescripcion();
-        miniatura.setToolTipText("<html><b>" + descripcion + "</b><br>" + (comentario != null ? comentario : "") + "</html>");
+//************************************
+public void Filtrar_Cuadricula_Proveedor(int secuencialEmpresa, int secuencialProveedor, JPanel contenedor) {
+    icono_carga.setVisible(true);
+    contenedor.setLayout(new GridBagLayout());
+    contenedor.removeAll();
 
-        contenedor.add(miniatura);
-    }
+    new SwingWorker<List<Producto>, Void>() {
+        EntityManager em = null;
 
-    contenedor.revalidate();
-    contenedor.repaint();
-    icono_carga.setVisible(false);
+        @Override
+        protected List<Producto> doInBackground() {
+            try {
+                em = MonituxDBContext.getEntityManager();
+                if (em == null || !em.isOpen()) {
+                    throw new IllegalStateException("EntityManager no disponible.");
+                }
+
+                String jpql = "SELECT p FROM Producto p WHERE p.Secuencial_Empresa = :empresa AND p.Secuencial_Proveedor = :proveedor";
+                TypedQuery<Producto> query = em.createQuery(jpql, Producto.class);
+                query.setParameter("empresa", secuencialEmpresa);
+                query.setParameter("proveedor", secuencialProveedor);
+
+                return query.getResultList();
+
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(contenedor,
+                    "Error al consultar productos por proveedor: " + ex.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+                ex.printStackTrace();
+                return new ArrayList<>();
+            }
+        }
+
+        @Override
+        protected void done() {
+            try {
+                List<Producto> productos = get();
+
+                GridBagConstraints gbc = new GridBagConstraints();
+                gbc.insets = new Insets(5, 5, 5, 5);
+                gbc.fill = GridBagConstraints.NONE;
+                gbc.anchor = GridBagConstraints.NORTHWEST;
+
+                int col = 0, row = 0;
+
+                for (Producto producto : productos) {
+                    Miniatura_Producto miniatura = new Miniatura_Producto(producto, false);
+                    miniatura.setPreferredSize(new Dimension(120, 170));
+
+                    miniatura.addMouseListener(new MouseAdapter() {
+                        @Override
+                        public void mouseClicked(MouseEvent e) {
+                            if (e.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(e)) {
+                                Producto productoSeleccionado = miniatura.producto;
+                                V_Kardex kardex = new V_Kardex(
+                                    productoSeleccionado.getProducto().getSecuencial(),
+                                    productoSeleccionado.getProducto().getCodigo()
+                                );
+                                kardex.setVisible(true);
+                                kardex.setLocationRelativeTo(null);
+                            }
+                        }
+
+                        @Override
+                        public void mousePressed(MouseEvent e) {
+                            if (e.isPopupTrigger()) {
+                                menu_contextual.show(e.getComponent(), e.getX(), e.getY());
+                            }
+                        }
+
+                        @Override
+                        public void mouseReleased(MouseEvent e) {
+                            if (e.isPopupTrigger()) {
+                                menu_contextual.show(e.getComponent(), e.getX(), e.getY());
+                            }
+                        }
+                    });
+
+                    String comentario = miniatura.cargarComentario();
+                    String descripcion = miniatura.producto.getDescripcion();
+                    miniatura.setToolTipText("<html><b>" + descripcion + "</b><br>" + (comentario != null ? comentario : "") + "</html>");
+
+                    gbc.gridx = col;
+                    gbc.gridy = row;
+                    contenedor.add(miniatura, gbc);
+
+                    col++;
+                    if (col == 6) {
+                        col = 0;
+                        row++;
+                    }
+                }
+
+                contenedor.revalidate();
+                contenedor.repaint();
+
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(contenedor,
+                    "Error al procesar productos por proveedor: " + ex.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+                ex.printStackTrace();
+            } finally {
+                if (em != null && em.isOpen()) {
+                    em.close();
+                }
+                icono_carga.setVisible(false);
+            }
+        }
+    }.execute();
+}
+
+
+
+//************************************
+
+public void Filtrar_Lista_Proveedor(int secuencialEmpresa, int secuencialProveedor, JTable tabla) {
+    icono_carga.setVisible(true);
+
+    new SwingWorker<List<Producto>, Void>() {
+        EntityManager em = null;
+
+        @Override
+        protected List<Producto> doInBackground() {
+            try {
+                em = MonituxDBContext.getEntityManager();
+                if (em == null || !em.isOpen()) {
+                    throw new IllegalStateException("EntityManager no disponible.");
+                }
+
+                String jpql = "SELECT p FROM Producto p " +
+                              "WHERE p.Secuencial_Empresa = :empresa " +
+                              "AND p.Secuencial_Proveedor = :proveedor";
+
+                TypedQuery<Producto> query = em.createQuery(jpql, Producto.class);
+                query.setParameter("empresa", secuencialEmpresa);
+                query.setParameter("proveedor", secuencialProveedor);
+
+                return query.getResultList();
+
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(tabla,
+                    "Error al consultar productos por proveedor: " + ex.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+                ex.printStackTrace();
+                return Collections.emptyList();
+            }
+        }
+
+        @Override
+        protected void done() {
+            try {
+                List<Producto> productos = get();
+
+                DefaultTableModel modelo = new DefaultTableModel(new Object[]{
+                    "S", "Codigo", "Descripción", "Marca", "Existencia", "E. mínima",
+                    "C. Barra", "C. Fabricante", "F. Vencimiento", "P. Costo", "P. Venta"
+                }, 0) {
+                    @Override
+                    public boolean isCellEditable(int row, int column) {
+                        return false;
+                    }
+                };
+
+                for (Producto producto : productos) {
+                    modelo.addRow(new Object[]{
+                        producto.getSecuencial(),
+                        producto.getCodigo(),
+                        producto.getDescripcion(),
+                        producto.getMarca(),
+                        producto.getCantidad(),
+                        producto.getExistencia_Minima(),
+                        producto.getCodigo_Barra(),
+                        producto.getCodigo_Fabricante(),
+                        producto.getFecha_Caducidad(),
+                        producto.getPrecio_Costo(),
+                        producto.getPrecio_Venta()
+                    });
+                }
+
+                tabla.setModel(modelo);
+                tabla.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+                for (MouseListener ml : tabla.getMouseListeners()) {
+                    tabla.removeMouseListener(ml);
+                }
+
+                tabla.addMouseListener(new MouseAdapter() {
+                    @Override
+                    public void mousePressed(MouseEvent e) {
+                        if (SwingUtilities.isLeftMouseButton(e)) {
+                            int fila = tabla.rowAtPoint(e.getPoint());
+                            if (fila != -1) {
+                                tabla.setRowSelectionInterval(fila, fila);
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void mouseClicked(MouseEvent e) {
+                        if (e.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(e)) {
+                            int fila = tabla.rowAtPoint(e.getPoint());
+                            if (fila != -1) {
+                                tabla.setRowSelectionInterval(fila, fila);
+                                String codigo = tabla.getValueAt(fila, 1).toString();
+
+                                Producto productoSeleccionado = productos.stream()
+                                    .filter(p -> p.getCodigo().equals(codigo))
+                                    .findFirst()
+                                    .orElse(null);
+
+                                if (productoSeleccionado != null) {
+                                    V_Producto form = new V_Producto(false, productoSeleccionado);
+                                    form.setOnProductoEditado(() -> cargarItems_Cuadricula());
+                                    form.setVisible(true);
+                                }
+                            }
+                        }
+                    }
+                });
+
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(tabla,
+                    "Error al procesar productos por proveedor: " + ex.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+                ex.printStackTrace();
+            } finally {
+                if (em != null && em.isOpen()) {
+                    em.close();
+                }
+                icono_carga.setVisible(false);
+            }
+        }
+    }.execute();
+}
+
+
+
+//*****************************
+
+public void Filtrar_Existencia_Minima_Cuadricula(int secuencialEmpresa, JPanel contenedor) {
+    icono_carga.setVisible(true);
+    contenedor.setLayout(new GridBagLayout());
+    contenedor.removeAll();
+
+    new SwingWorker<List<Producto>, Void>() {
+        EntityManager em = null;
+
+        @Override
+        protected List<Producto> doInBackground() {
+            try {
+                em = MonituxDBContext.getEntityManager();
+                if (em == null || !em.isOpen()) {
+                    throw new IllegalStateException("EntityManager no disponible.");
+                }
+
+                String jpql = "SELECT p FROM Producto p " +
+                              "WHERE p.Secuencial_Empresa = :empresa " +
+                              "AND p.Cantidad = p.Existencia_Minima " +
+                              "AND p.Tipo <> 'Servicio'";
+
+                TypedQuery<Producto> query = em.createQuery(jpql, Producto.class);
+                query.setParameter("empresa", secuencialEmpresa);
+                return query.getResultList();
+
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(contenedor,
+                    "Error al consultar productos con existencia mínima: " + ex.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+                ex.printStackTrace();
+                return new ArrayList<>();
+            }
+        }
+
+        @Override
+        protected void done() {
+            try {
+                List<Producto> productos = get();
+
+                GridBagConstraints gbc = new GridBagConstraints();
+                gbc.insets = new Insets(5, 5, 5, 5);
+                gbc.fill = GridBagConstraints.NONE;
+                gbc.anchor = GridBagConstraints.NORTHWEST;
+
+                int col = 0, row = 0;
+
+                for (Producto producto : productos) {
+                    Miniatura_Producto miniatura = new Miniatura_Producto(producto, false);
+                    miniatura.setPreferredSize(new Dimension(120, 170));
+
+                    miniatura.addMouseListener(new MouseAdapter() {
+                        @Override
+                        public void mouseClicked(MouseEvent e) {
+                            if (e.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(e)) {
+                                Producto productoSeleccionado = miniatura.producto;
+                                V_Kardex kardex = new V_Kardex(
+                                    productoSeleccionado.getProducto().getSecuencial(),
+                                    productoSeleccionado.getProducto().getCodigo()
+                                );
+                                kardex.setVisible(true);
+                                kardex.setLocationRelativeTo(null);
+                            }
+                        }
+
+                        @Override
+                        public void mousePressed(MouseEvent e) {
+                            if (e.isPopupTrigger()) {
+                                menu_contextual.show(e.getComponent(), e.getX(), e.getY());
+                            }
+                        }
+
+                        @Override
+                        public void mouseReleased(MouseEvent e) {
+                            if (e.isPopupTrigger()) {
+                                menu_contextual.show(e.getComponent(), e.getX(), e.getY());
+                            }
+                        }
+                    });
+
+                    String comentario = miniatura.cargarComentario();
+                    String descripcion = miniatura.producto.getDescripcion();
+                    miniatura.setToolTipText("<html><b>" + descripcion + "</b><br>" + (comentario != null ? comentario : "") + "</html>");
+
+                    gbc.gridx = col;
+                    gbc.gridy = row;
+                    contenedor.add(miniatura, gbc);
+
+                    col++;
+                    if (col == 6) {
+                        col = 0;
+                        row++;
+                    }
+                }
+
+                contenedor.revalidate();
+                contenedor.repaint();
+
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(contenedor,
+                    "Error al procesar productos con existencia mínima: " + ex.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+                ex.printStackTrace();
+            } finally {
+                if (em != null && em.isOpen()) {
+                    em.close();
+                }
+                icono_carga.setVisible(false);
+            }
+        }
+    }.execute();
+}
+
+
+//************************************
+
+
+
+
+
+public void Filtrar_Servicios_Cuadricula(int secuencialEmpresa, JPanel contenedor) {
+    icono_carga.setVisible(true);
+    contenedor.setLayout(new GridBagLayout());
+    contenedor.removeAll();
+
+    new SwingWorker<List<Producto>, Void>() {
+        EntityManager em = null;
+
+        @Override
+        protected List<Producto> doInBackground() {
+            try {
+                em = MonituxDBContext.getEntityManager();
+                if (em == null || !em.isOpen()) {
+                    throw new IllegalStateException("EntityManager no disponible.");
+                }
+
+                String jpql = "SELECT p FROM Producto p " +
+                              "WHERE p.Secuencial_Empresa = :empresa " +
+                              "AND p.Tipo = 'Servicio'";
+
+                TypedQuery<Producto> query = em.createQuery(jpql, Producto.class);
+                query.setParameter("empresa", secuencialEmpresa);
+                return query.getResultList();
+
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(contenedor,
+                    "Error al consultar servicios: " + ex.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+                ex.printStackTrace();
+                return Collections.emptyList();
+            }
+        }
+
+        @Override
+        protected void done() {
+            try {
+                List<Producto> productos = get();
+
+                GridBagConstraints gbc = new GridBagConstraints();
+                gbc.insets = new Insets(5, 5, 5, 5);
+                gbc.fill = GridBagConstraints.NONE;
+                gbc.anchor = GridBagConstraints.NORTHWEST;
+
+                int col = 0, row = 0;
+
+                for (Producto producto : productos) {
+                    Miniatura_Producto miniatura = new Miniatura_Producto(producto, false);
+                    miniatura.setPreferredSize(new Dimension(120, 170));
+
+                    miniatura.addMouseListener(new MouseAdapter() {
+                        @Override
+                        public void mouseClicked(MouseEvent e) {
+                            if (e.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(e)) {
+                                Producto productoSeleccionado = miniatura.producto;
+                                if (productoSeleccionado != null) {
+                                    V_Producto form = new V_Producto(false, productoSeleccionado);
+                                    form.setOnProductoEditado(() -> cargarItems_Cuadricula());
+                                    form.setVisible(true);
+                                }
+                            }
+                        }
+
+                        @Override
+                        public void mousePressed(MouseEvent e) {
+                            if (e.isPopupTrigger()) {
+                                menu_contextual.show(e.getComponent(), e.getX(), e.getY());
+                            }
+                        }
+
+                        @Override
+                        public void mouseReleased(MouseEvent e) {
+                            if (e.isPopupTrigger()) {
+                                menu_contextual.show(e.getComponent(), e.getX(), e.getY());
+                            }
+                        }
+                    });
+
+                    String comentario = miniatura.cargarComentario();
+                    String descripcion = miniatura.producto.getDescripcion();
+                    miniatura.setToolTipText("<html><b>" + descripcion + "</b><br>" + (comentario != null ? comentario : "") + "</html>");
+
+                    gbc.gridx = col;
+                    gbc.gridy = row;
+                    contenedor.add(miniatura, gbc);
+
+                    col++;
+                    if (col == 6) {
+                        col = 0;
+                        row++;
+                    }
+                }
+
+                contenedor.revalidate();
+                contenedor.repaint();
+
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(contenedor,
+                    "Error al procesar servicios: " + ex.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+                ex.printStackTrace();
+            } finally {
+                if (em != null && em.isOpen()) {
+                    em.close();
+                }
+                icono_carga.setVisible(false);
+            }
+        }
+    }.execute();
 }
 
 
 
 
-     
-    public void cargarItems_Cuadricula() {
-    
-        contenedor.removeAll();
-        icono_carga.setVisible(true); // Mostrar ícono de carga
 
-    SwingWorker<Void, Void> worker = new SwingWorker<>() {
+
+
+
+
+
+
+//*************************************
+
+
+
+public void Filtrar_Servicios_Lista(int secuencialEmpresa, JTable tabla) {
+    icono_carga.setVisible(true);
+
+    new SwingWorker<List<Producto>, Void>() {
+        EntityManager em = null;
+
+        @Override
+        protected List<Producto> doInBackground() {
+            try {
+                em = MonituxDBContext.getEntityManager();
+                if (em == null || !em.isOpen()) {
+                    throw new IllegalStateException("EntityManager no disponible.");
+                }
+
+                String jpql = "SELECT p FROM Producto p " +
+                              "WHERE p.Secuencial_Empresa = :empresa " +
+                              "AND p.Tipo = 'Servicio'";
+
+                TypedQuery<Producto> query = em.createQuery(jpql, Producto.class);
+                query.setParameter("empresa", secuencialEmpresa);
+                return query.getResultList();
+
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(tabla,
+                    "Error al consultar servicios: " + ex.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+                ex.printStackTrace();
+                return Collections.emptyList();
+            }
+        }
+
+        @Override
+        protected void done() {
+            try {
+                List<Producto> productos = get();
+
+                DefaultTableModel modelo = new DefaultTableModel(new Object[]{
+                    "S", "Codigo", "Descripción", "Marca", "Existencia", "E. mínima",
+                    "C. Barra", "C. Fabricante", "F. Vencimiento", "P. Costo", "P. Venta"
+                }, 0) {
+                    @Override
+                    public boolean isCellEditable(int row, int column) {
+                        return false;
+                    }
+                };
+
+                for (Producto producto : productos) {
+                    modelo.addRow(new Object[]{
+                        producto.getSecuencial(),
+                        producto.getCodigo(),
+                        producto.getDescripcion(),
+                        producto.getMarca(),
+                        producto.getCantidad(),
+                        producto.getExistencia_Minima(),
+                        producto.getCodigo_Barra(),
+                        producto.getCodigo_Fabricante(),
+                        producto.getFecha_Caducidad(),
+                        producto.getPrecio_Costo(),
+                        producto.getPrecio_Venta()
+                    });
+                }
+
+                tabla.setModel(modelo);
+                tabla.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+                for (MouseListener ml : tabla.getMouseListeners()) {
+                    tabla.removeMouseListener(ml);
+                }
+
+                tabla.addMouseListener(new MouseAdapter() {
+                    @Override
+                    public void mousePressed(MouseEvent e) {
+                        if (SwingUtilities.isLeftMouseButton(e)) {
+                            int fila = tabla.rowAtPoint(e.getPoint());
+                            if (fila != -1) {
+                                tabla.setRowSelectionInterval(fila, fila);
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void mouseClicked(MouseEvent e) {
+                        if (e.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(e)) {
+                            int fila = tabla.rowAtPoint(e.getPoint());
+                            if (fila != -1) {
+                                tabla.setRowSelectionInterval(fila, fila);
+                                String codigo = tabla.getValueAt(fila, 1).toString();
+
+                                Producto productoSeleccionado = productos.stream()
+                                    .filter(p -> p.getCodigo().equals(codigo))
+                                    .findFirst()
+                                    .orElse(null);
+
+                                if (productoSeleccionado != null) {
+                                    V_Producto form = new V_Producto(false, productoSeleccionado);
+                                    form.setOnProductoEditado(() -> cargarItems_Cuadricula());
+                                    form.setVisible(true);
+                                }
+                            }
+                        }
+                    }
+                });
+
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(tabla,
+                    "Error al procesar servicios: " + ex.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+                ex.printStackTrace();
+            } finally {
+                if (em != null && em.isOpen()) {
+                    em.close();
+                }
+                icono_carga.setVisible(false);
+            }
+        }
+    }.execute();
+}
+
+
+public void Filtrar_Agotados_Cuadricula(int secuencialEmpresa, JPanel contenedor) {
+    icono_carga.setVisible(true);
+    contenedor.setLayout(new GridBagLayout());
+    contenedor.removeAll();
+
+    new SwingWorker<List<Producto>, Void>() {
+        EntityManager em = null;
+
+        @Override
+        protected List<Producto> doInBackground() {
+            try {
+                em = MonituxDBContext.getEntityManager();
+                if (em == null || !em.isOpen()) {
+                    throw new IllegalStateException("EntityManager no disponible.");
+                }
+
+                String jpql = "SELECT p FROM Producto p " +
+                              "WHERE p.Secuencial_Empresa = :empresa " +
+                              "AND p.Cantidad < p.Existencia_Minima " +
+                              "AND p.Tipo <> 'Servicio'";
+
+                TypedQuery<Producto> query = em.createQuery(jpql, Producto.class);
+                query.setParameter("empresa", secuencialEmpresa);
+                return query.getResultList();
+
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(contenedor,
+                    "Error al consultar productos agotados: " + ex.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+                ex.printStackTrace();
+                return new ArrayList<>();
+            }
+        }
+
+        @Override
+        protected void done() {
+            try {
+                List<Producto> productos = get();
+
+                GridBagConstraints gbc = new GridBagConstraints();
+                gbc.insets = new Insets(5, 5, 5, 5);
+                gbc.fill = GridBagConstraints.NONE;
+                gbc.anchor = GridBagConstraints.NORTHWEST;
+
+                int col = 0, row = 0;
+
+                for (Producto producto : productos) {
+                    Miniatura_Producto miniatura = new Miniatura_Producto(producto, false);
+                    miniatura.setPreferredSize(new Dimension(120, 170));
+
+                    miniatura.addMouseListener(new MouseAdapter() {
+                        @Override
+                        public void mouseClicked(MouseEvent e) {
+                            if (e.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(e)) {
+                                Producto productoSeleccionado = miniatura.producto;
+                                V_Kardex kardex = new V_Kardex(
+                                    productoSeleccionado.getProducto().getSecuencial(),
+                                    productoSeleccionado.getProducto().getCodigo()
+                                );
+                                kardex.setVisible(true);
+                                kardex.setLocationRelativeTo(null);
+                            }
+                        }
+
+                        @Override
+                        public void mousePressed(MouseEvent e) {
+                            if (e.isPopupTrigger()) {
+                                menu_contextual.show(e.getComponent(), e.getX(), e.getY());
+                            }
+                        }
+
+                        @Override
+                        public void mouseReleased(MouseEvent e) {
+                            if (e.isPopupTrigger()) {
+                                menu_contextual.show(e.getComponent(), e.getX(), e.getY());
+                            }
+                        }
+                    });
+
+                    String comentario = miniatura.cargarComentario();
+                    String descripcion = miniatura.producto.getDescripcion();
+                    miniatura.setToolTipText("<html><b>" + descripcion + "</b><br>" + (comentario != null ? comentario : "") + "</html>");
+
+                    gbc.gridx = col;
+                    gbc.gridy = row;
+                    contenedor.add(miniatura, gbc);
+
+                    col++;
+                    if (col == 6) {
+                        col = 0;
+                        row++;
+                    }
+                }
+
+                contenedor.revalidate();
+                contenedor.repaint();
+
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(contenedor,
+                    "Error al procesar productos agotados: " + ex.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+                ex.printStackTrace();
+            } finally {
+                if (em != null && em.isOpen()) {
+                    em.close();
+                }
+                icono_carga.setVisible(false);
+            }
+        }
+    }.execute();
+}
+public void Filtrar_Lista_Categoria(int secuencialEmpresa, int secuencialCategoria, JTable tabla) {
+    icono_carga.setVisible(true);
+
+    new SwingWorker<List<Producto>, Void>() {
+        EntityManager em = null;
+
+        @Override
+        protected List<Producto> doInBackground() {
+            try {
+                em = MonituxDBContext.getEntityManager();
+                if (em == null || !em.isOpen()) {
+                    throw new IllegalStateException("EntityManager no disponible.");
+                }
+
+                String jpql = "SELECT p FROM Producto p " +
+                              "WHERE p.Secuencial_Empresa = :empresa " +
+                              "AND p.Secuencial_Categoria = :categoria";
+
+                TypedQuery<Producto> query = em.createQuery(jpql, Producto.class);
+                query.setParameter("empresa", secuencialEmpresa);
+                query.setParameter("categoria", secuencialCategoria);
+
+                return query.getResultList();
+
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(tabla,
+                    "Error al consultar productos por categoría: " + ex.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+                ex.printStackTrace();
+                return Collections.emptyList();
+            }
+        }
+
+        @Override
+        protected void done() {
+            try {
+                List<Producto> productos = get();
+
+                DefaultTableModel modelo = new DefaultTableModel(new Object[]{
+                    "S", "Codigo", "Descripción", "Marca", "Existencia", "E. mínima",
+                    "C. Barra", "C. Fabricante", "F. Vencimiento", "P. Costo", "P. Venta"
+                }, 0) {
+                    @Override
+                    public boolean isCellEditable(int row, int column) {
+                        return false;
+                    }
+                };
+
+                for (Producto producto : productos) {
+                    modelo.addRow(new Object[]{
+                        producto.getSecuencial(),
+                        producto.getCodigo(),
+                        producto.getDescripcion(),
+                        producto.getMarca(),
+                        producto.getCantidad(),
+                        producto.getExistencia_Minima(),
+                        producto.getCodigo_Barra(),
+                        producto.getCodigo_Fabricante(),
+                        producto.getFecha_Caducidad(),
+                        producto.getPrecio_Costo(),
+                        producto.getPrecio_Venta()
+                    });
+                }
+
+                tabla.setModel(modelo);
+                tabla.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+                for (MouseListener ml : tabla.getMouseListeners()) {
+                    tabla.removeMouseListener(ml);
+                }
+
+                tabla.addMouseListener(new MouseAdapter() {
+                    @Override
+                    public void mousePressed(MouseEvent e) {
+                        if (SwingUtilities.isLeftMouseButton(e)) {
+                            int fila = tabla.rowAtPoint(e.getPoint());
+                            if (fila != -1) {
+                                tabla.setRowSelectionInterval(fila, fila);
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void mouseClicked(MouseEvent e) {
+                        if (e.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(e)) {
+                            int fila = tabla.rowAtPoint(e.getPoint());
+                            if (fila != -1) {
+                                tabla.setRowSelectionInterval(fila, fila);
+                                String codigo = tabla.getValueAt(fila, 1).toString();
+
+                                Producto productoSeleccionado = productos.stream()
+                                    .filter(p -> p.getCodigo().equals(codigo))
+                                    .findFirst()
+                                    .orElse(null);
+
+                                if (productoSeleccionado != null) {
+                                    V_Producto form = new V_Producto(false, productoSeleccionado);
+                                    form.setOnProductoEditado(() -> cargarItems_Cuadricula());
+                                    form.setVisible(true);
+                                }
+                            }
+                        }
+                    }
+                });
+
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(tabla,
+                    "Error al procesar productos por categoría: " + ex.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+                ex.printStackTrace();
+            } finally {
+                if (em != null && em.isOpen()) {
+                    em.close();
+                }
+                icono_carga.setVisible(false);
+            }
+        }
+    }.execute();
+}
+
+
+
+//************************************
+public void Filtrar_Cuadricula_Categoria(int secuencialEmpresa, int secuencialCategoria, JPanel contenedor) {
+    icono_carga.setVisible(true);
+    contenedor.setLayout(new GridBagLayout());
+    contenedor.removeAll();
+
+    new SwingWorker<List<Producto>, Void>() {
+        EntityManager em = null;
+
+        @Override
+        protected List<Producto> doInBackground() {
+            try {
+                em = MonituxDBContext.getEntityManager();
+                if (em == null || !em.isOpen()) {
+                    throw new IllegalStateException("EntityManager no disponible.");
+                }
+
+                String jpql = "SELECT p FROM Producto p WHERE p.Secuencial_Empresa = :empresa AND p.Secuencial_Categoria = :categoria";
+                TypedQuery<Producto> query = em.createQuery(jpql, Producto.class);
+                query.setParameter("empresa", secuencialEmpresa);
+                query.setParameter("categoria", secuencialCategoria);
+
+                return query.getResultList();
+
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(contenedor,
+                    "Error al consultar productos por categoría: " + ex.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+                ex.printStackTrace();
+                return new ArrayList<>();
+            }
+        }
+
+        @Override
+        protected void done() {
+            try {
+                List<Producto> productos = get();
+
+                GridBagConstraints gbc = new GridBagConstraints();
+                gbc.insets = new Insets(5, 5, 5, 5);
+                gbc.fill = GridBagConstraints.NONE;
+                gbc.anchor = GridBagConstraints.NORTHWEST;
+
+                int col = 0, row = 0;
+
+                for (Producto producto : productos) {
+                    Miniatura_Producto miniatura = new Miniatura_Producto(producto, false);
+                    miniatura.setPreferredSize(new Dimension(120, 170));
+
+                    miniatura.addMouseListener(new MouseAdapter() {
+                        @Override
+                        public void mouseClicked(MouseEvent e) {
+                            if (e.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(e)) {
+                                Producto productoSeleccionado = miniatura.producto;
+                                V_Kardex kardex = new V_Kardex(
+                                    productoSeleccionado.getProducto().getSecuencial(),
+                                    productoSeleccionado.getProducto().getCodigo()
+                                );
+                                kardex.setVisible(true);
+                                kardex.setLocationRelativeTo(null);
+                            }
+                        }
+
+                        @Override
+                        public void mousePressed(MouseEvent e) {
+                            if (e.isPopupTrigger()) {
+                                menu_contextual.show(e.getComponent(), e.getX(), e.getY());
+                            }
+                        }
+
+                        @Override
+                        public void mouseReleased(MouseEvent e) {
+                            if (e.isPopupTrigger()) {
+                                menu_contextual.show(e.getComponent(), e.getX(), e.getY());
+                            }
+                        }
+                    });
+
+                    String comentario = miniatura.cargarComentario();
+                    String descripcion = miniatura.producto.getDescripcion();
+                    miniatura.setToolTipText("<html><b>" + descripcion + "</b><br>" + (comentario != null ? comentario : "") + "</html>");
+
+                    gbc.gridx = col;
+                    gbc.gridy = row;
+                    contenedor.add(miniatura, gbc);
+
+                    col++;
+                    if (col == 6) {
+                        col = 0;
+                        row++;
+                    }
+                }
+
+                contenedor.revalidate();
+                contenedor.repaint();
+
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(contenedor,
+                    "Error al procesar productos por categoría: " + ex.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+                ex.printStackTrace();
+            } finally {
+                if (em != null && em.isOpen()) {
+                    em.close();
+                }
+                icono_carga.setVisible(false);
+            }
+        }
+    }.execute();
+}
+
+
+
+
+//************************************
+public void cargar_Items_Cuadricula(int secuencialEmpresa, JPanel contenedor) {
+    icono_carga.setVisible(true);
+    contenedor.setLayout(new GridBagLayout());
+    contenedor.removeAll();
+
+    new SwingWorker<List<Producto>, Void>() {
+        EntityManager em = null;
+
+        @Override
+        protected List<Producto> doInBackground() {
+            try {
+                em = MonituxDBContext.getEntityManager();
+                if (em == null || !em.isOpen()) {
+                    throw new IllegalStateException("EntityManager no disponible.");
+                }
+
+                return em.createQuery(
+                    "SELECT p FROM Producto p WHERE p.Secuencial_Empresa = :empresa", Producto.class)
+                    .setParameter("empresa", secuencialEmpresa)
+                    .getResultList();
+
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(contenedor,
+                    "Error al consultar productos: " + ex.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+                ex.printStackTrace();
+                return Collections.emptyList();
+            }
+        }
+
+        @Override
+        protected void done() {
+            try {
+                List<Producto> productos = get();
+
+                GridBagConstraints gbc = new GridBagConstraints();
+                gbc.insets = new Insets(5, 5, 5, 5);
+                gbc.fill = GridBagConstraints.NONE;
+                gbc.anchor = GridBagConstraints.NORTHWEST;
+
+                int col = 0, row = 0;
+
+                for (Producto producto : productos) {
+                    Miniatura_Producto miniatura = new Miniatura_Producto(producto, false);
+                    miniatura.setPreferredSize(new Dimension(120, 170));
+
+                    miniatura.addMouseListener(new MouseAdapter() {
+                        @Override
+                        public void mouseClicked(MouseEvent e) {
+                            if (e.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(e)) {
+                                Producto productoSeleccionado = miniatura.producto;
+                                if (!"Servicio".equals(productoSeleccionado.getTipo())) {
+                                    V_Kardex kardex = new V_Kardex(
+                                        productoSeleccionado.getProducto().getSecuencial(),
+                                        productoSeleccionado.getProducto().getCodigo()
+                                    );
+                                    kardex.setVisible(true);
+                                    kardex.setLocationRelativeTo(null);
+                                }
+                            }
+                        }
+
+                        @Override
+                        public void mousePressed(MouseEvent e) {
+                            if (e.isPopupTrigger()) {
+                                menu_contextual.show(e.getComponent(), e.getX(), e.getY());
+                            }
+                        }
+
+                        @Override
+                        public void mouseReleased(MouseEvent e) {
+                            if (e.isPopupTrigger()) {
+                                menu_contextual.show(e.getComponent(), e.getX(), e.getY());
+                            }
+                        }
+                    });
+
+                    String comentario = miniatura.cargarComentario();
+                    String descripcion = miniatura.producto.getDescripcion();
+                    miniatura.setToolTipText(
+                        comentario != null
+                            ? "<html><b>" + descripcion + "</b><br>" + comentario + "</html>"
+                            : "<html><b>" + descripcion + "</b><br></html>"
+                    );
+
+                    gbc.gridx = col;
+                    gbc.gridy = row;
+                    contenedor.add(miniatura, gbc);
+
+                    col++;
+                    if (col == 6) {
+                        col = 0;
+                        row++;
+                    }
+                }
+
+                contenedor.revalidate();
+                contenedor.repaint();
+
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(contenedor,
+                    "Error al procesar productos: " + ex.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+                ex.printStackTrace();
+            } finally {
+                if (em != null && em.isOpen()) {
+                    em.close();
+                }
+                icono_carga.setVisible(false);
+            }
+        }
+    }.execute();
+}
+
+
+
+public void cargar_Items_Lista(int secuencialEmpresa, JTable tabla) {
+    icono_carga.setVisible(true);
+
+    new SwingWorker<List<Producto>, Void>() {
+        EntityManager em = null;
+
+        @Override
+        protected List<Producto> doInBackground() {
+            try {
+                em = MonituxDBContext.getEntityManager();
+                if (em == null || !em.isOpen()) {
+                    throw new IllegalStateException("EntityManager no disponible.");
+                }
+
+                return em.createQuery(
+                    "SELECT p FROM Producto p WHERE p.Secuencial_Empresa = :empresa", Producto.class)
+                    .setParameter("empresa", secuencialEmpresa)
+                    .getResultList();
+
+            } catch (Exception ex) {
+                SwingUtilities.invokeLater(() ->
+                    JOptionPane.showMessageDialog(null, "Error al cargar productos: " + ex.getMessage())
+                );
+                ex.printStackTrace();
+                return Collections.emptyList();
+            } finally {
+                if (em != null && em.isOpen()) {
+                    em.close();
+                }
+            }
+        }
+
+        @Override
+        protected void done() {
+            try {
+                List<Producto> productos = get();
+
+                DefaultTableModel modelo = new DefaultTableModel(new Object[]{
+                    "S", "Codigo", "Descripción", "Marca", "Existencia", "E. mínima",
+                    "C. Barra", "C. Fabricante", "F. Vencimiento", "P. Costo", "P. Venta"
+                }, 0) {
+                    @Override
+                    public boolean isCellEditable(int row, int column) {
+                        return false;
+                    }
+                };
+
+                for (Producto producto : productos) {
+                    modelo.addRow(new Object[]{
+                        producto.getSecuencial(),
+                        producto.getCodigo(),
+                        producto.getDescripcion(),
+                        producto.getMarca(),
+                        producto.getCantidad(),
+                        producto.getExistencia_Minima(),
+                        producto.getCodigo_Barra(),
+                        producto.getCodigo_Fabricante(),
+                        producto.getFecha_Caducidad(),
+                        producto.getPrecio_Costo(),
+                        producto.getPrecio_Venta()
+                    });
+                }
+
+                tabla.setModel(modelo);
+                tabla.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+                for (MouseListener ml : tabla.getMouseListeners()) {
+                    tabla.removeMouseListener(ml);
+                }
+
+                tabla.addMouseListener(new MouseAdapter() {
+                    @Override
+                    public void mousePressed(MouseEvent e) {
+                        if (SwingUtilities.isLeftMouseButton(e)) {
+                            int fila = tabla.rowAtPoint(e.getPoint());
+                            if (fila != -1) {
+                                tabla.setRowSelectionInterval(fila, fila);
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void mouseClicked(MouseEvent e) {
+                        if (e.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(e)) {
+                            int fila = tabla.rowAtPoint(e.getPoint());
+                            if (fila != -1) {
+                                tabla.setRowSelectionInterval(fila, fila);
+                                String codigo = tabla.getValueAt(fila, 1).toString();
+
+                                Producto productoSeleccionado = productos.stream()
+                                    .filter(p -> p.getCodigo().equals(codigo))
+                                    .findFirst()
+                                    .orElse(null);
+
+                                if (productoSeleccionado != null) {
+                                    V_Producto form = new V_Producto(false, productoSeleccionado);
+                                    form.setOnProductoEditado(() -> cargarItems_Cuadricula());
+                                    form.setVisible(true);
+                                }
+                            }
+                        }
+                    }
+                });
+
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(null, "Error al procesar productos: " + ex.getMessage());
+                ex.printStackTrace();
+            } finally {
+                icono_carga.setVisible(false);
+            }
+        }
+    }.execute();
+}
+
+public void cargar_Items_Kardex(int secuencialEmpresa, JTable tabla) {
+    icono_carga.setVisible(true);
+
+    new SwingWorker<List<Kardex>, Void>() {
+        EntityManager em = null;
+
+        @Override
+        protected List<Kardex> doInBackground() {
+            try {
+                em = MonituxDBContext.getEntityManager();
+                if (em == null || !em.isOpen()) {
+                    throw new IllegalStateException("EntityManager no disponible.");
+                }
+
+                return em.createQuery(
+                    "SELECT k FROM Kardex k JOIN FETCH k.producto WHERE k.Secuencial_Empresa = :empresa", Kardex.class)
+                    .setParameter("empresa", secuencialEmpresa)
+                    .getResultList();
+
+            } catch (Exception ex) {
+                SwingUtilities.invokeLater(() ->
+                    JOptionPane.showMessageDialog(null, "Error al cargar Kardex: " + ex.getMessage())
+                );
+                ex.printStackTrace();
+                return Collections.emptyList();
+            } finally {
+                if (em != null && em.isOpen()) {
+                    em.close();
+                }
+            }
+        }
+
+        @Override
+        protected void done() {
+            try {
+                List<Kardex> kardexList = get();
+
+                DefaultTableModel modelo = new DefaultTableModel(new Object[]{
+                    "S", "Codigo", "Fecha", "Descripción", "Movimiento", "Cantidad",
+                    "Costo", "Costo Total", "Venta", "Venta Total", "Saldo",
+                    "Sec. Producto", "Sec. Empresa"
+                }, 0) {
+                    @Override
+                    public boolean isCellEditable(int row, int column) {
+                        return false;
+                    }
+                };
+
+                for (Kardex k : kardexList) {
+                    Producto p = k.getProducto();
+                    modelo.addRow(new Object[]{
+                        k.getSecuencial(),
+                        p != null ? p.getCodigo() : "",
+                        k.getFecha(),
+                        k.getDescripcion(),
+                        k.getMovimiento(),
+                        k.getCantidad(),
+                        Util.redondear(k.getCosto()),
+                        Util.redondear(k.getCosto_Total()),
+                        Util.redondear(k.getVenta()),
+                        Util.redondear(k.getVenta_Total()),
+                        Util.redondear(k.getSaldo()),
+                        k.getSecuencial_Producto(),
+                        k.getSecuencial_Empresa()
+                    });
+                }
+
+                tabla.setModel(modelo);
+                tabla.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+                for (MouseListener ml : tabla.getMouseListeners()) {
+                    tabla.removeMouseListener(ml);
+                }
+
+                tabla.addMouseListener(new MouseAdapter() {
+                    @Override
+                    public void mousePressed(MouseEvent e) {
+                        if (SwingUtilities.isLeftMouseButton(e)) {
+                            int fila = tabla.rowAtPoint(e.getPoint());
+                            if (fila != -1) {
+                                tabla.setRowSelectionInterval(fila, fila);
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void mouseClicked(MouseEvent e) {
+                        if (e.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(e)) {
+                            int fila = tabla.rowAtPoint(e.getPoint());
+                            if (fila != -1) {
+                                tabla.setRowSelectionInterval(fila, fila);
+
+                                int secuencial = Integer.parseInt(tabla.getValueAt(fila, 0).toString());
+                                Kardex seleccionado = kardexList.stream()
+                                    .filter(k -> k.getSecuencial() == secuencial)
+                                    .findFirst()
+                                    .orElse(null);
+
+                                if (seleccionado != null && seleccionado.getProducto() != null) {
+                                    V_Kardex kardex = new V_Kardex(
+                                        seleccionado.getProducto().getSecuencial(),
+                                        seleccionado.getProducto().getCodigo()
+                                    );
+                                    kardex.setVisible(true);
+                                    kardex.setLocationRelativeTo(null);
+                                }
+                            }
+                        }
+                    }
+                });
+
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(null, "Error al procesar Kardex: " + ex.getMessage());
+                ex.printStackTrace();
+            } finally {
+                icono_carga.setVisible(false);
+            }
+        }
+    }.execute();
+}
+
+
+public void cargar_ItemsFiltrados_Cuadricula(int secuencialEmpresa, JComboBox<String> comboFiltro, JTextField campoValorFiltro, JPanel contenedor) {
+    icono_carga.setVisible(true);
+    contenedor.setLayout(new GridLayout(0, 6, 5, 5));
+    contenedor.removeAll();
+
+    String campoFiltro = (String) comboFiltro.getSelectedItem();
+    String valorFiltro = campoValorFiltro.getText();
+
+    boolean aplicarFiltro = campoFiltro != null && !campoFiltro.trim().isEmpty()
+                         && valorFiltro != null && !valorFiltro.trim().isEmpty();
+
+    new SwingWorker<List<Producto>, Void>() {
+        EntityManager em = null;
+
+        @Override
+        protected List<Producto> doInBackground() {
+            try {
+                em = MonituxDBContext.getEntityManager();
+                if (em == null || !em.isOpen()) {
+                    throw new IllegalStateException("EntityManager no disponible.");
+                }
+
+                String jpql = "SELECT p FROM Producto p WHERE p.Secuencial_Empresa = :empresa"
+                            + (aplicarFiltro ? " AND LOWER(p." + campoFiltro + ") LIKE :valorFiltro" : "");
+
+                TypedQuery<Producto> query = em.createQuery(jpql, Producto.class);
+                query.setParameter("empresa", secuencialEmpresa);
+                if (aplicarFiltro) {
+                    query.setParameter("valorFiltro", "%" + valorFiltro.toLowerCase() + "%");
+                }
+
+                return query.getResultList();
+
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(contenedor,
+                    "Error al consultar productos filtrados: " + ex.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+                ex.printStackTrace();
+                return Collections.emptyList();
+            }
+        }
+
+        @Override
+        protected void done() {
+            try {
+                List<Producto> productos = get();
+
+                for (Producto producto : productos) {
+                    Miniatura_Producto miniatura = new Miniatura_Producto(producto, false);
+                    miniatura.setPreferredSize(new Dimension(120, 170));
+
+                    miniatura.addMouseListener(new MouseAdapter() {
+                        @Override
+                        public void mouseClicked(MouseEvent e) {
+                            if (e.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(e)) {
+                                Producto productoSeleccionado = miniatura.producto;
+                                V_Kardex kardex = new V_Kardex(
+                                    productoSeleccionado.getProducto().getSecuencial(),
+                                    productoSeleccionado.getProducto().getCodigo()
+                                );
+                                kardex.setVisible(true);
+                                kardex.setLocationRelativeTo(null);
+                            }
+                        }
+
+                        @Override
+                        public void mousePressed(MouseEvent e) {
+                            if (e.isPopupTrigger()) {
+                                menu_contextual.show(e.getComponent(), e.getX(), e.getY());
+                            }
+                        }
+
+                        @Override
+                        public void mouseReleased(MouseEvent e) {
+                            if (e.isPopupTrigger()) {
+                                menu_contextual.show(e.getComponent(), e.getX(), e.getY());
+                            }
+                        }
+                    });
+
+                    String comentario = miniatura.cargarComentario();
+                    String descripcion = miniatura.producto.getDescripcion();
+                    miniatura.setToolTipText("<html><b>" + descripcion + "</b><br>" + (comentario != null ? comentario : "") + "</html>");
+
+                    contenedor.add(miniatura);
+                }
+
+                contenedor.revalidate();
+                contenedor.repaint();
+
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(contenedor,
+                    "Error al procesar productos filtrados: " + ex.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+                ex.printStackTrace();
+            } finally {
+                if (em != null && em.isOpen()) {
+                    em.close();
+                }
+                icono_carga.setVisible(false);
+            }
+        }
+    }.execute();
+}
+
+
+
+
+   public void cargarItems_Cuadricula() {
+    contenedor.removeAll();
+    icono_carga.setVisible(true); // Mostrar ícono de carga
+
+    new SwingWorker<Void, Void>() {
+        EntityManager em = null;
+
         @Override
         protected Void doInBackground() {
-            EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
-            EntityManager em = emf.createEntityManager();
-            cargar_Items_Cuadricula(Secuencial_Empresa, contenedor, em);
-            em.close();
-            emf.close();
+            try {
+                em = MonituxDBContext.getEntityManager();
+                if (em == null || !em.isOpen()) {
+                    throw new IllegalStateException("EntityManager no disponible.");
+                }
+
+                cargar_Items_Cuadricula(Secuencial_Empresa, contenedor);
+
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(contenedor,
+                    "Error al cargar productos: " + ex.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+                ex.printStackTrace();
+            } finally {
+                if (em != null && em.isOpen()) {
+                    em.close();
+                }
+            }
             return null;
         }
 
         @Override
         protected void done() {
             icono_carga.setVisible(false); // Ocultar ícono de carga
-            revalidate();
-            repaint();
+            contenedor.revalidate();
+            contenedor.repaint();
         }
-    };
-
-    worker.execute(); // Ejecutar en segundo plano
+    }.execute();
 }
 
-   
     
     
     // Variables declaration - do not modify//GEN-BEGIN:variables

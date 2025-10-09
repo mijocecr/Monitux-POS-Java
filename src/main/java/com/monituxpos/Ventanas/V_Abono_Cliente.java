@@ -7,6 +7,7 @@ package com.monituxpos.Ventanas;
 import com.monituxpos.Clases.Abono_Venta;
 import com.monituxpos.Clases.Cuentas_Cobrar;
 import com.monituxpos.Clases.Ingreso;
+import com.monituxpos.Clases.MonituxDBContext;
 import com.monituxpos.Clases.Util;
 import com.monituxpos.Clases.Venta;
 import jakarta.persistence.EntityManager;
@@ -96,13 +97,8 @@ public class V_Abono_Cliente extends javax.swing.JFrame {
     }
 
     
-    
-    private void cargarDatos() {
-   
-
-    
-    EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
-    EntityManager em = emf.createEntityManager();
+   private void cargarDatos() {
+    EntityManager em = MonituxDBContext.getEntityManager();
 
     try {
         // Consulta Cuentas_Cobrar
@@ -138,13 +134,10 @@ public class V_Abono_Cliente extends javax.swing.JFrame {
             }
         }
 
+        System.out.println("✅ Datos cargados correctamente.");
     } catch (Exception ex) {
-        JOptionPane.showMessageDialog(null, "Error al cargar datos: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-        
-        System.err.println(ex.getMessage());
-    } finally {
-        em.close();
-        emf.close();
+        JOptionPane.showMessageDialog(null, "❌ Error al cargar datos: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        ex.printStackTrace();
     }
 }
 
@@ -344,10 +337,7 @@ cargarDatos();
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
 
-
-        //********************
-        
-        String textoAbono = jTextField1.getText();
+  String textoAbono = jTextField1.getText();
 
     if (textoAbono != null && !textoAbono.trim().isEmpty()) {
         try {
@@ -358,13 +348,11 @@ cargarDatos();
             double nuevoPagado = pagado + abono;
             double nuevoSaldo = saldo - abono;
 
-            EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
-            EntityManager em = emf.createEntityManager();
+            EntityManager em = MonituxDBContext.getEntityManager();
 
             try {
                 em.getTransaction().begin();
 
-                // Buscar cuenta por cobrar
                 Cuentas_Cobrar ctaCobrar = em.createQuery(
                     "SELECT c FROM Cuentas_Cobrar c WHERE c.Secuencial = :ctac AND c.Secuencial_Empresa = :empresa",
                     Cuentas_Cobrar.class)
@@ -382,7 +370,6 @@ cargarDatos();
                     ctaCobrar.setSecuencial_Cliente(Secuencial_Cliente);
                     ctaCobrar.setSecuencial_Usuario(V_Menu_Principal.getSecuencial_Usuario());
 
-                    // Registrar ingreso
                     Ingreso ingreso = new Ingreso();
                     ingreso.setSecuencial_Empresa(Secuencial_Empresa);
                     ingreso.setSecuencial_Factura(Secuencial_CTAC);
@@ -394,7 +381,6 @@ cargarDatos();
 
                     em.persist(ingreso);
 
-                    // Registrar abono
                     Abono_Venta abonoVenta = new Abono_Venta();
                     abonoVenta.setSecuencial_Empresa(Secuencial_Empresa);
                     abonoVenta.setSecuencial_Cliente(Secuencial_Cliente);
@@ -407,53 +393,35 @@ cargarDatos();
 
                     em.getTransaction().commit();
 
-                    // Registrar actividad
                     Util.registrarActividad(Secuencial_Usuario,
                         "Ha registrado un abono a CTA:" + Secuencial_CTAC + " de " + jLabel1.getText() +
-                        " por un monto de: " + jTextField1.getText() + " " +
+                        " por un monto de: " + jTextField1.getText() +
                         " a Factura: " + jLabel10.getText(),
                         Secuencial_Empresa);
 
                     JOptionPane.showMessageDialog(null, "Abono registrado correctamente", "Éxito", JOptionPane.INFORMATION_MESSAGE);
-                    if (form!=null){
-                    form.Cargar_Datos_CTAS(Secuencial_Empresa);
-                    }
-                      if (form_CTA!=null){
-            
-                form_CTA.cargarDatosCTAS();
-            }
-                    
-                    
+
+                    if (form != null) form.Cargar_Datos_CTAS(Secuencial_Empresa);
+                    if (form_CTA != null) form_CTA.cargarDatosCTAS();
                 }
 
             } catch (Exception ex) {
                 em.getTransaction().rollback();
                 JOptionPane.showMessageDialog(null, "Error al registrar abono: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-            } finally {
-                em.close();
-                emf.close();
+                ex.printStackTrace();
             }
 
-           // cargarDatos();
-            
-          
-          
             this.dispose();
-            
-            
-form_CTA.toFront();
-form_CTA.requestFocus();
+            form_CTA.toFront();
+            form_CTA.requestFocus();
 
+            System.out.println("✅ Abono registrado correctamente.");
         } catch (NumberFormatException ex) {
             JOptionPane.showMessageDialog(null, "El monto ingresado no es válido.", "Error", JOptionPane.ERROR_MESSAGE);
         }
     } else {
         JOptionPane.showMessageDialog(null, "El monto a recibir es inválido.", "Error", JOptionPane.ERROR_MESSAGE);
     }
-        
-        //********************
-
-
 
         // TODO add your handling code here:
     }//GEN-LAST:event_jButton2ActionPerformed

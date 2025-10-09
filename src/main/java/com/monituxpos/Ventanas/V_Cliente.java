@@ -6,6 +6,7 @@ package com.monituxpos.Ventanas;
 
 import com.monituxpos.Clases.Cliente;
 import com.monituxpos.Clases.Encriptador;
+import com.monituxpos.Clases.MonituxDBContext;
 import com.monituxpos.Clases.Util;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
@@ -419,6 +420,7 @@ public void setImagen(byte[] imagen) {
         //**********************************************************
 
 // Obtener imagen como byte[]
+
 byte[] imagenBytes = null;
 Icon icono = labelImagen.getIcon();
 if (icono instanceof ImageIcon) {
@@ -433,72 +435,77 @@ if (icono instanceof ImageIcon) {
 
 // Validaciones comunes
 if (txt_Nombre.getText().isBlank()) {
-    JOptionPane.showMessageDialog(null,"El nombre del cliente no puede estar vacío.");
+    JOptionPane.showMessageDialog(null, "El nombre del cliente no puede estar vacío.");
     return;
 }
 if (txt_Codigo.getText().isBlank()) {
-    JOptionPane.showMessageDialog(null,"El código del cliente no puede estar vacío.");
+    JOptionPane.showMessageDialog(null, "El código del cliente no puede estar vacío.");
     return;
 }
 if (txt_Email.getText().isBlank()) {
-    JOptionPane.showMessageDialog(null,"El email del cliente no puede estar vacío.");
+    JOptionPane.showMessageDialog(null, "El email del cliente no puede estar vacío.");
     return;
 }
 
-EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
-EntityManager em = emf.createEntityManager();
+EntityManager em = MonituxDBContext.getEntityManager();
 
-if (Secuencial != 0) {
-    // MODO EDICIÓN
-    Cliente cliente = em.find(Cliente.class, Secuencial);
-    if (cliente != null) {
-        em.getTransaction().begin();
+try {
+    if (Secuencial != 0) {
+        // MODO EDICIÓN
+        Cliente cliente = em.find(Cliente.class, Secuencial);
+        if (cliente != null) {
+            em.getTransaction().begin();
+            cliente.setSecuencial_Empresa(Secuencial_Empresa);
+            cliente.setNombre(txt_Nombre.getText());
+            cliente.setCodigo(txt_Codigo.getText());
+            cliente.setTelefono(txt_Telefono.getText());
+            cliente.setDireccion(txt_Direccion.getText());
+            cliente.setEmail(txt_Email.getText());
+            cliente.setActivo(checkBoxActivo.isSelected());
+            if (imagenBytes != null) {
+                cliente.setImagen(imagenBytes);
+            }
+            em.getTransaction().commit();
+
+            Util.registrarActividad(Secuencial_Usuario, "Ha modificado al cliente: " + cliente.getNombre(), Secuencial_Empresa);
+            JOptionPane.showMessageDialog(null, "Cliente actualizado correctamente.");
+        }
+    } else {
+        // MODO CREACIÓN
+        Cliente cliente = new Cliente();
         cliente.setSecuencial_Empresa(Secuencial_Empresa);
         cliente.setNombre(txt_Nombre.getText());
         cliente.setCodigo(txt_Codigo.getText());
         cliente.setTelefono(txt_Telefono.getText());
         cliente.setDireccion(txt_Direccion.getText());
         cliente.setEmail(txt_Email.getText());
-        cliente.setActivo(checkBoxActivo.isSelected());
-        if (imagenBytes != null) {
-            cliente.setImagen(imagenBytes);
+        cliente.setActivo(true);
+        cliente.setImagen(imagenBytes);
+
+        try {
+            em.getTransaction().begin();
+            em.persist(cliente);
+            em.getTransaction().commit();
+
+            JOptionPane.showMessageDialog(null, "Cliente creado correctamente.");
+            Util.registrarActividad(Secuencial_Usuario, "Ha creado al cliente: " + cliente.getNombre(), Secuencial_Empresa);
+        } catch (Exception e) {
+            em.getTransaction().rollback();
+            JOptionPane.showMessageDialog(null, "Error al crear cliente: Ya existe o los datos proporcionados no son válidos.");
+            return;
         }
-        em.getTransaction().commit();
-
-         Util.registrarActividad(Secuencial_Usuario, "Ha modificado al cliente: " + cliente.getNombre(), Secuencial_Empresa);
-        JOptionPane.showMessageDialog(null,"Cliente actualizado correctamente.");
     }
-} else {
-    // MODO CREACIÓN
-    Cliente cliente = new Cliente();
-    cliente.setSecuencial_Empresa(Secuencial_Empresa);
-    cliente.setNombre(txt_Nombre.getText());
-    cliente.setCodigo(txt_Codigo.getText());
-    cliente.setTelefono(txt_Telefono.getText());
-    cliente.setDireccion(txt_Direccion.getText());
-    cliente.setEmail(txt_Email.getText());
-    cliente.setActivo(true);
-    cliente.setImagen(imagenBytes);
 
-    try {
-        em.getTransaction().begin();
-        em.persist(cliente);
-        em.getTransaction().commit();
-
-        JOptionPane.showMessageDialog(null,"Cliente creado correctamente.");
-         Util.registrarActividad(Secuencial_Usuario, "Ha creado al cliente: " + cliente.getNombre(), Secuencial_Empresa);
-    } catch (Exception e) {
-         JOptionPane.showMessageDialog(null,"Error al crear cliente: Ya existe o los datos proporcionados no son válidos.");
-        em.getTransaction().rollback();
-        return;
-    }
+    System.out.println("✅ Operación de cliente completada.");
+} catch (Exception e) {
+    JOptionPane.showMessageDialog(null, "❌ Error al guardar cliente: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+    e.printStackTrace();
 }
 
-em.close();
-emf.close();
+dispose(); // Cierra el formulario actual
 
 
-dispose();             // Cierra el formulario actual
+            // Cierra el formulario actual
 
 //**********************************************************
 
@@ -514,6 +521,7 @@ dispose();             // Cierra el formulario actual
     
     private void Menu_EliminarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Menu_EliminarActionPerformed
 
+     
         int res = JOptionPane.showConfirmDialog(null, "¿Está seguro de eliminar este cliente?", "Confirmación", JOptionPane.YES_NO_OPTION);
 
 if (res == JOptionPane.YES_OPTION) {
@@ -525,25 +533,23 @@ if (res == JOptionPane.YES_OPTION) {
         }
         labelImagen.setIcon(null);
         imagen = null; // Variable de clase si la usas
-
     } catch (Exception e) {
         // Silenciar errores de liberación de imagen
     }
 
-    EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
-    EntityManager em = emf.createEntityManager();
+    EntityManager em = MonituxDBContext.getEntityManager();
 
     try {
         Cliente cliente = em.createQuery(
             "SELECT c FROM Cliente c WHERE c.Secuencial = :secuencial AND c.Secuencial_Empresa = :empresa", Cliente.class)
-        .setParameter("secuencial", this.Secuencial)
-        .setParameter("empresa", Secuencial_Empresa)
-        .getResultStream()
-        .findFirst()
-        .orElse(null);
+            .setParameter("secuencial", this.Secuencial)
+            .setParameter("empresa", Secuencial_Empresa)
+            .getResultStream()
+            .findFirst()
+            .orElse(null);
 
         if (cliente != null) {
-            // Si tiene imagen, la mostramos antes de eliminar
+            // Mostrar imagen antes de eliminar (opcional)
             if (cliente.getImagen() != null && cliente.getImagen().length > 0) {
                 try (ByteArrayInputStream bis = new ByteArrayInputStream(cliente.getImagen())) {
                     BufferedImage img = ImageIO.read(bis);
@@ -565,10 +571,8 @@ if (res == JOptionPane.YES_OPTION) {
             this.dispose();
         }
     } catch (Exception e) {
-        JOptionPane.showMessageDialog(null, "Error al eliminar cliente: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-    } finally {
-        em.close();
-        emf.close();
+        JOptionPane.showMessageDialog(null, "❌ Error al eliminar cliente: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        e.printStackTrace();
     }
 }
 
@@ -646,33 +650,28 @@ if (res == JOptionPane.YES_OPTION) {
     }
     
     
-    private void Filtrar(String campo, String valor) {
-
+   private void Filtrar(String campo, String valor) {
     tableClientes.removeAll();
 
-    // Crear modelo si la tabla está vacía
     DefaultTableModel model = (DefaultTableModel) tableClientes.getModel();
     if (tableClientes.getColumnCount() == 0) {
         model.setColumnIdentifiers(new String[] { "S", "Codigo", "Nombre", "Teléfono", "Email", "Activo" });
 
-        // Ajustar anchos
-        tableClientes.getColumnModel().getColumn(0).setPreferredWidth(20);  // S
-        tableClientes.getColumnModel().getColumn(1).setPreferredWidth(80);  // Código
-        tableClientes.getColumnModel().getColumn(2).setPreferredWidth(120); // Nombre
-        tableClientes.getColumnModel().getColumn(3).setPreferredWidth(100); // Teléfono
-        tableClientes.getColumnModel().getColumn(4).setPreferredWidth(150); // Email
+        tableClientes.getColumnModel().getColumn(0).setPreferredWidth(20);   // S
+        tableClientes.getColumnModel().getColumn(1).setPreferredWidth(80);   // Código
+        tableClientes.getColumnModel().getColumn(2).setPreferredWidth(120);  // Nombre
+        tableClientes.getColumnModel().getColumn(3).setPreferredWidth(100);  // Teléfono
+        tableClientes.getColumnModel().getColumn(4).setPreferredWidth(150);  // Email
     }
 
-    // Limpiar filas existentes
-    model.setRowCount(0);
+    model.setRowCount(0); // Limpiar filas existentes
 
-    // Conectar con JPA y filtrar clientes
-    EntityManager em = Persistence.createEntityManagerFactory("MonituxPU").createEntityManager();
+    EntityManager em = MonituxDBContext.getEntityManager();
+
     try {
-       // String jpql = "SELECT c FROM Cliente c WHERE c.Secuencial_Empresa = :empresa AND LOWER(FUNCTION('REPLACE', FUNCTION('LOWER', c." + campo + "), ' ', '')) LIKE :valor";
-       String jpql = "SELECT c FROM Cliente c WHERE c.Secuencial_Empresa = :empresa AND FUNCTION('REPLACE', c." + campo + ", ' ', '') LIKE :valor";
- 
-       List<Cliente> clientes = em.createQuery(jpql, Cliente.class)
+        String jpql = "SELECT c FROM Cliente c WHERE c.Secuencial_Empresa = :empresa AND FUNCTION('REPLACE', c." + campo + ", ' ', '') LIKE :valor";
+
+        List<Cliente> clientes = em.createQuery(jpql, Cliente.class)
             .setParameter("empresa", Secuencial_Empresa)
             .setParameter("valor", "%" + valor.replace(" ", "") + "%")
             .getResultList();
@@ -694,11 +693,10 @@ if (res == JOptionPane.YES_OPTION) {
             tableClientes.setRowSelectionInterval(0, 0);
         }
 
+        System.out.println("✅ Clientes filtrados correctamente.");
     } catch (Exception e) {
-        JOptionPane.showMessageDialog(null, "Error al filtrar clientes: " + e.getMessage());
-        System.err.println(e.getMessage());
-    } finally {
-        em.close();
+        JOptionPane.showMessageDialog(null, "❌ Error al filtrar clientes: " + e.getMessage());
+        e.printStackTrace();
     }
 }
 
@@ -708,32 +706,30 @@ if (res == JOptionPane.YES_OPTION) {
     
     private void tableClientesMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tableClientesMouseClicked
 
-     
-     try {
-            
-            
-    int rowIndex = tableClientes.getSelectedRow();
-    if (rowIndex < 0) return; // No hay fila seleccionada
+      try {
+        int rowIndex = tableClientes.getSelectedRow();
+        if (rowIndex < 0) return; // No hay fila seleccionada
 
-    DefaultTableModel model = (DefaultTableModel) tableClientes.getModel();
+        DefaultTableModel model = (DefaultTableModel) tableClientes.getModel();
 
-    // Asignar valores si existen
-    Object secuencialObj = model.getValueAt(rowIndex, 0); // Columna "S"
-    if (secuencialObj != null) {
-        this.Secuencial = Integer.parseInt(secuencialObj.toString());
-    }
+        // Asignar valores si existen
+        Object secuencialObj = model.getValueAt(rowIndex, 0); // Columna "S"
+        if (secuencialObj != null) {
+            this.Secuencial = Integer.parseInt(secuencialObj.toString());
+        }
 
-    txt_Codigo.setText(getCellValue(model, rowIndex, 1));   // "Código"
-    txt_Nombre.setText(getCellValue(model, rowIndex, 2));   // "Nombre"
-    txt_Telefono.setText(getCellValue(model, rowIndex, 3)); // "Teléfono"
-    txt_Direccion.setText(getCellValue(model, rowIndex, 4));// "Dirección"
-    txt_Email.setText(getCellValue(model, rowIndex, 5));    // "Email"
+        txt_Codigo.setText(getCellValue(model, rowIndex, 1));   // "Código"
+        txt_Nombre.setText(getCellValue(model, rowIndex, 2));   // "Nombre"
+        txt_Telefono.setText(getCellValue(model, rowIndex, 3)); // "Teléfono"
+        txt_Direccion.setText(getCellValue(model, rowIndex, 4));// "Dirección"
+        txt_Email.setText(getCellValue(model, rowIndex, 5));    // "Email"
 
-    String activo = getCellValue(model, rowIndex, 6);       // "Activo"
-    checkBoxActivo.setSelected("Sí".equalsIgnoreCase(activo));
+        String activo = getCellValue(model, rowIndex, 6);       // "Activo"
+        checkBoxActivo.setSelected("Sí".equalsIgnoreCase(activo));
 
-    // Cargar imagen desde la base de datos
-    try (EntityManager em = Persistence.createEntityManagerFactory("MonituxPU").createEntityManager()) {
+        // Cargar imagen desde la base de datos
+        EntityManager em = MonituxDBContext.getEntityManager();
+
         Cliente cliente = em.createQuery(
             "SELECT c FROM Cliente c WHERE c.Secuencial = :Secuencial AND c.Secuencial_Empresa = :empresa", Cliente.class)
             .setParameter("Secuencial", this.Secuencial)
@@ -752,42 +748,40 @@ if (res == JOptionPane.YES_OPTION) {
         } else {
             labelImagen.setIcon(null);
         }
+
+        System.out.println("✅ Cliente seleccionado cargado correctamente.");
+    } catch (Exception ex) {
+        labelImagen.setIcon(null);
+        System.err.println("❌ Error al cargar cliente seleccionado: " + ex.getMessage());
+        ex.printStackTrace();
     }
-
-} catch (Exception ex) {
-    labelImagen.setIcon(null);
-    ex.printStackTrace(); // Para depuración
-}
-
+    
     }//GEN-LAST:event_tableClientesMouseClicked
 
     
-    private void primera_carga(){
-    
-        
-        
-        try {
-    int rowIndex = 0;
+  private void primera_carga() {
+    try {
+        int rowIndex = 0;
+        DefaultTableModel model = (DefaultTableModel) tableClientes.getModel();
 
-    DefaultTableModel model = (DefaultTableModel) tableClientes.getModel();
+        // Asignar valores si existen
+        Object secuencialObj = model.getValueAt(rowIndex, 0); // Columna "S"
+        if (secuencialObj != null) {
+            this.Secuencial = Integer.parseInt(secuencialObj.toString());
+        }
 
-    // Asignar valores si existen
-    Object secuencialObj = model.getValueAt(rowIndex, 0); // Columna "S"
-    if (secuencialObj != null) {
-        this.Secuencial = Integer.parseInt(secuencialObj.toString());
-    }
+        txt_Codigo.setText(getCellValue(model, rowIndex, 1));   // "Código"
+        txt_Nombre.setText(getCellValue(model, rowIndex, 2));   // "Nombre"
+        txt_Telefono.setText(getCellValue(model, rowIndex, 3)); // "Teléfono"
+        txt_Direccion.setText(getCellValue(model, rowIndex, 4));// "Dirección"
+        txt_Email.setText(getCellValue(model, rowIndex, 5));    // "Email"
 
-    txt_Codigo.setText(getCellValue(model, rowIndex, 1));   // "Código"
-    txt_Nombre.setText(getCellValue(model, rowIndex, 2));   // "Nombre"
-    txt_Telefono.setText(getCellValue(model, rowIndex, 3)); // "Teléfono"
-    txt_Direccion.setText(getCellValue(model, rowIndex, 4));// "Dirección"
-    txt_Email.setText(getCellValue(model, rowIndex, 5));    // "Email"
+        String activo = getCellValue(model, rowIndex, 6);       // "Activo"
+        checkBoxActivo.setSelected("Sí".equalsIgnoreCase(activo));
 
-    String activo = getCellValue(model, rowIndex, 6);       // "Activo"
-    checkBoxActivo.setSelected("Sí".equalsIgnoreCase(activo));
+        // Cargar imagen desde la base de datos
+        EntityManager em = MonituxDBContext.getEntityManager();
 
-    // Cargar imagen desde la base de datos
-    try (EntityManager em = Persistence.createEntityManagerFactory("MonituxPU").createEntityManager()) {
         Cliente cliente = em.createQuery(
             "SELECT c FROM Cliente c WHERE c.Secuencial = :Secuencial AND c.Secuencial_Empresa = :empresa", Cliente.class)
             .setParameter("Secuencial", this.Secuencial)
@@ -806,45 +800,43 @@ if (res == JOptionPane.YES_OPTION) {
         } else {
             labelImagen.setIcon(null);
         }
-    }
 
-} catch (Exception ex) {
-    labelImagen.setIcon(null);
-    ex.printStackTrace(); // Para depuración
-}
-    
-        
-    
+        System.out.println("✅ Primera carga de cliente completada.");
+    } catch (Exception ex) {
+        labelImagen.setIcon(null);
+        System.err.println("❌ Error en primera carga: " + ex.getMessage());
+        ex.printStackTrace();
     }
-    
+}
+  
     
     
     private void tableClientesKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tableClientesKeyReleased
        
-     
-        try {
-    int rowIndex = tableClientes.getSelectedRow();
-    if (rowIndex < 0) return; // No hay fila seleccionada
+   try {
+        int rowIndex = tableClientes.getSelectedRow();
+        if (rowIndex < 0) return; // No hay fila seleccionada
 
-    DefaultTableModel model = (DefaultTableModel) tableClientes.getModel();
+        DefaultTableModel model = (DefaultTableModel) tableClientes.getModel();
 
-    // Asignar valores si existen
-    Object secuencialObj = model.getValueAt(rowIndex, 0); // Columna "S"
-    if (secuencialObj != null) {
-        this.Secuencial = Integer.parseInt(secuencialObj.toString());
-    }
+        // Asignar valores si existen
+        Object secuencialObj = model.getValueAt(rowIndex, 0); // Columna "S"
+        if (secuencialObj != null) {
+            this.Secuencial = Integer.parseInt(secuencialObj.toString());
+        }
 
-    txt_Codigo.setText(getCellValue(model, rowIndex, 1));   // "Código"
-    txt_Nombre.setText(getCellValue(model, rowIndex, 2));   // "Nombre"
-    txt_Telefono.setText(getCellValue(model, rowIndex, 3)); // "Teléfono"
-    txt_Direccion.setText(getCellValue(model, rowIndex, 4));// "Dirección"
-    txt_Email.setText(getCellValue(model, rowIndex, 5));    // "Email"
+        txt_Codigo.setText(getCellValue(model, rowIndex, 1));   // "Código"
+        txt_Nombre.setText(getCellValue(model, rowIndex, 2));   // "Nombre"
+        txt_Telefono.setText(getCellValue(model, rowIndex, 3)); // "Teléfono"
+        txt_Direccion.setText(getCellValue(model, rowIndex, 4));// "Dirección"
+        txt_Email.setText(getCellValue(model, rowIndex, 5));    // "Email"
 
-    String activo = getCellValue(model, rowIndex, 6);       // "Activo"
-    checkBoxActivo.setSelected("Sí".equalsIgnoreCase(activo));
+        String activo = getCellValue(model, rowIndex, 6);       // "Activo"
+        checkBoxActivo.setSelected("Sí".equalsIgnoreCase(activo));
 
-    // Cargar imagen desde la base de datos
-    try (EntityManager em = Persistence.createEntityManagerFactory("MonituxPU").createEntityManager()) {
+        // Cargar imagen desde la base de datos
+        EntityManager em = MonituxDBContext.getEntityManager();
+
         Cliente cliente = em.createQuery(
             "SELECT c FROM Cliente c WHERE c.Secuencial = :Secuencial AND c.Secuencial_Empresa = :empresa", Cliente.class)
             .setParameter("Secuencial", this.Secuencial)
@@ -863,14 +855,13 @@ if (res == JOptionPane.YES_OPTION) {
         } else {
             labelImagen.setIcon(null);
         }
+
+        System.out.println("✅ Cliente seleccionado cargado correctamente.");
+    } catch (Exception ex) {
+        labelImagen.setIcon(null);
+        System.err.println("❌ Error al cargar cliente seleccionado: " + ex.getMessage());
+        ex.printStackTrace();
     }
-
-} catch (Exception ex) {
-    labelImagen.setIcon(null);
-    ex.printStackTrace(); // Para depuración
-}
-
-
         
         }
 
@@ -951,7 +942,7 @@ primera_carga();
     }//GEN-LAST:event_formWindowOpened
 
  
-    private void cargarDatos() {
+   private void cargarDatos() {
     // Limpiar tabla
     DefaultTableModel model = new DefaultTableModel(
         new String[] { "S", "Codigo", "Nombre", "Telefono", "Direccion", "Email", "Activo" }, 0
@@ -962,8 +953,7 @@ primera_carga();
         }
     };
 
-    EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
-    EntityManager em = emf.createEntityManager();
+    EntityManager em = MonituxDBContext.getEntityManager();
 
     try {
         List<Cliente> lista = em.createQuery(
@@ -1004,11 +994,9 @@ primera_carga();
             columnModel.getColumn(col).setPreferredWidth(ancho);
         }
 
+        System.out.println("✅ Clientes cargados correctamente.");
     } catch (Exception e) {
-        // MenuPrincipal.MSG.show("Error al cargar clientes: " + e.getMessage(), "Error");
-    } finally {
-        em.close();
-        emf.close();
+        System.err.println("❌ Error al cargar clientes: " + e.getMessage());
     }
 }
 

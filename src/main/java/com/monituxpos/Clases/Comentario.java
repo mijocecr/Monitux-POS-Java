@@ -8,6 +8,7 @@ package com.monituxpos.Clases;
 import jakarta.persistence.*;
 
 @Entity
+@Table(name = "Comentarios")
 public class Comentario {
 
 @Id

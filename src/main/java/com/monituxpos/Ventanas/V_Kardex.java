@@ -5,6 +5,7 @@
 package com.monituxpos.Ventanas;
 
 import com.monituxpos.Clases.Kardex;
+import com.monituxpos.Clases.MonituxDBContext;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
@@ -202,37 +203,34 @@ public class V_Kardex extends javax.swing.JFrame {
 
     private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
 
-        this.setTitle("Monitux-POS v.");
+      
+this.setTitle("Monitux-POS v.");
+    jLabel2.setText(Codigo_Producto);
 
-jLabel2.setText(Codigo_Producto);
-EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
-EntityManager em = emf.createEntityManager();
+    EntityManager em = MonituxDBContext.getEntityManager();
 
-try {
-    filtrarKardex(Secuencial_Producto, "Entrada", tabla_entradas, em);
-    filtrarKardex(Secuencial_Producto, "Salida", tabla_salidas, em);
-    mostrarUltimoMovimientoKardex(Secuencial_Producto,Secuencial_Empresa, jLabel1, em); // ✅ Mover dentro del try
-} catch (Exception ex) {
-    JOptionPane.showMessageDialog(this, "Error al cargar Kardex: " + ex.getMessage());
-    ex.printStackTrace();
-} finally {
-    if (em != null && em.isOpen()) em.close();
-    if (emf != null && emf.isOpen()) emf.close();
-}
+    try {
+        filtrarKardex(Secuencial_Producto, "Entrada", tabla_entradas);
+        filtrarKardex(Secuencial_Producto, "Salida", tabla_salidas);
+        mostrarUltimoMovimientoKardex(Secuencial_Producto, Secuencial_Empresa, jLabel1);
+        System.out.println("✅ Kardex cargado correctamente al abrir la ventana.");
+    } catch (Exception ex) {
+        JOptionPane.showMessageDialog(this, "❌ Error al cargar Kardex: " + ex.getMessage());
+        ex.printStackTrace();
+    }
 
         
         // TODO add your handling code here:
     }//GEN-LAST:event_formWindowOpened
 
     
-    
-    public void filtrarKardex(int secuencialProducto, String movimiento, JTable tabla, EntityManager entityManager) {
-    //icono_carga.setVisible(true);
-
+    public void filtrarKardex(int secuencialProducto, String movimiento, JTable tabla) {
     List<Kardex> kardexList = new ArrayList<>();
 
+    EntityManager em = MonituxDBContext.getEntityManager();
+
     try {
-        TypedQuery<Kardex> query = entityManager.createQuery(
+        TypedQuery<Kardex> query = em.createQuery(
             "SELECT k FROM Kardex k JOIN FETCH k.producto " +
             "WHERE k.movimiento = :movimiento AND k.Secuencial_Producto = :secuencialProducto", Kardex.class);
 
@@ -241,7 +239,8 @@ try {
 
         kardexList = query.getResultList();
     } catch (Exception ex) {
-        JOptionPane.showMessageDialog(null, "Error al filtrar Kardex: " + ex.getMessage());
+        JOptionPane.showMessageDialog(null, "❌ Error al filtrar Kardex: " + ex.getMessage());
+        ex.printStackTrace();
         return;
     }
 
@@ -288,21 +287,26 @@ try {
                 }
             }
         }
-
-      
     });
 
-    
     jLabel5.setText(String.valueOf(tabla_entradas.getModel().getRowCount()));
-jLabel6.setText(String.valueOf(tabla_salidas.getModel().getRowCount()));
+    jLabel6.setText(String.valueOf(tabla_salidas.getModel().getRowCount()));
 
-    //icono_carga.setVisible(false);
+    System.out.println("✅ Kardex filtrado correctamente.");
 }
 
+ 
     
- public void mostrarUltimoMovimientoKardex(int secuencialProducto, int secuencialEmpresa, JLabel label, EntityManager entityManager) {
+  public void mostrarUltimoMovimientoKardex(int secuencialProducto, int secuencialEmpresa, JLabel label) {
+    EntityManager em = null;
+
     try {
-        TypedQuery<Object[]> query = entityManager.createQuery(
+        em = MonituxDBContext.getEntityManager();
+        if (em == null || !em.isOpen()) {
+            throw new IllegalStateException("EntityManager no disponible.");
+        }
+
+        TypedQuery<Object[]> query = em.createQuery(
             "SELECT k.fecha, k.cantidad, p.Codigo, k.saldo, p.Descripcion, p.Tipo " +
             "FROM Kardex k JOIN k.producto p " +
             "WHERE k.producto.Secuencial = :producto AND k.Secuencial_Empresa = :empresa " +
@@ -315,21 +319,32 @@ jLabel6.setText(String.valueOf(tabla_salidas.getModel().getRowCount()));
 
         if (!resultados.isEmpty()) {
             Object[] ultimo = resultados.get(0);
+            String codigoProducto = String.valueOf(ultimo[2]);
+            double saldoActual = Double.parseDouble(ultimo[3].toString());
 
-            String codigoProducto = (String) ultimo[2];
-            double saldoActual = (double) ultimo[3];
-
-            label.setText("Saldo actual de " + codigoProducto + ": [ " + saldoActual + " ]");
+            if (label != null) {
+                label.setText("Saldo actual de " + codigoProducto + ": [ " + saldoActual + " ]");
+            }
         } else {
-            label.setText("No se encontraron movimientos en el Kardex.");
+            if (label != null) {
+                label.setText("No se encontraron movimientos en el Kardex.");
+            }
         }
 
+        System.out.println("✅ Último movimiento de Kardex consultado correctamente.");
     } catch (Exception ex) {
-        label.setText("Error al consultar el Kardex: " + ex.getMessage());
+        if (label != null) {
+            label.setText("❌ Error al consultar el Kardex: " + ex.getMessage());
+        }
         ex.printStackTrace();
+    } finally {
+        if (em != null && em.isOpen()) {
+            em.close();
+        }
     }
 }
 
+    
     
     
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed

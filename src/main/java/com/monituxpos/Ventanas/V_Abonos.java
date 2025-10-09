@@ -7,6 +7,7 @@ package com.monituxpos.Ventanas;
 
 import com.monituxpos.Clases.Abono_Compra;
 import com.monituxpos.Clases.Abono_Venta;
+import com.monituxpos.Clases.MonituxDBContext;
 
 
 import jakarta.persistence.EntityManager;
@@ -68,13 +69,13 @@ public int Secuencial_Empresa=V_Menu_Principal.getSecuencial_Empresa();
     }
 
     
-    private void cargarDatosCTASP() {
+   private void cargarDatosCTASP() {
     // Limpiar la tabla
     DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
     model.setRowCount(0);
-this.setTitle("Pagos Realizados");
-    EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
-    EntityManager em = emf.createEntityManager();
+
+    this.setTitle("Pagos Realizados");
+    EntityManager em = MonituxDBContext.getEntityManager();
 
     try {
         // Consulta JPA
@@ -99,25 +100,21 @@ this.setTitle("Pagos Realizados");
         // Actualizar etiqueta
         jLabel1.setText(model.getRowCount() + " Pagos");
 
+        System.out.println("✅ Pagos cargados correctamente.");
     } catch (Exception e) {
         e.printStackTrace();
-        JOptionPane.showMessageDialog(null, "Error al cargar datos: " + e.getMessage());
-    } finally {
-        em.close();
-        emf.close();
+        JOptionPane.showMessageDialog(null, "❌ Error al cargar datos: " + e.getMessage());
     }
 }
 
     
-
-    private void cargarDatosCTASC() {
+private void cargarDatosCTASC() {
     // Limpiar la tabla
     DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
     model.setRowCount(0);
 
     this.setTitle("Abonos Recibidos");
-    EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
-    EntityManager em = emf.createEntityManager();
+    EntityManager em = MonituxDBContext.getEntityManager();
 
     try {
         // Consulta JPA
@@ -142,12 +139,10 @@ this.setTitle("Pagos Realizados");
         // Actualizar etiqueta
         jLabel1.setText(model.getRowCount() + " Abonos");
 
+        System.out.println("✅ Datos de abonos cargados correctamente.");
     } catch (Exception e) {
         e.printStackTrace();
-        JOptionPane.showMessageDialog(null, "Error al cargar datos: " + e.getMessage());
-    } finally {
-        em.close();
-        emf.close();
+        JOptionPane.showMessageDialog(null, "❌ Error al cargar datos: " + e.getMessage());
     }
 }
 

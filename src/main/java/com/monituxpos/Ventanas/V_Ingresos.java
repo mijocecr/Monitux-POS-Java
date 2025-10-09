@@ -5,6 +5,7 @@
 package com.monituxpos.Ventanas;
 
 import com.monituxpos.Clases.Ingreso;
+import com.monituxpos.Clases.MonituxDBContext;
 import com.monituxpos.Clases.Usuario;
 import com.monituxpos.Clases.Util;
 import com.monituxpos.Clases.Venta;
@@ -68,8 +69,7 @@ public class V_Ingresos extends javax.swing.JPanel {
     DefaultTableModel modelo = (DefaultTableModel) jTable1.getModel();
     modelo.setRowCount(0);
 
-    EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
-    EntityManager em = emf.createEntityManager();
+    EntityManager em = MonituxDBContext.getEntityManager();
 
     try {
         List<Ingreso> ingresos = em.createQuery(
@@ -87,7 +87,7 @@ public class V_Ingresos extends javax.swing.JPanel {
             modelo.addRow(new Object[] {
                 i.getSecuencial(),
                 i.getUsuario() != null ? i.getUsuario().getNombre() : "Desconocido",
-                i.getFecha(), // ← ya es String, no se formatea
+                i.getFecha(),
                 i.getTipo_Ingreso(),
                 i.getTotal(),
                 i.getDescripcion()
@@ -103,16 +103,13 @@ public class V_Ingresos extends javax.swing.JPanel {
         jLabel8.setText(String.format("%.2f", totalOtros));
         jLabel7.setText(String.format("%.2f", totalIngresos));
 
+        System.out.println("✅ Datos de ingresos cargados correctamente.");
     } catch (Exception e) {
-        JOptionPane.showMessageDialog(null, "Error al cargar datos: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(null, "❌ Error al cargar datos: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         e.printStackTrace();
-    } finally {
-        em.close();
-        emf.close();
     }
 }
 
-    
 public void cargarDatosFecha(LocalDate fechaInicio, LocalDate fechaFin) {
     double totalIngresos = 0;
     double totalOtros = 0;
@@ -120,8 +117,7 @@ public void cargarDatosFecha(LocalDate fechaInicio, LocalDate fechaFin) {
     DefaultTableModel modelo = (DefaultTableModel) jTable1.getModel();
     modelo.setRowCount(0);
 
-    EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
-    EntityManager em = emf.createEntityManager();
+    EntityManager em = MonituxDBContext.getEntityManager();
 
     try {
         // Convertir rango a LocalDateTime
@@ -129,8 +125,7 @@ public void cargarDatosFecha(LocalDate fechaInicio, LocalDate fechaFin) {
         LocalDateTime fin = fechaFin.atTime(LocalTime.MAX);
 
         // Formato de fecha con hora (como está en la base)
-       DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy hh:mm:ss a", new Locale("es", "ES"));
-
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy hh:mm:ss a", new Locale("es", "ES"));
 
         // Consulta con JOINs
         List<Ingreso> ingresos = em.createQuery(
@@ -147,7 +142,7 @@ public void cargarDatosFecha(LocalDate fechaInicio, LocalDate fechaFin) {
             try {
                 fechaConvertida = LocalDateTime.parse(i.getFecha().trim(), formatter);
             } catch (DateTimeParseException e) {
-                System.out.println("Fecha mal formateada: " + i.getFecha());
+                System.out.println("⚠️ Fecha mal formateada: " + i.getFecha());
                 continue;
             }
 
@@ -174,12 +169,10 @@ public void cargarDatosFecha(LocalDate fechaInicio, LocalDate fechaFin) {
         jLabel8.setText(String.format("%.2f", totalOtros));
         jLabel7.setText(String.format("%.2f", totalIngresos));
 
+        System.out.println("✅ Datos de ingresos filtrados por fecha cargados correctamente.");
     } catch (Exception e) {
-        JOptionPane.showMessageDialog(null, "Error al cargar datos por fecha: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(null, "❌ Error al cargar datos por fecha: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         e.printStackTrace();
-    } finally {
-        em.close();
-        emf.close();
     }
 }
 
@@ -497,77 +490,69 @@ cargarDatos();
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
 
-
-        // Inicialización de SQLite (si aplica, depende de tu configuración)
-// No es necesario en JPA/Hibernate, pero si usas SQLite directamente:
-// SQLiteConfig config = new SQLiteConfig();
-// config.setSynchronous(SQLiteConfig.SynchronousMode.NORMAL);
-
 int confirmResult = JOptionPane.showConfirmDialog(
-    null,
-    "¿Está seguro de eliminar el ingreso seleccionado?",
-    "Confirmar Eliminación",
-    JOptionPane.YES_NO_OPTION
-);
+        null,
+        "¿Está seguro de eliminar el ingreso seleccionado?",
+        "Confirmar Eliminación",
+        JOptionPane.YES_NO_OPTION
+    );
 
-if (confirmResult != JOptionPane.YES_OPTION) {
-    return;
-}
+    if (confirmResult != JOptionPane.YES_OPTION) {
+        return;
+    }
 
-EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
-EntityManager em = emf.createEntityManager();
+    EntityManager em = MonituxDBContext.getEntityManager();
 
-try {
-    Ingreso ingreso = em.createQuery(
-        "SELECT i FROM Ingreso i WHERE i.Secuencial = :secuencial " +
-        "AND (i.Secuencial_Factura = 0 OR i.Secuencial_Factura IS NULL) " +
-        "AND i.Secuencial_Empresa = :empresa", Ingreso.class)
-        .setParameter("secuencial", this.Secuencial)
-        .setParameter("empresa", this.Secuencial_Empresa)
-        .setMaxResults(1)
-        .getResultStream()
-        .findFirst()
-        .orElse(null);
+    try {
+        Ingreso ingreso = em.createQuery(
+            "SELECT i FROM Ingreso i WHERE i.Secuencial = :secuencial " +
+            "AND (i.Secuencial_Factura = 0 OR i.Secuencial_Factura IS NULL) " +
+            "AND i.Secuencial_Empresa = :empresa", Ingreso.class)
+            .setParameter("secuencial", this.Secuencial)
+            .setParameter("empresa", this.Secuencial_Empresa)
+            .setMaxResults(1)
+            .getResultStream()
+            .findFirst()
+            .orElse(null);
 
-    if (ingreso != null) {
-        em.getTransaction().begin();
-        em.remove(ingreso);
+        if (ingreso != null) {
+            em.getTransaction().begin();
+            em.remove(ingreso);
 
-        Util.registrarActividad(
-            this.Secuencial_Usuario,
-            "Eliminó ingreso sin factura asociada. Monto: " + ingreso.getTotal() +
-            " | Tipo: " + ingreso.getTipo_Ingreso() +
-            " | Fecha: " + ingreso.getFecha(),
-            this.Secuencial_Empresa
-        );
+            Util.registrarActividad(
+                this.Secuencial_Usuario,
+                "Eliminó ingreso sin factura asociada. Monto: " + ingreso.getTotal() +
+                " | Tipo: " + ingreso.getTipo_Ingreso() +
+                " | Fecha: " + ingreso.getFecha(),
+                this.Secuencial_Empresa
+            );
 
-        em.getTransaction().commit();
+            em.getTransaction().commit();
 
+            JOptionPane.showMessageDialog(null,
+                "Ingreso sin factura asociada eliminado correctamente.",
+                "Éxito",
+                JOptionPane.INFORMATION_MESSAGE);
+
+            cargarDatos(); // Refrescar tabla
+        } else {
+            JOptionPane.showMessageDialog(null,
+                "No es posible eliminar el ingreso seleccionado.",
+                "Error",
+                JOptionPane.ERROR_MESSAGE);
+        }
+
+        System.out.println("✅ Ingreso eliminado correctamente.");
+    } catch (Exception e) {
+        if (em.getTransaction().isActive()) {
+            em.getTransaction().rollback();
+        }
         JOptionPane.showMessageDialog(null,
-            "Ingreso sin factura asociada eliminado correctamente.",
-            "Éxito",
-            JOptionPane.INFORMATION_MESSAGE);
-
-        cargarDatos(); // Método que refresca la tabla
-    } else {
-        JOptionPane.showMessageDialog(null,
-            "No es posible eliminar el ingreso seleccionado.",
+            "Error al eliminar ingreso: " + e.getMessage(),
             "Error",
             JOptionPane.ERROR_MESSAGE);
+        e.printStackTrace();
     }
-} catch (Exception e) {
-    if (em.getTransaction().isActive()) {
-        em.getTransaction().rollback();
-    }
-    JOptionPane.showMessageDialog(null,
-        "Error al eliminar ingreso: " + e.getMessage(),
-        "Error",
-        JOptionPane.ERROR_MESSAGE);
-    e.printStackTrace();
-} finally {
-    em.close();
-    emf.close();
-}
 
 
 

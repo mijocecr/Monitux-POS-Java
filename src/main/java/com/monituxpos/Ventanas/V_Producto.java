@@ -5,6 +5,7 @@
 package com.monituxpos.Ventanas;
 
 import com.monituxpos.Clases.Categoria;
+import com.monituxpos.Clases.MonituxDBContext;
 import com.monituxpos.Clases.Producto;
 import com.monituxpos.Clases.Proveedor;
 import com.monituxpos.Clases.Util;
@@ -37,6 +38,7 @@ import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerDateModel;
+import javax.swing.SwingWorker;
 import javax.swing.WindowConstants;
 
 /**
@@ -78,13 +80,32 @@ public void setImagen(byte[] imagen) {
         this.onProductoEditado = listener;
     }
 
-    // Llama esto cuando el producto se edite correctamente
+ 
+    
     public void notificarEdicion() {
-        if (onProductoEditado != null) {
-            onProductoEditado.run();
-        }
-    }
+    if (onProductoEditado != null) {
+        new SwingWorker<Void, Void>() {
+            @Override
+            protected Void doInBackground() {
+                // Si necesitas hacer algo pesado aquí, hazlo
+                return null;
+            }
 
+            @Override
+            protected void done() {
+                try {
+                    onProductoEditado.run(); // ✅ Aquí sí puedes tocar la GUI
+                } catch (Exception ex) {
+                    System.err.println("⚠️ Error en onProductoEditado: " + ex.getMessage());
+                    ex.printStackTrace();
+                }
+            }
+        }.execute();
+    }
+}
+
+    
+    
 
     //********************************************
 
@@ -151,8 +172,8 @@ public void setImagen(byte[] imagen) {
         Secuencial_Categoria = vistaProducto.getSecuencial_Categoria();
 
         // Combos
-        llenar_Combo_Proveedor();
-        llenar_Combo_Categoria();
+        Util.llenarComboProveedor(comboProveedor, Secuencial_Empresa);
+        Util.llenar_Combo_Categoria(comboCategoria, Secuencial_Empresa);
 
         // Imagen redimensionada
         imagen = vistaProducto.getImagen();
@@ -308,6 +329,11 @@ private String valueOrEmpty(String valor) {
         comboProveedor.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 comboProveedorMouseClicked(evt);
+            }
+        });
+        comboProveedor.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                comboProveedorActionPerformed(evt);
             }
         });
 
@@ -685,79 +711,13 @@ private String valueOrEmpty(String valor) {
 
     
     
-    public void llenar_Combo_Categoria() {
-    comboCategoria.removeAllItems(); // Limpiar combo
-
-    EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
-    EntityManager em = emf.createEntityManager();
-
-    try {
-        List<Categoria> categorias = em.createQuery(
-            "SELECT c FROM Categoria c WHERE c.Secuencial_Empresa = :empresa", Categoria.class)
-            .setParameter("empresa", Secuencial_Empresa)
-            .getResultList();
-
-        if (Secuencial != -1) {
-            for (Categoria c : categorias) {
-                comboCategoria.addItem(c.getSecuencial() + " - " + c.getNombre());
-            }
-
-            for (int i = 0; i < comboCategoria.getItemCount(); i++) {
-                String item = comboCategoria.getItemAt(i);
-                if (item.contains(String.valueOf(this.Secuencial_Categoria))) {
-                    comboCategoria.setSelectedItem(item);
-                    break;
-                }
-            }
-        }
-
-    } catch (Exception e) {
-        JOptionPane.showMessageDialog(null, "Error al cargar categorías: " + e.getMessage());
-    } finally {
-        em.close();
-        emf.close();
-    }
-}
-
+  
     
     
     
     
     
-    public void llenar_Combo_Proveedor() {
-    comboProveedor.removeAllItems(); // Limpiar combo
-
-    EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
-    EntityManager em = emf.createEntityManager();
-
-    try {
-        List<Proveedor> proveedores = em.createQuery(
-            "SELECT p FROM Proveedor p WHERE p.Activo = true AND p.Secuencial_Empresa = :empresa", Proveedor.class)
-            .setParameter("empresa", Secuencial_Empresa)
-            .getResultList();
-
-        if (Secuencial != -1) {
-            for (Proveedor p : proveedores) {
-                comboProveedor.addItem(p.getSecuencial() + " - " + p.getNombre());
-            }
-
-            for (int i = 0; i < comboProveedor.getItemCount(); i++) {
-                String item = comboProveedor.getItemAt(i);
-                if (item.contains(String.valueOf(this.Secuencial_Proveedor))) {
-                    comboProveedor.setSelectedItem(item);
-                    break;
-                }
-            }
-        }
-
-    } catch (Exception e) {
-        JOptionPane.showMessageDialog(null, "Error al cargar proveedores: " + e.getMessage());
-    } finally {
-        em.close();
-        emf.close();
-    }
-}
-
+   
     
     
     
@@ -864,7 +824,7 @@ private String valueOrEmpty(String valor) {
     private void comboProveedorMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_comboProveedorMouseClicked
 
 
-        llenar_Combo_Proveedor();
+        Util.llenarComboProveedor(comboProveedor, Secuencial_Empresa);
         
         // TODO add your handling code here:
     }//GEN-LAST:event_comboProveedorMouseClicked
@@ -872,15 +832,16 @@ private String valueOrEmpty(String valor) {
     private void comboCategoriaMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_comboCategoriaMouseClicked
 
 
-        llenar_Combo_Categoria();
+        Util.llenar_Combo_Categoria(comboCategoria, Secuencial_Empresa);
         // TODO add your handling code here:
     }//GEN-LAST:event_comboCategoriaMouseClicked
 
     private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
  this.setLocationRelativeTo(null);
         this.getContentPane().setBackground(Color.black);
-        llenar_Combo_Proveedor();
-        llenar_Combo_Categoria();
+        Util.llenarComboProveedor(comboProveedor, Secuencial_Empresa);
+        Util.llenar_Combo_Categoria(comboCategoria, Secuencial_Empresa);
+
      
           setTitle("Monitux-POS v." + "");//V_Menu_Principal.VER);
 
@@ -952,80 +913,79 @@ private String valueOrEmpty(String valor) {
 //**********************************************
 
 int res = JOptionPane.showConfirmDialog(
-    null,
-    "¿Está seguro de eliminar este producto?",
-    "Confirmación",
-    JOptionPane.YES_NO_OPTION
-);
+        null,
+        "¿Está seguro de eliminar este producto?",
+        "Confirmación",
+        JOptionPane.YES_NO_OPTION
+    );
 
-if (res == JOptionPane.YES_OPTION) {
-    try {
-        // Inicializar conexión JPA
-        EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
-        EntityManager em = emf.createEntityManager();
-
-        // Liberar imágenes si existen
-        if (labelImagen.getIcon() != null) {
-            ((ImageIcon) labelImagen.getIcon()).getImage().flush();
-            labelImagen.setIcon(null);
-        }
-        if (label_bc.getIcon() != null) {
-            ((ImageIcon) label_bc.getIcon()).getImage().flush();
-            label_bc.setIcon(null);
-        }
-        if (label_qr.getIcon() != null) {
-            ((ImageIcon) label_qr.getIcon()).getImage().flush();
-            label_qr.setIcon(null);
-        }
-
-        // Buscar producto por secuencial
-        Producto producto = em.createQuery(
-            "SELECT p FROM Producto p WHERE p.Secuencial = :Secuencial", Producto.class)
-            .setParameter("Secuencial", this.Secuencial)
-            .getResultStream().findFirst().orElse(null);
-
-        if (producto != null) {
-            Util.registrarActividad(
-                Secuencial_Usuario,
-                "Ha eliminado el producto: " + producto.getCodigo(),
-                Secuencial_Empresa
-            );
-
-            if (!"Servicio".equals(producto.getTipo())) {
-                Util.registrarMovimientoKardex(
-                    producto.getSecuencial(),
-                    producto.getCantidad(),
-                    producto.getDescripcion(),
-                    producto.getCantidad(),
-                    producto.getPrecio_Costo(),
-                    producto.getPrecio_Venta(),
-                    "Salida",
-                    Secuencial_Empresa
-                );
+    if (res == JOptionPane.YES_OPTION) {
+        try {
+            // Liberar imágenes si existen
+            if (labelImagen.getIcon() != null) {
+                ((ImageIcon) labelImagen.getIcon()).getImage().flush();
+                labelImagen.setIcon(null);
+            }
+            if (label_bc.getIcon() != null) {
+                ((ImageIcon) label_bc.getIcon()).getImage().flush();
+                label_bc.setIcon(null);
+            }
+            if (label_qr.getIcon() != null) {
+                ((ImageIcon) label_qr.getIcon()).getImage().flush();
+                label_qr.setIcon(null);
             }
 
-            em.getTransaction().begin();
-            em.remove(em.contains(producto) ? producto : em.merge(producto));
-            em.getTransaction().commit();
+            EntityManager em = MonituxDBContext.getEntityManager();
 
-            JOptionPane.showMessageDialog(null,"Producto eliminado correctamente.");
+            // Buscar producto por secuencial
+            Producto producto = em.createQuery(
+                "SELECT p FROM Producto p WHERE p.Secuencial = :Secuencial", Producto.class)
+                .setParameter("Secuencial", this.Secuencial)
+                .getResultStream()
+                .findFirst()
+                .orElse(null);
 
-             if (onProductoEditado != null) {
-    onProductoEditado.run();
-}
+            if (producto != null) {
+                Util.registrarActividad(
+                    Secuencial_Usuario,
+                    "Ha eliminado el producto: " + producto.getCodigo(),
+                    Secuencial_Empresa
+                );
 
-            this.dispose();
-        } else {
-            JOptionPane.showMessageDialog(null,"El producto no existe en la base de datos.");
+                if (!"Servicio".equals(producto.getTipo())) {
+                    Util.registrarMovimientoKardex(
+                        producto.getSecuencial(),
+                        producto.getCantidad(),
+                        producto.getDescripcion(),
+                        producto.getCantidad(),
+                        producto.getPrecio_Costo(),
+                        producto.getPrecio_Venta(),
+                        "Salida",
+                        Secuencial_Empresa
+                    );
+                }
+
+                em.getTransaction().begin();
+                em.remove(em.contains(producto) ? producto : em.merge(producto));
+                em.getTransaction().commit();
+
+                JOptionPane.showMessageDialog(null, "Producto eliminado correctamente.");
+
+                if (onProductoEditado != null) {
+                    onProductoEditado.run();
+                }
+
+                this.dispose();
+            } else {
+                JOptionPane.showMessageDialog(null, "El producto no existe en la base de datos.");
+            }
+
+            System.out.println("✅ Producto eliminado correctamente.");
+        } catch (Exception ex) {
+            System.err.println("❌ Error al eliminar producto: " + ex.getMessage());
+            ex.printStackTrace();
         }
-
-        em.close();
-        emf.close();
-    } catch (Exception ex) {
-        // Manejo silencioso del error
-        ex.printStackTrace(); // Puedes quitar esto si prefieres que no se muestre nada
     }
-}
 
 
 
@@ -1034,162 +994,29 @@ if (res == JOptionPane.YES_OPTION) {
 
     private void Menu_GuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Menu_GuardarActionPerformed
 
-        
-        //****************************************************************
-//       
-//         EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
-//    EntityManager em = emf.createEntityManager();
-//
-//    try {
-//        boolean esServicio = "Servicio".equals(jComboBox3.getSelectedItem());
-//        boolean tipoSeleccionado = jComboBox3.getSelectedIndex() != -1;
-//        boolean proveedorValido = comboProveedor.getSelectedItem() != null;
-//        boolean categoriaValida = comboCategoria.getSelectedItem() != null;
-//
-//        if (!tipoSeleccionado || (!esServicio && (!proveedorValido || !categoriaValida))) {
-//            return;
-//        }
-//
-//        Producto productoExistente = em.createQuery(
-//            "SELECT p FROM Producto p WHERE p.Secuencial = :secuencial AND p.Secuencial_Empresa = :empresa", Producto.class)
-//            .setParameter("secuencial", this.Secuencial)
-//            .setParameter("empresa", Secuencial_Empresa)
-//            .getResultStream().findFirst().orElse(null);
-//
-//        boolean esNuevo = productoExistente == null;
-//        Producto producto = esNuevo ? new Producto() : productoExistente;
-//
-//        producto.setSecuencial_Empresa(Secuencial_Empresa);
-//        producto.setCodigo(txt_Codigo.getText());
-//        producto.setDescripcion(txt_Descripcion.getText());
-//        producto.setMarca(txt_Marca.getText());
-//        producto.setCodigo_Barra(txt_bc.getText());
-//        producto.setCodigo_Fabricante(txt_CodigoFabricante.getText());
-//        producto.setTipo(jComboBox3.getSelectedItem().toString());
-//        producto.setExpira(jCheckBox1.isSelected());
-//
-//        if (jCheckBox1.isSelected()) {
-//            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-//            producto.setFecha_Caducidad(datePicker1.getDate().format(formatter));
-//        } else {
-//            producto.setFecha_Caducidad(null);
-//        }
-//
-//        double precioVenta = Double.parseDouble(txt_PrecioVenta.getText().replace(',', '.'));
-//        double precioCosto = Double.parseDouble(txt_PrecioCosto.getText().replace(',', '.'));
-//        producto.setPrecio_Venta(precioVenta);
-//        producto.setPrecio_Costo(precioCosto);
-//
-//        double cantidadAnterior = producto.getCantidad();
-//
-//        if (!esServicio) {
-//            double cantidad = Double.parseDouble(txt_Cantidad.getText().replace(',', '.'));
-//            producto.setCantidad(cantidad);
-//
-//            double existenciaMinima = Double.parseDouble(txt_ExistenciaMinima.getText().replace(',', '.'));
-//            producto.setExistencia_Minima(existenciaMinima);
-//
-//            int secuencialCategoria = Integer.parseInt(comboCategoria.getSelectedItem().toString().split("-")[0].trim());
-//            int secuencialProveedor = Integer.parseInt(comboProveedor.getSelectedItem().toString().split("-")[0].trim());
-//            producto.setSecuencial_Categoria(secuencialCategoria);
-//            producto.setSecuencial_Proveedor(secuencialProveedor);
-//        } else {
-//            producto.setCantidad(0);
-//            producto.setExistencia_Minima(0);
-//            producto.setSecuencial_Categoria(0);
-//            producto.setSecuencial_Proveedor(0);
-//        }
-//
-//        em.getTransaction().begin();
-//        if (esNuevo) {
-//            em.persist(producto);
-//            
-//                    if (onProductoEditado != null) {
-//    onProductoEditado.run();
-//}
-//            
-//        }
-//        em.getTransaction().commit();
-//
-//        em.refresh(producto);
-//
-//        // ✅ Guardar imagen original si existe
-//        if (imagen != null && imagen.length > 0) {
-//            producto.setImagen(imagen);
-//
-//            em.getTransaction().begin();
-//            em.merge(producto);
-//            em.getTransaction().commit();
-//        }
-//
-//        if (!esServicio) {
-//            double diferencia = producto.getCantidad() - cantidadAnterior;
-//
-//            if (esNuevo) {
-//                Util.registrarMovimientoKardex(
-//                    producto.getSecuencial(),
-//                    0,
-//                    producto.getDescripcion(),
-//                    producto.getCantidad(),
-//                    producto.getPrecio_Costo(),
-//                    producto.getPrecio_Venta(),
-//                    "Entrada",
-//                    producto.getSecuencial_Empresa()
-//                );
-//            } else if (diferencia != 0) {
-//                String tipoMovimiento = diferencia > 0 ? "Entrada" : "Salida";
-//
-//                Util.registrarMovimientoKardex(
-//                    producto.getSecuencial(),
-//                    cantidadAnterior,
-//                    producto.getDescripcion(),
-//                    Math.abs(diferencia),
-//                    producto.getPrecio_Costo(),
-//                    producto.getPrecio_Venta(),
-//                    tipoMovimiento,
-//                    producto.getSecuencial_Empresa()
-//                );
-//            }
-//        }
-//
-//        JOptionPane.showMessageDialog(null, esNuevo ? "Producto creado correctamente." : "Producto actualizado correctamente.");
-//        Util.registrarActividad(Secuencial_Usuario, "Ha " + (esNuevo ? "creado" : "modificado") + " el producto: " + producto.getCodigo(), producto.getSecuencial_Empresa());
-//
-//      
-//
-//        this.dispose();
-//
-//    } catch (Exception ex) {
-//        JOptionPane.showMessageDialog(null, "Error al guardar el producto: " + ex.getMessage());
-//    } finally {
-//        
-//          
-//
-//        
-//        em.close();
-//        emf.close();
-//    }
-//        
-        
-        //************************************************
-        
-    
-    EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
-    EntityManager em = emf.createEntityManager();
+     EntityManager em = null;
 
     try {
+        em = MonituxDBContext.getEntityManager();
+
         boolean esServicio = "Servicio".equals(jComboBox3.getSelectedItem());
         boolean tipoSeleccionado = jComboBox3.getSelectedIndex() != -1;
         boolean proveedorValido = comboProveedor.getSelectedItem() != null;
         boolean categoriaValida = comboCategoria.getSelectedItem() != null;
 
-        if (!tipoSeleccionado || (!esServicio && (!proveedorValido || !categoriaValida))) return;
+        if (!tipoSeleccionado || (!esServicio && (!proveedorValido || !categoriaValida))) {
+            JOptionPane.showMessageDialog(null, "Faltan campos obligatorios.");
+            return;
+        }
 
         Producto producto = em.createQuery(
-            "SELECT p FROM Producto p WHERE p.Secuencial = :secuencial AND p.Secuencial_Empresa = :empresa", Producto.class)
+            "SELECT p FROM Producto p WHERE p.Secuencial = :secuencial AND p.Secuencial_Empresa = :empresa",
+            Producto.class)
             .setParameter("secuencial", this.Secuencial)
             .setParameter("empresa", Secuencial_Empresa)
-            .getResultStream().findFirst().orElse(new Producto());
+            .getResultStream()
+            .findFirst()
+            .orElse(new Producto());
 
         boolean esNuevo = producto.getSecuencial() == 0;
 
@@ -1202,20 +1029,40 @@ if (res == JOptionPane.YES_OPTION) {
         producto.setTipo(jComboBox3.getSelectedItem().toString());
         producto.setExpira(jCheckBox1.isSelected());
 
-        producto.setFecha_Caducidad(jCheckBox1.isSelected()
-            ? datePicker1.getDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+        LocalDate fechaCaducidad = datePicker1.getDate();
+        producto.setFecha_Caducidad(jCheckBox1.isSelected() && fechaCaducidad != null
+            ? fechaCaducidad.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
             : null);
 
-        producto.setPrecio_Venta(Double.parseDouble(txt_PrecioVenta.getText().replace(',', '.')));
-        producto.setPrecio_Costo(Double.parseDouble(txt_PrecioCosto.getText().replace(',', '.')));
+        try {
+            producto.setPrecio_Venta(Double.parseDouble(txt_PrecioVenta.getText().replace(',', '.')));
+            producto.setPrecio_Costo(Double.parseDouble(txt_PrecioCosto.getText().replace(',', '.')));
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(null, "Precio inválido.");
+            return;
+        }
 
         double cantidadAnterior = producto.getCantidad();
 
         if (!esServicio) {
-            producto.setCantidad(Double.parseDouble(txt_Cantidad.getText().replace(',', '.')));
-            producto.setExistencia_Minima(Double.parseDouble(txt_ExistenciaMinima.getText().replace(',', '.')));
-            producto.setSecuencial_Categoria(Integer.parseInt(comboCategoria.getSelectedItem().toString().split("-")[0].trim()));
-            producto.setSecuencial_Proveedor(Integer.parseInt(comboProveedor.getSelectedItem().toString().split("-")[0].trim()));
+            try {
+                producto.setCantidad(Double.parseDouble(txt_Cantidad.getText().replace(',', '.')));
+                producto.setExistencia_Minima(Double.parseDouble(txt_ExistenciaMinima.getText().replace(',', '.')));
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(null, "Cantidad o existencia mínima inválida.");
+                return;
+            }
+
+            String proveedorRaw = comboProveedor.getSelectedItem().toString();
+            String categoriaRaw = comboCategoria.getSelectedItem().toString();
+
+            if (!proveedorRaw.contains("-") || !categoriaRaw.contains("-")) {
+                JOptionPane.showMessageDialog(null, "Formato de proveedor o categoría inválido.");
+                return;
+            }
+
+            producto.setSecuencial_Proveedor(Integer.parseInt(proveedorRaw.split("-")[0].trim()));
+            producto.setSecuencial_Categoria(Integer.parseInt(categoriaRaw.split("-")[0].trim()));
         } else {
             producto.setCantidad(0);
             producto.setExistencia_Minima(0);
@@ -1224,16 +1071,14 @@ if (res == JOptionPane.YES_OPTION) {
         }
 
         em.getTransaction().begin();
-        if (esNuevo) em.persist(producto);
+        if (esNuevo) {
+            em.persist(producto);
+        }
         em.getTransaction().commit();
-        em.refresh(producto);
-
-        // ✅ Listener ejecutado en ambos casos
-        if (onProductoEditado != null) onProductoEditado.run();
 
         if (imagen != null && imagen.length > 0) {
-            producto.setImagen(imagen);
             em.getTransaction().begin();
+            producto.setImagen(imagen);
             em.merge(producto);
             em.getTransaction().commit();
         }
@@ -1255,25 +1100,42 @@ if (res == JOptionPane.YES_OPTION) {
             }
         }
 
-        JOptionPane.showMessageDialog(null, esNuevo ? "Producto creado correctamente." : "Producto actualizado correctamente.");
-        Util.registrarActividad(Secuencial_Usuario, "Ha " + (esNuevo ? "creado" : "modificado") + " el producto: " + producto.getCodigo(), producto.getSecuencial_Empresa());
+        JOptionPane.showMessageDialog(null,
+            esNuevo ? "Producto creado correctamente." : "Producto actualizado correctamente.");
+
+        if (em.isOpen()) {
+            Util.registrarActividad(
+                Secuencial_Usuario,
+                "Ha " + (esNuevo ? "creado" : "modificado") + " el producto: " + producto.getCodigo(),
+                producto.getSecuencial_Empresa());
+        }
+
+        if (onProductoEditado != null) {
+    new SwingWorker<Void, Void>() {
+        @Override
+        protected Void doInBackground() {
+            onProductoEditado.run();
+            return null;
+        }
+    }.execute();
+}
+
+
         this.dispose();
+        System.out.println("✅ Producto " + (esNuevo ? "creado" : "actualizado") + " correctamente.");
 
     } catch (Exception ex) {
-        JOptionPane.showMessageDialog(null, "Error al guardar el producto: " + ex.getMessage());
+        if (em != null && em.getTransaction().isActive()) {
+            em.getTransaction().rollback();
+        }
+        JOptionPane.showMessageDialog(null, "❌ Error al guardar el producto: " + ex.getMessage());
+        ex.printStackTrace();
     } finally {
-        em.close();
-        emf.close();
+        if (em != null && em.isOpen()) {
+            em.close();
+        }
+       
     }
-
-
-        
-        
-        //************************************************
-        
-        
-     
-        
     }//GEN-LAST:event_Menu_GuardarActionPerformed
 
     private void Menu_NuevoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Menu_NuevoActionPerformed
@@ -1516,6 +1378,10 @@ x.setVisible(true);
 
         // TODO add your handling code here:
     }//GEN-LAST:event_jMenu1ActionPerformed
+
+    private void comboProveedorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_comboProveedorActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_comboProveedorActionPerformed
 
     /**
      * @param args the command line arguments

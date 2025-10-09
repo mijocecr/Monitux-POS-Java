@@ -10,6 +10,7 @@ import com.monituxpos.Clases.Ingreso;
 import com.monituxpos.Clases.Item_Factura;
 import com.monituxpos.Clases.Kardex;
 import com.monituxpos.Clases.Miniatura_Producto;
+import com.monituxpos.Clases.MonituxDBContext;
 import com.monituxpos.Clases.Producto;
 import com.monituxpos.Clases.SelectorCantidad;
 import com.monituxpos.Clases.Util;
@@ -19,6 +20,7 @@ import static com.monituxpos.Ventanas.V_Factura_Venta.listaDeItems;
 import static com.monituxpos.Ventanas.V_Factura_Venta.selectoresCantidad;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.EntityTransaction;
 import jakarta.persistence.Persistence;
 import jakarta.persistence.TypedQuery;
 import java.awt.Color;
@@ -129,16 +131,16 @@ double descuento = 0.0;
      * Creates new form V_Editar_Factura_Venta
      */
     public V_Editar_Factura_Venta(V_Compras_Ventas x) {
-        initComponents();
-        
-         EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
-         em = emf.createEntityManager();
-         
-         this.getContentPane().setBackground(Color.BLACK);
-         
-         form=x;
-         
-         Secuencial_Cliente= form.Secuencial_Cliente;
+       initComponents();
+
+    em = MonituxDBContext.getEntityManager(); // ← Uso centralizado del contexto
+
+    this.getContentPane().setBackground(Color.BLACK);
+
+    form = x;
+    Secuencial_Cliente = form.Secuencial_Cliente;
+
+    System.out.println("✅ V_Editar_Factura_Venta inicializado con cliente: " + Secuencial_Cliente);
     }
 
     /**
@@ -780,10 +782,6 @@ double descuento = 0.0;
 
     private void jButton7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton7ActionPerformed
 
-        
-        
-        
-        
      ActualizarNumeros();   
         
 Guardar_Cambios();
@@ -792,18 +790,25 @@ Guardar_Cambios();
        
     }//GEN-LAST:event_jButton7ActionPerformed
 
-public void Guardar_Cambios() {
-    EntityManagerFactory emf = null;
+   public void Guardar_Cambios() {
     EntityManager em = null;
+    EntityTransaction tx = null;
+    List<Object[]> movimientosPendientes = new ArrayList<>();
+    List<String> actividadesPendientes = new ArrayList<>();
 
     try {
-        emf = Persistence.createEntityManagerFactory("MonituxPU");
-        em = emf.createEntityManager();
-        em.getTransaction().begin();
+        em = MonituxDBContext.getEntityManager();
+        if (em == null || !em.isOpen()) {
+            throw new IllegalStateException("EntityManager no disponible.");
+        }
+
+        tx = em.getTransaction();
+        tx.begin();
 
         Venta venta = em.find(Venta.class, Secuencial);
         if (venta == null || venta.getSecuencial_Empresa() != Secuencial_Empresa) {
             JOptionPane.showMessageDialog(null, "No se encontró la factura para actualizar.", "Error", JOptionPane.ERROR_MESSAGE);
+            tx.rollback();
             return;
         }
 
@@ -835,7 +840,6 @@ public void Guardar_Cambios() {
         for (Miniatura_Producto pro : listaDeItems.values()) {
             String codigo = pro.producto.getCodigo().trim();
             Producto productoBD = productosCache.get(codigo);
-
             if (productoBD == null) {
                 System.out.println("❌ Producto no encontrado en BD para código: " + codigo);
                 continue;
@@ -857,32 +861,30 @@ public void Guardar_Cambios() {
 
             if (detalle != null) {
                 if (!"Servicio".equalsIgnoreCase(pro.producto.getTipo())) {
-                    double cantidadAnterior = detalle.getCantidad();
-                    double diferencia = nuevaCantidad - cantidadAnterior;
-
+                    double diferencia = nuevaCantidad - detalle.getCantidad();
                     if (diferencia != 0) {
                         String tipoMovimiento = diferencia > 0 ? "Salida" : "Entrada";
                         double cantidadMovimiento = Math.abs(diferencia);
-                        double existenciaAnterior = productoBD.getCantidad();
 
-                        Util.registrarMovimientoKardex(
+                        movimientosPendientes.add(new Object[] {
                             productoBD.getSecuencial(),
-                            existenciaAnterior,
+                            productoBD.getCantidad(),
                             productoBD.getDescripcion(),
                             cantidadMovimiento,
                             productoBD.getPrecio_Costo(),
                             productoBD.getPrecio_Venta(),
                             tipoMovimiento,
                             Secuencial_Empresa
-                        );
+                        });
+
+                        productoBD.setCantidad(productoBD.getCantidad() - diferencia);
+                        em.merge(productoBD);
 
                         String accion = diferencia > 0 ? "Agregó" : "Quitó";
-                        Util.registrarActividad(Secuencial_Usuario,
-                            accion + " " + cantidadMovimiento + " unidades de " + productoBD.getCodigo() + " en modificación de factura No: " + venta.getSecuencial(),
-                            Secuencial_Empresa);
-
-                        productoBD.setCantidad(existenciaAnterior - diferencia);
-                        em.merge(productoBD);
+                        actividadesPendientes.add(
+                            accion + " " + cantidadMovimiento + " unidades de " + productoBD.getCodigo() +
+                            " en modificación de factura No. " + venta.getSecuencial()
+                        );
                     }
                 }
 
@@ -894,6 +896,7 @@ public void Guardar_Cambios() {
                 detalle.setFecha(venta.getFecha());
                 detalle.setSecuencial_Usuario(venta.getSecuencial_Usuario());
                 detalle.setSecuencial_Cliente(venta.getSecuencial_Cliente());
+
             } else {
                 Venta_Detalle nuevo = new Venta_Detalle();
                 nuevo.setSecuencial_Empresa(venta.getSecuencial_Empresa());
@@ -910,25 +913,24 @@ public void Guardar_Cambios() {
                 nuevo.setTipo(productoBD.getTipo());
                 em.persist(nuevo);
 
-                Util.registrarActividad(Secuencial_Usuario,
-                    "Agregó la cantidad de: " + nuevaCantidad + " de: " + productoBD.getCodigo() + " a Factura No: " + venta.getSecuencial(),
-                    Secuencial_Empresa);
+                actividadesPendientes.add(
+                    "Agregó " + nuevaCantidad + " de " + productoBD.getCodigo() +
+                    " a factura No. " + venta.getSecuencial()
+                );
 
                 if (!"Servicio".equalsIgnoreCase(productoBD.getTipo())) {
-                    double existenciaAnterior = productoBD.getCantidad();
-
-                    Util.registrarMovimientoKardex(
+                    movimientosPendientes.add(new Object[] {
                         productoBD.getSecuencial(),
-                        existenciaAnterior,
+                        productoBD.getCantidad(),
                         productoBD.getDescripcion(),
                         nuevaCantidad,
                         productoBD.getPrecio_Costo(),
                         productoBD.getPrecio_Venta(),
                         "Salida",
                         Secuencial_Empresa
-                    );
+                    });
 
-                    productoBD.setCantidad(existenciaAnterior - nuevaCantidad);
+                    productoBD.setCantidad(productoBD.getCantidad() - nuevaCantidad);
                     em.merge(productoBD);
                 }
             }
@@ -957,43 +959,43 @@ public void Guardar_Cambios() {
 
         if (ingreso != null) {
             ingreso.setTotal(venta.getGran_Total());
-            ingreso.setDescripcion("Actualización de ingreso por compra No. " + venta.getSecuencial());
+            ingreso.setDescripcion("Actualización de ingreso por factura No. " + venta.getSecuencial());
             ingreso.setFecha(Util.fechaActualCompleta());
             ingreso.setTipo_Ingreso(venta.getTipo());
             ingreso.setSecuencial_Usuario(venta.getSecuencial_Usuario());
             em.merge(ingreso);
-        } else {
-            System.out.println("⚠️ No se encontró ingreso asociado a la factura No. " + venta.getSecuencial());
         }
+
+        Object clienteSeleccionado = comboCliente.getSelectedItem();
+        String nombreCliente = (clienteSeleccionado != null) ? clienteSeleccionado.toString().split("- ")[1].trim() : "Cliente";
 
         FacturaCompletaPDF_Venta factura = new FacturaCompletaPDF_Venta();
         factura.setSecuencial(venta.getSecuencial());
-        factura.setCliente(comboCliente.getSelectedItem().toString().split("- ")[1].trim());
+        factura.setCliente(nombreCliente);
         factura.setTipoVenta(venta.getTipo());
         factura.setMetodoPago(venta.getForma_Pago());
         factura.setFecha(venta.getFecha());
         factura.setItems(ObtenerItemsDesdeGrid(jTable1));
         factura.setISV(venta.getImpuesto());
         factura.setOtrosCargos(venta.getOtros_Cargos());
-        
-                
-                      factura.setDescuento(venta.getDescuento());
+        factura.setDescuento(venta.getDescuento());
 
         venta.setDocumento(factura.GeneratePdfToBytes());
         em.merge(venta);
 
-        em.getTransaction().commit();
+        tx.commit();
 
         listaDeItems.clear();
         listaDeItemsEliminar.clear();
 
         JOptionPane.showMessageDialog(null, "Factura No. " + venta.getSecuencial() + " actualizada correctamente.", "Ventas", JOptionPane.INFORMATION_MESSAGE);
-        form.cargar_Datos_Venta();
+
+                 form.cargar_Datos_Venta();
         this.dispose();
 
     } catch (Exception ex) {
-        if (em != null && em.getTransaction().isActive()) {
-            em.getTransaction().rollback();
+        if (tx != null && tx.isActive()) {
+            tx.rollback();
         }
         JOptionPane.showMessageDialog(null, "Error al actualizar factura:\n" + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         ex.printStackTrace();
@@ -1001,15 +1003,27 @@ public void Guardar_Cambios() {
         if (em != null && em.isOpen()) {
             em.close();
         }
-        if (emf != null && emf.isOpen()) {
-            emf.close();
-        }
+    }
+
+    // Ejecutar Kardex y actividad fuera del contexto transaccional
+    for (Object[] mov : movimientosPendientes) {
+        Util.registrarMovimientoKardex(
+            (int) mov[0],
+            (double) mov[1],
+            (String) mov[2],
+            (double) mov[3],
+            (double) mov[4],
+            (double) mov[5],
+            (String) mov[6],
+            (int) mov[7]
+        );
+    }
+
+    for (String actividad : actividadesPendientes) {
+        Util.registrarActividad(Secuencial_Usuario, actividad, Secuencial_Empresa);
     }
 }
-  
-    
-             
-                
+
                 
     
     private void lbl_otrosCargosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_lbl_otrosCargosActionPerformed
@@ -1207,13 +1221,19 @@ public void Guardar_Cambios() {
 
         // TODO add your handling code here:
     }//GEN-LAST:event_lbl_impuestoKeyReleased
-
-   public void Quitar_Elemento(EntityManager em) {
+public void Quitar_Elemento() {
     List<Component> paraEliminar = new ArrayList<>();
     double totalRestado = 0.0;
     jButton7.setEnabled(false);
 
+    EntityManager em = null;
+
     try {
+        em = MonituxDBContext.getEntityManager();
+        if (em == null || !em.isOpen()) {
+            throw new IllegalStateException("EntityManager no disponible.");
+        }
+
         em.getTransaction().begin();
 
         for (Component comp : contenedor_selector.getComponents()) {
@@ -1238,7 +1258,6 @@ public void Guardar_Cambios() {
             double precio = copia.producto.getPrecio_Venta();
             totalRestado += cantidad * precio;
 
-            // Eliminar detalle de venta
             List<Venta_Detalle> detalles = em.createQuery(
                 "SELECT vd FROM Venta_Detalle vd WHERE vd.Codigo = :codigo AND vd.Secuencial_Factura = :factura AND vd.Secuencial_Empresa = :empresa",
                 Venta_Detalle.class)
@@ -1251,7 +1270,6 @@ public void Guardar_Cambios() {
                 em.remove(detalles.get(0));
             }
 
-            // Actualizar inventario y Kardex si no es servicio
             if (!"Servicio".equalsIgnoreCase(copia.producto.getTipo())) {
                 Producto producto = em.find(Producto.class, copia.producto.getSecuencial());
                 if (producto != null) {
@@ -1284,7 +1302,6 @@ public void Guardar_Cambios() {
             contenedor_selector.remove(comp);
         }
 
-        // Actualizar totales en Venta
         Venta venta = em.find(Venta.class, Secuencial);
         if (venta != null) {
             venta.setTotal(venta.getTotal() - totalRestado);
@@ -1292,7 +1309,6 @@ public void Guardar_Cambios() {
             em.merge(venta);
         }
 
-        // Actualizar cuentas por cobrar si aplica
         List<Cuentas_Cobrar> cuentas = em.createQuery(
             "SELECT c FROM Cuentas_Cobrar c WHERE c.Secuencial_Factura = :factura AND c.Secuencial_Empresa = :empresa",
             Cuentas_Cobrar.class)
@@ -1317,14 +1333,18 @@ public void Guardar_Cambios() {
         JOptionPane.showMessageDialog(null, "Se ha modificado la factura y el elemento se ha retirado correctamente.");
 
     } catch (Exception ex) {
-        if (em.getTransaction().isActive()) {
+        if (em != null && em.getTransaction().isActive()) {
             em.getTransaction().rollback();
         }
         JOptionPane.showMessageDialog(null, "Error al quitar el elemento:\n" + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         ex.printStackTrace();
+    } finally {
+        if (em != null && em.isOpen()) {
+            em.close();
+        }
     }
 }
- 
+
     
     
     
@@ -1365,80 +1385,79 @@ public void Guardar_Cambios() {
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
 
         
-        icono_carga.setVisible(true);
+    icono_carga.setVisible(true);
 
-try {
-    int secuencialFactura = Secuencial;
+    EntityManager em = null;
+    Venta factura = null;
+    List<Venta_Detalle> detalles = new ArrayList<>();
 
-    int confirmResult = JOptionPane.showConfirmDialog(
-        null,
-        "¿Está seguro de eliminar la Factura No. " + secuencialFactura + "?",
-        "Confirmar Eliminación",
-        JOptionPane.YES_NO_OPTION
-    );
+    try {
+        int secuencialFactura = Secuencial;
 
-    if (confirmResult != JOptionPane.YES_OPTION) return;
+        int confirmResult = JOptionPane.showConfirmDialog(
+            null,
+            "¿Está seguro de eliminar la Factura No. " + secuencialFactura + "?",
+            "Confirmar Eliminación",
+            JOptionPane.YES_NO_OPTION
+        );
 
-    EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
-    try (EntityManager em = emf.createEntityManager()) {
+        if (confirmResult != JOptionPane.YES_OPTION) return;
+
+        em = MonituxDBContext.getEntityManager();
+        if (em == null || !em.isOpen()) {
+            throw new IllegalStateException("EntityManager no disponible.");
+        }
+
         em.getTransaction().begin();
 
-        Venta factura = em.find(Venta.class, secuencialFactura);
+        factura = em.find(Venta.class, secuencialFactura);
         if (factura == null) {
             JOptionPane.showMessageDialog(null, "Factura no encontrada.", "Error", JOptionPane.ERROR_MESSAGE);
+            em.getTransaction().rollback();
             return;
         }
 
         Ingreso ingresoAsociado = em.createQuery(
             "SELECT i FROM Ingreso i WHERE i.Secuencial_Factura = :factura AND i.Secuencial_Empresa = :empresa",
-            Ingreso.class
-        )
-        .setParameter("factura", secuencialFactura)
-        .setParameter("empresa", Secuencial_Empresa)
-        .getResultStream()
-        .findFirst()
-        .orElse(null);
+            Ingreso.class)
+            .setParameter("factura", secuencialFactura)
+            .setParameter("empresa", Secuencial_Empresa)
+            .getResultStream()
+            .findFirst()
+            .orElse(null);
 
         if (ingresoAsociado != null) {
             em.remove(ingresoAsociado);
-            Util.registrarActividad(
-                Secuencial_Usuario,
-                "Se eliminó el ingreso relacionado a la Factura No. " + secuencialFactura,
-                Secuencial_Empresa
-            );
         }
 
         Cuentas_Cobrar ctac = em.createQuery(
             "SELECT c FROM Cuentas_Cobrar c WHERE c.Secuencial_Factura = :factura AND c.Secuencial_Cliente = :cliente AND c.Secuencial_Empresa = :empresa",
-            Cuentas_Cobrar.class
-        )
-        .setParameter("factura", secuencialFactura)
-        .setParameter("cliente", Secuencial_Cliente)
-        .setParameter("empresa", Secuencial_Empresa)
-        .getResultStream()
-        .findFirst()
-        .orElse(null);
+            Cuentas_Cobrar.class)
+            .setParameter("factura", secuencialFactura)
+            .setParameter("cliente", Secuencial_Cliente)
+            .setParameter("empresa", Secuencial_Empresa)
+            .getResultStream()
+            .findFirst()
+            .orElse(null);
 
         if (ctac != null) {
             em.remove(ctac);
         }
 
-        List<Venta_Detalle> detalles = em.createQuery(
+        detalles = em.createQuery(
             "SELECT vd FROM Venta_Detalle vd WHERE vd.Secuencial_Factura = :factura",
-            Venta_Detalle.class
-        )
-        .setParameter("factura", secuencialFactura)
-        .getResultList();
+            Venta_Detalle.class)
+            .setParameter("factura", secuencialFactura)
+            .getResultList();
 
         for (Venta_Detalle detalle : detalles) {
             Producto producto = em.createQuery(
                 "SELECT p FROM Producto p WHERE p.Codigo = :codigo",
-                Producto.class
-            )
-            .setParameter("codigo", detalle.getCodigo())
-            .getResultStream()
-            .findFirst()
-            .orElse(null);
+                Producto.class)
+                .setParameter("codigo", detalle.getCodigo())
+                .getResultStream()
+                .findFirst()
+                .orElse(null);
 
             if (producto != null && !"Servicio".equals(producto.getTipo()) && detalle.getCantidad() != null) {
                 double cantidadDevuelta = detalle.getCantidad();
@@ -1459,18 +1478,8 @@ try {
             }
         }
 
-        for (Venta_Detalle detalle : detalles) {
-            em.remove(detalle);
-        }
-
+        detalles.forEach(em::remove);
         em.remove(factura);
-
-        Util.registrarActividad(
-            Secuencial_Usuario,
-            "Eliminó la Factura No. " + secuencialFactura + " con " + detalles.size() +
-            " productos. Registrada por un monto de " + factura.getGran_Total(),
-            Secuencial_Empresa
-        );
 
         em.getTransaction().commit();
 
@@ -1483,36 +1492,51 @@ try {
 
         this.dispose();
         form.cargar_Datos_Venta();
-    }
-} catch (Exception ex) {
-    JOptionPane.showMessageDialog(
-        null,
-        "Error al eliminar factura: " + ex.getMessage(),
-        "Error",
-        JOptionPane.ERROR_MESSAGE
-    );
-} finally {
-    icono_carga.setVisible(false); // Se oculta siempre, incluso si hay error
-}
 
-        
-        
-        
-        // TODO add your handling code here:
+        System.out.println("✅ Factura eliminada correctamente: " + secuencialFactura);
+
+    } catch (Exception ex) {
+        if (em != null && em.getTransaction().isActive()) {
+            em.getTransaction().rollback();
+        }
+        JOptionPane.showMessageDialog(
+            null,
+            "Error al eliminar factura: " + ex.getMessage(),
+            "Error", JOptionPane.ERROR_MESSAGE
+        );
+        ex.printStackTrace();
+    } finally {
+        if (em != null && em.isOpen()) {
+            em.close();
+        }
+        icono_carga.setVisible(false);
+    }
+
+    // Registrar actividad fuera del contexto JPA
+    if (factura != null) {
+        try {
+            Util.registrarActividad(
+                Secuencial_Usuario,
+                "Eliminó la Factura No. " + factura.getSecuencial() + " con " + detalles.size() +
+                " productos. Registrada por un monto de " + factura.getGran_Total(),
+                Secuencial_Empresa
+            );
+        } catch (Exception ex) {
+            System.err.println("⚠️ Error al registrar actividad: " + ex.getMessage());
+        }
+    }
+
+
+    
     }//GEN-LAST:event_jButton4ActionPerformed
 
     private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
 
-      
+        Quitar_Elemento();
      
-        Quitar_Elemento(em);
-        
-        
          Actualizar_Detalle();
          
-         //cargarItems();
-         
-        
+      
     }//GEN-LAST:event_jButton5ActionPerformed
 
     
@@ -1809,17 +1833,17 @@ System.err.println("Valor filtro: '" + campoValorFiltro.getText() + "'");
     
     private void jTextField1KeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextField1KeyReleased
 
-        if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
-            EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
-            EntityManager em = emf.createEntityManager();
+     if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
+        EntityManager em = MonituxDBContext.getEntityManager();
 
+        try {
             cargarItemsFiltrados(Secuencial_Empresa, jComboBox2, jTextField1, contenedor, contenedor_selector, em);
-
-            // Opcional: cerrar el EntityManager si no lo necesitas después
-            em.close();
-            emf.close();
+            System.out.println("✅ Items filtrados correctamente con texto: " + jTextField1.getText());
+        } catch (Exception ex) {
+            System.err.println("❌ Error al filtrar items: " + ex.getMessage());
+            ex.printStackTrace();
         }
-
+    }
         // TODO add your handling code here:
     }//GEN-LAST:event_jTextField1KeyReleased
 
@@ -1834,16 +1858,17 @@ System.err.println("Valor filtro: '" + campoValorFiltro.getText() + "'");
 
     private void jTextField3KeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextField3KeyReleased
 
-        if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
-            EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
-            EntityManager em = emf.createEntityManager();
+       if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
+        EntityManager em = MonituxDBContext.getEntityManager();
 
+        try {
             cargarItemsFiltrados(Secuencial_Empresa, jComboBox2, jTextField3, contenedor, contenedor_selector, em);
-
-            // Opcional: cerrar el EntityManager si no lo necesitas después
-            em.close();
-            emf.close();
+            System.out.println("✅ Items filtrados correctamente con texto: " + jTextField3.getText());
+        } catch (Exception ex) {
+            System.err.println("❌ Error al filtrar items: " + ex.getMessage());
+            ex.printStackTrace();
         }
+    }
 
         // TODO add your handling code here:
     }//GEN-LAST:event_jTextField3KeyReleased
@@ -1942,19 +1967,23 @@ public void cargar_Items(int secuencialEmpresa, JPanel contenedor, JPanel conten
 
     
      
-    public void cargarItems() {
-    
-        contenedor.removeAll();
-        icono_carga.setVisible(true); // Mostrar ícono de carga
+  public void cargarItems() {
+    contenedor.removeAll();
+    icono_carga.setVisible(true); // Mostrar ícono de carga
 
     SwingWorker<Void, Void> worker = new SwingWorker<>() {
         @Override
         protected Void doInBackground() {
-            EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
-            EntityManager em = emf.createEntityManager();
-            cargar_Items(Secuencial_Empresa, contenedor, contenedor_selector, em);
-            em.close();
-            emf.close();
+            EntityManager em = MonituxDBContext.getEntityManager();
+
+            try {
+                cargar_Items(Secuencial_Empresa, contenedor, contenedor_selector, em);
+                System.out.println("✅ Items cargados correctamente para empresa: " + Secuencial_Empresa);
+            } catch (Exception ex) {
+                System.err.println("❌ Error al cargar items: " + ex.getMessage());
+                ex.printStackTrace();
+            }
+
             return null;
         }
 
@@ -2284,7 +2313,7 @@ lbl_total.setText(String.format("%.2f", total));
 
 
 
-cargarItemsDesdeLista(V_Compras_Ventas.lista,Secuencial_Empresa,contenedor,contenedor_selector,em);
+cargarItemsDesdeLista(V_Compras_Ventas.lista,Secuencial_Empresa,contenedor,contenedor_selector);
 
 ActualizarNumeros(); // Actualizar totales y visuales
 
@@ -2294,11 +2323,10 @@ ActualizarNumeros(); // Actualizar totales y visuales
         // TODO add your handling code here:
     }//GEN-LAST:event_formWindowOpened
 
-    
-public void cargarItemsDesdeLista(Map<String, Double> lista, int secuencialEmpresa, JPanel contenedor, JPanel contenedor_selector, EntityManager entityManager) {
+ public void cargarItemsDesdeLista(Map<String, Double> lista, int secuencialEmpresa, JPanel contenedor, JPanel contenedor_selector) {
     icono_carga.setVisible(true);
 
-    contenedor.setLayout(new GridBagLayout()); // Igual que el método original
+    contenedor.setLayout(new GridBagLayout());
     contenedor_selector.setLayout(new GridLayout(0, 1, 5, 5));
 
     contenedor.removeAll();
@@ -2307,73 +2335,88 @@ public void cargarItemsDesdeLista(Map<String, Double> lista, int secuencialEmpre
     selectoresCantidad.clear();
 
     GridBagConstraints gbc = new GridBagConstraints();
-    gbc.insets = new Insets(5, 5, 5, 5); // Espaciado entre miniaturas
+    gbc.insets = new Insets(5, 5, 5, 5);
     gbc.fill = GridBagConstraints.NONE;
     gbc.anchor = GridBagConstraints.NORTHWEST;
 
     int col = 0, row = 0;
 
-    for (Map.Entry<String, Double> itemC : lista.entrySet()) {
-        List<Producto> productos = entityManager
-            .createQuery("SELECT p FROM Producto p WHERE p.Codigo = :codigo AND p.Secuencial_Empresa = :empresa", Producto.class)
-            .setParameter("codigo", itemC.getKey())
-            .setParameter("empresa", secuencialEmpresa)
-            .getResultList();
+    EntityManager em = null;
 
-        for (Producto producto : productos) {
-            Miniatura_Producto miniatura = new Miniatura_Producto(producto, true);
-            miniatura.setCantidadSelecccionItem(itemC.getValue().intValue());
-            miniatura.setPreferredSize(new Dimension(120, 170)); // Igual que en cargar_Items
+    try {
+        em = MonituxDBContext.getEntityManager();
+        if (em == null || !em.isOpen()) {
+            throw new IllegalStateException("EntityManager no disponible.");
+        }
 
-            SelectorCantidad selector = new SelectorCantidad(producto.getCodigo(), itemC.getValue().intValue());
-            selectoresCantidad.put(producto.getCodigo(), selector);
+        for (Map.Entry<String, Double> itemC : lista.entrySet()) {
+            List<Producto> productos = em.createQuery(
+                "SELECT p FROM Producto p WHERE p.Codigo = :codigo AND p.Secuencial_Empresa = :empresa", Producto.class)
+                .setParameter("codigo", itemC.getKey())
+                .setParameter("empresa", secuencialEmpresa)
+                .getResultList();
 
-            listaDeItems.put(producto.getCodigo(), miniatura);
-            contenedor_selector.add(selector);
+            for (Producto producto : productos) {
+                Miniatura_Producto miniatura = new Miniatura_Producto(producto, true);
+                miniatura.setCantidadSelecccionItem(itemC.getValue().intValue());
+                miniatura.setPreferredSize(new Dimension(120, 170));
 
-            String comentario = miniatura.cargarComentario();
-            if (comentario != null) {
-                miniatura.setToolTipText("<html><b>" + producto.getDescripcion() + "</b><br>" + comentario + "</html>");
-            } else {
-                miniatura.setToolTipText("<html><b>" + producto.getDescripcion() + "</b><br></html>");
-            }
+                SelectorCantidad selector = new SelectorCantidad(producto.getCodigo(), itemC.getValue().intValue());
+                selectoresCantidad.put(producto.getCodigo(), selector);
 
-            miniatura.addMouseListener(new MouseAdapter() {
-                @Override
-                public void mousePressed(MouseEvent e) {
-                    if (e.isPopupTrigger()) {
-                        menu_contextual.show(e.getComponent(), e.getX(), e.getY());
+                listaDeItems.put(producto.getCodigo(), miniatura);
+                contenedor_selector.add(selector);
+
+                String comentario = miniatura.cargarComentario(); // Este método debe abrir su propio EM
+                miniatura.setToolTipText(
+                    comentario != null
+                        ? "<html><b>" + producto.getDescripcion() + "</b><br>" + comentario + "</html>"
+                        : "<html><b>" + producto.getDescripcion() + "</b><br></html>"
+                );
+
+                miniatura.addMouseListener(new MouseAdapter() {
+                    @Override
+                    public void mousePressed(MouseEvent e) {
+                        if (e.isPopupTrigger()) {
+                            menu_contextual.show(e.getComponent(), e.getX(), e.getY());
+                        }
                     }
-                }
 
-                @Override
-                public void mouseReleased(MouseEvent e) {
-                    if (e.isPopupTrigger()) {
-                        menu_contextual.show(e.getComponent(), e.getX(), e.getY());
+                    @Override
+                    public void mouseReleased(MouseEvent e) {
+                        if (e.isPopupTrigger()) {
+                            menu_contextual.show(e.getComponent(), e.getX(), e.getY());
+                        }
                     }
+                });
+
+                gbc.gridx = col;
+                gbc.gridy = row;
+                contenedor.add(miniatura, gbc);
+
+                col++;
+                if (col == 3) {
+                    col = 0;
+                    row++;
                 }
-            });
-
-            // Posicionamiento visual en la cuadrícula
-            gbc.gridx = col;
-            gbc.gridy = row;
-            contenedor.add(miniatura, gbc);
-
-            col++;
-            if (col == 3) {
-                col = 0;
-                row++;
             }
         }
-    }
 
-    contenedor.revalidate();
-    contenedor.repaint();
-    contenedor_selector.revalidate();
-    contenedor_selector.repaint();
-    icono_carga.setVisible(false);
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(null, "❌ Error al cargar productos desde lista: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        e.printStackTrace();
+    } finally {
+        if (em != null && em.isOpen()) {
+            em.close();
+        }
+        contenedor.revalidate();
+        contenedor.repaint();
+        contenedor_selector.revalidate();
+        contenedor_selector.repaint();
+        icono_carga.setVisible(false);
+    }
 }
-   
+ 
     
     private void contenedorMouseMoved(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_contenedorMouseMoved
         // TODO add your handling code here:

@@ -4,8 +4,11 @@
  */
 package com.monituxpos.Ventanas;
 
+import com.monituxpos.Clases.DBProvider;
+import com.monituxpos.Clases.MonituxDBContext;
 import com.monituxpos.Clases.NoticiasRSS;
 import com.monituxpos.Clases.Util;
+import jakarta.persistence.EntityManager;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
@@ -20,6 +23,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.net.Socket;
 import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
@@ -244,7 +248,36 @@ public NoticiasRSS fuente= new NoticiasRSS();//Esta linea es
     public V_Menu_Principal() {
         
           initComponents();
-        
+          
+          
+//            MonituxDBContext.init(
+//            DBProvider.POSTGRESQL,
+//            "jdbc:postgresql://192.168.10.10:5432/monitux",
+//            "miguel",
+//            "00511"
+//        );
+
+//
+//MonituxDBContext.init(
+//    DBProvider.MYSQL,
+//    "jdbc:mysql://192.168.10.10:3306/monitux?useSSL=false&serverTimezone=UTC",
+//    "root", // Usuario de MySQL
+//    "00511" // Contraseña
+//);
+
+
+MonituxDBContext.init(
+    DBProvider.SQLSERVER,
+    "jdbc:sqlserver://DESKTOP-N4UCDLP\\SQLEXPRESS:1433;databaseName=monitux;encrypt=false",
+    "sa", // Usuario de SQL Server
+    "00511" // Contraseña
+);
+
+
+
+          
+
+
  mostrarSubMenu(inicio_submenu);
      lbl_Descripcion.setText("<html>Punto de partida para gestionar clientes, proveedores, venta rápida y obtener una visión general en tiempo real del estado del negocio.También puede realizar abonos y consultar los saldos de CTAS.</html>");
 
@@ -808,6 +841,7 @@ iniciarCintaLED(lblTitular);
         jLabel20.setForeground(new java.awt.Color(255, 255, 255));
         jLabel20.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         jLabel20.setText("  Reportes");
+        jLabel20.setToolTipText("");
         jLabel20.setOpaque(true);
         jLabel20.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -1167,6 +1201,11 @@ iniciarCintaLED(lblTitular);
         panelContenedor.setBackground(new java.awt.Color(0, 102, 255));
 
         jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/Logo.png"))); // NOI18N
+        jLabel1.addMouseWheelListener(new java.awt.event.MouseWheelListener() {
+            public void mouseWheelMoved(java.awt.event.MouseWheelEvent evt) {
+                jLabel1MouseWheelMoved(evt);
+            }
+        });
 
         javax.swing.GroupLayout panelContenedorLayout = new javax.swing.GroupLayout(panelContenedor);
         panelContenedor.setLayout(panelContenedorLayout);
@@ -1209,7 +1248,7 @@ iniciarCintaLED(lblTitular);
             .addGroup(layout.createSequentialGroup()
                 .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 855, Short.MAX_VALUE)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 1222, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE))
             .addGroup(layout.createSequentialGroup()
@@ -1702,6 +1741,13 @@ aplicarColorFondo(jLabel11,new Color(35, 32, 45));
     }//GEN-LAST:event_jLabel20MouseClicked
 
     private void jLabel21MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel21MouseClicked
+
+
+        EntityManager em = MonituxDBContext.getEntityManager();
+List<?> result = em.createQuery("SELECT 1").getResultList();
+System.out.println("Conexión JPA OK: " + result);
+em.close();
+        
         // TODO add your handling code here:
     }//GEN-LAST:event_jLabel21MouseClicked
 
@@ -1883,7 +1929,7 @@ jLabel27.setBackground(new Color(0,0,0));
 
     private void jLabel28MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel28MouseClicked
 
-        
+    
 V_Usuario x = new V_Usuario();
 x.setVisible(true);
 
@@ -1927,6 +1973,12 @@ x.setVisible(true);
     }//GEN-LAST:event_jLabel29MouseExited
 
     private void jLabel30MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel30MouseClicked
+
+
+          V_Configuracion x = new V_Configuracion();
+        abrirVentana(x);
+        
+        
         // TODO add your handling code here:
     }//GEN-LAST:event_jLabel30MouseClicked
 
@@ -1944,6 +1996,14 @@ x.setVisible(true);
         
         // TODO add your handling code here:
     }//GEN-LAST:event_jLabel30MouseExited
+
+    private void jLabel1MouseWheelMoved(java.awt.event.MouseWheelEvent evt) {//GEN-FIRST:event_jLabel1MouseWheelMoved
+
+
+      
+        
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jLabel1MouseWheelMoved
 
     /**
      * @param args the command line arguments

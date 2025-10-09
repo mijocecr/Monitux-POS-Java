@@ -11,6 +11,7 @@ import com.monituxpos.Clases.Cuentas_Cobrar;
 import com.monituxpos.Clases.Cuentas_Pagar;
 import com.monituxpos.Clases.Egreso;
 import com.monituxpos.Clases.Ingreso;
+import com.monituxpos.Clases.MonituxDBContext;
 import com.monituxpos.Clases.Util;
 import com.monituxpos.Clases.Venta;
 import jakarta.persistence.EntityManager;
@@ -100,10 +101,8 @@ public class V_Abono_Proveedor extends javax.swing.JFrame {
     }
 
     
-    
   private void cargarDatos() {
-    EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
-    EntityManager em = emf.createEntityManager();
+    EntityManager em = MonituxDBContext.getEntityManager();
 
     try {
         // Consulta Cuentas_Pagar
@@ -139,16 +138,13 @@ public class V_Abono_Proveedor extends javax.swing.JFrame {
             }
         }
 
+        System.out.println("✅ Datos de cuentas por pagar y compras cargados correctamente.");
     } catch (Exception ex) {
-        JOptionPane.showMessageDialog(null, "Error al cargar datos: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-        System.err.println(ex.getMessage());
-    } finally {
-        em.close();
-        emf.close();
+        JOptionPane.showMessageDialog(null, "❌ Error al cargar datos: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        ex.printStackTrace();
     }
 }
-
-    
+  
     
    
     /**
@@ -345,107 +341,92 @@ cargarDatos();
 
         //********************
 
-String textoPago = jTextField1.getText();
+ String textoPago = jTextField1.getText();
 
-if (textoPago != null && !textoPago.trim().isEmpty()) {
-    try {
-        double pago = Double.parseDouble(textoPago.replace(",", "."));
-        double pagado = Double.parseDouble(jLabel8.getText().replace(",", "."));
-        double saldo = Double.parseDouble(jLabel9.getText().replace(",", "."));
-
-        double nuevoPagado = pagado + pago;
-        double nuevoSaldo = saldo - pago;
-
-        EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
-        EntityManager em = emf.createEntityManager();
-
+    if (textoPago != null && !textoPago.trim().isEmpty()) {
         try {
-            em.getTransaction().begin();
+            double pago = Double.parseDouble(textoPago.replace(",", "."));
+            double pagado = Double.parseDouble(jLabel8.getText().replace(",", "."));
+            double saldo = Double.parseDouble(jLabel9.getText().replace(",", "."));
 
-            // Buscar cuenta por pagar
-            Cuentas_Pagar ctaPagar = em.createQuery(
-                "SELECT c FROM Cuentas_Pagar c WHERE c.Secuencial = :ctap AND c.Secuencial_Empresa = :empresa",
-                Cuentas_Pagar.class)
-                .setParameter("ctap", this.Secuencial_CTAP)
-                .setParameter("empresa", Secuencial_Empresa)
-                .getResultStream()
-                .findFirst()
-                .orElse(null);
+            double nuevoPagado = pagado + pago;
+            double nuevoSaldo = saldo - pago;
 
-            if (ctaPagar != null) {
-                ctaPagar.setSaldo(nuevoSaldo);
-                ctaPagar.setPagado(nuevoPagado);
-                ctaPagar.setSecuencial_Empresa(Secuencial_Empresa);
-                ctaPagar.setSecuencial_Proveedor(Secuencial_Proveedor);
-                ctaPagar.setSecuencial_Usuario(V_Menu_Principal.getSecuencial_Usuario());
+            EntityManager em = MonituxDBContext.getEntityManager();
 
-                // Registrar egreso
-                Egreso egreso = new Egreso();
-                egreso.setSecuencial_Empresa(Secuencial_Empresa);
-                egreso.setSecuencial_Factura(ctaPagar.getSecuencial_Factura()); // ← CORREGIDO
-                egreso.setSecuencial_Usuario(Secuencial_Usuario);
-                egreso.setFecha(LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")));
-                egreso.setTotal(pago);
-                egreso.setTipo_Egreso("Pago Realizado");
-                egreso.setDescripcion("Pago a CTA: " + Secuencial_CTAP + " de la Factura: " + jLabel10.getText());
+            try {
+                em.getTransaction().begin();
 
-                em.persist(egreso);
+                Cuentas_Pagar ctaPagar = em.createQuery(
+                    "SELECT c FROM Cuentas_Pagar c WHERE c.Secuencial = :ctap AND c.Secuencial_Empresa = :empresa",
+                    Cuentas_Pagar.class)
+                    .setParameter("ctap", this.Secuencial_CTAP)
+                    .setParameter("empresa", Secuencial_Empresa)
+                    .getResultStream()
+                    .findFirst()
+                    .orElse(null);
 
-                // Registrar pago
-                Abono_Compra pagoCompra = new Abono_Compra();
-                pagoCompra.setSecuencial_Empresa(Secuencial_Empresa);
-                pagoCompra.setSecuencial_Proveedor(Secuencial_Proveedor);
-                pagoCompra.setSecuencial_Usuario(Secuencial_Usuario);
-                pagoCompra.setSecuencial_CTAP(Secuencial_CTAP);
-                pagoCompra.setFecha(LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")));
-                pagoCompra.setMonto(pago);
+                if (ctaPagar != null) {
+                    ctaPagar.setSaldo(nuevoSaldo);
+                    ctaPagar.setPagado(nuevoPagado);
+                    ctaPagar.setSecuencial_Empresa(Secuencial_Empresa);
+                    ctaPagar.setSecuencial_Proveedor(Secuencial_Proveedor);
+                    ctaPagar.setSecuencial_Usuario(V_Menu_Principal.getSecuencial_Usuario());
 
-                em.persist(pagoCompra);
+                    Egreso egreso = new Egreso();
+                    egreso.setSecuencial_Empresa(Secuencial_Empresa);
+                    egreso.setSecuencial_Factura(ctaPagar.getSecuencial_Factura());
+                    egreso.setSecuencial_Usuario(Secuencial_Usuario);
+                    egreso.setFecha(LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")));
+                    egreso.setTotal(pago);
+                    egreso.setTipo_Egreso("Pago Realizado");
+                    egreso.setDescripcion("Pago a CTA: " + Secuencial_CTAP + " de la Factura: " + jLabel10.getText());
 
-                em.getTransaction().commit();
+                    em.persist(egreso);
 
-                // Registrar actividad
-                Util.registrarActividad(Secuencial_Usuario,
-                    "Ha registrado un pago a CTA:" + Secuencial_CTAP + " de " + jLabel1.getText() +
-                    " por un monto de: " + jTextField1.getText() + " " +
-                    " a Factura: " + jLabel10.getText(),
-                    Secuencial_Empresa);
+                    Abono_Compra pagoCompra = new Abono_Compra();
+                    pagoCompra.setSecuencial_Empresa(Secuencial_Empresa);
+                    pagoCompra.setSecuencial_Proveedor(Secuencial_Proveedor);
+                    pagoCompra.setSecuencial_Usuario(Secuencial_Usuario);
+                    pagoCompra.setSecuencial_CTAP(Secuencial_CTAP);
+                    pagoCompra.setFecha(LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")));
+                    pagoCompra.setMonto(pago);
 
-                JOptionPane.showMessageDialog(null, "Pago registrado correctamente", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+                    em.persist(pagoCompra);
 
-                if (form != null) {
-                    form.Cargar_Datos_CTAS_Pagar(Secuencial_Empresa);
+                    em.getTransaction().commit();
+
+                    Util.registrarActividad(Secuencial_Usuario,
+                        "Ha registrado un pago a CTA:" + Secuencial_CTAP + " de " + jLabel1.getText() +
+                        " por un monto de: " + jTextField1.getText() +
+                        " a Factura: " + jLabel10.getText(),
+                        Secuencial_Empresa);
+
+                    JOptionPane.showMessageDialog(null, "Pago registrado correctamente", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+
+                    if (form != null) form.Cargar_Datos_CTAS_Pagar(Secuencial_Empresa);
+                    if (form_CTA != null) form_CTA.cargarDatosCTAS();
                 }
-                if (form_CTA != null) {
-                    form_CTA.cargarDatosCTAS();
-                }
+
+            } catch (Exception ex) {
+                em.getTransaction().rollback();
+                JOptionPane.showMessageDialog(null, "Error al registrar pago: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                ex.printStackTrace();
             }
 
-        } catch (Exception ex) {
-            em.getTransaction().rollback();
-            JOptionPane.showMessageDialog(null, "Error al registrar pago: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-        } finally {
-            em.close();
-            emf.close();
-        }
+            this.dispose();
+            if (form_CTA != null) {
+                form_CTA.toFront();
+                form_CTA.requestFocus();
+            }
 
-        //cargarDatos();
-        this.dispose();
-        if (form_CTA != null) {
-            form_CTA.toFront();
-            form_CTA.requestFocus();
+            System.out.println("✅ Pago registrado correctamente.");
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(null, "El monto ingresado no es válido.", "Error", JOptionPane.ERROR_MESSAGE);
         }
-
-    } catch (NumberFormatException ex) {
-        JOptionPane.showMessageDialog(null, "El monto ingresado no es válido.", "Error", JOptionPane.ERROR_MESSAGE);
+    } else {
+        JOptionPane.showMessageDialog(null, "El monto a pagar es inválido.", "Error", JOptionPane.ERROR_MESSAGE);
     }
-} else {
-    JOptionPane.showMessageDialog(null, "El monto a pagar es inválido.", "Error", JOptionPane.ERROR_MESSAGE);
-}
-
-//********************
-
-
         // TODO add your handling code here:
     }//GEN-LAST:event_jButton2ActionPerformed
 

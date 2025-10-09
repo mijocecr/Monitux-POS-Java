@@ -18,11 +18,15 @@ public class Usuario {
     @Column(nullable = false)
     private String Password;
 
-   @Lob
-@Column(name = "Imagen", columnDefinition = "LONGBLOB")
+//   @Lob
+//@Column(name = "Imagen", columnDefinition = "LONGBLOB")
+//private byte[] Imagen;
+
+@Column(name = "Imagen")
 private byte[] Imagen;
 
-
+   
+   
     @Column(nullable = false)
     private String Acceso;
 

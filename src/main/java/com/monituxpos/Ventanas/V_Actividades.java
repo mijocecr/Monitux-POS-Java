@@ -5,6 +5,7 @@
 package com.monituxpos.Ventanas;
 
 import com.monituxpos.Clases.Actividad;
+import com.monituxpos.Clases.MonituxDBContext;
 import com.monituxpos.Clases.Util;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
@@ -201,7 +202,7 @@ public int Secuencial_Empresa=V_Menu_Principal.getSecuencial_Empresa();
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
 
-        // Validar selección de usuario
+// Validar selección de usuario
 Object selectedItem = jComboBox1.getSelectedItem();
 if (selectedItem == null) {
     JOptionPane.showMessageDialog(null, "Debe seleccionar un usuario.", "Error", JOptionPane.ERROR_MESSAGE);
@@ -232,8 +233,7 @@ modelo.setRowCount(0);
 Date inicio = java.sql.Date.valueOf(datePicker1.getDate());
 Date fin = java.sql.Date.valueOf(datePicker2.getDate());
 
-EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
-EntityManager em = emf.createEntityManager();
+EntityManager em = MonituxDBContext.getEntityManager();
 
 try {
     List<Actividad> actividades = em.createQuery(
@@ -262,16 +262,12 @@ try {
         }
     }
 
+    System.out.println("✅ Actividades filtradas por usuario y fecha cargadas correctamente.");
 } catch (Exception ex) {
-    JOptionPane.showMessageDialog(null, "Error al cargar actividades: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+    JOptionPane.showMessageDialog(null, "❌ Error al cargar actividades: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
     ex.printStackTrace();
-} finally {
-    if (em != null && em.isOpen()) em.close();
-    if (emf != null && emf.isOpen()) emf.close();
 }
 
-        
-        
         // TODO add your handling code here:
     }//GEN-LAST:event_jButton1ActionPerformed
 
@@ -287,20 +283,14 @@ try {
 
     
     
-    
     public void cargarDatos() {
     // Limpiar la tabla
     DefaultTableModel modelo = (DefaultTableModel) jTable1.getModel();
     modelo.setRowCount(0);
 
-    // Inicializar EntityManager
-    EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
-    EntityManager em = emf.createEntityManager();
+    EntityManager em = MonituxDBContext.getEntityManager();
 
     try {
-        // Asegurar que la base de datos esté creada (opcional en JPA)
-        // No es necesario llamar a EnsureCreated como en EF Core
-
         // Obtener actividades filtradas por empresa
         List<Actividad> actividades = em.createQuery(
             "SELECT a FROM Actividad a WHERE a.Secuencial_Empresa = :empresa",
@@ -312,22 +302,20 @@ try {
         for (Actividad item : actividades) {
             modelo.addRow(new Object[] {
                 item.getSecuencial(),
-                item.getFecha(), // Se asume que es tipo Date o String
+                item.getFecha(),
                 item.getDescripcion(),
                 item.getSecuencial_Usuario(),
                 item.getSecuencial_Empresa()
             });
         }
 
+        System.out.println("✅ Actividades cargadas correctamente.");
     } catch (Exception e) {
         JOptionPane.showMessageDialog(null,
-            "Error al cargar actividades: " + e.getMessage(),
+            "❌ Error al cargar actividades: " + e.getMessage(),
             "Error",
             JOptionPane.ERROR_MESSAGE);
         e.printStackTrace();
-    } finally {
-        if (em != null && em.isOpen()) em.close();
-        if (emf != null && emf.isOpen()) emf.close();
     }
 }
 

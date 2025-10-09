@@ -11,6 +11,7 @@ import com.monituxpos.Ventanas.V_Factura_Venta;
 import com.monituxpos.Ventanas.V_Producto;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.EntityTransaction;
 import jakarta.persistence.Persistence;
 import javax.swing.*;
 import java.awt.*;
@@ -337,214 +338,194 @@ public String Fecha_Caducidad;
 
     
     
-    
-    public void Agregar_Comentario(String comentario) {
-    EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
-    EntityManager entityManager = emf.createEntityManager();
+   public void Agregar_Comentario(String comentario) {
+    EntityManager em = MonituxDBContext.getEntityManager();
 
     try {
-        entityManager.getTransaction().begin();
+        em.getTransaction().begin();
 
-        Comentario comentarioFiltrado = entityManager.createQuery(
-            "SELECT c FROM Comentario c WHERE c.Secuencial_Producto = :producto AND c.Secuencial_Empresa = :empresa",
-            Comentario.class
-        )
-        .setParameter("producto", this.producto.getSecuencial())
-        .setParameter("empresa", this.producto.getSecuencial_Empresa())
-        .getResultStream()
-        .findFirst()
-        .orElse(null);
+        Comentario comentarioFiltrado = em.createQuery("SELECT c FROM Comentario c WHERE c.Secuencial_Producto = :producto AND c.Secuencial_Empresa = :empresa",
+            Comentario.class)
+            .setParameter("producto", this.producto.getSecuencial())
+            .setParameter("empresa", this.producto.getSecuencial_Empresa())
+            .getResultStream()
+            .findFirst()
+            .orElse(null);
 
         if (comentarioFiltrado != null) {
             comentarioFiltrado.setContenido(comentario);
+            System.out.println("✅ Comentario actualizado para producto: " + this.producto.getSecuencial());
         } else {
             Comentario nuevoComentario = new Comentario();
             nuevoComentario.setSecuencial_Producto(this.producto.getSecuencial());
             nuevoComentario.setContenido(comentario);
             nuevoComentario.setSecuencial_Empresa(this.producto.getSecuencial_Empresa());
 
-            entityManager.persist(nuevoComentario);
-            System.out.println("Comentario agregado.");
+            em.persist(nuevoComentario);
+            System.out.println("✅ Comentario agregado para producto: " + this.producto.getSecuencial());
         }
 
-        entityManager.getTransaction().commit();
+        em.getTransaction().commit();
     } catch (Exception e) {
+        if (em.getTransaction().isActive()) {
+            em.getTransaction().rollback();
+        }
+        System.err.println("❌ Error al agregar comentario: " + e.getMessage());
         e.printStackTrace();
-        entityManager.getTransaction().rollback();
-    } finally {
-        entityManager.close();
-        emf.close();
     }
 }
 
     
     
-    
-    
-    public String cargarComentario() {
-    EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
-    EntityManager entityManager = emf.createEntityManager();
+//    
+//   public String cargarComentario() {
+//    EntityManager em = MonituxDBContext.getEntityManager();
+//    String comentario = "";
+//
+//    try {
+//        Comentario comentarioFiltrado = em.createQuery(
+//            "SELECT c FROM Comentario c WHERE c.Secuencial_Producto = :producto AND c.Secuencial_Empresa = :empresa",
+//            Comentario.class)
+//            .setParameter("producto", this.producto.getSecuencial())
+//            .setParameter("empresa", this.producto.getSecuencial_Empresa())
+//            .getResultStream()
+//            .findFirst()
+//            .orElse(null);
+//
+//        if (comentarioFiltrado != null) {
+//            comentario = comentarioFiltrado.getContenido();
+//        }
+//
+//        System.out.println("✅ Comentario cargado correctamente para producto: " + this.producto.getSecuencial());
+//    } catch (Exception e) {
+//        System.err.println("❌ Error al cargar comentario: " + e.getMessage());
+//        e.printStackTrace();
+//    }
+//
+//    return comentario;
+//}
 
+ 
+   
+   
+   public String cargarComentario() {
     String comentario = "";
 
+    EntityManager em = null;
     try {
-        Comentario comentarioFiltrado = entityManager.createQuery(
-            "SELECT c FROM Comentario c WHERE c.Secuencial_Producto = :producto AND c.Secuencial_Empresa = :empresa",
-            Comentario.class
-        )
-        .setParameter("producto", this.producto.getSecuencial())
-        .setParameter("empresa", this.producto.getSecuencial_Empresa())
-        .getResultStream()
-        .findFirst()
-        .orElse(null);
+        em = MonituxDBContext.getEntityManager();
+        if (em == null || !em.isOpen()) {
+            System.err.println("⚠️ EntityManager no disponible al cargar comentario.");
+            return comentario;
+        }
+
+        Comentario comentarioFiltrado = em.createQuery("SELECT c FROM Comentario c WHERE c.Secuencial_Producto = :producto AND c.Secuencial_Empresa = :empresa",
+            Comentario.class)
+            .setParameter("producto", this.producto.getSecuencial())
+            .setParameter("empresa", this.producto.getSecuencial_Empresa())
+            .getResultStream()
+            .findFirst()
+            .orElse(null);
 
         if (comentarioFiltrado != null) {
             comentario = comentarioFiltrado.getContenido();
         }
+
+        System.out.println("✅ Comentario cargado correctamente para producto: " + this.producto.getSecuencial());
     } catch (Exception e) {
+        System.err.println("❌ Error al cargar comentario: " + e.getMessage());
         e.printStackTrace();
     } finally {
-        entityManager.close();
-        emf.close();
+        if (em != null && em.isOpen()) {
+            em.close();
+        }
     }
 
     return comentario;
 }
 
-    
-//    
-//    public void actualizarProductoAgregarUnidades() {
-//    if ("Servicio".equalsIgnoreCase(this.producto.getTipo())) {
-//        JOptionPane.showMessageDialog(null, "No se pueden agregar unidades a un servicio.", "Error", JOptionPane.ERROR_MESSAGE);
-//        return;
-//    }
-//
-//    EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
-//    EntityManager entityManager = emf.createEntityManager();
-//
-//    try {
-//        entityManager.getTransaction().begin();
-//
-//        Producto producto = entityManager.createQuery(
-//            "SELECT p FROM Producto p WHERE p.Secuencial = :secuencial AND p.Secuencial_Empresa = :empresa",
-//            Producto.class
-//        )
-//        .setParameter("secuencial", this.producto.getSecuencial())
-//        .setParameter("empresa", this.producto.getSecuencial_Empresa())
-//        .getResultStream()
-//        .findFirst()
-//        .orElse(null);
-//
-//        if (producto != null) {
-//            Util.registrarMovimientoKardex(
-//                producto.getSecuencial(),
-//                producto.getCantidad(),
-//                producto.getDescripcion(),
-//                getUnidadesAgregar(),
-//                producto.getPrecio_Costo(),
-//                producto.getPrecio_Venta(),
-//                "Entrada",
-//                this.producto.getSecuencial_Empresa()
-//            );
-//
-//            producto.setCantidad(producto.getCantidad() + unidadesAgregar);
-//            entityManager.merge(producto);
-//            entityManager.getTransaction().commit();
-//
-//            JOptionPane.showMessageDialog(null, "Se han agregado " + unidadesAgregar + " unidades al producto: " + this.producto.getCodigo(), "Agregar Unidades", JOptionPane.INFORMATION_MESSAGE);
-//            
-//
-//            Util.registrarActividad(
-//                this.Secuencial_Usuario,
-//                "Ha agregado " + unidadesAgregar + " unidades al producto: " + this.producto.getCodigo(),
-//                this.producto.getSecuencial_Empresa()
-//            );
-//        } else {
-//            entityManager.getTransaction().rollback();
-//        }
-//
-//    } catch (Exception e) {
-//        e.printStackTrace();
-//        entityManager.getTransaction().rollback();
-//    } finally {
-//        entityManager.close();
-//        emf.close();
-//    }
-//}
-//
-//    
-   
-    
-    
-    public void actualizarProductoAgregarUnidades() {
+ public void actualizarProductoAgregarUnidades() {
     if ("Servicio".equalsIgnoreCase(this.producto.getTipo())) {
         JOptionPane.showMessageDialog(null, "No se pueden agregar unidades a un servicio.", "Error", JOptionPane.ERROR_MESSAGE);
         return;
     }
 
-    double unidades = getUnidadesAgregar(); // ← Consistencia en uso de unidades
+    double unidades = getUnidadesAgregar();
 
-    EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
-    EntityManager entityManager = emf.createEntityManager();
+    // Registrar movimiento en Kardex con contexto independiente
+    Util.registrarMovimientoKardex(
+        this.producto.getSecuencial(),
+        this.producto.getCantidad(),
+        this.producto.getDescripcion(),
+        unidades,
+        this.producto.getPrecio_Costo(),
+        this.producto.getPrecio_Venta(),
+        "Entrada",
+        this.producto.getSecuencial_Empresa()
+    );
+
+    EntityManager em = null;
+    EntityTransaction tx = null;
 
     try {
-        entityManager.getTransaction().begin();
+        em = MonituxDBContext.getEntityManager();
+        if (em == null || !em.isOpen()) {
+            throw new IllegalStateException("EntityManager no disponible.");
+        }
 
-        Producto productoBD = entityManager.createQuery(
+        tx = em.getTransaction();
+        tx.begin();
+
+        Producto productoBD = em.createQuery(
             "SELECT p FROM Producto p WHERE p.Secuencial = :secuencial AND p.Secuencial_Empresa = :empresa",
-            Producto.class
-        )
-        .setParameter("secuencial", this.producto.getSecuencial())
-        .setParameter("empresa", this.producto.getSecuencial_Empresa())
-        .getResultStream()
-        .findFirst()
-        .orElse(null);
+            Producto.class)
+            .setParameter("secuencial", this.producto.getSecuencial())
+            .setParameter("empresa", this.producto.getSecuencial_Empresa())
+            .getResultStream()
+            .findFirst()
+            .orElse(null);
 
         if (productoBD == null) {
+            tx.rollback();
             JOptionPane.showMessageDialog(null, "Producto no encontrado. No se pudo agregar unidades.", "Error", JOptionPane.ERROR_MESSAGE);
-            entityManager.getTransaction().rollback();
             return;
         }
 
-        // Registrar movimiento en Kardex antes de modificar
-        Util.registrarMovimientoKardex(
-            productoBD.getSecuencial(),
-            productoBD.getCantidad(),
-            productoBD.getDescripcion(),
-            unidades,
-            productoBD.getPrecio_Costo(),
-            productoBD.getPrecio_Venta(),
-            "Entrada",
-            productoBD.getSecuencial_Empresa()
-        );
-
-        // Actualizar cantidad
         productoBD.setCantidad(productoBD.getCantidad() + unidades);
-        entityManager.merge(productoBD);
+        em.merge(productoBD);
+        tx.commit();
 
-        entityManager.getTransaction().commit();
+        JOptionPane.showMessageDialog(null,
+            "Se han agregado " + unidades + " unidades al producto: " + productoBD.getCodigo(),
+            "Agregar Unidades",
+            JOptionPane.INFORMATION_MESSAGE);
 
-        JOptionPane.showMessageDialog(null, "Se han agregado " + unidades + " unidades al producto: " + productoBD.getCodigo(), "Agregar Unidades", JOptionPane.INFORMATION_MESSAGE);
-
+        // Registrar actividad con contexto independiente
         Util.registrarActividad(
             this.Secuencial_Usuario,
             "Ha agregado " + unidades + " unidades al producto: " + productoBD.getCodigo(),
             productoBD.getSecuencial_Empresa()
         );
 
-        // Sincronizar this.producto si es necesario
         this.producto.setCantidad(productoBD.getCantidad());
 
+        System.out.println("✅ Unidades agregadas correctamente al producto: " + productoBD.getCodigo());
     } catch (Exception e) {
+        if (tx != null && tx.isActive()) {
+            tx.rollback();
+        }
+        JOptionPane.showMessageDialog(null,
+            "Error al agregar unidades: " + e.getMessage(),
+            "Error",
+            JOptionPane.ERROR_MESSAGE);
         e.printStackTrace();
-        entityManager.getTransaction().rollback();
     } finally {
-        entityManager.close();
-        emf.close();
+        if (em != null && em.isOpen()) {
+            em.close();
+        }
     }
 }
 
-    
     
     
     
@@ -584,63 +565,88 @@ public String Fecha_Caducidad;
 }
 
     
-    
-    
-    public void actualizarProductoRetirarUnidades() {
+   public void actualizarProductoRetirarUnidades() {
     if ("Servicio".equalsIgnoreCase(this.producto.getTipo())) {
         JOptionPane.showMessageDialog(null, "No se pueden retirar unidades a un servicio.", "Error", JOptionPane.ERROR_MESSAGE);
         return;
     }
 
-    EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
-    EntityManager entityManager = emf.createEntityManager();
+    double unidadesRetirar = getUnidadesRetirar();
+
+    // Registrar movimiento en Kardex con contexto independiente
+    Util.registrarMovimientoKardex(
+        this.producto.getSecuencial(),
+        this.producto.getCantidad(),
+        this.producto.getDescripcion(),
+        unidadesRetirar,
+        this.producto.getPrecio_Costo(),
+        this.producto.getPrecio_Venta(),
+        "Salida",
+        this.producto.getSecuencial_Empresa()
+    );
+
+    EntityManager em = null;
+    EntityTransaction tx = null;
 
     try {
-        entityManager.getTransaction().begin();
-
-        Producto producto = entityManager.createQuery(
-            "SELECT p FROM Producto p WHERE p.Secuencial = :secuencial AND p.Secuencial_Empresa = :empresa",
-            Producto.class
-        )
-        .setParameter("secuencial", this.producto.getSecuencial())
-        .setParameter("empresa", this.producto.getSecuencial_Empresa())
-        .getResultStream()
-        .findFirst()
-        .orElse(null);
-
-        if (producto != null) {
-            Util.registrarMovimientoKardex(
-                producto.getSecuencial(),
-                producto.getCantidad(),
-                producto.getDescripcion(),
-                getUnidadesRetirar(),
-                producto.getPrecio_Costo(),
-                producto.getPrecio_Venta(),
-                "Salida",
-                this.producto.getSecuencial_Empresa()
-            );
-
-            producto.setCantidad(producto.getCantidad() - unidadesRetirar);
-            entityManager.merge(producto);
-            entityManager.getTransaction().commit();
-
-            JOptionPane.showMessageDialog(null, "Se han retirado " + unidadesRetirar + " unidades al producto: " + this.producto.getCodigo(), "Retirar Unidades", JOptionPane.INFORMATION_MESSAGE);
-
-            Util.registrarActividad(
-                this.Secuencial_Usuario,
-                "Ha retirado " + unidadesRetirar + " unidades al producto: " + this.producto.getCodigo(),
-                this.producto.getSecuencial_Empresa()
-            );
-        } else {
-            entityManager.getTransaction().rollback();
+        em = MonituxDBContext.getEntityManager();
+        if (em == null || !em.isOpen()) {
+            throw new IllegalStateException("EntityManager no disponible.");
         }
 
+        tx = em.getTransaction();
+        tx.begin();
+
+        Producto productoBD = em.createQuery(
+            "SELECT p FROM Producto p WHERE p.Secuencial = :secuencial AND p.Secuencial_Empresa = :empresa",
+            Producto.class)
+            .setParameter("secuencial", this.producto.getSecuencial())
+            .setParameter("empresa", this.producto.getSecuencial_Empresa())
+            .getResultStream()
+            .findFirst()
+            .orElse(null);
+
+        if (productoBD == null) {
+            tx.rollback();
+            JOptionPane.showMessageDialog(null,
+                "Producto no encontrado para retiro de unidades.",
+                "Error",
+                JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        productoBD.setCantidad(productoBD.getCantidad() - unidadesRetirar);
+        em.merge(productoBD);
+        tx.commit();
+
+        JOptionPane.showMessageDialog(null,
+            "Se han retirado " + unidadesRetirar + " unidades al producto: " + productoBD.getCodigo(),
+            "Retirar Unidades",
+            JOptionPane.INFORMATION_MESSAGE);
+
+        // Registrar actividad con contexto independiente
+        Util.registrarActividad(
+            this.Secuencial_Usuario,
+            "Ha retirado " + unidadesRetirar + " unidades al producto: " + productoBD.getCodigo(),
+            productoBD.getSecuencial_Empresa()
+        );
+
+        this.producto.setCantidad(productoBD.getCantidad());
+
+        System.out.println("✅ Unidades retiradas correctamente del producto: " + productoBD.getCodigo());
     } catch (Exception e) {
+        if (tx != null && tx.isActive()) {
+            tx.rollback();
+        }
+        JOptionPane.showMessageDialog(null,
+            "Error al retirar unidades: " + e.getMessage(),
+            "Error",
+            JOptionPane.ERROR_MESSAGE);
         e.printStackTrace();
-        entityManager.getTransaction().rollback();
     } finally {
-        entityManager.close();
-        emf.close();
+        if (em != null && em.isOpen()) {
+            em.close();
+        }
     }
 }
 
@@ -683,17 +689,14 @@ public String Fecha_Caducidad;
 
     
     
-    
-   public void actualizarImagenLocal() {
+  public void actualizarImagenLocal() {
     try {
-        // Seleccionar archivo
-        String rutaSeleccionada = Util.abrirDialogoSeleccionFilename(); // Método personalizado con JFileChooser
+        String rutaSeleccionada = Util.abrirDialogoSeleccionFilename();
 
         if (rutaSeleccionada == null || rutaSeleccionada.trim().isEmpty()) {
             return;
         }
 
-        // Cargar imagen original desde archivo
         File archivo = new File(rutaSeleccionada);
         BufferedImage imagenOriginal = ImageIO.read(archivo);
 
@@ -702,7 +705,6 @@ public String Fecha_Caducidad;
             return;
         }
 
-        // Clonar imagen para evitar bloqueo del archivo
         BufferedImage clon = new BufferedImage(
             imagenOriginal.getWidth(),
             imagenOriginal.getHeight(),
@@ -712,81 +714,21 @@ public String Fecha_Caducidad;
         g2d.drawImage(imagenOriginal, 0, 0, null);
         g2d.dispose();
 
-        // Mostrar imagen redimensionada en el JLabel
         Image imagenEscalada = clon.getScaledInstance(imagenLabel.getWidth(), imagenLabel.getHeight(), Image.SCALE_SMOOTH);
         imagenLabel.setIcon(new ImageIcon(imagenEscalada));
 
-        // Convertir imagen clonada a byte[] en formato PNG (sin compresión personalizada)
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ImageIO.write(clon, "png", baos);
         byte[] imagenSinCompresion = baos.toByteArray();
 
-        // Guardar en base de datos
-        EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
-        EntityManager em = emf.createEntityManager();
+        EntityManager em = null;
+        EntityTransaction tx = null;
 
-        Producto producto = em.createQuery(
-            "SELECT p FROM Producto p WHERE p.Secuencial = :secuencial", Producto.class)
-            .setParameter("secuencial", this.producto.getSecuencial())
-            .getResultStream()
-            .findFirst()
-            .orElse(null);
-
-        if (producto != null) {
-            producto.setImagen(imagenSinCompresion);
-            
-
-            em.getTransaction().begin();
-            em.merge(producto);
-            em.getTransaction().commit();
-
-            JOptionPane.showMessageDialog(null, "Imagen actualizada con éxito", "Listo", JOptionPane.INFORMATION_MESSAGE);
-        }
-
-        em.close();
-        emf.close();
-
-    } catch (IOException e) {
-        e.printStackTrace();
-        JOptionPane.showMessageDialog(null, "Error al cargar la imagen.", "Error", JOptionPane.ERROR_MESSAGE);
-    } catch (Exception ex) {
-        ex.printStackTrace();
-        JOptionPane.showMessageDialog(null, "Error al actualizar la imagen.", "Error", JOptionPane.ERROR_MESSAGE);
-    }
-}
-
-    
-    public void actualizarImagenWeb() {
-    try {
-        // Solicitar URL al usuario
-        String url = JOptionPane.showInputDialog(null, "Pega la URL de la imagen:", "Imagen desde la web", JOptionPane.PLAIN_MESSAGE);
-
-        if (url == null || url.trim().isEmpty()) {
-            return;
-        }
-
-        // Cargar imagen desde la web
-        BufferedImage imagenWeb = Util.cargarImagenDesdeUrl(url); // Método personalizado que devuelve BufferedImage
-
-        if (imagenWeb != null) {
-            // Clonar imagen para evitar bloqueo
-            BufferedImage clon = new BufferedImage(imagenWeb.getWidth(), imagenWeb.getHeight(), BufferedImage.TYPE_INT_RGB);
-            Graphics2D g2d = clon.createGraphics();
-            g2d.drawImage(imagenWeb, 0, 0, null);
-            g2d.dispose();
-
-            // Mostrar imagen redimensionada en JLabel
-            Image imagenEscalada = clon.getScaledInstance(imagenLabel.getWidth(), imagenLabel.getHeight(), Image.SCALE_SMOOTH);
-            imagenLabel.setIcon(new ImageIcon(imagenEscalada));
-
-            // Convertir imagen clonada a byte[] en formato PNG
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            ImageIO.write(clon, "png", baos);
-            byte[] imagenBytes = baos.toByteArray();
-
-            // Guardar en base de datos
-            EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
-            EntityManager em = emf.createEntityManager();
+        try {
+            em = MonituxDBContext.getEntityManager();
+            if (em == null || !em.isOpen()) {
+                throw new IllegalStateException("EntityManager no disponible.");
+            }
 
             Producto producto = em.createQuery(
                 "SELECT p FROM Producto p WHERE p.Secuencial = :secuencial", Producto.class)
@@ -795,30 +737,113 @@ public String Fecha_Caducidad;
                 .findFirst()
                 .orElse(null);
 
-            if (producto != null) {
-                producto.setImagen(imagenBytes);
-                
-
-                em.getTransaction().begin();
-                em.merge(producto);
-                em.getTransaction().commit();
-
-                JOptionPane.showMessageDialog(null, "Imagen actualizada con éxito", "Listo", JOptionPane.INFORMATION_MESSAGE);
+            if (producto == null) {
+                throw new IllegalStateException("Producto no encontrado.");
             }
 
-            em.close();
-            emf.close();
+            producto.setImagen(imagenSinCompresion);
+
+            tx = em.getTransaction();
+            tx.begin();
+            em.merge(producto);
+            tx.commit();
+
+            JOptionPane.showMessageDialog(null, "Imagen actualizada con éxito", "Listo", JOptionPane.INFORMATION_MESSAGE);
+            System.out.println("✅ Imagen local actualizada para producto: " + producto.getCodigo());
+        } catch (Exception e) {
+            if (tx != null && tx.isActive()) {
+                tx.rollback();
+            }
+            JOptionPane.showMessageDialog(null, "Error al actualizar la imagen.", "Error", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+        } finally {
+            if (em != null && em.isOpen()) {
+                em.close();
+            }
         }
 
     } catch (IOException e) {
+        JOptionPane.showMessageDialog(null, "Error al cargar la imagen.", "Error", JOptionPane.ERROR_MESSAGE);
         e.printStackTrace();
-        JOptionPane.showMessageDialog(null, "Error al cargar la imagen desde la web.", "Error", JOptionPane.ERROR_MESSAGE);
-    } catch (Exception ex) {
-        ex.printStackTrace();
-        JOptionPane.showMessageDialog(null, "Error al actualizar la imagen.", "Error", JOptionPane.ERROR_MESSAGE);
     }
 }
 
+    
+    public void actualizarImagenWeb() {
+    try {
+        String url = JOptionPane.showInputDialog(null, "Pega la URL de la imagen:", "Imagen desde la web", JOptionPane.PLAIN_MESSAGE);
+
+        if (url == null || url.trim().isEmpty()) {
+            return;
+        }
+
+        BufferedImage imagenWeb = Util.cargarImagenDesdeUrl(url);
+
+        if (imagenWeb == null) {
+            JOptionPane.showMessageDialog(null, "Formato de imagen no soportado o URL inválida.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        BufferedImage clon = new BufferedImage(imagenWeb.getWidth(), imagenWeb.getHeight(), BufferedImage.TYPE_INT_RGB);
+        Graphics2D g2d = clon.createGraphics();
+        g2d.drawImage(imagenWeb, 0, 0, null);
+        g2d.dispose();
+
+        Image imagenEscalada = clon.getScaledInstance(imagenLabel.getWidth(), imagenLabel.getHeight(), Image.SCALE_SMOOTH);
+        imagenLabel.setIcon(new ImageIcon(imagenEscalada));
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ImageIO.write(clon, "png", baos);
+        byte[] imagenBytes = baos.toByteArray();
+
+        EntityManager em = null;
+        EntityTransaction tx = null;
+
+        try {
+            em = MonituxDBContext.getEntityManager();
+            if (em == null || !em.isOpen()) {
+                throw new IllegalStateException("EntityManager no disponible.");
+            }
+
+            Producto producto = em.createQuery(
+                "SELECT p FROM Producto p WHERE p.Secuencial = :secuencial", Producto.class)
+                .setParameter("secuencial", this.producto.getSecuencial())
+                .getResultStream()
+                .findFirst()
+                .orElse(null);
+
+            if (producto == null) {
+                throw new IllegalStateException("Producto no encontrado.");
+            }
+
+            producto.setImagen(imagenBytes);
+
+            tx = em.getTransaction();
+            tx.begin();
+            em.merge(producto);
+            tx.commit();
+
+            JOptionPane.showMessageDialog(null, "Imagen actualizada con éxito", "Listo", JOptionPane.INFORMATION_MESSAGE);
+            System.out.println("✅ Imagen web actualizada para producto: " + producto.getCodigo());
+        } catch (Exception e) {
+            if (tx != null && tx.isActive()) {
+                tx.rollback();
+            }
+            JOptionPane.showMessageDialog(null, "Error al actualizar la imagen.", "Error", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+        } finally {
+            if (em != null && em.isOpen()) {
+                em.close();
+            }
+        }
+
+    } catch (IOException e) {
+        JOptionPane.showMessageDialog(null, "Error al cargar la imagen desde la web.", "Error", JOptionPane.ERROR_MESSAGE);
+        e.printStackTrace();
+    }
+}
+
+   
     public void setProducto(Producto producto) {
         this.producto = producto;
     }
@@ -837,22 +862,17 @@ public String Fecha_Caducidad;
 
     
     
-    
-    public void actualizarImagenCamara() {
+   public void actualizarImagenCamara() {
     try {
-        
         imagenLabel.setIcon(null); // Limpiar imagen actual
 
-        // Abrir ventana de captura
         V_Captura_Imagen ventanaCamara = new V_Captura_Imagen(this.producto.getSecuencial(), this.producto.getCodigo());
         ventanaCamara.setModal(true);
         ventanaCamara.setVisible(true);
 
-        // Obtener imagen capturada
         BufferedImage imagenCapturada = V_Captura_Imagen.getImagen();
 
         if (imagenCapturada != null) {
-            // Mostrar imagen redimensionada en JLabel
             Image imagenEscalada = imagenCapturada.getScaledInstance(
                 imagenLabel.getWidth(),
                 imagenLabel.getHeight(),
@@ -860,46 +880,59 @@ public String Fecha_Caducidad;
             );
             imagenLabel.setIcon(new ImageIcon(imagenEscalada));
 
-            // Convertir imagen a byte[] en formato PNG
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             ImageIO.write(imagenCapturada, "png", baos);
             byte[] imagenBytes = baos.toByteArray();
 
-            // Guardar en base de datos
-            EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
-            EntityManager em = emf.createEntityManager();
+            EntityManager em = null;
+            EntityTransaction tx = null;
 
-            Producto producto = em.createQuery(
-                "SELECT p FROM Producto p WHERE p.Secuencial = :secuencial", Producto.class)
-                .setParameter("secuencial", this.producto.getSecuencial())
-                .getResultStream()
-                .findFirst()
-                .orElse(null);
+            try {
+                em = MonituxDBContext.getEntityManager();
+                if (em == null || !em.isOpen()) {
+                    throw new IllegalStateException("EntityManager no disponible.");
+                }
 
-            if (producto != null) {
+                Producto producto = em.createQuery(
+                    "SELECT p FROM Producto p WHERE p.Secuencial = :secuencial", Producto.class)
+                    .setParameter("secuencial", this.producto.getSecuencial())
+                    .getResultStream()
+                    .findFirst()
+                    .orElse(null);
+
+                if (producto == null) {
+                    throw new IllegalStateException("Producto no encontrado.");
+                }
+
                 producto.setImagen(imagenBytes);
 
-                em.getTransaction().begin();
+                tx = em.getTransaction();
+                tx.begin();
                 em.merge(producto);
-                em.getTransaction().commit();
+                tx.commit();
 
                 JOptionPane.showMessageDialog(null, "Imagen actualizada con éxito", "Listo", JOptionPane.INFORMATION_MESSAGE);
+                System.out.println("✅ Imagen actualizada para producto: " + producto.getCodigo());
+            } catch (Exception e) {
+                if (tx != null && tx.isActive()) {
+                    tx.rollback();
+                }
+                JOptionPane.showMessageDialog(null, "Error al actualizar la imagen.", "Error", JOptionPane.ERROR_MESSAGE);
+                e.printStackTrace();
+            } finally {
+                if (em != null && em.isOpen()) {
+                    em.close();
+                }
             }
-
-            em.close();
-            emf.close();
         }
 
     } catch (IOException e) {
-        e.printStackTrace();
         JOptionPane.showMessageDialog(null, "Error al procesar la imagen capturada.", "Error", JOptionPane.ERROR_MESSAGE);
-    } catch (Exception ex) {
-        ex.printStackTrace();
-        JOptionPane.showMessageDialog(null, "Error al actualizar la imagen.", "Error", JOptionPane.ERROR_MESSAGE);
+        e.printStackTrace();
     }
 }
 
- 
+   //Pendiente arreglar carga aqui
 
    
   

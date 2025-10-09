@@ -6,6 +6,7 @@ package com.monituxpos.Ventanas;
 
 import com.monituxpos.Clases.Cuentas_Cobrar;
 import com.monituxpos.Clases.Egreso;
+import com.monituxpos.Clases.MonituxDBContext;
 import com.monituxpos.Clases.Util;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
@@ -67,20 +68,19 @@ public class V_CTAS_Cobrar extends javax.swing.JPanel {
         
     }
 
-    public void Cargar_Datos_CTAS(int secuencial_empresa) {
+   public void Cargar_Datos_CTAS(int secuencial_empresa) {
     double total_facturas = 0;
     double saldo_pendiente = 0;
 
     DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
     model.setRowCount(0); // Limpiar tabla
 
-    EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
-    EntityManager context = emf.createEntityManager();
+    EntityManager em = MonituxDBContext.getEntityManager();
 
     try {
         DateTimeFormatter vencFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
-        List<Cuentas_Cobrar> resultado = context.createQuery(
+        List<Cuentas_Cobrar> resultado = em.createQuery(
             "SELECT cc FROM Cuentas_Cobrar cc JOIN cc.Venta v JOIN cc.Cliente c " +
             "WHERE cc.Saldo > 0 AND cc.Secuencial_Empresa = :secuencial_empresa",
             Cuentas_Cobrar.class
@@ -117,130 +117,61 @@ public class V_CTAS_Cobrar extends javax.swing.JPanel {
         jLabel7.setText(String.format("%.2f", saldo_pendiente));
 
         // Ocultar columna "Vencida"
-        jTable1.getColumnModel().getColumn(jTable1.getColumnCount() - 1).setMinWidth(0);
-        jTable1.getColumnModel().getColumn(jTable1.getColumnCount() - 1).setMaxWidth(0);
-        jTable1.getColumnModel().getColumn(jTable1.getColumnCount() - 1).setWidth(0);
+        int vencidaCol = jTable1.getColumnCount() - 1;
+        jTable1.getColumnModel().getColumn(vencidaCol).setMinWidth(0);
+        jTable1.getColumnModel().getColumn(vencidaCol).setMaxWidth(0);
+        jTable1.getColumnModel().getColumn(vencidaCol).setWidth(0);
 
         // Aplicar color a filas vencidas
-
-        
-      
-        
-        
         DefaultTableCellRenderer renderer = new DefaultTableCellRenderer() {
-    @Override
-    public Component getTableCellRendererComponent(JTable table, Object value,
-            boolean isSelected, boolean hasFocus, int row, int column) {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value,
+                    boolean isSelected, boolean hasFocus, int row, int column) {
 
-        Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                Object vencidaFlag = table.getValueAt(row, vencidaCol);
 
-        Object vencidaFlag = table.getValueAt(row, table.getColumnCount() - 1);
+                if (isSelected) {
+                    c.setBackground(table.getSelectionBackground());
+                    c.setForeground(table.getSelectionForeground());
+                } else if (vencidaFlag instanceof Boolean && (Boolean) vencidaFlag) {
+                    c.setBackground(Color.RED);
+                    c.setForeground(Color.WHITE);
+                } else {
+                    c.setBackground(Color.WHITE);
+                    c.setForeground(Color.BLACK);
+                }
 
-        if (isSelected) {
-            // Mantener colores de selección del sistema
-            c.setBackground(table.getSelectionBackground());
-            c.setForeground(table.getSelectionForeground());
-        } else if (vencidaFlag instanceof Boolean && (Boolean) vencidaFlag) {
-            c.setBackground(Color.red); // MistyRose
-            c.setForeground(Color.white);
-        } else {
-            c.setBackground(Color.WHITE);
-            c.setForeground(Color.BLACK);
-        }
+                return c;
+            }
+        };
 
-        return c;
-    }
-};
-
-         for (int i = 0; i < jTable1.getColumnCount() - 1; i++) {
+        for (int i = 0; i < vencidaCol; i++) {
             jTable1.getColumnModel().getColumn(i).setCellRenderer(renderer);
         }
 
-        
-
-    } finally {
-        context.close();
-        emf.close();
+        System.out.println("✅ Cuentas por cobrar cargadas correctamente.");
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(null, "❌ Error al cargar cuentas por cobrar: " + e.getMessage());
+        e.printStackTrace();
     }
 }
 
-  
-//   
-//    private void Cargar_Datos_CTAS(int secuencial_empresa) {
-//    double total_facturas = 0;
-//    double saldo_pendiente = 0;
-//
-//    DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
-//    model.setRowCount(0); // Limpiar tabla
-//
-//    EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
-//    EntityManager context = emf.createEntityManager();
-//
-//    try {
-//        List<Cuentas_Cobrar> resultado = context.createQuery(
-//            "SELECT cc FROM Cuentas_Cobrar cc JOIN cc.Venta v JOIN cc.Cliente c WHERE cc.Saldo > 0 AND cc.Secuencial_Empresa = :secuencial_empresa",
-//            Cuentas_Cobrar.class
-//        ).setParameter("secuencial_empresa", secuencial_empresa).getResultList();
-//
-//        model.setRowCount(0);
-//
-//        for (Cuentas_Cobrar item : resultado) {
-//            int rowIndex = model.getRowCount();
-//            model.addRow(new Object[] {
-//                String.valueOf(item.getSecuencial()),
-//                item.getVenta().getSecuencial(),
-//                item.getCliente().getNombre(),
-//                item.getFecha().toString(),
-//                item.getFecha_Vencimiento().toString(),
-//                String.valueOf(item.getGran_Total()),
-//                item.getSaldo(),
-//                item.getPagado(),
-//                item.getSecuencial_Cliente()
-//            });
-//
-//            total_facturas += item.getGran_Total();
-//            saldo_pendiente += item.getSaldo();
-//
-//            Object fechaVencObj = model.getValueAt(rowIndex, 4);
-//            Object saldoObj = model.getValueAt(rowIndex, 6);
-//
-//            try {
-//                LocalDate venc = LocalDate.parse(fechaVencObj.toString());
-//                BigDecimal saldo = new BigDecimal(saldoObj.toString());
-//
-//                if (venc.isBefore(LocalDate.now()) && saldo.compareTo(BigDecimal.ZERO) > 0) {
-//                    jTable1.setRowSelectionInterval(rowIndex, rowIndex);
-//                    jTable1.setSelectionBackground(Color.PINK);
-//                }
-//            } catch (Exception e) {
-//                // Ignorar errores de parseo
-//            }
-//        }
-//
-//        jLabel8.setText(String.format("%.2f", total_facturas));
-//        jLabel7.setText(String.format("%.2f", saldo_pendiente));
-//
-//    } finally {
-//        context.close();
-//        emf.close();
-//    }
-//}
-//
-//    
-    private void Cargar_Datos_CTAS_Cliente(int secuencial_cliente, int secuencial_empresa) {
+   
+   
+   private void Cargar_Datos_CTAS_Cliente(int secuencial_cliente, int secuencial_empresa) {
     double total_facturas = 0;
     double saldo_pendiente = 0;
 
     DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
     model.setRowCount(0); // Limpiar tabla
 
-    EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
-    EntityManager context = emf.createEntityManager();
+    EntityManager em = MonituxDBContext.getEntityManager();
 
     try {
         DateTimeFormatter vencFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
-        List<Cuentas_Cobrar> resultado = context.createQuery(
+        List<Cuentas_Cobrar> resultado = em.createQuery(
             "SELECT cc FROM Cuentas_Cobrar cc JOIN cc.Venta v JOIN cc.Cliente c " +
             "WHERE cc.Saldo > 0 AND cc.Secuencial_Cliente = :secuencial_cliente AND cc.Secuencial_Empresa = :secuencial_empresa",
             Cuentas_Cobrar.class
@@ -280,128 +211,58 @@ public class V_CTAS_Cobrar extends javax.swing.JPanel {
         jLabel7.setText(String.format("%.2f", saldo_pendiente));
 
         // Ocultar columna "Vencida"
-        jTable1.getColumnModel().getColumn(jTable1.getColumnCount() - 1).setMinWidth(0);
-        jTable1.getColumnModel().getColumn(jTable1.getColumnCount() - 1).setMaxWidth(0);
-        jTable1.getColumnModel().getColumn(jTable1.getColumnCount() - 1).setWidth(0);
+        int vencidaCol = jTable1.getColumnCount() - 1;
+        jTable1.getColumnModel().getColumn(vencidaCol).setMinWidth(0);
+        jTable1.getColumnModel().getColumn(vencidaCol).setMaxWidth(0);
+        jTable1.getColumnModel().getColumn(vencidaCol).setWidth(0);
 
         // Aplicar color a filas vencidas
-      
-        
-        
         DefaultTableCellRenderer renderer = new DefaultTableCellRenderer() {
-    @Override
-    public Component getTableCellRendererComponent(JTable table, Object value,
-            boolean isSelected, boolean hasFocus, int row, int column) {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value,
+                    boolean isSelected, boolean hasFocus, int row, int column) {
 
-        Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                Object vencidaFlag = table.getValueAt(row, vencidaCol);
 
-        Object vencidaFlag = table.getValueAt(row, table.getColumnCount() - 1);
+                if (isSelected) {
+                    c.setBackground(table.getSelectionBackground());
+                    c.setForeground(table.getSelectionForeground());
+                } else if (vencidaFlag instanceof Boolean && (Boolean) vencidaFlag) {
+                    c.setBackground(Color.RED);
+                    c.setForeground(Color.WHITE);
+                } else {
+                    c.setBackground(Color.WHITE);
+                    c.setForeground(Color.BLACK);
+                }
 
-        if (isSelected) {
-            // Mantener colores de selección del sistema
-            c.setBackground(table.getSelectionBackground());
-            c.setForeground(table.getSelectionForeground());
-        } else if (vencidaFlag instanceof Boolean && (Boolean) vencidaFlag) {
-            c.setBackground(Color.red); // MistyRose
-            c.setForeground(Color.white);
-        } else {
-            c.setBackground(Color.WHITE);
-            c.setForeground(Color.BLACK);
-        }
+                return c;
+            }
+        };
 
-        return c;
-    }
-};
-
-        
-        for (int i = 0; i < jTable1.getColumnCount() - 1; i++) {
+        for (int i = 0; i < vencidaCol; i++) {
             jTable1.getColumnModel().getColumn(i).setCellRenderer(renderer);
         }
 
-        
-        
-
-    } finally {
-        context.close();
-        emf.close();
+        System.out.println("✅ Cuentas por cobrar del cliente cargadas correctamente.");
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(null, "❌ Error al cargar cuentas por cobrar del cliente: " + e.getMessage());
+        e.printStackTrace();
     }
 }
 
-//    private void Cargar_Datos_CTAS_Cliente(int secuencial_cliente, int secuencial_empresa) {
-//    double total_facturas = 0;
-//    double saldo_pendiente = 0;
-//
-//    DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
-//    model.setRowCount(0); // Limpiar tabla
-//
-//    EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
-//    EntityManager context = emf.createEntityManager();
-//
-//    try {
-//        List<Cuentas_Cobrar> resultado = context.createQuery(
-//            "SELECT cc FROM Cuentas_Cobrar cc JOIN cc.Venta v JOIN cc.Cliente c WHERE cc.Saldo > 0 AND cc.Secuencial_Cliente = :secuencial_cliente AND cc.Secuencial_Empresa = :secuencial_empresa",
-//            Cuentas_Cobrar.class
-//        )
-//        .setParameter("secuencial_cliente", secuencial_cliente)
-//        .setParameter("secuencial_empresa", secuencial_empresa)
-//        .getResultList();
-//
-//        model.setRowCount(0);
-//
-//        for (Cuentas_Cobrar item : resultado) {
-//            int rowIndex = model.getRowCount();
-//            model.addRow(new Object[] {
-//                String.valueOf(item.getSecuencial()),
-//                item.getVenta().getSecuencial(),
-//                item.getCliente().getNombre(),
-//                item.getFecha().toString(),
-//                item.getFecha_Vencimiento().toString(),
-//                String.valueOf(item.getGran_Total()),
-//                item.getSaldo(),
-//                item.getPagado(),
-//                item.getSecuencial_Cliente()
-//            });
-//
-//            total_facturas += item.getGran_Total();
-//            saldo_pendiente += item.getSaldo();
-//
-//            Object fechaVencObj = model.getValueAt(rowIndex, 4);
-//            Object saldoObj = model.getValueAt(rowIndex, 6);
-//
-//            try {
-//                LocalDate venc = LocalDate.parse(fechaVencObj.toString());
-//                BigDecimal saldo = new BigDecimal(saldoObj.toString());
-//
-//                if (venc.isBefore(LocalDate.now()) && saldo.compareTo(BigDecimal.ZERO) > 0) {
-//                    jTable1.setRowSelectionInterval(rowIndex, rowIndex);
-//                    jTable1.setSelectionBackground(Color.PINK);
-//                }
-//            } catch (Exception e) {
-//                // Ignorar errores de parseo
-//            }
-//        }
-//
-//        jLabel8.setText(String.format("%.2f", total_facturas));
-//        jLabel7.setText(String.format("%.2f", saldo_pendiente));
-//
-//    } finally {
-//        context.close();
-//        emf.close();
-//    }
-//}
-
+   
+  
     
     
-    
-    public void Cargar_Datos_CTAS_Fecha(LocalDate fechaInicio, LocalDate fechaFin, int secuencial_empresa) {
+   public void Cargar_Datos_CTAS_Fecha(LocalDate fechaInicio, LocalDate fechaFin, int secuencial_empresa) {
     double total_facturas = 0;
     double saldo_pendiente = 0;
 
     DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
     model.setRowCount(0); // Limpiar tabla
 
-    EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
-    EntityManager context = emf.createEntityManager();
+    EntityManager em = MonituxDBContext.getEntityManager();
 
     try {
         LocalDateTime inicio = fechaInicio.atStartOfDay();
@@ -410,7 +271,7 @@ public class V_CTAS_Cobrar extends javax.swing.JPanel {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy hh:mm:ss a", new Locale("es", "ES"));
         DateTimeFormatter vencFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
-        List<Cuentas_Cobrar> resultado = context.createQuery(
+        List<Cuentas_Cobrar> resultado = em.createQuery(
             "SELECT cc FROM Cuentas_Cobrar cc JOIN cc.Venta v JOIN cc.Cliente c " +
             "WHERE cc.Saldo > 0 AND cc.Secuencial_Empresa = :secuencial_empresa " +
             "ORDER BY cc.Fecha DESC", Cuentas_Cobrar.class)
@@ -458,130 +319,47 @@ public class V_CTAS_Cobrar extends javax.swing.JPanel {
         jLabel7.setText(String.format("%.2f", saldo_pendiente));
 
         // Ocultar columna "Vencida"
-        jTable1.getColumnModel().getColumn(jTable1.getColumnCount() - 1).setMinWidth(0);
-        jTable1.getColumnModel().getColumn(jTable1.getColumnCount() - 1).setMaxWidth(0);
-        jTable1.getColumnModel().getColumn(jTable1.getColumnCount() - 1).setWidth(0);
+        int vencidaCol = jTable1.getColumnCount() - 1;
+        jTable1.getColumnModel().getColumn(vencidaCol).setMinWidth(0);
+        jTable1.getColumnModel().getColumn(vencidaCol).setMaxWidth(0);
+        jTable1.getColumnModel().getColumn(vencidaCol).setWidth(0);
 
         // Aplicar color a filas vencidas
-      
-        
-        
         DefaultTableCellRenderer renderer = new DefaultTableCellRenderer() {
-    @Override
-    public Component getTableCellRendererComponent(JTable table, Object value,
-            boolean isSelected, boolean hasFocus, int row, int column) {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value,
+                    boolean isSelected, boolean hasFocus, int row, int column) {
 
-        Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                Object vencidaFlag = table.getValueAt(row, vencidaCol);
 
-        Object vencidaFlag = table.getValueAt(row, table.getColumnCount() - 1);
+                if (isSelected) {
+                    c.setBackground(table.getSelectionBackground());
+                    c.setForeground(table.getSelectionForeground());
+                } else if (vencidaFlag instanceof Boolean && (Boolean) vencidaFlag) {
+                    c.setBackground(Color.RED);
+                    c.setForeground(Color.WHITE);
+                } else {
+                    c.setBackground(Color.WHITE);
+                    c.setForeground(Color.BLACK);
+                }
 
-        if (isSelected) {
-            // Mantener colores de selección del sistema
-            c.setBackground(table.getSelectionBackground());
-            c.setForeground(table.getSelectionForeground());
-        } else if (vencidaFlag instanceof Boolean && (Boolean) vencidaFlag) {
-            c.setBackground(Color.red); // MistyRose
-            c.setForeground(Color.white);
-        } else {
-            c.setBackground(Color.WHITE);
-            c.setForeground(Color.BLACK);
-        }
+                return c;
+            }
+        };
 
-        return c;
-    }
-};
-
-        for (int i = 0; i < jTable1.getColumnCount() - 1; i++) {
+        for (int i = 0; i < vencidaCol; i++) {
             jTable1.getColumnModel().getColumn(i).setCellRenderer(renderer);
         }
 
+        System.out.println("✅ Cuentas por cobrar filtradas por fecha cargadas correctamente.");
     } catch (Exception e) {
-        JOptionPane.showMessageDialog(null, "Error al cargar datos: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(null, "❌ Error al cargar datos: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         e.printStackTrace();
-    } finally {
-        context.close();
-        emf.close();
     }
 }
 
-    
-//
-//    public void Cargar_Datos_CTAS_Fecha(LocalDate fechaInicio, LocalDate fechaFin, int secuencial_empresa) {
-//    double total_facturas = 0;
-//    double saldo_pendiente = 0;
-//
-//    DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
-//    model.setRowCount(0); // Limpiar tabla
-//
-//    EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
-//    EntityManager context = emf.createEntityManager();
-//
-//    try {
-//        LocalDateTime inicio = fechaInicio.atStartOfDay();
-//        LocalDateTime fin = fechaFin.atTime(LocalTime.MAX);
-//
-//        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy hh:mm:ss a", new Locale("es", "ES"));
-//
-//        List<Cuentas_Cobrar> resultado = context.createQuery(
-//            "SELECT cc FROM Cuentas_Cobrar cc JOIN cc.Venta v JOIN cc.Cliente c " +
-//            "WHERE cc.Saldo > 0 AND cc.Secuencial_Empresa = :secuencial_empresa " +
-//            "ORDER BY cc.Fecha DESC", Cuentas_Cobrar.class)
-//            .setParameter("secuencial_empresa", secuencial_empresa)
-//            .getResultList();
-//
-//        for (Cuentas_Cobrar item : resultado) {
-//            LocalDateTime fechaConvertida;
-//            try {
-//                fechaConvertida = LocalDateTime.parse(item.getFecha().trim(), formatter);
-//            } catch (DateTimeParseException e) {
-//                System.out.println("Fecha mal formateada: " + item.getFecha());
-//                continue;
-//            }
-//
-//            if (!fechaConvertida.isBefore(inicio) && !fechaConvertida.isAfter(fin)) {
-//                int rowIndex = model.getRowCount();
-//                model.addRow(new Object[] {
-//                    item.getSecuencial(),
-//                    item.getVenta().getSecuencial(),
-//                    item.getCliente().getNombre(),
-//                    item.getFecha(),
-//                    item.getFecha_Vencimiento(),
-//                    item.getGran_Total(),
-//                    item.getSaldo(),
-//                    item.getPagado(),
-//                    item.getSecuencial_Cliente()
-//                });
-//
-//                total_facturas += item.getGran_Total();
-//                saldo_pendiente += item.getSaldo();
-//
-//                try {
-//                    LocalDate venc = LocalDate.parse(item.getFecha_Vencimiento().trim(), DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-//                    BigDecimal saldo = BigDecimal.valueOf(item.getSaldo());
-//
-//                    if (venc.isBefore(LocalDate.now()) && saldo.compareTo(BigDecimal.ZERO) > 0) {
-//                        jTable1.setRowSelectionInterval(rowIndex, rowIndex);
-//                        jTable1.setSelectionBackground(Color.pink);
-//                    }
-//                } catch (Exception e) {
-//                    System.out.println("Error al parsear fecha de vencimiento: " + item.getFecha_Vencimiento());
-//                }
-//            }
-//        }
-//
-//        jLabel8.setText(String.format("%.2f", total_facturas));
-//        jLabel7.setText(String.format("%.2f", saldo_pendiente));
-//
-//    } catch (Exception e) {
-//        JOptionPane.showMessageDialog(null, "Error al cargar datos: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-//        e.printStackTrace();
-//    } finally {
-//        context.close();
-//        emf.close();
-//    }
-//}
-//
-//    
+ 
    
     
     private void inicializarModeloTabla() {
@@ -1101,7 +879,6 @@ int viewRowIndex = jTable1.getSelectedRow();
         // TODO add your handling code here:
     }//GEN-LAST:event_jLabel13MouseEntered
 
-    
   public void Cargar_Datos_CTAS_Vencidas(int secuencial_empresa) {
     double totalFacturas = 0;
     double saldoPendiente = 0;
@@ -1109,13 +886,12 @@ int viewRowIndex = jTable1.getSelectedRow();
     DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
     model.setRowCount(0); // Limpiar tabla
 
-    EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
-    EntityManager context = emf.createEntityManager();
+    EntityManager em = MonituxDBContext.getEntityManager();
 
     try {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
-        List<Cuentas_Cobrar> resultado = context.createQuery(
+        List<Cuentas_Cobrar> resultado = em.createQuery(
             "SELECT cc FROM Cuentas_Cobrar cc JOIN cc.Venta v JOIN cc.Cliente c " +
             "WHERE cc.Saldo > 0 AND cc.Secuencial_Empresa = :secuencial_empresa " +
             "ORDER BY cc.Fecha_Vencimiento ASC", Cuentas_Cobrar.class)
@@ -1156,9 +932,10 @@ int viewRowIndex = jTable1.getSelectedRow();
         jLabel7.setText(String.format("%.2f", saldoPendiente));
 
         // Ocultar columna "Vencida"
-        jTable1.getColumnModel().getColumn(jTable1.getColumnCount() - 1).setMinWidth(0);
-        jTable1.getColumnModel().getColumn(jTable1.getColumnCount() - 1).setMaxWidth(0);
-        jTable1.getColumnModel().getColumn(jTable1.getColumnCount() - 1).setWidth(0);
+        int vencidaCol = jTable1.getColumnCount() - 1;
+        jTable1.getColumnModel().getColumn(vencidaCol).setMinWidth(0);
+        jTable1.getColumnModel().getColumn(vencidaCol).setMaxWidth(0);
+        jTable1.getColumnModel().getColumn(vencidaCol).setWidth(0);
 
         // Aplicar renderer una sola vez, fuera del bucle
         DefaultTableCellRenderer renderer = new DefaultTableCellRenderer() {
@@ -1167,15 +944,14 @@ int viewRowIndex = jTable1.getSelectedRow();
                     boolean isSelected, boolean hasFocus, int row, int column) {
 
                 Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-
-                Object vencidaFlag = table.getValueAt(row, table.getColumnCount() - 1);
+                Object vencidaFlag = table.getValueAt(row, vencidaCol);
 
                 if (isSelected) {
                     c.setBackground(table.getSelectionBackground());
                     c.setForeground(table.getSelectionForeground());
                 } else if (vencidaFlag instanceof Boolean && (Boolean) vencidaFlag) {
-                    c.setBackground(Color.red); // MistyRose
-                    c.setForeground(Color.white);
+                    c.setBackground(Color.RED);
+                    c.setForeground(Color.WHITE);
                 } else {
                     c.setBackground(Color.WHITE);
                     c.setForeground(Color.BLACK);
@@ -1185,16 +961,14 @@ int viewRowIndex = jTable1.getSelectedRow();
             }
         };
 
-        for (int i = 0; i < jTable1.getColumnCount() - 1; i++) {
+        for (int i = 0; i < vencidaCol; i++) {
             jTable1.getColumnModel().getColumn(i).setCellRenderer(renderer);
         }
 
+        System.out.println("✅ Cuentas vencidas cargadas correctamente.");
     } catch (Exception e) {
-        JOptionPane.showMessageDialog(null, "Error al cargar datos vencidos: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(null, "❌ Error al cargar datos vencidos: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         e.printStackTrace();
-    } finally {
-        context.close();
-        emf.close();
     }
 }
 

@@ -76,22 +76,18 @@ double descuento = 0.0;
      * Creates new form V_Factura_Venta
      */
     public V_Factura_Compra() {
-        
-         SwingUtilities.invokeLater(() -> {
      
-        EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
-EntityManager em = emf.createEntityManager();
-Util.llenarComboCliente(comboProveedor,Secuencial);
-Util.llenarComboProveedor(comboProveedor, Secuencial_Empresa);
-cargarItems();
+        initComponents(); // Primero inicializa los componentes
 
- jLabel9.setVisible(false);
-    datePicker1.setVisible(false);
-// V_Factura_Venta.this.cargarItems(Secuencial_Empresa, contenedor, contenedor_selector, em);
-             
-             
-        });
-        initComponents();
+    SwingUtilities.invokeLater(() -> {
+        
+        Util.llenarComboProveedor(comboProveedor, Secuencial_Empresa);
+        cargarItems();
+
+        jLabel9.setVisible(false);
+        datePicker1.setVisible(false);
+    });
+     
     }
 
     /**
@@ -619,18 +615,17 @@ cargarItems();
         add(icono_carga, new org.netbeans.lib.awtextra.AbsoluteConstraints(800, 10, 32, 32));
     }// </editor-fold>//GEN-END:initComponents
 
-    
-   public void cargar_Items(int secuencialEmpresa, JPanel contenedor, JPanel contenedor_selector, EntityManager entityManager) {
+public void cargar_Items(int secuencialEmpresa, JPanel contenedor, JPanel contenedor_selector, EntityManager entityManager) {
     icono_carga.setVisible(true);
 
     // Usamos GridBagLayout para evitar el ajuste automático de tamaño
     contenedor.setLayout(new GridBagLayout());
-    contenedor_selector.setLayout(new GridLayout(0, 1, 5, 5));
+    contenedor_selector.setLayout(new GridLayout(0, 1, 5, 5)); // Selector puede seguir con GridLayout
 
     contenedor.removeAll();
-    contenedor_selector.removeAll();
-    listaDeItems.clear();
-    selectoresCantidad.clear();
+    //contenedor_selector.removeAll();
+   // listaDeItems.clear();
+    //selectoresCantidad.clear();
 
     List<Producto> productos = entityManager
         .createQuery("SELECT p FROM Producto p WHERE p.Secuencial_Empresa = :empresa", Producto.class)
@@ -645,19 +640,15 @@ cargarItems();
     int col = 0, row = 0;
 
     for (Producto producto : productos) {
-        Miniatura_Producto miniatura = new Miniatura_Producto(producto, true);
-        miniatura.setPreferredSize(new Dimension(120, 170)); // Tamaño fijo
+        Miniatura_Producto miniatura = new Miniatura_Producto(producto, false);
+        miniatura.setPreferredSize(new Dimension(120, 170)); // Tamaño fijo para cada miniatura
 
         miniatura.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 SelectorCantidad selector = selectoresCantidad.computeIfAbsent(
                     producto.getCodigo(),
-                    codigo -> {
-                        SelectorCantidad nuevo = new SelectorCantidad(codigo, 0);
-                        nuevo.setCantidad(0);
-                        return nuevo;
-                    }
+                    codigo -> new SelectorCantidad(codigo, 0)
                 );
 
                 if (!listaDeItems.containsKey(producto.getCodigo())) {
@@ -698,6 +689,8 @@ cargarItems();
         gbc.gridx = col;
         gbc.gridy = row;
         contenedor.add(miniatura, gbc);
+        
+        
 
         col++;
         if (col == 3) {
@@ -709,8 +702,8 @@ cargarItems();
     contenedor.revalidate();
     contenedor.repaint();
     icono_carga.setVisible(false);
+    
 }
- 
     
     
 
@@ -817,91 +810,6 @@ if (miniatura.cargarComentario()!=null){
     
 }
 */
-public void cargarItems_Filtrados( // Original
-    int secuencialEmpresa,
-    JComboBox<String> comboFiltro,
-    JTextField campoValorFiltro,
-    JPanel contenedor,
-    JPanel contenedor_selector,
-    EntityManager entityManager
-) {
-    icono_carga.setVisible(true);
-
-    contenedor.setLayout(new GridLayout(0, 3, 5, 5));
-    contenedor_selector.setLayout(new GridLayout(0, 1, 5, 5));
-    contenedor.removeAll();
-
-    String campoFiltro = (String) comboFiltro.getSelectedItem();
-    String valorFiltro = campoValorFiltro.getText();
-
-    boolean aplicarFiltro = campoFiltro != null && !campoFiltro.trim().isEmpty()
-                         && valorFiltro != null && !valorFiltro.trim().isEmpty();
-
-    String jpql = "SELECT p FROM Producto p WHERE p.Secuencial_Empresa = :empresa"
-                + (aplicarFiltro ? " AND LOWER(p." + campoFiltro + ") LIKE :valorFiltro" : "");
-
-    TypedQuery<Producto> query = entityManager.createQuery(jpql, Producto.class);
-    query.setParameter("empresa", secuencialEmpresa);
-    if (aplicarFiltro) {
-        query.setParameter("valorFiltro", "%" + valorFiltro.toLowerCase() + "%");
-    }
-
-    for (Producto producto : query.getResultList()) {
-        ImageIcon imagenIcon = (producto.getImagen() != null && producto.getImagen().length > 0)
-            ? new ImageIcon(producto.getImagen())
-            : new ImageIcon(getClass().getResource("/icons/no-image-icon-10.png"));
-
-
-        Miniatura_Producto miniatura = new Miniatura_Producto(producto,true);
-
-        miniatura.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                SelectorCantidad selector = selectoresCantidad.computeIfAbsent(
-                    producto.getCodigo(),
-                    codigo -> new SelectorCantidad(codigo, 0)
-                );
-
-                selector.setCantidad(0);
-
-                if (!listaDeItems.containsKey(producto.getCodigo())) {
-                    listaDeItems.put(producto.getCodigo(), miniatura);
-
-                    if (!Arrays.asList(contenedor_selector.getComponents()).contains(selector)) {
-                        contenedor_selector.add(selector);
-                    }
-                }
-
-                contenedor_selector.revalidate();
-                contenedor_selector.repaint();
-            }
-
-            @Override
-            public void mousePressed(MouseEvent e) {
-                if (e.isPopupTrigger()) {
-                    menu_contextual.show(e.getComponent(), e.getX(), e.getY());
-                }
-            }
-
-            @Override
-            public void mouseReleased(MouseEvent e) {
-                if (e.isPopupTrigger()) {
-                    menu_contextual.show(e.getComponent(), e.getX(), e.getY());
-                }
-            }
-        });
-
-        String comentario = miniatura.cargarComentario();
-        String descripcion = miniatura.producto.getDescripcion();
-        miniatura.setToolTipText("<html><b>" + descripcion + "</b><br>" + (comentario != null ? comentario : "") + "</html>");
-
-        contenedor.add(miniatura);
-    }
-
-    contenedor.revalidate();
-    contenedor.repaint();
-    icono_carga.setVisible(false);
-}
 
 
 public void cargarItemsFiltrados(
@@ -909,101 +817,112 @@ public void cargarItemsFiltrados(
     JComboBox<String> comboFiltro,
     JTextField campoValorFiltro,
     JPanel contenedor,
-    JPanel contenedor_selector,
-    EntityManager entityManager
+    JPanel contenedor_selector
 ) {
     icono_carga.setVisible(true);
 
-    // Usamos GridBagLayout para evitar el ajuste automático de tamaño
     contenedor.setLayout(new GridBagLayout());
     contenedor_selector.setLayout(new GridLayout(0, 1, 5, 5));
     contenedor.removeAll();
-    
 
-    String campoFiltro = (String) comboFiltro.getSelectedItem();
-    String valorFiltro = campoValorFiltro.getText();
+    EntityManager em = null;
 
-    boolean aplicarFiltro = campoFiltro != null && !campoFiltro.trim().isEmpty()
-                         && valorFiltro != null && !valorFiltro.trim().isEmpty();
+    try {
+        em = MonituxDBContext.getEntityManager();
 
-    String jpql = "SELECT p FROM Producto p WHERE p.Secuencial_Empresa = :empresa"
-                + (aplicarFiltro ? " AND LOWER(p." + campoFiltro + ") LIKE :valorFiltro" : "");
+        String campoFiltro = (String) comboFiltro.getSelectedItem();
+        String valorFiltro = campoValorFiltro.getText();
 
-    TypedQuery<Producto> query = entityManager.createQuery(jpql, Producto.class);
-    query.setParameter("empresa", secuencialEmpresa);
-    if (aplicarFiltro) {
-        query.setParameter("valorFiltro", "%" + valorFiltro.toLowerCase() + "%");
-    }
+        boolean aplicarFiltro = campoFiltro != null && !campoFiltro.trim().isEmpty()
+                             && valorFiltro != null && !valorFiltro.trim().isEmpty();
 
-    GridBagConstraints gbc = new GridBagConstraints();
-    gbc.insets = new Insets(5, 5, 5, 5); // Espaciado entre miniaturas
-    gbc.fill = GridBagConstraints.NONE; // No expandir
-    gbc.anchor = GridBagConstraints.NORTHWEST;
+        String jpql = "SELECT p FROM Producto p WHERE p.Secuencial_Empresa = :empresa"
+                    + (aplicarFiltro ? " AND LOWER(p." + campoFiltro + ") LIKE :valorFiltro" : "");
 
-    int col = 0, row = 0;
+        TypedQuery<Producto> query = em.createQuery(jpql, Producto.class);
+        query.setParameter("empresa", secuencialEmpresa);
+        if (aplicarFiltro) {
+            query.setParameter("valorFiltro", "%" + valorFiltro.toLowerCase() + "%");
+        }
 
-    for (Producto producto : query.getResultList()) {
-        Miniatura_Producto miniatura = new Miniatura_Producto(producto, true);
-        miniatura.setPreferredSize(new Dimension(120, 170)); // Tamaño fijo
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.fill = GridBagConstraints.NONE;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
 
-        miniatura.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                SelectorCantidad selector = selectoresCantidad.computeIfAbsent(
-                    producto.getCodigo(),
-                    codigo -> new SelectorCantidad(codigo, 0)
-                );
+        int col = 0, row = 0;
 
-                selector.setCantidad(0);
+        for (Producto producto : query.getResultList()) {
+            Miniatura_Producto miniatura = new Miniatura_Producto(producto, true);
+            miniatura.setPreferredSize(new Dimension(120, 170));
 
-                if (!listaDeItems.containsKey(producto.getCodigo())) {
-                    listaDeItems.put(producto.getCodigo(), miniatura);
+            miniatura.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    SelectorCantidad selector = selectoresCantidad.computeIfAbsent(
+                        producto.getCodigo(),
+                        codigo -> new SelectorCantidad(codigo, 0)
+                    );
 
-                    if (!Arrays.asList(contenedor_selector.getComponents()).contains(selector)) {
-                        contenedor_selector.add(selector);
+                    selector.setCantidad(0);
+
+                    if (!listaDeItems.containsKey(producto.getCodigo())) {
+                        listaDeItems.put(producto.getCodigo(), miniatura);
+
+                        if (!Arrays.asList(contenedor_selector.getComponents()).contains(selector)) {
+                            contenedor_selector.add(selector);
+                        }
+                    }
+
+                    contenedor_selector.revalidate();
+                    contenedor_selector.repaint();
+                }
+
+                @Override
+                public void mousePressed(MouseEvent e) {
+                    if (e.isPopupTrigger()) {
+                        menu_contextual.show(e.getComponent(), e.getX(), e.getY());
                     }
                 }
 
-                contenedor_selector.revalidate();
-                contenedor_selector.repaint();
-            }
-
-            @Override
-            public void mousePressed(MouseEvent e) {
-                if (e.isPopupTrigger()) {
-                    menu_contextual.show(e.getComponent(), e.getX(), e.getY());
+                @Override
+                public void mouseReleased(MouseEvent e) {
+                    if (e.isPopupTrigger()) {
+                        menu_contextual.show(e.getComponent(), e.getX(), e.getY());
+                    }
                 }
+            });
+
+            String comentario = miniatura.cargarComentario();
+            String descripcion = miniatura.producto.getDescripcion();
+            miniatura.setToolTipText("<html><b>" + descripcion + "</b><br>" + (comentario != null ? comentario : "") + "</html>");
+
+            gbc.gridx = col;
+            gbc.gridy = row;
+            contenedor.add(miniatura, gbc);
+
+            col++;
+            if (col == 3) {
+                col = 0;
+                row++;
             }
-
-            @Override
-            public void mouseReleased(MouseEvent e) {
-                if (e.isPopupTrigger()) {
-                    menu_contextual.show(e.getComponent(), e.getX(), e.getY());
-                }
-            }
-        });
-
-        String comentario = miniatura.cargarComentario();
-        String descripcion = miniatura.producto.getDescripcion();
-        miniatura.setToolTipText("<html><b>" + descripcion + "</b><br>" + (comentario != null ? comentario : "") + "</html>");
-
-        // Posicionamiento en la cuadrícula
-        gbc.gridx = col;
-        gbc.gridy = row;
-        contenedor.add(miniatura, gbc);
-
-        col++;
-        if (col == 3) {
-            col = 0;
-            row++;
         }
+
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(null,
+            "Error al cargar ítems filtrados: " + e.getMessage(),
+            "Error",
+            JOptionPane.ERROR_MESSAGE);
+        e.printStackTrace();
+    } finally {
+        if (em != null && em.isOpen()) {
+            em.close();
+        }
+        contenedor.revalidate();
+        contenedor.repaint();
+        icono_carga.setVisible(false);
     }
-
-    contenedor.revalidate();
-    contenedor.repaint();
-    icono_carga.setVisible(false);
 }
-
 
 
 
@@ -1026,46 +945,36 @@ public void cargarItemsFiltrados(
         // TODO add your handling code here:
     }//GEN-LAST:event_jButton1ActionPerformed
 
-   // public void cargarItems(){
-//    icono_carga.setVisible(true);
-//        
-//         contenedor_selector.setLayout(new GridLayout(0, 1, 5, 5)); // 4 columnas, filas dinámicas
-//        EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
-//EntityManager em = emf.createEntityManager();
-//
-//cargarItems(Secuencial_Empresa, contenedor, contenedor_selector, em);
-//      icono_carga.setVisible(false);
-        
-
-  //  }
+  
     
     
     
-    public void cargarItems() {
-    
-        contenedor.removeAll();
-        icono_carga.setVisible(true); // Mostrar ícono de carga
+   public void cargarItems() {
+    contenedor.removeAll();
+    icono_carga.setVisible(true); // Mostrar ícono de carga
 
     SwingWorker<Void, Void> worker = new SwingWorker<>() {
         @Override
         protected Void doInBackground() {
-            EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
-            EntityManager em = emf.createEntityManager();
-            cargar_Items(Secuencial_Empresa, contenedor, contenedor_selector, em);
-            em.close();
-            emf.close();
+            EntityManager em = null;
+            try {
+                em = MonituxDBContext.getEntityManager();
+                cargar_Items(Secuencial_Empresa, contenedor, contenedor_selector,em);
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(null,
+                    "Error al cargar ítems: " + e.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+                e.printStackTrace();
+            } finally {
+                if (em != null && em.isOpen()) {
+                    em.close();
+                }
+            }
             return null;
         }
-
-        @Override
-        protected void done() {
-            icono_carga.setVisible(false); // Ocultar ícono de carga
-            revalidate();
-            repaint();
-        }
     };
-
-    worker.execute(); // Ejecutar en segundo plano
+    worker.execute();
 }
 
     
@@ -1459,17 +1368,24 @@ if (lbl_descuento.getText().trim().isEmpty()) {
 
     private void jTextField1KeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextField1KeyReleased
 
-      if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
-        EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
-        EntityManager em = emf.createEntityManager();
+    if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
+        EntityManager em = null;
 
-        cargarItemsFiltrados(Secuencial_Empresa, jComboBox1, jTextField1, contenedor, contenedor_selector, em);
-
-        // Opcional: cerrar el EntityManager si no lo necesitas después
-        em.close();
-        emf.close();
+        try {
+            em = MonituxDBContext.getEntityManager();
+            cargarItemsFiltrados(Secuencial_Empresa, jComboBox1, jTextField1, contenedor, contenedor_selector);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null,
+                "Error al filtrar ítems: " + e.getMessage(),
+                "Error",
+                JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+        } finally {
+            if (em != null && em.isOpen()) {
+                em.close();
+            }
+        }
     }
-        
         // TODO add your handling code here:
     }//GEN-LAST:event_jTextField1KeyReleased
 
@@ -1629,132 +1545,126 @@ if (invocador instanceof Miniatura_Producto) {
     
     private void jButton8ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton8ActionPerformed
 
-        
-        //*******************************************
-        
-        icono_carga.setVisible(true); // Mostrar el PictureBox mientras se procesa la orden
+      icono_carga.setVisible(true); // Mostrar el PictureBox mientras se procesa la orden
 
-ActualizarNumeros(); // Actualizar los números en los labels correspondientes
+    ActualizarNumeros(); // Actualizar los números en los labels correspondientes
 
-// Validaciones previas
-if (listaDeItems == null || listaDeItems.isEmpty()) {
-    JOptionPane.showMessageDialog(null,
-        "No hay items seleccionados para registrar la orden de compra.",
-        "Error",
-        JOptionPane.ERROR_MESSAGE);
-    icono_carga.setVisible(false);
-    return;
-}
-
-Object proveedorSeleccionadoObj = comboProveedor.getSelectedItem();
-if (comboProveedor.getSelectedIndex() == -1 || proveedorSeleccionadoObj == null) {
-    JOptionPane.showMessageDialog(null,
-        "Debe seleccionar un proveedor para registrar la orden de compra.",
-        "Error",
-        JOptionPane.ERROR_MESSAGE);
-    icono_carga.setVisible(false);
-    return;
-}
-
-if (total <= 0) {
-    JOptionPane.showMessageDialog(null,
-        "El total de la orden debe ser mayor a cero.",
-        "Error",
-        JOptionPane.ERROR_MESSAGE);
-    icono_carga.setVisible(false);
-    return;
-}
-
-// Inicializar JPA
-EntityManagerFactory emf = null;
-EntityManager em = null;
-
-try {
-    emf = Persistence.createEntityManagerFactory("MonituxPU");
-    em = emf.createEntityManager();
-    em.getTransaction().begin();
-
-    // Crear orden
-    Orden orden = new Orden();
-
-    String proveedorId = proveedorSeleccionadoObj.toString().split("-")[0].trim();
-    orden.setSecuencial_Empresa(Secuencial_Empresa);
-    orden.setSecuencial_Proveedor(Integer.parseInt(proveedorId));
-    orden.setSecuencial_Usuario(Secuencial_Usuario);
-    orden.setFecha(LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy hh:mm:ss a")));
-    orden.setTotal(subTotal);
-    orden.setGran_Total(total);
-    orden.setDescuento(descuento);
-    orden.setImpuesto(impuesto);
-    orden.setOtros_Cargos(otrosCargos);
-
-    em.persist(orden);
-
-    // Crear detalles
-    for (Miniatura_Producto pro : listaDeItems.values()) {
-        Orden_Detalle detalle = new Orden_Detalle();
-
-        detalle.setSecuencial_Empresa(Secuencial_Empresa);
-        detalle.setSecuencial_Orden(orden.getSecuencial());
-        detalle.setSecuencial_Proveedor(orden.getSecuencial_Proveedor());
-        detalle.setSecuencial_Usuario(orden.getSecuencial_Usuario());
-        detalle.setFecha(orden.getFecha());
-
-        detalle.setSecuencial_Producto(pro.producto.getSecuencial());
-        detalle.setCodigo(pro.producto.getCodigo());
-        detalle.setDescripcion(pro.producto.getDescripcion());
-        detalle.setCantidad((double) pro.getCantidadSelecccion());
-        detalle.setPrecio(redondear(pro.producto.getPrecio_Costo())); // Asumiendo que usas precio de compra
-        detalle.setTotal(redondear(pro.getCantidadSelecccion() * pro.producto.getPrecio_Costo()));
-        detalle.setTipo(pro.producto.getTipo());
-
-        em.persist(detalle);
+    // Validaciones previas
+    if (listaDeItems == null || listaDeItems.isEmpty()) {
+        JOptionPane.showMessageDialog(null,
+            "No hay items seleccionados para registrar la orden de compra.",
+            "Error",
+            JOptionPane.ERROR_MESSAGE);
+        icono_carga.setVisible(false);
+        return;
     }
 
-    em.getTransaction().commit();
-
-    JOptionPane.showMessageDialog(null,
-        "Orden de compra registrada correctamente.",
-        "Éxito",
-        JOptionPane.INFORMATION_MESSAGE);
-
-    Util.registrarActividad(Secuencial_Usuario,
-        String.format("Ha registrado una orden de compra según Número: %d Por un valor de: %.2f",
-            orden.getSecuencial(), total),
-        Secuencial_Empresa);
-
-    limpiarFactura();
-
-} catch (Exception e) {
-    if (em != null && em.getTransaction().isActive()) {
-        em.getTransaction().rollback();
+    Object proveedorSeleccionadoObj = comboProveedor.getSelectedItem();
+    if (comboProveedor.getSelectedIndex() == -1 || proveedorSeleccionadoObj == null) {
+        JOptionPane.showMessageDialog(null,
+            "Debe seleccionar un proveedor para registrar la orden de compra.",
+            "Error",
+            JOptionPane.ERROR_MESSAGE);
+        icono_carga.setVisible(false);
+        return;
     }
-    JOptionPane.showMessageDialog(null,
-        "Error al registrar la orden de compra: " + e.getMessage(),
-        "Error",
-        JOptionPane.ERROR_MESSAGE);
-} finally {
-    if (em != null) em.close();
-    if (emf != null) emf.close();
-    icono_carga.setVisible(false); // Ocultar el PictureBox después de procesar la orden
-}
 
-        
-        
-        
-        //*******************************************
+    if (total <= 0) {
+        JOptionPane.showMessageDialog(null,
+            "El total de la orden debe ser mayor a cero.",
+            "Error",
+            JOptionPane.ERROR_MESSAGE);
+        icono_carga.setVisible(false);
+        return;
+    }
+
+    EntityManager em = null;
+
+    try {
+        em = MonituxDBContext.getEntityManager();
+        em.getTransaction().begin();
+
+        // Crear orden
+        Orden orden = new Orden();
+
+        String proveedorId = proveedorSeleccionadoObj.toString().split("-")[0].trim();
+        orden.setSecuencial_Empresa(Secuencial_Empresa);
+        orden.setSecuencial_Proveedor(Integer.parseInt(proveedorId));
+        orden.setSecuencial_Usuario(Secuencial_Usuario);
+        orden.setFecha(LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy hh:mm:ss a")));
+        orden.setTotal(subTotal);
+        orden.setGran_Total(total);
+        orden.setDescuento(descuento);
+        orden.setImpuesto(impuesto);
+        orden.setOtros_Cargos(otrosCargos);
+
+        em.persist(orden);
+
+        // Crear detalles
+        for (Miniatura_Producto pro : listaDeItems.values()) {
+            Orden_Detalle detalle = new Orden_Detalle();
+
+            detalle.setSecuencial_Empresa(Secuencial_Empresa);
+            detalle.setSecuencial_Orden(orden.getSecuencial());
+            detalle.setSecuencial_Proveedor(orden.getSecuencial_Proveedor());
+            detalle.setSecuencial_Usuario(orden.getSecuencial_Usuario());
+            detalle.setFecha(orden.getFecha());
+
+            detalle.setSecuencial_Producto(pro.producto.getSecuencial());
+            detalle.setCodigo(pro.producto.getCodigo());
+            detalle.setDescripcion(pro.producto.getDescripcion());
+            detalle.setCantidad((double) pro.getCantidadSelecccion());
+            detalle.setPrecio(redondear(pro.producto.getPrecio_Costo()));
+            detalle.setTotal(redondear(pro.getCantidadSelecccion() * pro.producto.getPrecio_Costo()));
+            detalle.setTipo(pro.producto.getTipo());
+
+            em.persist(detalle);
+        }
+
+        em.getTransaction().commit();
+
+        JOptionPane.showMessageDialog(null,
+            "Orden de compra registrada correctamente.",
+            "Éxito",
+            JOptionPane.INFORMATION_MESSAGE);
+
+        Util.registrarActividad(Secuencial_Usuario,
+            String.format("Ha registrado una orden de compra según Número: %d Por un valor de: %.2f",
+                orden.getSecuencial(), total),
+            Secuencial_Empresa);
+
+        limpiarFactura();
+
+    } catch (Exception e) {
+        if (em != null && em.getTransaction().isActive()) {
+            em.getTransaction().rollback();
+        }
+        JOptionPane.showMessageDialog(null,
+            "Error al registrar la orden de compra: " + e.getMessage(),
+            "Error",
+            JOptionPane.ERROR_MESSAGE);
+        e.printStackTrace();
+    } finally {
+        if (em != null && em.isOpen()) {
+            em.close();
+        }
+        icono_carga.setVisible(false); // Ocultar el PictureBox después de procesar la orden
+    }  
+      
   
     }//GEN-LAST:event_jButton8ActionPerformed
 
   //******************************************
-public void importarOrden(Map<String, Double> lista, String proveedor) {
+
+    public void importarOrden(Map<String, Double> lista, String proveedor) {
     comboProveedor.setSelectedItem(proveedor); // Seleccionar proveedor en el comboBox
     comboProveedor.setEnabled(false);
 
-    EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
-    EntityManager em = emf.createEntityManager();
+    EntityManager em = null;
 
     try {
+        em = MonituxDBContext.getEntityManager();
+
         for (Map.Entry<String, Double> itemO : lista.entrySet()) {
             String codigo = itemO.getKey();
             Double cantidadSeleccionada = itemO.getValue();
@@ -1770,12 +1680,14 @@ public void importarOrden(Map<String, Double> lista, String proveedor) {
                 Miniatura_Producto miniatura = new Miniatura_Producto(item, false);
                 miniatura.setCantidadSelecccion(cantidadSeleccionada != null ? cantidadSeleccionada : 0.0);
 
-                SelectorCantidad selector = new SelectorCantidad(miniatura.producto.getCodigo(), miniatura.getCantidadSelecccion());
+                SelectorCantidad selector = new SelectorCantidad(
+                    miniatura.producto.getCodigo(),
+                    miniatura.getCantidadSelecccion()
+                );
                 selector.setCodigo(miniatura.producto.getCodigo());
                 selector.setCantidad(miniatura.getCantidadSelecccion());
 
                 if (listaDeItems.containsKey(miniatura.producto.getCodigo())) {
-                    listaDeItems.remove(miniatura.producto.getCodigo());
                     listaDeItems.put(miniatura.producto.getCodigo(), miniatura);
 
                     double nuevaCantidad = listaDeItems.get(selector.getCodigo()).getCantidadSelecccion();
@@ -1790,12 +1702,19 @@ public void importarOrden(Map<String, Double> lista, String proveedor) {
         jButton6.doClick(); // Simular clic en el botón para actualizar vista
 
     } catch (Exception e) {
+        JOptionPane.showMessageDialog(null,
+            "Error al importar orden: " + e.getMessage(),
+            "Error",
+            JOptionPane.ERROR_MESSAGE);
         e.printStackTrace();
     } finally {
-        em.close();
-        emf.close();
+        if (em != null && em.isOpen()) {
+            em.close();
+        }
     }
 }
+
+
 //******************************************
 
     
@@ -1818,204 +1737,215 @@ dialogo.setVisible(true);
     private void jButton7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton7ActionPerformed
       
   
-//*************************************************************
+        icono_carga.setVisible(true);
+    ActualizarNumeros();
 
-icono_carga.setVisible(true);
-ActualizarNumeros();
+    if (listaDeItems.isEmpty()) {
+        JOptionPane.showMessageDialog(null, "No hay items seleccionados para registrar la compra.", "Error", JOptionPane.ERROR_MESSAGE);
+        icono_carga.setVisible(false);
+        return;
+    }
 
-if (listaDeItems.isEmpty()) {
-    JOptionPane.showMessageDialog(null, "No hay items seleccionados para registrar la compra.", "Error", JOptionPane.ERROR_MESSAGE);
-    return;
-}
+    if (comboProveedor.getSelectedIndex() == -1 ||
+        jComboBox3.getSelectedIndex() == -1 ||
+        jComboBox4.getSelectedIndex() == -1) {
+        JOptionPane.showMessageDialog(null, "Debe completar todos los campos obligatorios.", "Error", JOptionPane.ERROR_MESSAGE);
+        icono_carga.setVisible(false);
+        return;
+    }
 
-if (comboProveedor.getSelectedIndex() == -1 ||
-    jComboBox3.getSelectedIndex() == -1 ||
-    jComboBox4.getSelectedIndex() == -1) {
-    JOptionPane.showMessageDialog(null, "Debe completar todos los campos obligatorios.", "Error", JOptionPane.ERROR_MESSAGE);
-    return;
-}
+    if (total <= 0) {
+        JOptionPane.showMessageDialog(null, "El total de la compra debe ser mayor a cero.", "Error", JOptionPane.ERROR_MESSAGE);
+        icono_carga.setVisible(false);
+        return;
+    }
 
-if (total <= 0) {
-    JOptionPane.showMessageDialog(null, "El total de la compra debe ser mayor a cero.", "Error", JOptionPane.ERROR_MESSAGE);
-    return;
-}
+    EntityManager em = null;
+    List<Object[]> movimientosPendientes = new ArrayList<>();
 
-EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
-EntityManager em = emf.createEntityManager();
+    try {
+        em = MonituxDBContext.getEntityManager();
+        em.getTransaction().begin();
 
-try {
-    em.getTransaction().begin();
+        Compra compra = new Compra();
+        compra.setSecuencial_Empresa(Secuencial_Empresa);
+        compra.setSecuencial_Proveedor(Integer.parseInt(comboProveedor.getSelectedItem().toString().split("-")[0].trim()));
+        compra.setSecuencial_Usuario(Secuencial_Usuario);
+        compra.setFecha(new SimpleDateFormat("dd/MM/yyyy hh:mm:ss a").format(new Date()));
+        compra.setTipo(jComboBox3.getSelectedItem().toString());
+        compra.setForma_Pago(jComboBox4.getSelectedItem().toString());
+        compra.setTotal(redondear(subTotal));
+        compra.setGran_Total(redondear(total));
+        compra.setImpuesto(impuesto);
+        compra.setOtros_Cargos(otrosCargos);
+        compra.setDescuento(descuento);
 
-    Compra compra = new Compra();
-    compra.setSecuencial_Empresa(Secuencial_Empresa);
-    compra.setSecuencial_Proveedor(Integer.parseInt(comboProveedor.getSelectedItem().toString().split("-")[0].trim()));
-    compra.setSecuencial_Usuario(Secuencial_Usuario);
-    compra.setFecha(new SimpleDateFormat("dd/MM/yyyy hh:mm:ss a").format(new Date()));
-    compra.setTipo(jComboBox3.getSelectedItem().toString());
-    compra.setForma_Pago(jComboBox4.getSelectedItem().toString());
-    compra.setTotal(redondear(subTotal));
-    compra.setGran_Total(redondear(total));
-    compra.setImpuesto(impuesto);
-    compra.setOtros_Cargos(otrosCargos);
-    compra.setDescuento(descuento);
+        em.persist(compra);
 
-    em.persist(compra);
+        for (Miniatura_Producto pro : listaDeItems.values()) {
+            Compra_Detalle detalle = new Compra_Detalle();
+            detalle.setSecuencial_Empresa(compra.getSecuencial_Empresa());
+            detalle.setSecuencial_Factura(compra.getSecuencial());
+            detalle.setSecuencial_Proveedor(compra.getSecuencial_Proveedor());
+            detalle.setSecuencial_Usuario(compra.getSecuencial_Usuario());
+            detalle.setFecha(compra.getFecha());
+            detalle.setSecuencial_Producto(pro.producto.getSecuencial());
+            detalle.setCodigo(pro.producto.getCodigo());
+            detalle.setDescripcion(pro.producto.getDescripcion());
+            detalle.setCantidad(Double.valueOf(pro.getCantidadSelecccion()));
+            detalle.setPrecio(redondear(pro.producto.getPrecio_Costo()));
+            detalle.setTotal(redondear(pro.getCantidadSelecccion() * pro.producto.getPrecio_Costo()));
+            detalle.setTipo(pro.producto.getTipo());
 
-    for (Miniatura_Producto pro : listaDeItems.values()) {
-        Compra_Detalle detalle = new Compra_Detalle();
-        detalle.setSecuencial_Empresa(compra.getSecuencial_Empresa());
-        detalle.setSecuencial_Factura(compra.getSecuencial());
-        detalle.setSecuencial_Proveedor(compra.getSecuencial_Proveedor());
-        detalle.setSecuencial_Usuario(compra.getSecuencial_Usuario());
-        detalle.setFecha(compra.getFecha());
-        detalle.setSecuencial_Producto(pro.producto.getSecuencial());
-        detalle.setCodigo(pro.producto.getCodigo());
-        detalle.setDescripcion(pro.producto.getDescripcion());
-        detalle.setCantidad((double) pro.getCantidadSelecccion());
-        detalle.setPrecio(redondear(pro.producto.getPrecio_Costo()));
-        detalle.setTotal(redondear(pro.getCantidadSelecccion() * pro.producto.getPrecio_Costo()));
-        detalle.setTipo(pro.producto.getTipo());
+            em.persist(detalle);
 
-        em.persist(detalle);
+            if (!"Servicio".equals(detalle.getTipo())) {
+                Producto productoBD = em.find(Producto.class, pro.producto.getSecuencial());
+                if (productoBD != null) {
+                    double cantidadActual = productoBD.getCantidad();
+                    double cantidadAgregar = pro.getCantidadSelecccion();
 
-        if (!"Servicio".equals(detalle.getTipo())) {
-            Producto productoBD = em.find(Producto.class, pro.producto.getSecuencial());
-            if (productoBD != null) {
-                double cantidadActual = productoBD.getCantidad();
-                double cantidadAgregar = pro.getCantidadSelecccion();
+                    movimientosPendientes.add(new Object[] {
+                        productoBD.getSecuencial(),
+                        cantidadActual,
+                        productoBD.getDescripcion(),
+                        cantidadAgregar,
+                        productoBD.getPrecio_Costo(),
+                        productoBD.getPrecio_Costo(),
+                        "Entrada",
+                        Secuencial_Empresa
+                    });
 
-                Util.registrarMovimientoKardex(
-                    productoBD.getSecuencial(),
-                    cantidadActual,
-                    productoBD.getDescripcion(),
-                    cantidadAgregar,
-                    productoBD.getPrecio_Costo(),
-                    productoBD.getPrecio_Costo(),
-                    "Entrada",
-                    Secuencial_Empresa
-                );
-
-                productoBD.setCantidad(cantidadActual + cantidadAgregar);
-                em.merge(productoBD);
+                    productoBD.setCantidad(cantidadActual + cantidadAgregar);
+                    em.merge(productoBD);
+                }
             }
         }
-    }
 
-    if ("Credito".equals(compra.getTipo())) {
-        Cuentas_Pagar cuenta = new Cuentas_Pagar();
-        cuenta.setSecuencial_Empresa(compra.getSecuencial_Empresa());
-        cuenta.setSecuencial_Factura(compra.getSecuencial());
-        cuenta.setSecuencial_Proveedor(compra.getSecuencial_Proveedor());
-        cuenta.setSecuencial_Usuario(compra.getSecuencial_Usuario());
-        cuenta.setFecha(compra.getFecha());
-        cuenta.setTotal(redondear(total));
-        cuenta.setSaldo(redondear(total));
-        cuenta.setPagado(0.0);
+        if ("Credito".equals(compra.getTipo())) {
+            Cuentas_Pagar cuenta = new Cuentas_Pagar();
+            cuenta.setSecuencial_Empresa(compra.getSecuencial_Empresa());
+            cuenta.setSecuencial_Factura(compra.getSecuencial());
+            cuenta.setSecuencial_Proveedor(compra.getSecuencial_Proveedor());
+            cuenta.setSecuencial_Usuario(compra.getSecuencial_Usuario());
+            cuenta.setFecha(compra.getFecha());
+            cuenta.setTotal(redondear(total));
+            cuenta.setSaldo(redondear(total));
+            cuenta.setPagado(0.0);
 
-        LocalDate fechaVencimiento = datePicker1.getDate();
-        if (fechaVencimiento != null) {
-            Date fechaConvertida = java.sql.Date.valueOf(fechaVencimiento);
-            String fechaFormateada = new SimpleDateFormat("dd/MM/yyyy").format(fechaConvertida);
-            cuenta.setFecha_Vencimiento(fechaFormateada);
+            LocalDate fechaVencimiento = datePicker1.getDate();
+            if (fechaVencimiento != null) {
+                Date fechaConvertida = java.sql.Date.valueOf(fechaVencimiento);
+                String fechaFormateada = new SimpleDateFormat("dd/MM/yyyy").format(fechaConvertida);
+                cuenta.setFecha_Vencimiento(fechaFormateada);
+            } else {
+                JOptionPane.showMessageDialog(null, "Debe seleccionar una fecha de vencimiento válida.", "Error", JOptionPane.ERROR_MESSAGE);
+                em.getTransaction().rollback();
+                icono_carga.setVisible(false);
+                return;
+            }
+
+            cuenta.setDescuento(compra.getDescuento());
+            cuenta.setOtros_Cargos(compra.getOtros_Cargos());
+            cuenta.setImpuesto(compra.getImpuesto());
+            cuenta.setGran_Total(compra.getGran_Total());
+
+            em.persist(cuenta);
         } else {
-            JOptionPane.showMessageDialog(null, "Debe seleccionar una fecha de vencimiento válida.", "Error", JOptionPane.ERROR_MESSAGE);
-            em.getTransaction().rollback();
-            return;
+            Egreso egreso = new Egreso();
+            egreso.setSecuencial_Empresa(compra.getSecuencial_Empresa());
+            egreso.setSecuencial_Factura(compra.getSecuencial());
+            egreso.setSecuencial_Usuario(compra.getSecuencial_Usuario());
+            egreso.setFecha(compra.getFecha());
+            egreso.setTotal(redondear(total));
+            egreso.setTipo_Egreso(compra.getTipo());
+            egreso.setDescripcion("Compra según Factura: " + compra.getSecuencial());
+
+            em.persist(egreso);
         }
 
-        cuenta.setDescuento(compra.getDescuento());
-        cuenta.setOtros_Cargos(compra.getOtros_Cargos());
-        cuenta.setImpuesto(compra.getImpuesto());
-        cuenta.setGran_Total(compra.getGran_Total());
+        FacturaCompletaPDF_Compra factura = new FacturaCompletaPDF_Compra();
+        factura.setSecuencial(compra.getSecuencial());
+        factura.setProveedor(comboProveedor.getSelectedItem().toString().split("-")[1].trim());
+        factura.setTipoCompra(compra.getTipo());
+        factura.setMetodoPago(compra.getForma_Pago());
+        factura.setFecha(compra.getFecha());
+        factura.setItems(ObtenerItemsDesdeGrid(jTable1));
+        factura.setISV(compra.getImpuesto());
+        factura.setOtrosCargos(compra.getOtros_Cargos());
+        factura.setDescuento(compra.getDescuento());
 
-        em.persist(cuenta);
-    } else {
-        Egreso egreso = new Egreso();
-        egreso.setSecuencial_Empresa(compra.getSecuencial_Empresa());
-        egreso.setSecuencial_Factura(compra.getSecuencial());
-        egreso.setSecuencial_Usuario(compra.getSecuencial_Usuario());
-        egreso.setFecha(compra.getFecha());
-        egreso.setTotal(redondear(total));
-        egreso.setTipo_Egreso(compra.getTipo());
-        egreso.setDescripcion("Compra según Factura: " + compra.getSecuencial());
+        byte[] pdfBytes = factura.GeneratePdfToBytes();
+        compra.setDocumento(pdfBytes);
+        em.merge(compra);
 
-        em.persist(egreso);
-    }
+        V_Visor_Factura visor = new V_Visor_Factura();
+        visor.setDocumentoEnBytes(pdfBytes);
+        visor.setTitulo("Factura de Compra No. " + factura.getSecuencial());
+        visor.mostrar();
 
-    JOptionPane.showMessageDialog(
-        null,
-        "Credito".equals(compra.getTipo())
-            ? "Compra al crédito registrada correctamente.\n\nRecuerde que debe pagar la cuenta pendiente antes de la fecha de vencimiento."
-            : "Compra registrada correctamente.",
-        "Éxito",
-        JOptionPane.INFORMATION_MESSAGE
-    );
+        Proveedor destinatarioProveedor = em.find(Proveedor.class, compra.getSecuencial_Proveedor());
+        String destinatario = destinatarioProveedor != null ? destinatarioProveedor.getEmail() : null;
 
-    FacturaCompletaPDF_Compra factura = new FacturaCompletaPDF_Compra();
-    factura.setSecuencial(compra.getSecuencial());
-    factura.setProveedor(comboProveedor.getSelectedItem().toString().split("-")[1].trim());
-    factura.setTipoCompra(compra.getTipo());
-    factura.setMetodoPago(compra.getForma_Pago());
-    factura.setFecha(compra.getFecha());
-    factura.setItems(ObtenerItemsDesdeGrid(jTable1));
-    factura.setISV(compra.getImpuesto());
-    factura.setOtrosCargos(compra.getOtros_Cargos());
-    factura.setDescuento(compra.getDescuento());
+        em.getTransaction().commit();
 
-    byte[] pdfBytes = factura.GeneratePdfToBytes();
-    compra.setDocumento(pdfBytes);
-    em.merge(compra);
+        for (Object[] mov : movimientosPendientes) {
+            Util.registrarMovimientoKardex(
+                (int) mov[0],
+                (double) mov[1],
+                (String) mov[2],
+                (double) mov[3],
+                (double) mov[4],
+                (double) mov[5],
+                (String) mov[6],
+                (int) mov[7]
+            );
+        }
 
-    V_Visor_Factura visor = new V_Visor_Factura();
-    visor.setDocumentoEnBytes(pdfBytes);
-    visor.setTitulo("Factura de Compra No. " + factura.getSecuencial());
-    visor.mostrar();
+        if (destinatario != null && !destinatario.isBlank()) {
+            Util.EnviarCorreoConPdfBytes(
+                "monitux.pos@gmail.com",
+                destinatario,
+                "Nombre Empresa - Comprobante de Compra",
+                "Gracias por su atención. Adjunto tiene el comprobante de compra.",
+                pdfBytes,
+                "smtp.gmail.com",
+                587,
+                "monitux.pos",
+                "ffeg qqnx zaij otmb"
+            );
+        }
 
-    Proveedor destinatarioProveedor = em.find(Proveedor.class, compra.getSecuencial_Proveedor());
-    String destinatario = destinatarioProveedor != null ? destinatarioProveedor.getEmail() : null;
-
-    if (destinatario != null && !destinatario.isBlank()) {
-        Util.EnviarCorreoConPdfBytes(
-            "monitux.pos@gmail.com",
-            destinatario,
-            "Nombre Empresa - Comprobante de Compra",
-            "Gracias por su atención. Adjunto tiene el comprobante de compra.",
-            pdfBytes,
-            "smtp.gmail.com",
-            587,
-            "monitux.pos",
-            "ffeg qqnx zaij otmb"
+        Util.registrarActividad(
+            Secuencial_Usuario,
+            "Ha registrado una compra" + ("Credito".equals(compra.getTipo()) ? " al crédito" : "") +
+            ", factura: " + compra.getSecuencial() + ", por un valor de: " + compra.getTotal() + " Lps",
+            Secuencial_Empresa
         );
+
+        limpiarFactura();
+
+        JOptionPane.showMessageDialog(
+            null,
+            "Credito".equals(compra.getTipo())
+                ? "Compra al crédito registrada correctamente.\n\nRecuerde que debe pagar la cuenta pendiente antes de la fecha de vencimiento."
+                : "Compra registrada correctamente.",
+            "Éxito",
+            JOptionPane.INFORMATION_MESSAGE
+        );
+
+    } catch (Exception ex) {
+        if (em != null && em.getTransaction().isActive()) {
+            em.getTransaction().rollback();
+        }
+        JOptionPane.showMessageDialog(null, "Error al registrar la compra: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        ex.printStackTrace();
+    } finally {
+        if (em != null && em.isOpen()) {
+            em.close();
+        }
+        icono_carga.setVisible(false);
     }
-
-    em.getTransaction().commit();
-
-    Util.registrarActividad(
-        Secuencial_Usuario,
-        "Ha registrado una compra" + ("Credito".equals(compra.getTipo()) ? " al crédito" : "") +
-        ", factura: " + compra.getSecuencial() + ", por un valor de: " + compra.getTotal() + " Lps",
-        Secuencial_Empresa
-    );
-
-    limpiarFactura();
-
-} catch (Exception ex) {
-    em.getTransaction().rollback();
-    JOptionPane.showMessageDialog(null, "Error al registrar la compra: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-    ex.printStackTrace();
-} finally {
-    em.close();
-    emf.close();
-    icono_carga.setVisible(false);
-}
-        
-        
-        
-//*************************************************************
-
-        
-        
-        
         
         // TODO add your handling code here:
     }//GEN-LAST:event_jButton7ActionPerformed

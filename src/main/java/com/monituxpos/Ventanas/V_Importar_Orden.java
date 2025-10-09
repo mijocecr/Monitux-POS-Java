@@ -6,6 +6,7 @@ package com.monituxpos.Ventanas;
 
 import com.monituxpos.Clases.Cotizacion;
 import com.monituxpos.Clases.Cotizacion_Detalle;
+import com.monituxpos.Clases.MonituxDBContext;
 import com.monituxpos.Clases.Orden;
 import com.monituxpos.Clases.Orden_Detalle;
 import com.monituxpos.Clases.SelectorCantidad;
@@ -139,16 +140,16 @@ public Runnable onAceptar; // El callback
     tabla.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 }
 
-    
     public void cargarDatosOrden(JTable tabla) {
     // Limpiar la tabla
     DefaultTableModel modelo = (DefaultTableModel) tabla.getModel();
     modelo.setRowCount(0);
 
-    EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
-    EntityManager em = emf.createEntityManager();
+    EntityManager em = null;
 
     try {
+        em = MonituxDBContext.getEntityManager();
+
         List<Orden> ordenes = em.createQuery(
             "SELECT o FROM Orden o WHERE o.Secuencial_Empresa = :empresa", Orden.class)
             .setParameter("empresa", Secuencial_Empresa)
@@ -169,12 +170,14 @@ public Runnable onAceptar; // El callback
             "Error al cargar órdenes de compra: " + e.getMessage(),
             "Error",
             JOptionPane.ERROR_MESSAGE);
+        e.printStackTrace();
     } finally {
-        em.close();
-        emf.close();
+        if (em != null && em.isOpen()) {
+            em.close();
+        }
     }
 }
-  
+
   public void filtrarOrden(int secuencialProveedor, JTable tablaOrden, JTable tablaDetalle) {
     // Verificar y configurar columnas si no existen
     if (tablaOrden.getColumnCount() == 0) {
@@ -185,10 +188,11 @@ public Runnable onAceptar; // El callback
     DefaultTableModel modelo = (DefaultTableModel) tablaOrden.getModel();
     modelo.setRowCount(0);
 
-    EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
-    EntityManager em = emf.createEntityManager();
+    EntityManager em = null;
 
     try {
+        em = MonituxDBContext.getEntityManager();
+
         List<Orden> ordenes = em.createQuery(
             "SELECT o FROM Orden o WHERE o.Secuencial_Proveedor = :proveedor AND o.Secuencial_Empresa = :empresa",
             Orden.class)
@@ -219,13 +223,14 @@ public Runnable onAceptar; // El callback
             "Error al filtrar órdenes de compra: " + e.getMessage(),
             "Error",
             JOptionPane.ERROR_MESSAGE);
+        e.printStackTrace();
     } finally {
-        em.close();
-        emf.close();
+        if (em != null && em.isOpen()) {
+            em.close();
+        }
     }
 }
 
-    
     
     public void filtrarDetalle(int secuencialOrden, JTable tablaDetalle) {
     // Verificar y configurar columnas si no existen
@@ -237,10 +242,11 @@ public Runnable onAceptar; // El callback
     DefaultTableModel modelo = (DefaultTableModel) tablaDetalle.getModel();
     modelo.setRowCount(0);
 
-    EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
-    EntityManager em = emf.createEntityManager();
+    EntityManager em = null;
 
     try {
+        em = MonituxDBContext.getEntityManager();
+
         List<Orden_Detalle> detalles = em.createQuery(
             "SELECT d FROM Orden_Detalle d WHERE d.Secuencial_Orden = :orden AND d.Secuencial_Empresa = :empresa",
             Orden_Detalle.class)
@@ -268,9 +274,11 @@ public Runnable onAceptar; // El callback
             "Error al filtrar detalles: " + e.getMessage(),
             "Error",
             JOptionPane.ERROR_MESSAGE);
+        e.printStackTrace();
     } finally {
-        em.close();
-        emf.close();
+        if (em != null && em.isOpen()) {
+            em.close();
+        }
     }
 }
 
@@ -514,10 +522,10 @@ if (jComboBox1.getItemCount() > 0) {
 
         
          if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
-        Util.llenarComboClientePorTelefono(jComboBox1, jTextField1, Secuencial_Empresa);
+        Util.llenarComboProveedorPorTelefono(jComboBox1, jTextField1.getText(), Secuencial_Empresa);
 
         if (jTextField1.getText().trim().isEmpty()) {
-            Util.llenarComboCliente(jComboBox1, Secuencial_Empresa);
+            Util.llenarComboProveedor(jComboBox1, Secuencial_Empresa);
         }
     
          }
@@ -525,15 +533,18 @@ if (jComboBox1.getItemCount() > 0) {
 
     private void jComboBox1ItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_jComboBox1ItemStateChanged
 
-        DefaultTableModel modelo = (DefaultTableModel) jTable2.getModel();
-modelo.setRowCount(0);
-        
-        String seleccionado = jComboBox1.getSelectedItem().toString();
-int secuencialProveedor = Integer.parseInt(seleccionado.split("-")[0].trim());
-filtrarOrden(secuencialProveedor, jTable1, jTable2);
+        Object seleccionadoObj = jComboBox1.getSelectedItem();
+    if (seleccionadoObj == null) {
+        return; // Evita error si no hay selección
+    }
 
+    String seleccionado = seleccionadoObj.toString();
+    int secuencialProveedor = Integer.parseInt(seleccionado.split("-")[0].trim());
 
-        
+    DefaultTableModel modelo = (DefaultTableModel) jTable2.getModel();
+    modelo.setRowCount(0);
+
+    filtrarOrden(secuencialProveedor, jTable1, jTable2);
         // TODO add your handling code here:
     }//GEN-LAST:event_jComboBox1ItemStateChanged
 
@@ -560,30 +571,29 @@ filtrarOrden(secuencialProveedor, jTable1, jTable2);
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
 
-        
-        //***************************************************
-lista.clear();
-V_Factura_Compra.listaDeItems.clear();
+  lista.clear();
+    V_Factura_Compra.listaDeItems.clear();
 
-if (jTable1.getRowCount() == 0) {
-    JOptionPane.showMessageDialog(null, "No hay órdenes disponibles para importar.", "Error", JOptionPane.ERROR_MESSAGE);
-    return;
-}
+    if (jTable1.getRowCount() == 0) {
+        JOptionPane.showMessageDialog(null, "No hay órdenes disponibles para importar.", "Error", JOptionPane.ERROR_MESSAGE);
+        return;
+    }
 
-if (jTable2.getRowCount() == 0) {
-    JOptionPane.showMessageDialog(null, "Debe seleccionar una orden.", "Error", JOptionPane.ERROR_MESSAGE);
-    return;
-}
+    if (jTable2.getRowCount() == 0) {
+        JOptionPane.showMessageDialog(null, "Debe seleccionar una orden.", "Error", JOptionPane.ERROR_MESSAGE);
+        return;
+    }
 
-int opt = JOptionPane.showConfirmDialog(
-    null,
-    "¿Desea importar la orden seleccionada?\nAdvertencia: Esta se eliminará de los registros.",
-    "Importar Orden",
-    JOptionPane.YES_NO_OPTION,
-    JOptionPane.WARNING_MESSAGE
-);
+    int opt = JOptionPane.showConfirmDialog(
+        null,
+        "¿Desea importar la orden seleccionada?\nAdvertencia: Esta se eliminará de los registros.",
+        "Importar Orden",
+        JOptionPane.YES_NO_OPTION,
+        JOptionPane.WARNING_MESSAGE
+    );
 
-if (opt == JOptionPane.YES_OPTION) {
+    if (opt != JOptionPane.YES_OPTION) return;
+
     proveedorSeleccionado = jComboBox1.getSelectedItem().toString();
     lista.clear();
 
@@ -605,10 +615,12 @@ if (opt == JOptionPane.YES_OPTION) {
         }
     }
 
-    EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
-    EntityManager em = emf.createEntityManager();
+    EntityManager em = null;
 
     try {
+        em = MonituxDBContext.getEntityManager();
+
+        // Eliminar cabecera de orden
         Orden orden = em.createQuery(
             "SELECT o FROM Orden o WHERE o.Secuencial = :secuencial AND o.Secuencial_Empresa = :empresa",
             Orden.class)
@@ -619,26 +631,21 @@ if (opt == JOptionPane.YES_OPTION) {
         if (orden != null) {
             em.getTransaction().begin();
             em.remove(orden);
+
+            // Eliminar detalles asociados
+            List<Orden_Detalle> detalles = em.createQuery(
+                "SELECT d FROM Orden_Detalle d WHERE d.Secuencial_Orden = :orden AND d.Secuencial_Empresa = :empresa",
+                Orden_Detalle.class)
+                .setParameter("orden", this.secuencial)
+                .setParameter("empresa", Secuencial_Empresa)
+                .getResultList();
+
+            for (Orden_Detalle detalle : detalles) {
+                em.remove(detalle);
+            }
+
             em.getTransaction().commit();
         }
-
-        EntityManager em2 = emf.createEntityManager();
-        List<Orden_Detalle> detalles = em2.createQuery(
-            "SELECT d FROM Orden_Detalle d WHERE d.Secuencial_Orden = :orden AND d.Secuencial_Empresa = :empresa",
-            Orden_Detalle.class)
-            .setParameter("orden", this.secuencial)
-            .setParameter("empresa", Secuencial_Empresa)
-            .getResultList();
-
-        if (!detalles.isEmpty()) {
-            em2.getTransaction().begin();
-            for (Orden_Detalle detalle : detalles) {
-                em2.remove(detalle);
-            }
-            em2.getTransaction().commit();
-        }
-
-        em2.close();
 
         JOptionPane.showMessageDialog(null, "Orden importada correctamente.", "Importación Exitosa", JOptionPane.INFORMATION_MESSAGE);
 
@@ -651,14 +658,14 @@ if (opt == JOptionPane.YES_OPTION) {
     } catch (Exception e) {
         JOptionPane.showMessageDialog(null, "Error al importar orden: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         e.printStackTrace();
+        if (em != null && em.getTransaction().isActive()) {
+            em.getTransaction().rollback();
+        }
     } finally {
-        em.close();
-        emf.close();
+        if (em != null && em.isOpen()) {
+            em.close();
+        }
     }
-}
-//***************************************************
-
-        
         
     }//GEN-LAST:event_jButton2ActionPerformed
 

@@ -5,10 +5,12 @@
 package com.monituxpos.Ventanas;
 
 import com.monituxpos.Clases.Cuentas_Cobrar;
+import com.monituxpos.Clases.MonituxDBContext;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
 import java.awt.Color;
+import java.awt.Component;
 import java.time.LocalDate;
 import java.util.List;
 import javax.swing.JLabel;
@@ -104,8 +106,7 @@ public class V_CTA_Cliente extends javax.swing.JFrame {
 
      
      
-     
-     public void cargarDatosCTAS() {
+    public void cargarDatosCTAS() {
     double totalFacturas = 0;
     double saldoPendiente = 0;
 
@@ -115,9 +116,7 @@ public class V_CTA_Cliente extends javax.swing.JFrame {
     DefaultTableModel modelo = (DefaultTableModel) jTable1.getModel();
     modelo.setRowCount(0); // Limpiar tabla
 
-    // Crear EntityManager dentro del método
-    EntityManagerFactory emf = Persistence.createEntityManagerFactory("MonituxPU");
-    EntityManager em = emf.createEntityManager();
+    EntityManager em = MonituxDBContext.getEntityManager();
 
     try {
         List<Cuentas_Cobrar> cuentas = em.createQuery(
@@ -155,21 +154,23 @@ public class V_CTA_Cliente extends javax.swing.JFrame {
 
                 if (fechaVenc.isBefore(LocalDate.now()) && saldo > 0) {
                     for (int j = 0; j < jTable1.getColumnCount(); j++) {
-                        jTable1.getCellRenderer(i, j).getTableCellRendererComponent(jTable1, jTable1.getValueAt(i, j), false, false, i, j)
-                            .setBackground(new Color(255, 228, 225)); // MistyRose
+                        Component cell = jTable1.getCellRenderer(i, j)
+                            .getTableCellRendererComponent(jTable1, jTable1.getValueAt(i, j), false, false, i, j);
+                        cell.setBackground(new Color(255, 228, 225)); // MistyRose
                     }
                 }
             } catch (Exception e) {
                 // Ignorar errores de formato
             }
         }
-    } finally {
-        em.close();
-        emf.close();
+
+        System.out.println("✅ Cuentas por cobrar del cliente cargadas correctamente.");
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(null, "❌ Error al cargar cuentas por cobrar: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        e.printStackTrace();
     }
 }
 
-     
      
      
      
