@@ -37,11 +37,11 @@ private int Secuencial;
 
     private int Secuencial_Empresa = 0;
 
-    // 📄 Nuevo campo para almacenar el documento PDF
-    @Lob
-    @Column(name = "Documento", columnDefinition = "LONGBLOB")
-    private byte[] Documento;
+   
     
+@Column(name = "Documento")
+private byte[] Documento;
+
  
 
     // Getters y Setters (opcional, si usas frameworks como JPA o necesitas acceso externo)

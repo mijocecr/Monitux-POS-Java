@@ -328,7 +328,7 @@ double descuento = 0.0;
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setResizable(false);
-        setType(java.awt.Window.Type.POPUP);
+        setType(java.awt.Window.Type.UTILITY);
         addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowClosing(java.awt.event.WindowEvent evt) {
                 formWindowClosing(evt);
@@ -442,7 +442,6 @@ double descuento = 0.0;
         lbl_otrosCargos.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         lbl_otrosCargos.setBackground(new java.awt.Color(0, 204, 204));
         lbl_otrosCargos.setBorder(null);
-        lbl_otrosCargos.setForeground(new java.awt.Color(0, 0, 0));
         lbl_otrosCargos.setForeground(Color.BLUE); // Cambia el texto a azul
         lbl_otrosCargos.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -459,7 +458,6 @@ double descuento = 0.0;
         lbl_impuesto.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         lbl_impuesto.setBackground(new java.awt.Color(0, 204, 204));
         lbl_impuesto.setBorder(null);
-        lbl_impuesto.setForeground(new java.awt.Color(0, 0, 0));
         lbl_impuesto.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 lbl_impuestoActionPerformed(evt);
@@ -475,7 +473,6 @@ double descuento = 0.0;
         lbl_descuento.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         lbl_descuento.setBackground(new java.awt.Color(0, 204, 204));
         lbl_descuento.setBorder(null);
-        lbl_descuento.setForeground(new java.awt.Color(0, 0, 0));
         lbl_descuento.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyReleased(java.awt.event.KeyEvent evt) {
                 lbl_descuentoKeyReleased(evt);
@@ -1227,6 +1224,9 @@ public void Quitar_Elemento() {
     jButton7.setEnabled(false);
 
     EntityManager em = null;
+    EntityTransaction tx = null;
+    List<Object[]> movimientosPendientes = new ArrayList<>();
+    List<String> actividadesPendientes = new ArrayList<>();
 
     try {
         em = MonituxDBContext.getEntityManager();
@@ -1234,7 +1234,8 @@ public void Quitar_Elemento() {
             throw new IllegalStateException("EntityManager no disponible.");
         }
 
-        em.getTransaction().begin();
+        tx = em.getTransaction();
+        tx.begin();
 
         for (Component comp : contenedor_selector.getComponents()) {
             if (!(comp instanceof SelectorCantidad selector)) continue;
@@ -1255,14 +1256,14 @@ public void Quitar_Elemento() {
             paraEliminar.add(selector);
 
             double cantidad = copia.getCantidadSelecccion();
-            double precio = copia.producto.getPrecio_Venta();
+            double precio = copia.producto.getPrecio_Costo();
             totalRestado += cantidad * precio;
 
             List<Venta_Detalle> detalles = em.createQuery(
-                "SELECT vd FROM Venta_Detalle vd WHERE vd.Codigo = :codigo AND vd.Secuencial_Factura = :factura AND vd.Secuencial_Empresa = :empresa",
+                "SELECT vd FROM Venta_Detalle vd WHERE vd.Codigo = :codigo AND vd.Secuencial_Factura = :venta AND vd.Secuencial_Empresa = :empresa",
                 Venta_Detalle.class)
                 .setParameter("codigo", codigo)
-                .setParameter("factura", Secuencial)
+                .setParameter("venta", Secuencial)
                 .setParameter("empresa", Secuencial_Empresa)
                 .getResultList();
 
@@ -1275,7 +1276,7 @@ public void Quitar_Elemento() {
                 if (producto != null) {
                     double existenciaAnterior = producto.getCantidad();
 
-                    Util.registrarMovimientoKardex(
+                    movimientosPendientes.add(new Object[] {
                         producto.getSecuencial(),
                         existenciaAnterior,
                         producto.getDescripcion(),
@@ -1284,18 +1285,18 @@ public void Quitar_Elemento() {
                         producto.getPrecio_Venta(),
                         "Entrada",
                         Secuencial_Empresa
-                    );
+                    });
 
                     producto.setCantidad(existenciaAnterior + cantidad);
                     em.merge(producto);
                 }
             }
 
-            Util.registrarActividad(Secuencial_Usuario,
+            actividadesPendientes.add(
                 "Eliminó el Item: " + codigo + " de la Factura No. " + Secuencial + "\n" +
                 "Registrado a: " + precio + ", cantidad: " + cantidad + "\n" +
-                "Total: " + (cantidad * precio),
-                Secuencial_Empresa);
+                "Total: " + (cantidad * precio)
+            );
         }
 
         for (Component comp : paraEliminar) {
@@ -1310,9 +1311,9 @@ public void Quitar_Elemento() {
         }
 
         List<Cuentas_Cobrar> cuentas = em.createQuery(
-            "SELECT c FROM Cuentas_Cobrar c WHERE c.Secuencial_Factura = :factura AND c.Secuencial_Empresa = :empresa",
+            "SELECT c FROM Cuentas_Cobrar c WHERE c.Secuencial_Factura = :venta AND c.Secuencial_Empresa = :empresa",
             Cuentas_Cobrar.class)
-            .setParameter("factura", Secuencial)
+            .setParameter("venta", Secuencial)
             .setParameter("empresa", Secuencial_Empresa)
             .getResultList();
 
@@ -1324,7 +1325,7 @@ public void Quitar_Elemento() {
             em.merge(cuenta);
         }
 
-        em.getTransaction().commit();
+        tx.commit();
 
         jLabel3.setText(String.valueOf(listaDeItems.size()));
         contenedor_selector.revalidate();
@@ -1333,15 +1334,32 @@ public void Quitar_Elemento() {
         JOptionPane.showMessageDialog(null, "Se ha modificado la factura y el elemento se ha retirado correctamente.");
 
     } catch (Exception ex) {
-        if (em != null && em.getTransaction().isActive()) {
-            em.getTransaction().rollback();
+        if (tx != null && tx.isActive()) {
+            tx.rollback();
         }
-        JOptionPane.showMessageDialog(null, "Error al quitar el elemento:\n" + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(null, "Error al quitar el elemento: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         ex.printStackTrace();
     } finally {
         if (em != null && em.isOpen()) {
             em.close();
         }
+    }
+
+    for (Object[] mov : movimientosPendientes) {
+        Util.registrarMovimientoKardex(
+            (int) mov[0],
+            (double) mov[1],
+            (String) mov[2],
+            (double) mov[3],
+            (double) mov[4],
+            (double) mov[5],
+            (String) mov[6],
+            (int) mov[7]
+        );
+    }
+
+    for (String actividad : actividadesPendientes) {
+        Util.registrarActividad(Secuencial_Usuario, actividad, Secuencial_Empresa);
     }
 }
 
@@ -1384,43 +1402,38 @@ public void Quitar_Elemento() {
     
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
 
-        
-    icono_carga.setVisible(true);
+        icono_carga.setVisible(true);
 
-    EntityManager em = null;
-    Venta factura = null;
-    List<Venta_Detalle> detalles = new ArrayList<>();
+    List<Object[]> movimientosPendientes = new ArrayList<>();
+    List<String> actividadesPendientes = new ArrayList<>();
 
     try {
-        int secuencialFactura = Secuencial;
+        int secuencialVenta = Secuencial;
 
         int confirmResult = JOptionPane.showConfirmDialog(
             null,
-            "¿Está seguro de eliminar la Factura No. " + secuencialFactura + "?",
+            "¿Está seguro de eliminar la Factura de Venta No. " + secuencialVenta + "?",
             "Confirmar Eliminación",
             JOptionPane.YES_NO_OPTION
         );
 
         if (confirmResult != JOptionPane.YES_OPTION) return;
 
-        em = MonituxDBContext.getEntityManager();
-        if (em == null || !em.isOpen()) {
-            throw new IllegalStateException("EntityManager no disponible.");
-        }
+        EntityManager em = MonituxDBContext.getEntityManager();
+        EntityTransaction tx = em.getTransaction();
+        tx.begin();
 
-        em.getTransaction().begin();
-
-        factura = em.find(Venta.class, secuencialFactura);
-        if (factura == null) {
+        Venta venta = em.find(Venta.class, secuencialVenta);
+        if (venta == null) {
             JOptionPane.showMessageDialog(null, "Factura no encontrada.", "Error", JOptionPane.ERROR_MESSAGE);
-            em.getTransaction().rollback();
+            tx.rollback();
             return;
         }
 
         Ingreso ingresoAsociado = em.createQuery(
             "SELECT i FROM Ingreso i WHERE i.Secuencial_Factura = :factura AND i.Secuencial_Empresa = :empresa",
             Ingreso.class)
-            .setParameter("factura", secuencialFactura)
+            .setParameter("factura", secuencialVenta)
             .setParameter("empresa", Secuencial_Empresa)
             .getResultStream()
             .findFirst()
@@ -1428,26 +1441,27 @@ public void Quitar_Elemento() {
 
         if (ingresoAsociado != null) {
             em.remove(ingresoAsociado);
+            actividadesPendientes.add("Se eliminó el ingreso relacionado a la Factura No. " + secuencialVenta);
         }
 
-        Cuentas_Cobrar ctac = em.createQuery(
-            "SELECT c FROM Cuentas_Cobrar c WHERE c.Secuencial_Factura = :factura AND c.Secuencial_Cliente = :cliente AND c.Secuencial_Empresa = :empresa",
+        Cuentas_Cobrar cxc = em.createQuery(
+            "SELECT c FROM Cuentas_Cobrar c WHERE c.Secuencial_Factura = :venta AND c.Secuencial_Cliente = :cliente AND c.Secuencial_Empresa = :empresa",
             Cuentas_Cobrar.class)
-            .setParameter("factura", secuencialFactura)
+            .setParameter("venta", secuencialVenta)
             .setParameter("cliente", Secuencial_Cliente)
             .setParameter("empresa", Secuencial_Empresa)
             .getResultStream()
             .findFirst()
             .orElse(null);
 
-        if (ctac != null) {
-            em.remove(ctac);
+        if (cxc != null) {
+            em.remove(cxc);
         }
 
-        detalles = em.createQuery(
+        List<Venta_Detalle> detalles = em.createQuery(
             "SELECT vd FROM Venta_Detalle vd WHERE vd.Secuencial_Factura = :factura",
             Venta_Detalle.class)
-            .setParameter("factura", secuencialFactura)
+            .setParameter("factura", secuencialVenta)
             .getResultList();
 
         for (Venta_Detalle detalle : detalles) {
@@ -1462,7 +1476,7 @@ public void Quitar_Elemento() {
             if (producto != null && !"Servicio".equals(producto.getTipo()) && detalle.getCantidad() != null) {
                 double cantidadDevuelta = detalle.getCantidad();
 
-                Util.registrarMovimientoKardex(
+                movimientosPendientes.add(new Object[] {
                     producto.getSecuencial(),
                     producto.getCantidad(),
                     producto.getDescripcion(),
@@ -1471,7 +1485,7 @@ public void Quitar_Elemento() {
                     producto.getPrecio_Venta(),
                     "Entrada",
                     Secuencial_Empresa
-                );
+                });
 
                 producto.setCantidad(producto.getCantidad() + cantidadDevuelta);
                 em.merge(producto);
@@ -1479,13 +1493,35 @@ public void Quitar_Elemento() {
         }
 
         detalles.forEach(em::remove);
-        em.remove(factura);
+        em.remove(venta);
 
-        em.getTransaction().commit();
+        actividadesPendientes.add(
+            "Eliminó la Factura No. " + secuencialVenta + " con " + detalles.size() +
+            " productos. Registrada por un monto de " + venta.getGran_Total()
+        );
+
+        tx.commit();
+
+        for (Object[] mov : movimientosPendientes) {
+            Util.registrarMovimientoKardex(
+                (int) mov[0],
+                (double) mov[1],
+                (String) mov[2],
+                (double) mov[3],
+                (double) mov[4],
+                (double) mov[5],
+                (String) mov[6],
+                (int) mov[7]
+            );
+        }
+
+        for (String actividad : actividadesPendientes) {
+            Util.registrarActividad(Secuencial_Usuario, actividad, Secuencial_Empresa);
+        }
 
         JOptionPane.showMessageDialog(
             null,
-            "Factura No. " + secuencialFactura + " eliminada correctamente.",
+            "Factura No. " + secuencialVenta + " eliminada correctamente.",
             "Operación Exitosa",
             JOptionPane.INFORMATION_MESSAGE
         );
@@ -1493,40 +1529,20 @@ public void Quitar_Elemento() {
         this.dispose();
         form.cargar_Datos_Venta();
 
-        System.out.println("✅ Factura eliminada correctamente: " + secuencialFactura);
+        System.out.println("✅ Factura eliminada correctamente: " + secuencialVenta);
 
     } catch (Exception ex) {
-        if (em != null && em.getTransaction().isActive()) {
-            em.getTransaction().rollback();
-        }
         JOptionPane.showMessageDialog(
             null,
             "Error al eliminar factura: " + ex.getMessage(),
-            "Error", JOptionPane.ERROR_MESSAGE
+            "Error",
+            JOptionPane.ERROR_MESSAGE
         );
         ex.printStackTrace();
     } finally {
-        if (em != null && em.isOpen()) {
-            em.close();
-        }
         icono_carga.setVisible(false);
     }
-
-    // Registrar actividad fuera del contexto JPA
-    if (factura != null) {
-        try {
-            Util.registrarActividad(
-                Secuencial_Usuario,
-                "Eliminó la Factura No. " + factura.getSecuencial() + " con " + detalles.size() +
-                " productos. Registrada por un monto de " + factura.getGran_Total(),
-                Secuencial_Empresa
-            );
-        } catch (Exception ex) {
-            System.err.println("⚠️ Error al registrar actividad: " + ex.getMessage());
-        }
-    }
-
-
+    
     
     }//GEN-LAST:event_jButton4ActionPerformed
 

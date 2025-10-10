@@ -346,8 +346,8 @@ public Runnable onAceptar; // El callback
 
         jPanel1.setBackground(new java.awt.Color(35, 32, 45));
 
-        jLabel2.setForeground(new java.awt.Color(255, 255, 255));
         jLabel2.setText("Cliente:");
+        jLabel2.setForeground(new java.awt.Color(255, 255, 255));
 
         jComboBox1.addItemListener(new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
@@ -366,8 +366,8 @@ public Runnable onAceptar; // El callback
             }
         });
 
-        jLabel3.setForeground(new java.awt.Color(255, 255, 255));
         jLabel3.setText("Cotizaciones:");
+        jLabel3.setForeground(new java.awt.Color(255, 255, 255));
 
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -387,8 +387,8 @@ public Runnable onAceptar; // El callback
         });
         jScrollPane1.setViewportView(jTable1);
 
-        jLabel4.setForeground(new java.awt.Color(255, 255, 255));
         jLabel4.setText("Detalle:");
+        jLabel4.setForeground(new java.awt.Color(255, 255, 255));
 
         jTable2.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -417,8 +417,8 @@ public Runnable onAceptar; // El callback
             }
         });
 
-        jLabel6.setForeground(new java.awt.Color(51, 255, 51));
         jLabel6.setText("Telefono:");
+        jLabel6.setForeground(new java.awt.Color(51, 255, 51));
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -488,11 +488,11 @@ public Runnable onAceptar; // El callback
                         .addContainerGap())))
         );
 
+        jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel1.setText("Cotizaciones");
         jLabel1.setBackground(new java.awt.Color(0, 0, 0));
         jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
         jLabel1.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel1.setText("Cotizaciones");
         jLabel1.setOpaque(true);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());

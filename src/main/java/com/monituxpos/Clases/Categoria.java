@@ -13,8 +13,8 @@ public class Categoria {
     private String Nombre;
     private String Descripcion;
 
-    @Lob
-@Column(name = "Imagen", columnDefinition = "LONGBLOB")
+   
+@Column(name = "Imagen")
 private byte[] Imagen;
 
     @Column(name = "Secuencial_Empresa", nullable = false)

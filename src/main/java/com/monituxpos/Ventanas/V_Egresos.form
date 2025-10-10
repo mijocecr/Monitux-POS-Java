@@ -109,8 +109,8 @@
                   <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Component id="jPanel2" min="-2" max="-2" attributes="0"/>
-                      <Component id="jButton2" alignment="1" min="-2" max="-2" attributes="0"/>
-                      <Component id="jButton1" alignment="1" min="-2" pref="79" max="-2" attributes="0"/>
+                      <Component id="jButton2" linkSize="1" alignment="1" min="-2" max="-2" attributes="0"/>
+                      <Component id="jButton1" linkSize="1" alignment="1" min="-2" pref="79" max="-2" attributes="0"/>
                       <Component id="jButton3" alignment="1" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace max="-2" attributes="0"/>
@@ -365,7 +365,7 @@
               <Image iconType="3" name="/icons/arrow_refresh.png"/>
             </Property>
             <Property name="cursor" type="java.awt.Cursor" editor="org.netbeans.modules.form.editors2.CursorEditor">
-              <Color id="Cursor de Mano"/>
+              <Color id="Default Cursor"/>
             </Property>
             <Property name="toolTipText" type="java.lang.String" value="Refrescar Datos."/>
           </Properties>

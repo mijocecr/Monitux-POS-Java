@@ -952,73 +952,72 @@ public class V_Inventario extends javax.swing.JPanel {
     
     
     
-    
-    
-    
-    public void Modo_Cuadricula() {
-    jLabel14.setVisible(false);
-    jLabel9.setText("Modo: Cuadricula");
+  public void Modo_Cuadricula() {
+    try {
+        jLabel14.setVisible(false);
+        jLabel9.setText("Modo: Cuadricula");
 
-    jScrollPane2.setVisible(false);
-    lista_tabla.setVisible(false);
-    jScrollPane3.setVisible(false);
-    jScrollPane1.setVisible(true);
+        jScrollPane2.setVisible(false);
+        lista_tabla.setVisible(false);
+        jScrollPane3.setVisible(false);
+        jScrollPane1.setVisible(true);
 
-    jLabel6.setVisible(true);
-    jLabel7.setVisible(true);
-    contenedor.setVisible(true);
-    kardex_tabla.setVisible(false);
+        jLabel6.setVisible(true);
+        jLabel7.setVisible(true);
+        contenedor.setVisible(true);
+        kardex_tabla.setVisible(false);
 
-    Modo = "Cuadricula";
+        Modo = "Cuadricula";
 
-    jComboBox3.removeAllItems();
-    jComboBox3.addItem("Codigo");
-    jComboBox3.addItem("Codigo_Barra");
-    jComboBox3.addItem("Codigo_Fabricante");
-    jComboBox3.addItem("Descripcion");
-    jComboBox3.addItem("Fecha_Caducidad");
-    jComboBox3.addItem("Marca");
-    jComboBox3.setSelectedIndex(0);
+        jComboBox3.removeAllItems();
+        jComboBox3.addItem("Codigo");
+        jComboBox3.addItem("Codigo_Barra");
+        jComboBox3.addItem("Codigo_Fabricante");
+        jComboBox3.addItem("Descripcion");
+        jComboBox3.addItem("Fecha_Caducidad");
+        jComboBox3.addItem("Marca");
+        jComboBox3.setSelectedIndex(0);
 
-    jButton5.setVisible(true);
-    jPanel1.setVisible(true);
-    jPanel2.setVisible(false);
+        jButton5.setVisible(true);
+        jPanel1.setVisible(true);
+        jPanel2.setVisible(false);
 
-    icono_carga.setVisible(true);
+        icono_carga.setVisible(true);
 
-    new SwingWorker<Void, Void>() {
-        EntityManager em = null;
-
-        @Override
-        protected Void doInBackground() {
-            try {
-                em = MonituxDBContext.getEntityManager();
-                if (em == null || !em.isOpen()) {
-                    throw new IllegalStateException("EntityManager no disponible.");
+        new SwingWorker<Void, Void>() {
+            @Override
+            protected Void doInBackground() {
+                EntityManager em = null;
+                try {
+                    em = MonituxDBContext.getEntityManager();
+                    if (em != null && em.isOpen()) {
+                        cargarItems_Cuadricula(Secuencial_Empresa, contenedor);
+                    }
+                } catch (Exception ignored) {
+                    // Error silenciado
+                } finally {
+                    if (em != null && em.isOpen()) {
+                        try {
+                            em.close();
+                        } catch (Exception ignored) {
+                            // Error al cerrar silenciado
+                        }
+                    }
                 }
-
-                cargarItems_Cuadricula(Secuencial_Empresa, contenedor);
-
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(contenedor,
-                    "Error al cargar productos en modo cuadrícula: " + ex.getMessage(),
-                    "Error", JOptionPane.ERROR_MESSAGE);
-                ex.printStackTrace();
-            } finally {
-                if (em != null && em.isOpen()) {
-                    em.close();
-                }
+                return null;
             }
-            return null;
-        }
 
-        @Override
-        protected void done() {
-            icono_carga.setVisible(false);
-            contenedor.revalidate();
-            contenedor.repaint();
-        }
-    }.execute();
+            @Override
+            protected void done() {
+                icono_carga.setVisible(false);
+                contenedor.revalidate();
+                contenedor.repaint();
+            }
+        }.execute();
+
+    } catch (Exception ignored) {
+        // Error silenciado
+    }
 }
 
     
@@ -1030,74 +1029,75 @@ public class V_Inventario extends javax.swing.JPanel {
         // TODO add your handling code here:
     }//GEN-LAST:event_jButton2ActionPerformed
 
-    
-    
-   public void Modo_Lista() {
-    jLabel14.setVisible(true);
-    jLabel9.setText("Modo: Lista");
+public void Modo_Lista() {
+    try {
+        jLabel14.setVisible(true);
+        jLabel9.setText("Modo: Lista");
 
-    contenedor.setVisible(false);
-    kardex_tabla.setVisible(false);
-    jScrollPane3.setVisible(false);
-    jScrollPane2.setVisible(true);
-    jScrollPane1.setVisible(false);
-    lista_tabla.setVisible(true);
+        contenedor.setVisible(false);
+        kardex_tabla.setVisible(false);
+        jScrollPane3.setVisible(false);
+        jScrollPane2.setVisible(true);
+        jScrollPane1.setVisible(false);
+        lista_tabla.setVisible(true);
 
-    jLabel6.setVisible(true);
-    jLabel7.setVisible(true);
+        jLabel6.setVisible(true);
+        jLabel7.setVisible(true);
 
-    Modo = "Lista";
+        Modo = "Lista";
 
-    jComboBox3.removeAllItems();
-    jComboBox3.addItem("Codigo");
-    jComboBox3.addItem("Codigo_Barra");
-    jComboBox3.addItem("Codigo_Fabricante");
-    jComboBox3.addItem("Descripcion");
-    jComboBox3.addItem("Fecha_Caducidad");
-    jComboBox3.addItem("Marca");
-    jComboBox3.setSelectedIndex(0);
+        jComboBox3.removeAllItems();
+        jComboBox3.addItem("Codigo");
+        jComboBox3.addItem("Codigo_Barra");
+        jComboBox3.addItem("Codigo_Fabricante");
+        jComboBox3.addItem("Descripcion");
+        jComboBox3.addItem("Fecha_Caducidad");
+        jComboBox3.addItem("Marca");
+        jComboBox3.setSelectedIndex(0);
 
-    jButton5.setVisible(true);
-    jPanel1.setVisible(true);
-    jPanel2.setVisible(false);
+        jButton5.setVisible(true);
+        jPanel1.setVisible(true);
+        jPanel2.setVisible(false);
 
-    icono_carga.setVisible(true);
+        icono_carga.setVisible(true);
 
-    new SwingWorker<Void, Void>() {
-        EntityManager em = null;
-
-        @Override
-        protected Void doInBackground() {
-            try {
-                em = MonituxDBContext.getEntityManager();
-                if (em == null || !em.isOpen()) {
-                    throw new IllegalStateException("EntityManager no disponible.");
+        new SwingWorker<Void, Void>() {
+            @Override
+            protected Void doInBackground() {
+                EntityManager em = null;
+                try {
+                    em = MonituxDBContext.getEntityManager();
+                    if (em != null && em.isOpen()) {
+                        cargar_Items_Lista(Secuencial_Empresa, lista_tabla);
+                    }
+                } catch (Exception ignored) {
+                    // Error silenciado
+                } finally {
+                    if (em != null && em.isOpen()) {
+                        try {
+                            em.close();
+                        } catch (Exception ignored) {
+                            // Error al cerrar silenciado
+                        }
+                    }
                 }
-
-                cargar_Items_Lista(Secuencial_Empresa, lista_tabla);
-
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(lista_tabla,
-                    "Error al cargar productos en modo lista: " + ex.getMessage(),
-                    "Error", JOptionPane.ERROR_MESSAGE);
-                ex.printStackTrace();
-            } finally {
-                if (em != null && em.isOpen()) {
-                    em.close();
-                }
+                return null;
             }
-            return null;
-        }
 
-        @Override
-        protected void done() {
-            icono_carga.setVisible(false);
-            lista_tabla.revalidate();
-            lista_tabla.repaint();
-        }
-    }.execute();
+            @Override
+            protected void done() {
+                icono_carga.setVisible(false);
+                lista_tabla.revalidate();
+                lista_tabla.repaint();
+            }
+        }.execute();
+
+    } catch (Exception ignored) {
+        // Error silenciado
+    }
 }
- 
+  
+    
     
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
 
@@ -1235,68 +1235,72 @@ public class V_Inventario extends javax.swing.JPanel {
     }.execute();
 }
 
-    
-   public void Modo_Kardex() {
-    jLabel14.setVisible(true);
-    jLabel6.setVisible(false);
-    jLabel7.setVisible(false);
-    jLabel9.setText("Modo: Kardex");
+    public void Modo_Kardex() {
+    try {
+        jLabel14.setVisible(true);
+        jLabel6.setVisible(false);
+        jLabel7.setVisible(false);
+        jLabel9.setText("Modo: Kardex");
 
-    jComboBox3.removeAllItems();
-    jComboBox3.addItem("Codigo");
-    jComboBox3.addItem("Descripcion");
-    jComboBox3.addItem("Fecha");
-    jComboBox3.setSelectedIndex(0);
+        jComboBox3.removeAllItems();
+        jComboBox3.addItem("Codigo");
+        jComboBox3.addItem("Descripcion");
+        jComboBox3.addItem("Fecha");
+        jComboBox3.setSelectedIndex(0);
 
-    jPanel2.setVisible(true);
-    jPanel1.setVisible(false);
-    jButton5.setVisible(false);
-    Modo = "Kardex";
+        jPanel2.setVisible(true);
+        jPanel1.setVisible(false);
+        jButton5.setVisible(false);
+        Modo = "Kardex";
 
-    jScrollPane3.setVisible(true);
-    jScrollPane1.setVisible(false);
-    jScrollPane2.setVisible(false);
-    lista_tabla.setVisible(false);
-    contenedor.setVisible(false);
-    kardex_tabla.setVisible(true);
+        jScrollPane3.setVisible(true);
+        jScrollPane1.setVisible(false);
+        jScrollPane2.setVisible(false);
+        lista_tabla.setVisible(false);
+        contenedor.setVisible(false);
+        kardex_tabla.setVisible(true);
 
-    icono_carga.setVisible(true);
+        icono_carga.setVisible(true);
 
-    new SwingWorker<Void, Void>() {
-        EntityManager em = null;
-
-        @Override
-        protected Void doInBackground() {
-            try {
-                em = MonituxDBContext.getEntityManager();
-                if (em == null || !em.isOpen()) {
-                    throw new IllegalStateException("EntityManager no disponible.");
+        new SwingWorker<Void, Void>() {
+            @Override
+            protected Void doInBackground() {
+                EntityManager em = null;
+                try {
+                    em = MonituxDBContext.getEntityManager();
+                    if (em != null && em.isOpen()) {
+                        // Ejecutar mientras el EntityManager está activo
+                        cargar_Items_Kardex(Secuencial_Empresa, kardex_tabla);
+                    }
+                } catch (Exception ignored) {
+                    // Error silenciado
+                } finally {
+                    if (em != null && em.isOpen()) {
+                        try {
+                            em.close();
+                        } catch (Exception ignored) {
+                            // Error al cerrar silenciado
+                        }
+                    }
                 }
-
-                cargar_Items_Kardex(Secuencial_Empresa, kardex_tabla);
-
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(kardex_tabla,
-                    "Error al cargar registros de Kardex: " + ex.getMessage(),
-                    "Error", JOptionPane.ERROR_MESSAGE);
-                ex.printStackTrace();
-            } finally {
-                if (em != null && em.isOpen()) {
-                    em.close();
-                }
+                return null;
             }
-            return null;
-        }
 
-        @Override
-        protected void done() {
-            icono_carga.setVisible(false);
-            kardex_tabla.revalidate();
-            kardex_tabla.repaint();
-        }
-    }.execute();
+            @Override
+            protected void done() {
+                icono_carga.setVisible(false);
+                kardex_tabla.revalidate();
+                kardex_tabla.repaint();
+            }
+        }.execute();
+
+    } catch (Exception ignored) {
+        // Error silenciado
+    }
 }
 
+    
+    
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
 
         Modo_Kardex();
@@ -1986,13 +1990,13 @@ icono_carga.setVisible(true);
     
     private void jLabel6MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel6MouseClicked
 
-        icono_carga.setVisible(true);
+        {
+    icono_carga.setVisible(true);
 
     new SwingWorker<Void, Void>() {
-        EntityManager em = null;
-
         @Override
         protected Void doInBackground() {
+            EntityManager em = null;
             try {
                 em = MonituxDBContext.getEntityManager();
                 if (em == null || !em.isOpen()) {
@@ -2030,7 +2034,11 @@ icono_carga.setVisible(true);
                 ex.printStackTrace();
             } finally {
                 if (em != null && em.isOpen()) {
-                    em.close();
+                    try {
+                        em.close();
+                    } catch (Exception closeEx) {
+                        System.err.println("⚠️ Error al cerrar EntityManager: " + closeEx.getMessage());
+                    }
                 }
             }
             return null;
@@ -2056,7 +2064,7 @@ icono_carga.setVisible(true);
             }
         }
     }.execute();
-    
+        }
         // TODO add your handling code here:
     }//GEN-LAST:event_jLabel6MouseClicked
 
@@ -2190,13 +2198,12 @@ icono_carga.setVisible(true);
     
     private void jLabel7MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel7MouseClicked
 
-      icono_carga.setVisible(true);
+    icono_carga.setVisible(true);
 
     new SwingWorker<Void, Void>() {
-        EntityManager em = null;
-
         @Override
         protected Void doInBackground() {
+            EntityManager em = null;
             try {
                 em = MonituxDBContext.getEntityManager();
                 if (em == null || !em.isOpen()) {
@@ -2234,7 +2241,11 @@ icono_carga.setVisible(true);
                 ex.printStackTrace();
             } finally {
                 if (em != null && em.isOpen()) {
-                    em.close();
+                    try {
+                        em.close();
+                    } catch (Exception closeEx) {
+                        System.err.println("⚠️ Error al cerrar EntityManager: " + closeEx.getMessage());
+                    }
                 }
             }
             return null;
@@ -2260,7 +2271,6 @@ icono_carga.setVisible(true);
             }
         }
     }.execute();
-
     }//GEN-LAST:event_jLabel7MouseClicked
 
     

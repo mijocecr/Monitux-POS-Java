@@ -30,8 +30,8 @@ public class Producto {
     private String Codigo_Barra;
     private String Codigo_Fabricante;
 
-   @Lob
-@Column(name = "Imagen", columnDefinition = "LONGBLOB")
+ 
+@Column(name = "Imagen")
 private byte[] Imagen;
 
     @Column(name = "Fecha_Caducidad")

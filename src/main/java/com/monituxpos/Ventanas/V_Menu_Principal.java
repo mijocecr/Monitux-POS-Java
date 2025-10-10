@@ -249,7 +249,7 @@ public NoticiasRSS fuente= new NoticiasRSS();//Esta linea es
         
           initComponents();
           
-          
+//          
 //            MonituxDBContext.init(
 //            DBProvider.POSTGRESQL,
 //            "jdbc:postgresql://192.168.10.10:5432/monitux",
@@ -257,7 +257,7 @@ public NoticiasRSS fuente= new NoticiasRSS();//Esta linea es
 //            "00511"
 //        );
 
-//
+
 //MonituxDBContext.init(
 //    DBProvider.MYSQL,
 //    "jdbc:mysql://192.168.10.10:3306/monitux?useSSL=false&serverTimezone=UTC",
@@ -266,13 +266,19 @@ public NoticiasRSS fuente= new NoticiasRSS();//Esta linea es
 //);
 
 
+//MonituxDBContext.init(
+//    DBProvider.SQLSERVER,
+//    "jdbc:sqlserver://DESKTOP-N4UCDLP\\SQLEXPRESS:1433;databaseName=monitux;encrypt=false",
+//    "sa", // Usuario de SQL Server
+//    "00511" // Contraseña
+//);
+
 MonituxDBContext.init(
     DBProvider.SQLSERVER,
-    "jdbc:sqlserver://DESKTOP-N4UCDLP\\SQLEXPRESS:1433;databaseName=monitux;encrypt=false",
+    "jdbc:sqlserver://192.168.10.15:1433;databaseName=monitux;encrypt=false",
     "sa", // Usuario de SQL Server
     "00511" // Contraseña
 );
-
 
 
           
@@ -417,7 +423,6 @@ iniciarCintaLED(lblTitular);
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setResizable(false);
-        setType(java.awt.Window.Type.POPUP);
         addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowOpened(java.awt.event.WindowEvent evt) {
                 formWindowOpened(evt);
@@ -1079,11 +1084,11 @@ iniciarCintaLED(lblTitular);
                     .addComponent(jLabel7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jLabel16, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jLabel12, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jLabel20, javax.swing.GroupLayout.DEFAULT_SIZE, 160, Short.MAX_VALUE)
+                    .addComponent(jLabel20, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addContainerGap()
                         .addComponent(jLabel26, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(jLabel27, javax.swing.GroupLayout.DEFAULT_SIZE, 160, Short.MAX_VALUE))
+                    .addComponent(jLabel27, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
@@ -1193,7 +1198,7 @@ iniciarCintaLED(lblTitular);
         lblTitular.setText("Bienvenido a Monitux-POS — Edición Java");
         lblTitular.setToolTipText("");
         jPanel3.add(lblTitular);
-        lblTitular.setBounds(820, 0, 456, 40);
+        lblTitular.setBounds(820, 0, 472, 40);
 
         jScrollPane2.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         jScrollPane2.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
@@ -1248,12 +1253,12 @@ iniciarCintaLED(lblTitular);
             .addGroup(layout.createSequentialGroup()
                 .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 1222, Short.MAX_VALUE)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE))
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 800, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
         pack();

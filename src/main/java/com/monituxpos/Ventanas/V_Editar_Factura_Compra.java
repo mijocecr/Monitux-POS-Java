@@ -334,7 +334,7 @@ double descuento = 0.0;
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setResizable(false);
-        setType(java.awt.Window.Type.POPUP);
+        setType(java.awt.Window.Type.UTILITY);
         addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowClosing(java.awt.event.WindowEvent evt) {
                 formWindowClosing(evt);
@@ -451,7 +451,6 @@ double descuento = 0.0;
         jPanel2.add(jLabel16, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 490, -1, -1));
 
         lbl_otrosCargos.setBackground(new java.awt.Color(0, 204, 204));
-        lbl_otrosCargos.setForeground(new java.awt.Color(0, 0, 0));
         lbl_otrosCargos.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         lbl_otrosCargos.setBorder(null);
         lbl_otrosCargos.setForeground(Color.BLUE); // Cambia el texto a azul
@@ -470,7 +469,6 @@ double descuento = 0.0;
         lbl_impuesto.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         lbl_impuesto.setBackground(new java.awt.Color(0, 204, 204));
         lbl_impuesto.setBorder(null);
-        lbl_impuesto.setForeground(new java.awt.Color(0, 0, 0));
         lbl_impuesto.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 lbl_impuestoActionPerformed(evt);
@@ -486,7 +484,6 @@ double descuento = 0.0;
         lbl_descuento.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         lbl_descuento.setBackground(new java.awt.Color(0, 204, 204));
         lbl_descuento.setBorder(null);
-        lbl_descuento.setForeground(new java.awt.Color(0, 0, 0));
         lbl_descuento.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyReleased(java.awt.event.KeyEvent evt) {
                 lbl_descuentoKeyReleased(evt);

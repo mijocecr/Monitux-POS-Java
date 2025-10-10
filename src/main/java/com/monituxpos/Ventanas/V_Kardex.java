@@ -83,7 +83,7 @@ public class V_Kardex extends javax.swing.JFrame {
         setMinimumSize(new java.awt.Dimension(486, 575));
         setPreferredSize(new java.awt.Dimension(494, 580));
         setResizable(false);
-        setType(java.awt.Window.Type.POPUP);
+        setType(java.awt.Window.Type.UTILITY);
         addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowOpened(java.awt.event.WindowEvent evt) {
                 formWindowOpened(evt);

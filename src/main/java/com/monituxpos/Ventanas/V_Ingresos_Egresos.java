@@ -98,8 +98,8 @@ public  V_Egresos formulario_Principal_EG;
         txtDescripcion.setRows(5);
         jScrollPane1.setViewportView(txtDescripcion);
 
-        jLabel1.setForeground(new java.awt.Color(255, 255, 255));
         jLabel1.setText("Monto:");
+        jLabel1.setForeground(new java.awt.Color(255, 255, 255));
 
         txtTotal.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(java.awt.event.KeyEvent evt) {
@@ -110,9 +110,9 @@ public  V_Egresos formulario_Principal_EG;
             }
         });
 
+        jLabel2.setText("Descripción");
         jLabel2.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel2.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel2.setText("Descripción");
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -146,10 +146,10 @@ public  V_Egresos formulario_Principal_EG;
                 .addGap(42, 42, 42))
         );
 
-        jButton1.setBackground(new java.awt.Color(0, 0, 0));
-        jButton1.setForeground(new java.awt.Color(255, 255, 0));
         jButton1.setText("Registrar");
+        jButton1.setBackground(new java.awt.Color(0, 0, 0));
         jButton1.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 0)));
+        jButton1.setForeground(new java.awt.Color(255, 255, 0));
         jButton1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton1ActionPerformed(evt);

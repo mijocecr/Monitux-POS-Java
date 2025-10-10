@@ -139,7 +139,7 @@ public void setImagen(byte[] imagen) {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setResizable(false);
-        setType(java.awt.Window.Type.POPUP);
+        setType(java.awt.Window.Type.UTILITY);
         addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowOpened(java.awt.event.WindowEvent evt) {
                 formWindowOpened(evt);
@@ -205,7 +205,7 @@ public void setImagen(byte[] imagen) {
             }
         ));
         tableProveedores.setAutoscrolls(false);
-        tableProveedores.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        tableProveedores.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         tableProveedores.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         tableProveedores.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {

@@ -174,7 +174,7 @@ public class V_Abono_Proveedor extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setBackground(new java.awt.Color(0, 0, 0));
         setResizable(false);
-        setType(java.awt.Window.Type.POPUP);
+        setType(java.awt.Window.Type.UTILITY);
         addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowOpened(java.awt.event.WindowEvent evt) {
                 formWindowOpened(evt);
@@ -216,7 +216,6 @@ public class V_Abono_Proveedor extends javax.swing.JFrame {
         });
 
         jButton2.setBackground(new java.awt.Color(0, 192, 192));
-        jButton2.setForeground(new java.awt.Color(0, 0, 0));
         jButton2.setText("Registrar Pago");
         jButton2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
