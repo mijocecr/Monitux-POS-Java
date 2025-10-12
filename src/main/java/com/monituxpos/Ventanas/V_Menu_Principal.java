@@ -292,8 +292,20 @@ public NoticiasRSS fuente= new NoticiasRSS();//Esta linea es
 //);
 
 
+//String basePath = System.getProperty("user.dir") + "/Resources/Database/H2-DB-2";
+//String connectionString = "jdbc:h2:file:" + basePath + ";DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE";
+//
+//MonituxDBContext.init(
+//    DBProvider.H2,
+//    connectionString,
+//    "sa",
+//    ""
+//);
+
+     
 String basePath = System.getProperty("user.dir") + "/Resources/Database/H2-DB-2";
-String connectionString = "jdbc:h2:file:" + basePath + ";DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE";
+String connectionString = "jdbc:h2:file:" + basePath +
+    ";AUTO_SERVER=TRUE;DB_CLOSE_DELAY=-1"; // Eliminado DB_CLOSE_ON_EXIT
 
 MonituxDBContext.init(
     DBProvider.H2,
@@ -302,7 +314,6 @@ MonituxDBContext.init(
     ""
 );
 
-          
 
 
  mostrarSubMenu(inicio_submenu);
