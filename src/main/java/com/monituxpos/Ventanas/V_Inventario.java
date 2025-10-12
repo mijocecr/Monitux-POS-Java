@@ -5256,7 +5256,7 @@ public void cargar_ItemsFiltrados_Cuadricula(int secuencialEmpresa, JComboBox<St
 
 
 
-   public void cargarItems_Cuadricula() {
+ public void cargarItems_Cuadricula() {
     contenedor.removeAll();
     icono_carga.setVisible(true); // Mostrar ícono de carga
 
@@ -5267,20 +5267,23 @@ public void cargar_ItemsFiltrados_Cuadricula(int secuencialEmpresa, JComboBox<St
         protected Void doInBackground() {
             try {
                 em = MonituxDBContext.getEntityManager();
+
+                // Validar que el EntityManager esté disponible y abierto
                 if (em == null || !em.isOpen()) {
-                    throw new IllegalStateException("EntityManager no disponible.");
+                    return null; // Silenciar error y evitar uso
                 }
 
                 cargar_Items_Cuadricula(Secuencial_Empresa, contenedor);
 
             } catch (Exception ex) {
-                JOptionPane.showMessageDialog(contenedor,
-                    "Error al cargar productos: " + ex.getMessage(),
-                    "Error", JOptionPane.ERROR_MESSAGE);
-                ex.printStackTrace();
+                // Silenciar error sin mostrar ni imprimir
             } finally {
-                if (em != null && em.isOpen()) {
-                    em.close();
+                try {
+                    if (em != null && em.isOpen()) {
+                        em.close();
+                    }
+                } catch (Exception cierreEx) {
+                    // Silenciar error de cierre
                 }
             }
             return null;
