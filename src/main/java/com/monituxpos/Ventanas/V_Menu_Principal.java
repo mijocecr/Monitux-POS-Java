@@ -23,9 +23,13 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.beans.Statement;
 import java.net.Socket;
 import java.net.URI;
 import java.net.URL;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.ImageIcon;
@@ -273,13 +277,30 @@ public NoticiasRSS fuente= new NoticiasRSS();//Esta linea es
 //    "00511" // Contraseña
 //);
 
-MonituxDBContext.init(
-    DBProvider.SQLSERVER,
-    "jdbc:sqlserver://192.168.10.15:1433;databaseName=monitux;encrypt=false",
-    "sa", // Usuario de SQL Server
-    "00511" // Contraseña
-);
+//MonituxDBContext.init(
+//    DBProvider.SQLSERVER,
+//    "jdbc:sqlserver://192.168.10.15:1433;databaseName=monitux;encrypt=false",
+//    "sa", // Usuario de SQL Server
+//    "00511" // Contraseña
+//);
 
+//MonituxDBContext.init(
+//    DBProvider.H2,
+//    "jdbc:h2:file:C:/Users/Miguel Cerrato/Documents/NetBeansProjects/Monitux-POS-Java/Resources/Database/H2-DB-2;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE",
+//    "sa",
+//    ""
+//);
+
+
+String basePath = System.getProperty("user.dir") + "/Resources/Database/H2-DB-2";
+String connectionString = "jdbc:h2:file:" + basePath + ";DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE";
+
+MonituxDBContext.init(
+    DBProvider.H2,
+    connectionString,
+    "sa",
+    ""
+);
 
           
 

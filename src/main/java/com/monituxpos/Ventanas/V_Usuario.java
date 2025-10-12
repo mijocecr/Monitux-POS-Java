@@ -142,6 +142,7 @@ public void setImagen(byte[] imagen) {
 
     } catch (Exception e) {
         JOptionPane.showMessageDialog(null, "Error al cargar datos: " + e.getMessage());
+        System.err.println("Error al cargar datos: " + e.getMessage());
     } finally {
         
     }

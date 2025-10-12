@@ -1,16 +1,12 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.monituxpos.Clases;
 
 /**
- *
- * @author Miguel Cerrato
+ * Enum que representa los proveedores de base de datos soportados.
+ * Puedes extenderlo fácilmente si decides añadir más motores en el futuro.
  */
- public enum DBProvider {
-        MYSQL,
-        POSTGRESQL,
-        SQLSERVER
-   
+public enum DBProvider {
+    MYSQL,
+    POSTGRESQL,
+    SQLSERVER,
+    H2
 }
