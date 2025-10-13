@@ -45,6 +45,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -1983,7 +1984,7 @@ public void cargar_Items(int secuencialEmpresa, JPanel contenedor, JPanel conten
 
     
      
-  public void cargarItems() {
+public void cargarItems() {
     contenedor.removeAll();
     icono_carga.setVisible(true); // Mostrar ícono de carga
 
@@ -1998,6 +1999,10 @@ public void cargar_Items(int secuencialEmpresa, JPanel contenedor, JPanel conten
             } catch (Exception ex) {
                 System.err.println("❌ Error al cargar items: " + ex.getMessage());
                 ex.printStackTrace();
+            } finally {
+                if (em != null && em.isOpen()) {
+                    em.close(); // ✅ Cierre explícito
+                }
             }
 
             return null;
@@ -2015,114 +2020,6 @@ public void cargar_Items(int secuencialEmpresa, JPanel contenedor, JPanel conten
 }
 
    
-    
-    
-public void cargarItems(int secuencialEmpresa, JPanel contenedor, JPanel contenedor_selector, EntityManager entityManager) {
-
-    icono_carga.setVisible(true);
-    contenedor.setLayout(new GridLayout(0, 3, 5, 5)); // 3 columnas, filas dinámicas
-  
-  
-   contenedor_selector.setLayout(new GridLayout(0, 1, 5, 5)); // 4 columnas, filas dinámicas
-    
-
-    contenedor.removeAll();
-    contenedor_selector.removeAll();
-    listaDeItems.clear();
-    selectoresCantidad.clear();
-
-    // 🔍 Consulta JPA
-    List<Producto> productos = entityManager
-        .createQuery("SELECT p FROM Producto p WHERE p.Secuencial_Empresa = :empresa", Producto.class)
-        .setParameter("empresa", secuencialEmpresa)
-        .getResultList();
-
-    for (Producto producto : productos) {
-        ImageIcon imagenIcon = producto.getImagen() != null && producto.getImagen().length > 0
-            ? new ImageIcon(producto.getImagen())
-            : new ImageIcon(getClass().getResource("/icons/no-image-icon-10.png"));
-//ImageIcon icono = new ImageIcon(getClass().getResource("/icons/no-image-icon-10.png"));
-
-       
-        Miniatura_Producto miniatura = new Miniatura_Producto(producto,false);
-
-        
-      
-        miniatura.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                SelectorCantidad selector = selectoresCantidad.computeIfAbsent(
-                    producto.getCodigo(),
-                    codigo -> {
-                        SelectorCantidad nuevo = new SelectorCantidad(codigo,0);
-                        nuevo.setCantidad(0);
-                        
-                        return nuevo;
-                    }
-                );
-
-                if (!listaDeItems.containsKey(producto.getCodigo())) {
-                    listaDeItems.put(producto.getCodigo(), miniatura);
-                   // miniatura.checkBoxSeleccionado.setSelected(true);
-
-                    if (!Arrays.asList(contenedor_selector.getComponents()).contains(selector)) {
-                        contenedor_selector.add(selector);
-                    }
-                } else {
-//                    contenedor_selector.remove(selector);
-//                    listaDeItems.remove(producto.getCodigo());
-//                    miniatura.checkBoxSeleccionado.setSelected(false);
-                }
-
-                contenedor_selector.revalidate();
-                contenedor_selector.repaint();
-            }
-        });
-        
-        
-        
-// Agregar el menú contextual
-miniatura.addMouseListener(new MouseAdapter() {
-    @Override
-    public void mousePressed(MouseEvent e) {
-        if (e.isPopupTrigger()) {
-            menu_contextual.show(e.getComponent(), e.getX(), e.getY());
-        }
-    }
-
-    @Override
-    public void mouseReleased(MouseEvent e) {
-        if (e.isPopupTrigger()) {
-            menu_contextual.show(e.getComponent(), e.getX(), e.getY());
-        }
-    }
-});
-
-if (miniatura.cargarComentario()!=null){
-
- //miniatura.setToolTipText(miniatura.cargarComentario());
- 
- 
- miniatura.setToolTipText("<html><b>" + miniatura.producto.getDescripcion() + "</b><br>"+miniatura.cargarComentario()+"</html>");
- 
- //<html><b>Actualizar</b><br>Detalle</html>
-}else{
-
-    miniatura.setToolTipText("<html><b>" + miniatura.producto.getDescripcion() + "</b><br></html>");
- 
-}
-
-        contenedor.add(miniatura);
-    }
-
-    contenedor.revalidate();
-    contenedor.repaint();
-    
-    icono_carga.setVisible(false);
-    
-}
-
-    
     
     private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
 
@@ -2339,7 +2236,7 @@ ActualizarNumeros(); // Actualizar totales y visuales
         // TODO add your handling code here:
     }//GEN-LAST:event_formWindowOpened
 
- public void cargarItemsDesdeLista(Map<String, Double> lista, int secuencialEmpresa, JPanel contenedor, JPanel contenedor_selector) {
+public void cargarItemsDesdeLista(Map<String, Double> lista, int secuencialEmpresa, JPanel contenedor, JPanel contenedor_selector) {
     icono_carga.setVisible(true);
 
     contenedor.setLayout(new GridBagLayout());
@@ -2350,89 +2247,113 @@ ActualizarNumeros(); // Actualizar totales y visuales
     listaDeItems.clear();
     selectoresCantidad.clear();
 
-    GridBagConstraints gbc = new GridBagConstraints();
-    gbc.insets = new Insets(5, 5, 5, 5);
-    gbc.fill = GridBagConstraints.NONE;
-    gbc.anchor = GridBagConstraints.NORTHWEST;
+    // Mapa auxiliar para mantener cantidades por código
+    Map<String, Integer> cantidades = new HashMap<>();
+    lista.forEach((codigo, cantidad) -> cantidades.put(codigo, cantidad.intValue()));
 
-    int col = 0, row = 0;
+    SwingWorker<List<Producto>, Void> worker = new SwingWorker<>() {
+        @Override
+        protected List<Producto> doInBackground() {
+            EntityManager em = MonituxDBContext.getEntityManager();
+            List<Producto> resultado = new ArrayList<>();
 
-    EntityManager em = null;
+            try {
+                for (String codigo : cantidades.keySet()) {
+                    List<Producto> productos = em.createQuery(
+                        "SELECT p FROM Producto p WHERE p.Codigo = :codigo AND p.Secuencial_Empresa = :empresa", Producto.class)
+                        .setParameter("codigo", codigo)
+                        .setParameter("empresa", secuencialEmpresa)
+                        .getResultList();
 
-    try {
-        em = MonituxDBContext.getEntityManager();
-        if (em == null || !em.isOpen()) {
-            throw new IllegalStateException("EntityManager no disponible.");
+                    resultado.addAll(productos);
+                }
+            } catch (Exception e) {
+                System.err.println("❌ Error al consultar productos: " + e.getMessage());
+                e.printStackTrace();
+            } finally {
+                if (em != null && em.isOpen()) em.close();
+            }
+
+            return resultado;
         }
 
-        for (Map.Entry<String, Double> itemC : lista.entrySet()) {
-            List<Producto> productos = em.createQuery(
-                "SELECT p FROM Producto p WHERE p.Codigo = :codigo AND p.Secuencial_Empresa = :empresa", Producto.class)
-                .setParameter("codigo", itemC.getKey())
-                .setParameter("empresa", secuencialEmpresa)
-                .getResultList();
+        @Override
+        protected void done() {
+            try {
+                List<Producto> productos = get();
 
-            for (Producto producto : productos) {
-                Miniatura_Producto miniatura = new Miniatura_Producto(producto, true);
-                miniatura.setCantidadSelecccionItem(itemC.getValue().intValue());
-                miniatura.setPreferredSize(new Dimension(120, 170));
+                GridBagConstraints gbc = new GridBagConstraints();
+                gbc.insets = new Insets(5, 5, 5, 5);
+                gbc.fill = GridBagConstraints.NONE;
+                gbc.anchor = GridBagConstraints.NORTHWEST;
 
-                SelectorCantidad selector = new SelectorCantidad(producto.getCodigo(), itemC.getValue().intValue());
-                selectoresCantidad.put(producto.getCodigo(), selector);
+                int col = 0, row = 0;
 
-                listaDeItems.put(producto.getCodigo(), miniatura);
-                contenedor_selector.add(selector);
+                for (Producto producto : productos) {
+                    int cantidad = cantidades.getOrDefault(producto.getCodigo(), 0);
 
-                String comentario = miniatura.cargarComentario(); // Este método debe abrir su propio EM
-                miniatura.setToolTipText(
-                    comentario != null
-                        ? "<html><b>" + producto.getDescripcion() + "</b><br>" + comentario + "</html>"
-                        : "<html><b>" + producto.getDescripcion() + "</b><br></html>"
-                );
+                    Miniatura_Producto miniatura = new Miniatura_Producto(producto, true);
+                    miniatura.setCantidadSelecccionItem(cantidad);
+                    miniatura.setPreferredSize(new Dimension(120, 170));
 
-                miniatura.addMouseListener(new MouseAdapter() {
-                    @Override
-                    public void mousePressed(MouseEvent e) {
-                        if (e.isPopupTrigger()) {
-                            menu_contextual.show(e.getComponent(), e.getX(), e.getY());
+                    SelectorCantidad selector = new SelectorCantidad(producto.getCodigo(), cantidad);
+                    selectoresCantidad.put(producto.getCodigo(), selector);
+
+                    listaDeItems.put(producto.getCodigo(), miniatura);
+                    contenedor_selector.add(selector);
+
+                    String comentario = miniatura.cargarComentario(); // Este método debe abrir su propio EM
+                    miniatura.setToolTipText(
+                        comentario != null
+                            ? "<html><b>" + producto.getDescripcion() + "</b><br>" + comentario + "</html>"
+                            : "<html><b>" + producto.getDescripcion() + "</b><br></html>"
+                    );
+
+                    miniatura.addMouseListener(new MouseAdapter() {
+                        @Override
+                        public void mousePressed(MouseEvent e) {
+                            if (e.isPopupTrigger()) {
+                                menu_contextual.show(e.getComponent(), e.getX(), e.getY());
+                            }
                         }
-                    }
 
-                    @Override
-                    public void mouseReleased(MouseEvent e) {
-                        if (e.isPopupTrigger()) {
-                            menu_contextual.show(e.getComponent(), e.getX(), e.getY());
+                        @Override
+                        public void mouseReleased(MouseEvent e) {
+                            if (e.isPopupTrigger()) {
+                                menu_contextual.show(e.getComponent(), e.getX(), e.getY());
+                            }
                         }
+                    });
+
+                    gbc.gridx = col;
+                    gbc.gridy = row;
+                    contenedor.add(miniatura, gbc);
+
+                    col++;
+                    if (col == 3) {
+                        col = 0;
+                        row++;
                     }
-                });
-
-                gbc.gridx = col;
-                gbc.gridy = row;
-                contenedor.add(miniatura, gbc);
-
-                col++;
-                if (col == 3) {
-                    col = 0;
-                    row++;
                 }
+
+                contenedor.revalidate();
+                contenedor.repaint();
+                contenedor_selector.revalidate();
+                contenedor_selector.repaint();
+                icono_carga.setVisible(false);
+
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(null,
+                    "❌ Error al cargar productos desde lista: " + e.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+                icono_carga.setVisible(false);
             }
         }
+    };
 
-    } catch (Exception e) {
-        JOptionPane.showMessageDialog(null, "❌ Error al cargar productos desde lista: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-        e.printStackTrace();
-    } finally {
-        if (em != null && em.isOpen()) {
-            em.close();
-        }
-        contenedor.revalidate();
-        contenedor.repaint();
-        contenedor_selector.revalidate();
-        contenedor_selector.repaint();
-        icono_carga.setVisible(false);
-    }
+    worker.execute();
 }
- 
+
     
     private void contenedorMouseMoved(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_contenedorMouseMoved
         // TODO add your handling code here:
