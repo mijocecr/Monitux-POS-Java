@@ -135,7 +135,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
 @Entity
-@Table(name = "Egresos")
+@Table(name = "egresos")
 public class Egreso {
 
     @Id

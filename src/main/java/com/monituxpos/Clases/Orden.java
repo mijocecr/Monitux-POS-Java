@@ -11,7 +11,7 @@ import jakarta.persistence.*;
 @Entity
 
 
-@Table(name = "Ordenes")
+@Table(name = "ordenes")
 public class Orden {
 
   @Id

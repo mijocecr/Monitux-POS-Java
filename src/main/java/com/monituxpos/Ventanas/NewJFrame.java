@@ -4,6 +4,7 @@
  */
 package com.monituxpos.Ventanas;
 
+import com.monituxpos.Clases.AppSettings;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.FlowLayout;
@@ -31,6 +32,9 @@ public class NewJFrame extends javax.swing.JFrame {
      */
     public NewJFrame() {
         initComponents();
+        
+       
+        
     }
 
     
@@ -81,6 +85,7 @@ public void abrirVentana(JPanel childPanel) {
         jMenuItem3 = new javax.swing.JMenuItem();
         jButton1 = new javax.swing.JButton();
         panelContenedor = new javax.swing.JPanel();
+        jButton5 = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
         jButton3 = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
@@ -115,15 +120,28 @@ public void abrirVentana(JPanel childPanel) {
             }
         });
 
+        jButton5.setText("jButton5");
+        jButton5.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton5ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout panelContenedorLayout = new javax.swing.GroupLayout(panelContenedor);
         panelContenedor.setLayout(panelContenedorLayout);
         panelContenedorLayout.setHorizontalGroup(
             panelContenedorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 842, Short.MAX_VALUE)
+            .addGroup(panelContenedorLayout.createSequentialGroup()
+                .addGap(253, 253, 253)
+                .addComponent(jButton5)
+                .addContainerGap(510, Short.MAX_VALUE))
         );
         panelContenedorLayout.setVerticalGroup(
             panelContenedorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 717, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelContenedorLayout.createSequentialGroup()
+                .addContainerGap(546, Short.MAX_VALUE)
+                .addComponent(jButton5)
+                .addGap(144, 144, 144))
         );
 
         jButton2.setText("jButton2");
@@ -300,6 +318,18 @@ if (imagen != null) {
         // TODO add your handling code here:
     }//GEN-LAST:event_jButton4ActionPerformed
 
+    private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
+
+         if (AppSettings.getPrimer_Arranque()==true){
+        V_Initial_Setup x = new V_Initial_Setup();
+        
+        x.setVisible(true);
+        
+        
+        }
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButton5ActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -331,6 +361,7 @@ if (imagen != null) {
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
+    private javax.swing.JButton jButton5;
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JMenuItem jMenuItem2;

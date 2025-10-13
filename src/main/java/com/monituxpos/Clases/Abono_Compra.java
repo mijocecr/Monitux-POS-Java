@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 @Entity
-@Table(name = "Abonos_Compras")
+@Table(name = "abonos_compras")
 public class Abono_Compra {
 
     @Id

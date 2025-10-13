@@ -12,7 +12,7 @@ import java.time.format.DateTimeFormatter;
 @Entity
 
 
-@Table(name = "Compras")
+@Table(name = "compras")
 public class Compra {
 
  @Id

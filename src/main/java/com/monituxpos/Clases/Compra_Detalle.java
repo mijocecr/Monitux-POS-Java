@@ -13,7 +13,7 @@ import java.time.format.DateTimeFormatter;
 
 
 
-@Table(name = "Compras_Detalles")
+@Table(name = "compras_detalles")
 public class Compra_Detalle {
 
     @Id

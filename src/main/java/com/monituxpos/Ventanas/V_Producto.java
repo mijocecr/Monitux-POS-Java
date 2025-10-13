@@ -910,9 +910,11 @@ private String valueOrEmpty(String valor) {
     }//GEN-LAST:event_Menu_SalirActionPerformed
 
     private void Menu_EliminarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Menu_EliminarActionPerformed
-//**********************************************
 
-int res = JOptionPane.showConfirmDialog(
+        
+        //**********************************************
+
+    int res = JOptionPane.showConfirmDialog(
         null,
         "¿Está seguro de eliminar este producto?",
         "Confirmación",
@@ -920,6 +922,8 @@ int res = JOptionPane.showConfirmDialog(
     );
 
     if (res == JOptionPane.YES_OPTION) {
+        EntityManager em = null;
+
         try {
             // Liberar imágenes si existen
             if (labelImagen.getIcon() != null) {
@@ -935,9 +939,13 @@ int res = JOptionPane.showConfirmDialog(
                 label_qr.setIcon(null);
             }
 
-            EntityManager em = MonituxDBContext.getEntityManager();
+            // Abrir nuevo EntityManager
+            em = MonituxDBContext.getEntityManager();
 
-            // Buscar producto por secuencial
+            if (em == null || !em.isOpen()) {
+                throw new IllegalStateException("EntityManager no disponible.");
+            }
+
             Producto producto = em.createQuery(
                 "SELECT p FROM Producto p WHERE p.Secuencial = :Secuencial", Producto.class)
                 .setParameter("Secuencial", this.Secuencial)
@@ -945,50 +953,61 @@ int res = JOptionPane.showConfirmDialog(
                 .findFirst()
                 .orElse(null);
 
-            if (producto != null) {
-                Util.registrarActividad(
-                    Secuencial_Usuario,
-                    "Ha eliminado el producto: " + producto.getCodigo(),
-                    Secuencial_Empresa
-                );
-
-                if (!"Servicio".equals(producto.getTipo())) {
-                    Util.registrarMovimientoKardex(
-                        producto.getSecuencial(),
-                        producto.getCantidad(),
-                        producto.getDescripcion(),
-                        producto.getCantidad(),
-                        producto.getPrecio_Costo(),
-                        producto.getPrecio_Venta(),
-                        "Salida",
-                        Secuencial_Empresa
-                    );
-                }
-
-                em.getTransaction().begin();
-                em.remove(em.contains(producto) ? producto : em.merge(producto));
-                em.getTransaction().commit();
-
-                JOptionPane.showMessageDialog(null, "Producto eliminado correctamente.");
-
-                if (onProductoEditado != null) {
-                    onProductoEditado.run();
-                }
-
-                this.dispose();
-            } else {
+            if (producto == null) {
                 JOptionPane.showMessageDialog(null, "El producto no existe en la base de datos.");
+                return;
             }
 
+            Util.registrarActividad(
+                Secuencial_Usuario,
+                "Ha eliminado el producto: " + producto.getCodigo(),
+                Secuencial_Empresa
+            );
+
+            if (!"Servicio".equals(producto.getTipo())) {
+                Util.registrarMovimientoKardex(
+                    producto.getSecuencial(),
+                    producto.getCantidad(),
+                    producto.getDescripcion(),
+                    producto.getCantidad(),
+                    producto.getPrecio_Costo(),
+                    producto.getPrecio_Venta(),
+                    "Salida",
+                    Secuencial_Empresa
+                );
+            }
+
+            // Reabrir EntityManager antes de eliminar
+            if (em != null && em.isOpen()) {
+                em.close();
+            }
+            em = MonituxDBContext.getEntityManager();
+
+            em.getTransaction().begin();
+            em.remove(em.contains(producto) ? producto : em.merge(producto));
+            em.getTransaction().commit();
+
+            JOptionPane.showMessageDialog(null, "Producto eliminado correctamente.");
+
+            if (onProductoEditado != null) {
+                onProductoEditado.run();
+            }
+
+            this.dispose();
             System.out.println("✅ Producto eliminado correctamente.");
+
         } catch (Exception ex) {
             System.err.println("❌ Error al eliminar producto: " + ex.getMessage());
             ex.printStackTrace();
+        } finally {
+            if (em != null && em.isOpen()) {
+                em.close();
+            }
         }
     }
 
 
-
+        
 //**********************************************
     }//GEN-LAST:event_Menu_EliminarActionPerformed
 

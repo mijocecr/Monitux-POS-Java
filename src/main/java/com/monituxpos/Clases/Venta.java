@@ -14,7 +14,7 @@ import java.time.format.DateTimeFormatter;
 
 
 
-@Table(name = "Ventas")
+@Table(name = "ventas")
 public class Venta {
 
     @Id

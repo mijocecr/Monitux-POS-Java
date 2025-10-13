@@ -5,7 +5,7 @@ import com.monituxpos.Clases.Compra;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "Cuentas_Pagar")
+@Table(name = "cuentas_pagar")
 public class Cuentas_Pagar {
 
     @Id

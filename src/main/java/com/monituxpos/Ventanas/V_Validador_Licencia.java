@@ -6,7 +6,7 @@ package com.monituxpos.Ventanas;
 
 
 import com.monituxpos.Clases.LicenciaManager;
-import com.monituxpos.Clases.SettingsManager;
+import com.monituxpos.Clases.AppSettings;
 import java.awt.Color;
 import java.io.IOException;
 import java.net.URI;

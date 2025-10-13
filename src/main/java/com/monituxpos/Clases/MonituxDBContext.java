@@ -1,12 +1,13 @@
 package com.monituxpos.Clases;
 
+
+
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import org.hibernate.jpa.HibernatePersistenceProvider;
 
 import java.io.File;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class MonituxDBContext {
@@ -14,16 +15,25 @@ public class MonituxDBContext {
     private static EntityManagerFactory emf;
     private static EntityManager em;
 
+    private static DBProvider currentProvider;
+    private static String connectionUrl;
+    private static String currentUser;
+    private static String currentPassword;
+
     public static void init(DBProvider provider, String connectionString, String user, String password) {
         try {
             System.out.println("🔧 Inicializando JPA con " + provider + "...");
 
-            if (provider == DBProvider.H2) {
-                File dbFolder = new File("C:/Users/Miguel Cerrato/Documents/NetBeansProjects/Monitux-POS-Java/Resources/Database");
-                if (!dbFolder.exists()) {
-                    dbFolder.mkdirs();
-                    System.out.println("📁 Carpeta de base de datos creada.");
-                }
+            currentProvider = provider;
+            connectionUrl = connectionString;
+            currentUser = user;
+            currentPassword = password;
+
+            // Carpeta portable para base de datos
+            File dbFolder = new File(System.getProperty("user.dir") + File.separator + "Resources" + File.separator + "Database");
+            if (provider == DBProvider.H2 && !dbFolder.exists()) {
+                dbFolder.mkdirs();
+                System.out.println("📁 Carpeta de base de datos creada en: " + dbFolder.getAbsolutePath());
             }
 
             Map<String, Object> props = new HashMap<>();
@@ -37,16 +47,9 @@ public class MonituxDBContext {
             props.put("hibernate.show_sql", "true");
             props.put("hibernate.archive.autodetection", "class");
 
-
             if (provider == DBProvider.SQLSERVER) {
                 props.put("hibernate.connection.autocommit", "true");
             }
-
-//            props.put("jakarta.persistence.mappingClasses", List.of(
-//                com.monituxpos.Clases.Usuario.class,
-//                com.monituxpos.Clases.Venta.class,
-//                com.monituxpos.Clases.Ingreso.class
-//            ));
 
             Class.forName(props.get("jakarta.persistence.jdbc.driver").toString());
 
@@ -57,9 +60,11 @@ public class MonituxDBContext {
 
             em = emf.createEntityManager();
 
-            File dbFile = new File("C:/Users/Miguel Cerrato/Documents/NetBeansProjects/Monitux-POS-Java/Resources/Database/H2-DB.mv.db");
-            if (!dbFile.exists()) {
-                throw new IllegalStateException("❌ El archivo de base de datos no fue creado.");
+            if (provider == DBProvider.H2) {
+                File dbFile = new File(dbFolder, "H2-DB.mv.db");
+                if (!dbFile.exists()) {
+                    throw new IllegalStateException("❌ El archivo de base de datos no fue creado: " + dbFile.getAbsolutePath());
+                }
             }
 
             System.out.println("✅ JPA inicializado correctamente.");
@@ -101,4 +106,36 @@ public class MonituxDBContext {
             default -> throw new IllegalArgumentException("Proveedor no soportado: " + provider);
         };
     }
+
+    public static Map<String, String> getConnectionData() {
+        Map<String, String> data = new HashMap<>();
+        data.put("provider", currentProvider != null ? currentProvider.name() : "");
+        data.put("url", connectionUrl != null ? connectionUrl : "");
+        data.put("user", currentUser != null ? currentUser : "");
+        data.put("password", currentPassword != null ? currentPassword : "");
+        return data;
+    }
+    
+    
+    
+   public static String getJdbcConnectionString() {
+    if (currentProvider == null || connectionUrl == null) {
+        throw new IllegalStateException("Proveedor o URL no inicializados.");
+    }
+
+    // Si la URL ya comienza con "jdbc:", se asume que está completa
+    if (connectionUrl.trim().toLowerCase().startsWith("jdbc:")) {
+        return connectionUrl;
+    }
+
+    return switch (currentProvider) {
+        case MYSQL -> "jdbc:mysql://" + connectionUrl;
+        case POSTGRESQL -> "jdbc:postgresql://" + connectionUrl;
+        case SQLSERVER -> "jdbc:sqlserver://" + connectionUrl;
+        case H2 -> "jdbc:h2:" + connectionUrl;
+        default -> throw new IllegalArgumentException("Proveedor no soportado: " + currentProvider);
+    };
+}
+
+    
 }

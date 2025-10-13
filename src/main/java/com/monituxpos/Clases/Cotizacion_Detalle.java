@@ -11,7 +11,7 @@ import jakarta.persistence.*;
 @Entity
 
 
-@Table(name = "Cotizaciones_Detalles")
+@Table(name = "cotizaciones_detalles")
 public class Cotizacion_Detalle {
 
   

@@ -4,6 +4,7 @@
  */
 package com.monituxpos.Ventanas;
 
+import com.monituxpos.Clases.AppSettings;
 import com.monituxpos.Clases.DBProvider;
 import com.monituxpos.Clases.MonituxDBContext;
 import java.beans.Statement;
@@ -70,6 +71,54 @@ public class V_Configuracion extends javax.swing.JPanel {
         panel_sqlserver.setVisible(false);
         panel_postgres.setVisible(true);
         panel_h2.setVisible(false);
+        
+        
+        
+        
+        //******************
+        
+        // Asignar la cadena de conexión al campo de texto
+jTextArea1.setText(AppSettings.getDB_Connection());
+
+
+
+// Mostrar/ocultar paneles según el proveedor de base de datos
+switch (AppSettings.getDB_Provider()) {
+    case "MYSQL":
+        panel_sqlserver.setVisible(false);
+        panel_postgres.setVisible(false);
+        panel_mysql.setVisible(true);
+        panel_h2.setVisible(false);
+        break;
+    case "H2":
+       panel_sqlserver.setVisible(false);
+        panel_postgres.setVisible(false);
+        panel_mysql.setVisible(false);
+        panel_h2.setVisible(true);
+        break;
+    case "SQLSERVER":
+       panel_sqlserver.setVisible(true);
+        panel_postgres.setVisible(false);
+        panel_mysql.setVisible(false);
+        panel_h2.setVisible(false);
+        break;
+    case "POSTGRESQL":
+       panel_sqlserver.setVisible(false);
+        panel_postgres.setVisible(true);
+        panel_mysql.setVisible(false);
+        panel_h2.setVisible(false);
+        break;
+    default:
+        // No hacer nada
+        break;
+}
+
+        
+        //******************
+        
+        
+        
+        
     }
 
     /**
@@ -561,6 +610,8 @@ public class V_Configuracion extends javax.swing.JPanel {
         jLabel20.setText("Cadena de Conexion:");
 
         jTextArea1.setColumns(20);
+        jTextArea1.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        jTextArea1.setLineWrap(true);
         jTextArea1.setRows(5);
         jScrollPane1.setViewportView(jTextArea1);
 
@@ -611,8 +662,7 @@ public class V_Configuracion extends javax.swing.JPanel {
                 .addGap(18, 18, 18)
                 .addComponent(jLabel20)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 66, Short.MAX_VALUE))
         );
 
         jLabel19.setForeground(new java.awt.Color(255, 0, 51));

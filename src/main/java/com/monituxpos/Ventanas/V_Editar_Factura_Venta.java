@@ -2233,6 +2233,7 @@ ActualizarNumeros(); // Actualizar totales y visuales
         Actualizar_Detalle();
         
         this.setLocationRelativeTo(null);
+        
         // TODO add your handling code here:
     }//GEN-LAST:event_formWindowOpened
 

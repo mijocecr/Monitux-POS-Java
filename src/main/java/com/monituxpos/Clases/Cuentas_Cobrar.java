@@ -14,7 +14,7 @@ import jakarta.persistence.Table;
 
 
 @Entity
-@Table(name = "Cuentas_Cobrar")
+@Table(name = "cuentas_cobrar")
 public class Cuentas_Cobrar {
 
     @Id

@@ -4,7 +4,7 @@ package com.monituxpos.Clases;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "Clientes")
+@Table(name = "clientes")
 public class Cliente {
 
     @Id

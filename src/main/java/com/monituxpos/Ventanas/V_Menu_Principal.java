@@ -4,6 +4,7 @@
  */
 package com.monituxpos.Ventanas;
 
+import com.monituxpos.Clases.AppSettings;
 import com.monituxpos.Clases.DBProvider;
 import com.monituxpos.Clases.MonituxDBContext;
 import com.monituxpos.Clases.NoticiasRSS;
@@ -24,6 +25,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.beans.Statement;
+import java.io.File;
 import java.net.Socket;
 import java.net.URI;
 import java.net.URL;
@@ -254,12 +256,35 @@ public NoticiasRSS fuente= new NoticiasRSS();//Esta linea es
           initComponents();
           
           
-            MonituxDBContext.init(
-            DBProvider.POSTGRESQL,
-            "jdbc:postgresql://192.168.10.10:5432/monitux",
-            "miguel",
-            "00511"
-        );
+
+String proveedor = AppSettings.getDB_Provider();
+String conexion = AppSettings.getDB_Connection();
+String usuario = AppSettings.getUsuario();
+String password = AppSettings.getPassword();
+
+System.out.println("Inicializando MonituxDBContext...");
+System.out.println("Proveedor: " + proveedor);
+System.out.println("Cadena de conexión: " + conexion);
+System.out.println("Usuario: " + usuario);
+System.out.println("Password: " + (password.isEmpty() ? "[VACÍA]" : "[OCULTA]"));
+
+MonituxDBContext.init(
+    DBProvider.valueOf(proveedor.toUpperCase()),
+    conexion,
+    usuario,
+    password
+);
+
+
+
+//            MonituxDBContext.init(
+//            DBProvider.POSTGRESQL,
+//            "jdbc:postgresql://192.168.10.10:5432/monitux",
+//            "miguel",
+//            "00511"
+//        );
+
+
 
 
 //MonituxDBContext.init(
@@ -269,13 +294,7 @@ public NoticiasRSS fuente= new NoticiasRSS();//Esta linea es
 //    "00511" // Contraseña
 //);
 
-//
-//MonituxDBContext.init(
-//    DBProvider.SQLSERVER,
-//    "jdbc:sqlserver://DESKTOP-N4UCDLP\\SQLEXPRESS:1433;databaseName=monitux;encrypt=false",
-//    "sa", // Usuario de SQL Server
-//    "00511" // Contraseña
-//);
+
 
 //MonituxDBContext.init(
 //    DBProvider.SQLSERVER,
@@ -284,11 +303,15 @@ public NoticiasRSS fuente= new NoticiasRSS();//Esta linea es
 //    "00511" // Contraseña
 //);
 
-
 //
-//String basePath = System.getProperty("user.dir") + "/Resources/Database/H2-DB";
+//// Construir ruta portable y compatible con H2
+//File dbFile = new File(System.getProperty("user.dir"), "Resources/Database/H2-DB");
+//String basePath = dbFile.getAbsolutePath().replace("\\", "/");
+//
+//// Construir cadena de conexión válida
 //String connectionString = "jdbc:h2:file:" + basePath + ";DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE";
 //
+//// Inicializar contexto de base de datos
 //MonituxDBContext.init(
 //    DBProvider.H2,
 //    connectionString,
@@ -296,7 +319,11 @@ public NoticiasRSS fuente= new NoticiasRSS();//Esta linea es
 //    ""
 //); // Modo Archivo
 
-     
+
+//     String cadena_conexion= MonituxDBContext.getJdbcConnectionString();
+//AppSettings.set_Conexion("POSTGRESQL", cadena_conexion);
+
+
 //String basePath = System.getProperty("user.dir") + "/Resources/Database/H2-DB-2";
 //String connectionString = "jdbc:h2:file:" + basePath +
 //    ";AUTO_SERVER=TRUE;DB_CLOSE_DELAY=-1"; // Eliminado DB_CLOSE_ON_EXIT
