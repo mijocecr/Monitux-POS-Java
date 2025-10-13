@@ -253,13 +253,13 @@ public NoticiasRSS fuente= new NoticiasRSS();//Esta linea es
         
           initComponents();
           
-//          
-//            MonituxDBContext.init(
-//            DBProvider.POSTGRESQL,
-//            "jdbc:postgresql://192.168.10.10:5432/monitux",
-//            "miguel",
-//            "00511"
-//        );
+          
+            MonituxDBContext.init(
+            DBProvider.POSTGRESQL,
+            "jdbc:postgresql://192.168.10.10:5432/monitux",
+            "miguel",
+            "00511"
+        );
 
 
 //MonituxDBContext.init(
@@ -269,7 +269,7 @@ public NoticiasRSS fuente= new NoticiasRSS();//Esta linea es
 //    "00511" // Contraseña
 //);
 
-
+//
 //MonituxDBContext.init(
 //    DBProvider.SQLSERVER,
 //    "jdbc:sqlserver://DESKTOP-N4UCDLP\\SQLEXPRESS:1433;databaseName=monitux;encrypt=false",
@@ -285,16 +285,16 @@ public NoticiasRSS fuente= new NoticiasRSS();//Esta linea es
 //);
 
 
-
-String basePath = System.getProperty("user.dir") + "/Resources/Database/H2-DB";
-String connectionString = "jdbc:h2:file:" + basePath + ";DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE";
-
-MonituxDBContext.init(
-    DBProvider.H2,
-    connectionString,
-    "sa",
-    ""
-); // Modo Archivo
+//
+//String basePath = System.getProperty("user.dir") + "/Resources/Database/H2-DB";
+//String connectionString = "jdbc:h2:file:" + basePath + ";DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE";
+//
+//MonituxDBContext.init(
+//    DBProvider.H2,
+//    connectionString,
+//    "sa",
+//    ""
+//); // Modo Archivo
 
      
 //String basePath = System.getProperty("user.dir") + "/Resources/Database/H2-DB-2";

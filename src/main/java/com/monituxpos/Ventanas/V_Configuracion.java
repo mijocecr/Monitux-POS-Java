@@ -7,6 +7,7 @@ package com.monituxpos.Ventanas;
 import com.monituxpos.Clases.DBProvider;
 import com.monituxpos.Clases.MonituxDBContext;
 import java.beans.Statement;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -37,6 +38,19 @@ import java.util.Date;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.InputStreamReader;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import javax.swing.*;
@@ -52,10 +66,10 @@ public class V_Configuracion extends javax.swing.JPanel {
      */
     public V_Configuracion() {
         initComponents();
-        jPanel2.setVisible(false);
-        jPanel3.setVisible(false);
-        jPanel4.setVisible(false);
-        
+        panel_mysql.setVisible(false);
+        panel_sqlserver.setVisible(false);
+        panel_postgres.setVisible(true);
+        panel_h2.setVisible(false);
     }
 
     /**
@@ -69,7 +83,7 @@ public class V_Configuracion extends javax.swing.JPanel {
 
         jLabel1 = new javax.swing.JLabel();
         jPanel5 = new javax.swing.JPanel();
-        jPanel2 = new javax.swing.JPanel();
+        panel_mysql = new javax.swing.JPanel();
         jLabel5 = new javax.swing.JLabel();
         jLabel6 = new javax.swing.JLabel();
         jLabel7 = new javax.swing.JLabel();
@@ -80,7 +94,7 @@ public class V_Configuracion extends javax.swing.JPanel {
         jButton7 = new javax.swing.JButton();
         jButton8 = new javax.swing.JButton();
         jLabel16 = new javax.swing.JLabel();
-        jPanel3 = new javax.swing.JPanel();
+        panel_sqlserver = new javax.swing.JPanel();
         jLabel8 = new javax.swing.JLabel();
         jLabel9 = new javax.swing.JLabel();
         jLabel10 = new javax.swing.JLabel();
@@ -91,7 +105,7 @@ public class V_Configuracion extends javax.swing.JPanel {
         jButton11 = new javax.swing.JButton();
         jButton12 = new javax.swing.JButton();
         jLabel17 = new javax.swing.JLabel();
-        jPanel4 = new javax.swing.JPanel();
+        panel_postgres = new javax.swing.JPanel();
         jLabel11 = new javax.swing.JLabel();
         jLabel12 = new javax.swing.JLabel();
         jLabel13 = new javax.swing.JLabel();
@@ -102,7 +116,7 @@ public class V_Configuracion extends javax.swing.JPanel {
         jButton15 = new javax.swing.JButton();
         jButton16 = new javax.swing.JButton();
         jLabel18 = new javax.swing.JLabel();
-        jPanel6 = new javax.swing.JPanel();
+        panel_h2 = new javax.swing.JPanel();
         jLabel15 = new javax.swing.JLabel();
         jLabel21 = new javax.swing.JLabel();
         jLabel22 = new javax.swing.JLabel();
@@ -132,7 +146,7 @@ public class V_Configuracion extends javax.swing.JPanel {
 
         jPanel5.setBackground(new java.awt.Color(255, 255, 255));
 
-        jPanel2.setBackground(new java.awt.Color(255, 255, 255));
+        panel_mysql.setBackground(new java.awt.Color(255, 255, 255));
 
         jLabel5.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/mysql-logo.jpg"))); // NOI18N
         jLabel5.setText("jLabel3");
@@ -151,6 +165,7 @@ public class V_Configuracion extends javax.swing.JPanel {
         });
 
         jButton6.setText("Importar");
+        jButton6.setEnabled(false);
         jButton6.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton6ActionPerformed(evt);
@@ -158,8 +173,14 @@ public class V_Configuracion extends javax.swing.JPanel {
         });
 
         jButton7.setText("Escoger");
+        jButton7.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton7ActionPerformed(evt);
+            }
+        });
 
         jButton8.setText("Exportar");
+        jButton8.setEnabled(false);
         jButton8.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton8ActionPerformed(evt);
@@ -169,52 +190,52 @@ public class V_Configuracion extends javax.swing.JPanel {
         jLabel16.setForeground(new java.awt.Color(0, 0, 255));
         jLabel16.setText("Motor de Datos: [MySQL]");
 
-        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
-        jPanel2.setLayout(jPanel2Layout);
-        jPanel2Layout.setHorizontalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel2Layout.createSequentialGroup()
+        javax.swing.GroupLayout panel_mysqlLayout = new javax.swing.GroupLayout(panel_mysql);
+        panel_mysql.setLayout(panel_mysqlLayout);
+        panel_mysqlLayout.setHorizontalGroup(
+            panel_mysqlLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panel_mysqlLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(panel_mysqlLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(panel_mysqlLayout.createSequentialGroup()
+                        .addGroup(panel_mysqlLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel7)
                             .addComponent(jLabel6))
                         .addGap(26, 26, 26)
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                        .addGroup(panel_mysqlLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(jTextField3, javax.swing.GroupLayout.DEFAULT_SIZE, 410, Short.MAX_VALUE)
                             .addComponent(jTextField4)))
                     .addComponent(jLabel16))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(panel_mysqlLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jButton5)
                     .addComponent(jButton7))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                .addGroup(panel_mysqlLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(jButton6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jButton8, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        jPanel2Layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {jButton5, jButton7});
+        panel_mysqlLayout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {jButton5, jButton7});
 
-        jPanel2Layout.setVerticalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+        panel_mysqlLayout.setVerticalGroup(
+            panel_mysqlLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panel_mysqlLayout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 86, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(31, 31, 31))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panel_mysqlLayout.createSequentialGroup()
                 .addGap(19, 19, 19)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addGroup(panel_mysqlLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel6)
                     .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jButton5)
                     .addComponent(jButton6))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addGroup(panel_mysqlLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jTextField4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jButton7)
                     .addComponent(jButton8)
@@ -224,7 +245,7 @@ public class V_Configuracion extends javax.swing.JPanel {
                 .addGap(0, 0, Short.MAX_VALUE))
         );
 
-        jPanel3.setBackground(new java.awt.Color(255, 255, 255));
+        panel_sqlserver.setBackground(new java.awt.Color(255, 255, 255));
 
         jLabel8.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/microsoft-sql-server-logo-png_seeklogo-2982661.jpg"))); // NOI18N
         jLabel8.setText("jLabel3");
@@ -250,54 +271,64 @@ public class V_Configuracion extends javax.swing.JPanel {
         });
 
         jButton11.setText("Escoger");
+        jButton11.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton11ActionPerformed(evt);
+            }
+        });
 
         jButton12.setText("Exportar");
+        jButton12.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton12ActionPerformed(evt);
+            }
+        });
 
         jLabel17.setForeground(new java.awt.Color(0, 0, 255));
         jLabel17.setText("Motor de Datos: [SQL Server]");
 
-        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
-        jPanel3.setLayout(jPanel3Layout);
-        jPanel3Layout.setHorizontalGroup(
-            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel3Layout.createSequentialGroup()
+        javax.swing.GroupLayout panel_sqlserverLayout = new javax.swing.GroupLayout(panel_sqlserver);
+        panel_sqlserver.setLayout(panel_sqlserverLayout);
+        panel_sqlserverLayout.setHorizontalGroup(
+            panel_sqlserverLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panel_sqlserverLayout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jLabel8, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                .addGroup(panel_sqlserverLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(panel_sqlserverLayout.createSequentialGroup()
+                        .addGroup(panel_sqlserverLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                             .addComponent(jLabel9, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(jLabel10, javax.swing.GroupLayout.DEFAULT_SIZE, 114, Short.MAX_VALUE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                        .addGroup(panel_sqlserverLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(jTextField6, javax.swing.GroupLayout.DEFAULT_SIZE, 410, Short.MAX_VALUE)
                             .addComponent(jTextField5)))
                     .addComponent(jLabel17))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(panel_sqlserverLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jButton11)
                     .addComponent(jButton9))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                .addGroup(panel_sqlserverLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(jButton10, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jButton12, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
 
-        jPanel3Layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {jButton11, jButton9});
+        panel_sqlserverLayout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {jButton11, jButton9});
 
-        jPanel3Layout.setVerticalGroup(
-            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel3Layout.createSequentialGroup()
+        panel_sqlserverLayout.setVerticalGroup(
+            panel_sqlserverLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panel_sqlserverLayout.createSequentialGroup()
                 .addGap(19, 19, 19)
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addGroup(panel_sqlserverLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel9)
                     .addComponent(jTextField5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jButton9)
                     .addComponent(jButton10))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addGroup(panel_sqlserverLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jTextField6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel10)
                     .addComponent(jButton11)
@@ -305,13 +336,13 @@ public class V_Configuracion extends javax.swing.JPanel {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel17, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 0, Short.MAX_VALUE))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panel_sqlserverLayout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jLabel8, javax.swing.GroupLayout.PREFERRED_SIZE, 86, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(31, 31, 31))
         );
 
-        jPanel4.setBackground(new java.awt.Color(255, 255, 255));
+        panel_postgres.setBackground(new java.awt.Color(255, 255, 255));
 
         jLabel11.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/postgresql-logo.jpg"))); // NOI18N
         jLabel11.setText("jLabel3");
@@ -323,8 +354,14 @@ public class V_Configuracion extends javax.swing.JPanel {
         jLabel13.setText("Ruta destino .backup:");
 
         jButton13.setText("Cargar");
+        jButton13.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton13ActionPerformed(evt);
+            }
+        });
 
         jButton14.setText("Importar");
+        jButton14.setEnabled(false);
         jButton14.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton14ActionPerformed(evt);
@@ -339,68 +376,74 @@ public class V_Configuracion extends javax.swing.JPanel {
         });
 
         jButton16.setText("Exportar");
+        jButton16.setEnabled(false);
+        jButton16.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton16ActionPerformed(evt);
+            }
+        });
 
         jLabel18.setForeground(new java.awt.Color(0, 0, 255));
         jLabel18.setText("Motor de Datos: [Postgres SQL]");
         jLabel18.setToolTipText("");
 
-        javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
-        jPanel4.setLayout(jPanel4Layout);
-        jPanel4Layout.setHorizontalGroup(
-            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel4Layout.createSequentialGroup()
+        javax.swing.GroupLayout panel_postgresLayout = new javax.swing.GroupLayout(panel_postgres);
+        panel_postgres.setLayout(panel_postgresLayout);
+        panel_postgresLayout.setHorizontalGroup(
+            panel_postgresLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panel_postgresLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jLabel11, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(jPanel4Layout.createSequentialGroup()
-                        .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                .addGroup(panel_postgresLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(panel_postgresLayout.createSequentialGroup()
+                        .addGroup(panel_postgresLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(jLabel13)
                             .addComponent(jLabel12))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                        .addGroup(panel_postgresLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(jTextField8, javax.swing.GroupLayout.DEFAULT_SIZE, 410, Short.MAX_VALUE)
                             .addComponent(jTextField7)))
                     .addComponent(jLabel18))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(panel_postgresLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jButton15)
                     .addComponent(jButton13))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                .addGroup(panel_postgresLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(jButton16, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jButton14, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        jPanel4Layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {jButton13, jButton15});
+        panel_postgresLayout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {jButton13, jButton15});
 
-        jPanel4Layout.setVerticalGroup(
-            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel4Layout.createSequentialGroup()
-                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel4Layout.createSequentialGroup()
+        panel_postgresLayout.setVerticalGroup(
+            panel_postgresLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panel_postgresLayout.createSequentialGroup()
+                .addGroup(panel_postgresLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, panel_postgresLayout.createSequentialGroup()
                         .addGap(19, 19, 19)
-                        .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addGroup(panel_postgresLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel12, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jTextField7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jButton13)
                             .addComponent(jButton14))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addGroup(panel_postgresLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jTextField8, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jLabel13)
                             .addComponent(jButton15)
                             .addComponent(jButton16))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jLabel18, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addGroup(jPanel4Layout.createSequentialGroup()
+                    .addGroup(panel_postgresLayout.createSequentialGroup()
                         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(jLabel11)))
                 .addGap(17, 17, 17))
         );
 
-        jPanel6.setBackground(new java.awt.Color(255, 255, 255));
+        panel_h2.setBackground(new java.awt.Color(255, 255, 255));
 
         jLabel15.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/h2.jpg"))); // NOI18N
         jLabel15.setText("jLabel3");
@@ -449,54 +492,54 @@ public class V_Configuracion extends javax.swing.JPanel {
         jLabel23.setText("Motor de Datos: [H2 version 3]");
         jLabel23.setToolTipText("");
 
-        javax.swing.GroupLayout jPanel6Layout = new javax.swing.GroupLayout(jPanel6);
-        jPanel6.setLayout(jPanel6Layout);
-        jPanel6Layout.setHorizontalGroup(
-            jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel6Layout.createSequentialGroup()
+        javax.swing.GroupLayout panel_h2Layout = new javax.swing.GroupLayout(panel_h2);
+        panel_h2.setLayout(panel_h2Layout);
+        panel_h2Layout.setHorizontalGroup(
+            panel_h2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panel_h2Layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jLabel15, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(jPanel6Layout.createSequentialGroup()
-                        .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                .addGroup(panel_h2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(panel_h2Layout.createSequentialGroup()
+                        .addGroup(panel_h2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                             .addComponent(jLabel21, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(jLabel22, javax.swing.GroupLayout.DEFAULT_SIZE, 106, Short.MAX_VALUE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                        .addGroup(panel_h2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(jTextField10, javax.swing.GroupLayout.DEFAULT_SIZE, 410, Short.MAX_VALUE)
                             .addComponent(jTextField9)))
                     .addComponent(jLabel23))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                .addGroup(panel_h2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(jButton17, javax.swing.GroupLayout.DEFAULT_SIZE, 85, Short.MAX_VALUE)
                     .addComponent(jButton19, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                .addGroup(panel_h2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(jButton18, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jButton20, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
-        jPanel6Layout.setVerticalGroup(
-            jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel6Layout.createSequentialGroup()
-                .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel6Layout.createSequentialGroup()
+        panel_h2Layout.setVerticalGroup(
+            panel_h2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panel_h2Layout.createSequentialGroup()
+                .addGroup(panel_h2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, panel_h2Layout.createSequentialGroup()
                         .addGap(19, 19, 19)
-                        .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addGroup(panel_h2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel21)
                             .addComponent(jTextField9, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jButton17)
                             .addComponent(jButton18))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addGroup(panel_h2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jTextField10, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jLabel22)
                             .addComponent(jButton19)
                             .addComponent(jButton20))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jLabel23, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addGroup(jPanel6Layout.createSequentialGroup()
+                    .addGroup(panel_h2Layout.createSequentialGroup()
                         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(jLabel15)))
                 .addGap(17, 17, 17))
@@ -533,16 +576,16 @@ public class V_Configuracion extends javax.swing.JPanel {
                         .addGap(0, 0, Short.MAX_VALUE)
                         .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(jPanel6, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(panel_postgres, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(panel_sqlserver, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(panel_h2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel5Layout.createSequentialGroup()
                                 .addComponent(jProgressBar1, javax.swing.GroupLayout.PREFERRED_SIZE, 499, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addGap(27, 27, 27)
                                 .addComponent(lbl_estado, javax.swing.GroupLayout.PREFERRED_SIZE, 295, javax.swing.GroupLayout.PREFERRED_SIZE))))
                     .addGroup(jPanel5Layout.createSequentialGroup()
                         .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(panel_mysql, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jLabel20))
                         .addGap(0, 0, Short.MAX_VALUE))
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING))
@@ -552,13 +595,13 @@ public class V_Configuracion extends javax.swing.JPanel {
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel5Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(panel_mysql, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(panel_sqlserver, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(panel_postgres, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(panel_h2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel14, javax.swing.GroupLayout.PREFERRED_SIZE, 46, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -602,7 +645,22 @@ public class V_Configuracion extends javax.swing.JPanel {
 
     private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
 
-        
+        JFileChooser fileChooser = new JFileChooser();
+fileChooser.setDialogTitle("Selecciona un archivo de respaldo .sql");
+
+// Filtro para mostrar solo archivos .sql
+FileNameExtensionFilter filtroSQL = new FileNameExtensionFilter("Archivos de base de datos (*.sql)", "sql");
+fileChooser.setFileFilter(filtroSQL);
+
+int resultado = fileChooser.showOpenDialog(null);
+if (resultado == JFileChooser.APPROVE_OPTION) {
+    File archivoSeleccionado = fileChooser.getSelectedFile();
+    jTextField3.setText(archivoSeleccionado.getAbsolutePath()); 
+    jButton6.setEnabled(true);
+    jButton5.setEnabled(false);
+    
+}
+
         
         
         
@@ -610,7 +668,79 @@ public class V_Configuracion extends javax.swing.JPanel {
 
     private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
 
-      
+       jButton6.setEnabled(false);
+    jProgressBar1.setVisible(true);
+    lbl_estado.setVisible(true);
+    lbl_estado.setText("Iniciando restauración MySQL...");
+    jProgressBar1.setIndeterminate(true); // Estilo Marquee
+
+    long startTime = System.nanoTime();
+
+    SwingWorker<Void, Void> worker = new SwingWorker<>() {
+        boolean exito = false;
+        String mensajeFinal = "";
+
+        @Override
+        protected Void doInBackground() {
+            try {
+                String connectionString = "jdbc:mysql://192.168.10.10:3306/monitux?allowMultiQueries=true";
+                String usuario = "root";
+                String clave = "00511";
+                String rutaRespaldo = jTextField3.getText().trim();
+
+                if (!Files.exists(Paths.get(rutaRespaldo))) {
+                    JOptionPane.showMessageDialog(null, "El archivo de respaldo no existe. Verifica la ruta.", "Error", JOptionPane.ERROR_MESSAGE);
+                    return null;
+                }
+
+                // Leer el archivo SQL completo
+                String sql = Files.readString(Paths.get(rutaRespaldo));
+
+                try (Connection conn = DriverManager.getConnection(connectionString, usuario, clave);
+                     java.sql.Statement stmt = conn.createStatement()) {
+
+                    stmt.setQueryTimeout(120); // 120 segundos
+                    stmt.execute(sql);
+                    exito = true;
+                }
+
+            } catch (Exception ex) {
+                mensajeFinal = "Error al restaurar la base de datos:\n" + ex.getMessage();
+                ex.printStackTrace();
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void done() {
+            double segundos = (System.nanoTime() - startTime) / 1_000_000_000.0;
+
+            jProgressBar1.setIndeterminate(false);
+            jProgressBar1.setValue(100);
+            lbl_estado.setText("Restauración MySQL completada");
+            jButton6.setEnabled(true);
+
+            if (exito) {
+                JOptionPane.showMessageDialog(null,
+                    String.format("Respaldo MySQL importado correctamente.\n\nTiempo total: %.1f segundos", segundos),
+                    "Éxito", JOptionPane.INFORMATION_MESSAGE);
+                
+                
+                        jProgressBar1.setVisible(false);
+                        JOptionPane.showMessageDialog(null, "<html>El programa se detendra para aplicar cambios.<br> Se requiere que el usuario lo abra de nuevo manualmente.</br></html>");
+                        System.exit(0);
+                
+            
+            } else {
+                JOptionPane.showMessageDialog(null,
+                    mensajeFinal + String.format("\n\nTiempo transcurrido: %.1f segundos", segundos),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    };
+
+    worker.execute();
         
     }//GEN-LAST:event_jButton6ActionPerformed
 
@@ -740,18 +870,259 @@ public class V_Configuracion extends javax.swing.JPanel {
     }//GEN-LAST:event_jButton17ActionPerformed
 
     private void jButton9ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton9ActionPerformed
+
+        
+        JFileChooser fileChooser = new JFileChooser();
+FileNameExtensionFilter filtro = new FileNameExtensionFilter("Archivos de base de datos (*.bak)", "bak");
+fileChooser.setFileFilter(filtro);
+fileChooser.setDialogTitle("Selecciona un archivo de respaldo .bak");
+
+int resultado = fileChooser.showOpenDialog(null);
+if (resultado == JFileChooser.APPROVE_OPTION) {
+    File archivoSeleccionado = fileChooser.getSelectedFile();
+    jTextField5.setText(archivoSeleccionado.getAbsolutePath());
+    jButton9.setEnabled(false);
+    jButton10.setEnabled(true);
+}
+
+
         // TODO add your handling code here:
     }//GEN-LAST:event_jButton9ActionPerformed
 
     private void jButton10ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton10ActionPerformed
-        // TODO add your handling code here:
+
+    //jButton9.setEnabled(true);
+    jButton10.setEnabled(false);
+
+    jProgressBar1.setVisible(true);
+    lbl_estado.setVisible(true);
+    lbl_estado.setText("Iniciando restauración SQL Server...");
+    jProgressBar1.setIndeterminate(true);
+
+    long startTime = System.nanoTime();
+
+    SwingWorker<Void, Void> worker = new SwingWorker<>() {
+        @Override
+        protected Void doInBackground() {
+            String rutaRespaldoSQL = jTextField5.getText().trim(); // Ruta del archivo .bak
+            String nombreBaseDatos = "monitux";
+
+            if (!new File(rutaRespaldoSQL).exists()) {
+                SwingUtilities.invokeLater(() -> {
+                    JOptionPane.showMessageDialog(null, "El archivo de respaldo no existe. Verifica la ruta.", "Error", JOptionPane.ERROR_MESSAGE);
+                });
+                return null;
+            }
+
+            String comando = String.format("""
+                USE master;
+                ALTER DATABASE [%s] SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+                RESTORE DATABASE [%s] FROM DISK = N'%s' WITH REPLACE;
+                ALTER DATABASE [%s] SET MULTI_USER;
+                """, nombreBaseDatos, nombreBaseDatos, rutaRespaldoSQL, nombreBaseDatos);
+
+            try (Connection conn = DriverManager.getConnection(
+                     "jdbc:sqlserver://DESKTOP-N4UCDLP\\SQLEXPRESS:1433;databaseName=monitux;encrypt=false",
+                     "sa",
+                     "00511");
+                 java.sql.Statement stmt = conn.createStatement()) {
+
+                stmt.setQueryTimeout(120); // ⏱️ Tiempo máximo de espera en segundos
+                stmt.execute(comando);
+
+                double segundos = (System.nanoTime() - startTime) / 1_000_000_000.0;
+
+                SwingUtilities.invokeLater(() -> {
+                    JOptionPane.showMessageDialog(null,
+                        String.format("Restauración SQL Server completada correctamente.\n\nTiempo total: %.1f segundos", segundos),
+                        "Éxito", JOptionPane.INFORMATION_MESSAGE);
+                   
+                    jProgressBar1.setVisible(false);
+                     JOptionPane.showMessageDialog(null, "<html>El programa se detendra para aplicar cambios.<br> Se requiere que el usuario lo abra de nuevo manualmente.</br></html>");
+                        System.exit(0);
+                    
+                    
+                });
+
+            } catch (Exception ex) {
+                double segundos = (System.nanoTime() - startTime) / 1_000_000_000.0;
+
+                SwingUtilities.invokeLater(() -> {
+                    JOptionPane.showMessageDialog(null,
+                        String.format("Error al restaurar la base de datos:\n%s\n\nTiempo transcurrido: %.1f segundos", ex.getMessage(), segundos),
+                        "Error", JOptionPane.ERROR_MESSAGE);
+                });
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void done() {
+            jProgressBar1.setIndeterminate(false);
+            jProgressBar1.setValue(100);
+            lbl_estado.setText("Restauración SQL Server completada");
+            jButton10.setEnabled(true);
+        }
+    };
+
+    worker.execute();
+    
     }//GEN-LAST:event_jButton10ActionPerformed
 
     private void jButton14ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton14ActionPerformed
+
+        
+        
+        //****************************
+     jButton14.setEnabled(false);
+    jProgressBar1.setVisible(true);
+    lbl_estado.setVisible(true);
+    lbl_estado.setText("Iniciando restauración PostgreSQL...");
+    jProgressBar1.setIndeterminate(true);
+
+    long startTime = System.nanoTime();
+
+    SwingWorker<Void, Void> worker = new SwingWorker<>() {
+        @Override
+        protected Void doInBackground() {
+            String backupFilePath = jTextField7.getText().trim();
+            if (!new File(backupFilePath).exists()) {
+                SwingUtilities.invokeLater(() -> {
+                    JOptionPane.showMessageDialog(null, "El archivo de respaldo no existe. Verifica la ruta.", "Error", JOptionPane.ERROR_MESSAGE);
+                });
+                return null;
+            }
+
+            String os = System.getProperty("os.name").toLowerCase();
+            boolean esWindows = os.contains("win");
+
+            String pgRestorePath = esWindows ? buscarPgRestoreWindows() : "pg_restore";
+            if (pgRestorePath == null) {
+                SwingUtilities.invokeLater(() -> {
+                    JOptionPane.showMessageDialog(null,
+                        "No se encontró pg_restore en el sistema. Verifica que PostgreSQL esté instalado.",
+                        "Error", JOptionPane.ERROR_MESSAGE);
+                });
+                return null;
+            }
+
+            String dbName = "monitux";
+            String user = "miguel";
+            String host = "192.168.10.10";
+            String port = "5432";
+            String password = "00511";
+
+            Map<String, String> env = new HashMap<>(System.getenv());
+            env.put("PGPASSWORD", password);
+
+            List<String> comando = Arrays.asList(
+                pgRestorePath,
+                "-h", host,
+                "-p", port,
+                "-U", user,
+                "--clean",
+                "--if-exists",
+                "--no-owner",
+                "--role", user,
+                "-d", dbName,
+                "-v", backupFilePath
+            );
+
+            try {
+                ProcessBuilder builder = new ProcessBuilder(comando);
+                builder.environment().putAll(env);
+                builder.redirectErrorStream(true); // Combina stdout y stderr
+                Process proceso = builder.start();
+
+                BufferedReader reader = new BufferedReader(new InputStreamReader(proceso.getInputStream()));
+                StringBuilder log = new StringBuilder();
+                String linea;
+                while ((linea = reader.readLine()) != null) {
+                    log.append(linea).append("\n");
+                }
+
+                int exitCode = proceso.waitFor();
+                double segundos = (System.nanoTime() - startTime) / 1_000_000_000.0;
+
+                if (exitCode == 0) {
+                    SwingUtilities.invokeLater(() -> {
+                        JOptionPane.showMessageDialog(null,
+                            String.format("Respaldo importado correctamente.\n\nTiempo total: %.1f segundos", segundos),
+                            "Éxito", JOptionPane.INFORMATION_MESSAGE);
+                        System.exit(0);
+                    });
+                } else {
+                    SwingUtilities.invokeLater(() -> {
+                        JOptionPane.showMessageDialog(null,
+                            "Error al importar respaldo:\n" + log.toString(),
+                            "Error", JOptionPane.ERROR_MESSAGE);
+                    });
+                }
+
+            } catch (Exception ex) {
+                double segundos = (System.nanoTime() - startTime) / 1_000_000_000.0;
+                SwingUtilities.invokeLater(() -> {
+                    JOptionPane.showMessageDialog(null,
+                        String.format("Excepción: %s\n\nTiempo transcurrido: %.1f segundos", ex.getMessage(), segundos),
+                        "Error", JOptionPane.ERROR_MESSAGE);
+                });
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void done() {
+            jProgressBar1.setIndeterminate(false);
+            jProgressBar1.setValue(100);
+            lbl_estado.setText("Restauración PostgreSQL completada");
+            jButton14.setEnabled(true);
+        }
+    };
+
+    worker.execute();
+        //****************************
+
         // TODO add your handling code here:
     }//GEN-LAST:event_jButton14ActionPerformed
 
+  private String buscarPgRestoreWindows() {
+    File raiz = new File("C:\\Program Files\\PostgreSQL");
+    if (!raiz.exists()) return null;
+
+    File[] versiones = raiz.listFiles(File::isDirectory);
+    if (versiones == null) return null;
+
+    for (File version : versiones) {
+        File bin = new File(version, "bin");
+        File exe = new File(bin, "pg_restore.exe");
+        if (exe.exists()) return exe.getAbsolutePath();
+    }
+
+    return null;
+}
+
+    
     private void jButton15ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton15ActionPerformed
+
+
+        JFileChooser folderChooser = new JFileChooser();
+folderChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+folderChooser.setDialogTitle("Selecciona una carpeta");
+
+int resultado = folderChooser.showOpenDialog(null);
+if (resultado == JFileChooser.APPROVE_OPTION) {
+    File carpetaSeleccionada = folderChooser.getSelectedFile();
+    if (carpetaSeleccionada != null && !carpetaSeleccionada.getAbsolutePath().isEmpty()) {
+        jTextField8.setText(carpetaSeleccionada.getAbsolutePath());
+        jButton16.setEnabled(true);
+        jButton15.setEnabled(false);
+        
+    }
+}
+
+        
         // TODO add your handling code here:
     }//GEN-LAST:event_jButton15ActionPerformed
 
@@ -856,9 +1227,385 @@ if (resultado == JFileChooser.APPROVE_OPTION) {
     }//GEN-LAST:event_jButton20ActionPerformed
 
     private void jButton8ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton8ActionPerformed
-        // TODO add your handling code here:
+
+        
+        
+
+    int confirmacion = JOptionPane.showConfirmDialog(
+        null,
+        "Este proceso generará un respaldo completo de la base de datos, incluyendo imágenes.\n¿Deseas continuar?",
+        "Confirmación requerida",
+        JOptionPane.YES_NO_OPTION,
+        JOptionPane.WARNING_MESSAGE
+    );
+
+    if (confirmacion != JOptionPane.YES_OPTION) {
+        return;
+    }
+
+    jProgressBar1.setVisible(true);
+    lbl_estado.setVisible(true);
+    jButton8.setEnabled(false);
+    lbl_estado.setText("Generando respaldo MySQL...");
+    jProgressBar1.setIndeterminate(true);
+
+    long startTime = System.nanoTime();
+
+    SwingWorker<Void, Void> worker = new SwingWorker<>() {
+        boolean exito = false;
+        String mensajeFinal = "";
+
+        @Override
+        protected Void doInBackground() {
+            try {
+                String carpetaDestino = jTextField4.getText().trim();
+                if (carpetaDestino.isEmpty()) {
+                    mensajeFinal = "La ruta de respaldo está vacía.";
+                    return null;
+                }
+
+                File carpeta = new File(carpetaDestino);
+                if (!carpeta.exists() || !carpeta.isDirectory()) {
+                    mensajeFinal = "La ruta de respaldo no es válida.";
+                    return null;
+                }
+
+                String fecha = LocalDate.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy"));
+                String nombreArchivoMySQL = fecha + "-Monitux-MySQL.sql";
+                String rutaRespaldoMySQL = Paths.get(carpetaDestino, nombreArchivoMySQL).toString();
+
+                String connectionString = "jdbc:mysql://192.168.10.10:3306/monitux?allowMultiQueries=true";
+                String usuario = "root";
+                String clave = "00511";
+
+                try (Connection conn = DriverManager.getConnection(connectionString, usuario, clave);
+                     FileWriter writer = new FileWriter(new File(rutaRespaldoMySQL));
+                     java.sql.Statement stmtTablas = conn.createStatement();
+                     java.sql.Statement stmtEstructura = conn.createStatement();
+                     java.sql.Statement stmtDatos = conn.createStatement()) {
+
+                    stmtTablas.setQueryTimeout(60);
+                    stmtEstructura.setQueryTimeout(60);
+                    stmtDatos.setQueryTimeout(60);
+
+                    ResultSet rs = stmtTablas.executeQuery("SHOW TABLES");
+                    while (rs.next()) {
+                        String tabla = rs.getString(1);
+
+                        writer.write("DROP TABLE IF EXISTS " + tabla + ";\n");
+
+                        try (ResultSet estructura = stmtEstructura.executeQuery("SHOW CREATE TABLE " + tabla)) {
+                            if (estructura.next()) {
+                                writer.write(estructura.getString(2) + ";\n\n");
+                            }
+                        }
+
+                        try (ResultSet datos = stmtDatos.executeQuery("SELECT * FROM " + tabla)) {
+                            ResultSetMetaData meta = datos.getMetaData();
+                            int columnas = meta.getColumnCount();
+
+                            while (datos.next()) {
+                                StringBuilder insert = new StringBuilder("INSERT INTO " + tabla + " VALUES (");
+                                for (int i = 1; i <= columnas; i++) {
+                                    Object valor = datos.getObject(i);
+                                    if (valor == null) {
+                                        insert.append("NULL");
+                                    } else if (valor instanceof Boolean) {
+                                        insert.append((Boolean) valor ? "1" : "0");
+                                    } else if (valor instanceof byte[]) {
+                                        byte[] binario = (byte[]) valor;
+                                        insert.append("0x");
+                                        for (byte b : binario) {
+                                            insert.append(String.format("%02X", b));
+                                        }
+                                    } else {
+                                        insert.append("'").append(valor.toString().replace("'", "''")).append("'");
+                                    }
+                                    if (i < columnas) insert.append(", ");
+                                }
+                                insert.append(");\n");
+                                writer.write(insert.toString());
+                            }
+                        }
+
+                        writer.write("\n");
+                    }
+
+                    exito = true;
+
+                }
+
+            } catch (Exception ex) {
+                mensajeFinal = "Error al crear el respaldo:\n" + ex.getMessage();
+                ex.printStackTrace();
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void done() {
+            double segundos = (System.nanoTime() - startTime) / 1_000_000_000.0;
+
+            jProgressBar1.setIndeterminate(false);
+            jProgressBar1.setValue(100);
+            lbl_estado.setText("Respaldo MySQL completado ✅");
+            jButton8.setEnabled(true);
+
+            if (exito) {
+                String rutaFinal = Paths.get(jTextField4.getText().trim(), LocalDate.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy")) + "-Monitux-MySQL.sql").toString();
+                JOptionPane.showMessageDialog(
+                    null,
+                    String.format("Respaldo MySQL creado correctamente en:\n%s\n\nTiempo total: %.1f segundos", rutaFinal, segundos),
+                    "Éxito",
+                    JOptionPane.INFORMATION_MESSAGE
+                );
+            } else {
+                JOptionPane.showMessageDialog(
+                    null,
+                    mensajeFinal + String.format("\n\nTiempo transcurrido: %.1f segundos", segundos),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE
+                );
+            }
+        }
+    };
+
+    worker.execute();
+
+
+    
     }//GEN-LAST:event_jButton8ActionPerformed
 
+    private void jButton7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton7ActionPerformed
+
+
+        jButton7.setEnabled(false);
+        jButton8.setEnabled(true);
+        
+JFileChooser folderChooser = new JFileChooser();
+folderChooser.setDialogTitle("Selecciona una carpeta");
+folderChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+
+int resultado = folderChooser.showOpenDialog(null);
+if (resultado == JFileChooser.APPROVE_OPTION) {
+    File carpetaSeleccionada = folderChooser.getSelectedFile();
+    if (carpetaSeleccionada != null && carpetaSeleccionada.exists()) {
+        jTextField4.setText(carpetaSeleccionada.getAbsolutePath()); 
+    }
+}
+        
+        
+
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButton7ActionPerformed
+
+    private void jButton11ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton11ActionPerformed
+
+        JFileChooser folderChooser = new JFileChooser();
+folderChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+folderChooser.setDialogTitle("Selecciona una carpeta");
+
+int resultado = folderChooser.showOpenDialog(null);
+if (resultado == JFileChooser.APPROVE_OPTION) {
+    File carpetaSeleccionada = folderChooser.getSelectedFile();
+    if (carpetaSeleccionada != null && !carpetaSeleccionada.getAbsolutePath().isEmpty()) {
+        jTextField6.setText(carpetaSeleccionada.getAbsolutePath());
+    }
+}
+
+
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButton11ActionPerformed
+
+    private void jButton12ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton12ActionPerformed
+
+        jButton12.setEnabled(false);
+    jProgressBar1.setVisible(true);
+    lbl_estado.setVisible(true);
+    lbl_estado.setText("Iniciando respaldo SQL Server...");
+    jProgressBar1.setIndeterminate(true);
+
+    long startTime = System.nanoTime();
+
+    SwingWorker<Void, Void> worker = new SwingWorker<>() {
+        @Override
+        protected Void doInBackground() {
+            String nombreArchivoSQL = LocalDate.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy")) + "-Monitux-SQLServer.bak";
+            String rutaRespaldoSQL = Paths.get(jTextField6.getText().trim(), nombreArchivoSQL).toString();
+            String comando = String.format("BACKUP DATABASE [monitux] TO DISK = N'%s' WITH INIT;", rutaRespaldoSQL);
+
+            try (Connection conn = DriverManager.getConnection(
+                     "jdbc:sqlserver://DESKTOP-N4UCDLP\\SQLEXPRESS:1433;databaseName=monitux;encrypt=false",
+                     "sa",
+                     "00511");
+                 java.sql.Statement stmt = conn.createStatement()) {
+
+                stmt.setQueryTimeout(60); // ⏱️ Tiempo máximo de espera en segundos
+                stmt.execute(comando);
+
+                double segundos = (System.nanoTime() - startTime) / 1_000_000_000.0;
+
+                SwingUtilities.invokeLater(() -> {
+                    JOptionPane.showMessageDialog(null,
+                        String.format("Respaldo SQL Server creado correctamente en:\n%s\n\nTiempo total: %.1f segundos", rutaRespaldoSQL, segundos),
+                        "Éxito", JOptionPane.INFORMATION_MESSAGE);
+                });
+
+            } catch (Exception ex) {
+                double segundos = (System.nanoTime() - startTime) / 1_000_000_000.0;
+
+                SwingUtilities.invokeLater(() -> {
+                    JOptionPane.showMessageDialog(null,
+                        String.format("Error al crear el respaldo:\n%s\n\nTiempo transcurrido: %.1f segundos", ex.getMessage(), segundos),
+                        "Error", JOptionPane.ERROR_MESSAGE);
+                });
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void done() {
+            jProgressBar1.setIndeterminate(false);
+            jProgressBar1.setValue(100);
+            lbl_estado.setText("Respaldo SQL Server completado");
+            jButton12.setEnabled(true);
+        }
+    };
+
+    worker.execute();
+
+
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButton12ActionPerformed
+
+    private void jButton13ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton13ActionPerformed
+
+
+JFileChooser fileChooser = new JFileChooser();
+FileNameExtensionFilter filtro = new FileNameExtensionFilter("Archivos de base de datos (*.backup)", "backup");
+fileChooser.setFileFilter(filtro);
+fileChooser.setDialogTitle("Selecciona un archivo de respaldo .backup");
+
+int resultado = fileChooser.showOpenDialog(null);
+if (resultado == JFileChooser.APPROVE_OPTION) {
+    File archivoSeleccionado = fileChooser.getSelectedFile();
+    if (archivoSeleccionado != null) {
+        jTextField7.setText(archivoSeleccionado.getAbsolutePath());
+        jButton13.setEnabled(false);
+jButton14.setEnabled(true);
+    }
+}
+
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButton13ActionPerformed
+
+    private void jButton16ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton16ActionPerformed
+
+//**********************
+
+generarRespaldoPostgres();
+//***********************
+
+
+
+
+
+
+
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButton16ActionPerformed
+
+    
+    
+    private String buscarPgDumpWindows() {
+    File raiz = new File("C:\\Program Files\\PostgreSQL");
+    if (!raiz.exists()) return null;
+
+    File[] versiones = raiz.listFiles(File::isDirectory);
+    if (versiones == null) return null;
+
+    for (File version : versiones) {
+        File bin = new File(version, "bin");
+        File exe = new File(bin, "pg_dump.exe");
+        if (exe.exists()) return exe.getAbsolutePath();
+    }
+
+    return null;
+}
+
+    
+private void generarRespaldoPostgres() {
+    String os = System.getProperty("os.name").toLowerCase();
+    boolean esWindows = os.contains("win");
+
+    String pgDumpPath = esWindows ? buscarPgDumpWindows() : "pg_dump";
+    if (pgDumpPath == null) {
+        JOptionPane.showMessageDialog(null,
+            "No se encontró pg_dump en el sistema. Verifica que PostgreSQL esté instalado.",
+            "Error", JOptionPane.ERROR_MESSAGE);
+        return;
+    }
+
+    String backupDirPath = jTextField8.getText()+"\\";
+    File backupDir = new File(backupDirPath);
+    if (!backupDir.exists()) backupDir.mkdirs();
+
+    String dbName = "monitux";
+    String user = "miguel";
+    String host = "192.168.10.10";
+    String port = "5432";
+    String password = "00511";
+
+    String fecha = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+    String backupFile = backupDirPath + dbName + "_" + fecha + ".backup";
+
+    List<String> comando = Arrays.asList(
+        pgDumpPath,
+        "-h", host,
+        "-p", port,
+        "-U", user,
+        "-F", "c",          // Formato personalizado
+        "-b",               // Incluir blobs
+        "-v",               // Verbose
+        "-f", backupFile,
+        dbName
+    );
+
+    try {
+        ProcessBuilder builder = new ProcessBuilder(comando);
+        builder.environment().put("PGPASSWORD", password);
+        builder.redirectErrorStream(true);
+        Process proceso = builder.start();
+
+        BufferedReader reader = new BufferedReader(new InputStreamReader(proceso.getInputStream()));
+        StringBuilder log = new StringBuilder();
+        String linea;
+        while ((linea = reader.readLine()) != null) {
+            log.append(linea).append("\n");
+        }
+
+        int exitCode = proceso.waitFor();
+        if (exitCode == 0) {
+            JOptionPane.showMessageDialog(null,
+                "Respaldo generado correctamente:\n" + backupFile,
+                "Éxito", JOptionPane.INFORMATION_MESSAGE);
+        } else {
+            JOptionPane.showMessageDialog(null,
+                "Error al generar respaldo:\n" + log.toString(),
+                "Error", JOptionPane.ERROR_MESSAGE);
+        }
+
+    } catch (Exception ex) {
+        JOptionPane.showMessageDialog(null,
+            "Excepción: " + ex.getMessage(),
+            "Error", JOptionPane.ERROR_MESSAGE);
+    }
+}
+
+    
+    
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton10;
@@ -897,11 +1644,7 @@ if (resultado == JFileChooser.APPROVE_OPTION) {
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
-    private javax.swing.JPanel jPanel2;
-    private javax.swing.JPanel jPanel3;
-    private javax.swing.JPanel jPanel4;
     private javax.swing.JPanel jPanel5;
-    private javax.swing.JPanel jPanel6;
     private javax.swing.JProgressBar jProgressBar1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTextArea jTextArea1;
@@ -914,5 +1657,9 @@ if (resultado == JFileChooser.APPROVE_OPTION) {
     private javax.swing.JTextField jTextField8;
     private javax.swing.JTextField jTextField9;
     private javax.swing.JLabel lbl_estado;
+    private javax.swing.JPanel panel_h2;
+    private javax.swing.JPanel panel_mysql;
+    private javax.swing.JPanel panel_postgres;
+    private javax.swing.JPanel panel_sqlserver;
     // End of variables declaration//GEN-END:variables
 }
