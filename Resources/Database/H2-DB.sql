@@ -237,3 +237,75 @@ CREATE TABLE "ventas_detalles" (
   "Tipo" VARCHAR(50),
   "Secuencial_Empresa" INT
 );
+
+CREATE TABLE IF NOT EXISTS "cuentas_cobrar" (
+    "Secuencial" INT AUTO_INCREMENT PRIMARY KEY,
+    "Secuencial_Factura" INT,
+    "Secuencial_Cliente" INT,
+    "Secuencial_Usuario" INT,
+    "Fecha" VARCHAR(25),
+    "Fecha_Vencimiento" VARCHAR(25),
+    "Total" DOUBLE,
+    "Saldo" DOUBLE,
+    "Pagado" DOUBLE,
+    "Descuento" DOUBLE,
+    "Impuesto" DOUBLE,
+    "Otros_Cargos" DOUBLE,
+    "Gran_Total" DOUBLE,
+    "Secuencial_Empresa" INT
+);
+
+CREATE TABLE IF NOT EXISTS "cuentas_pagar" (
+    "Secuencial" INT AUTO_INCREMENT PRIMARY KEY,
+    "Secuencial_Factura" INT,
+    "Secuencial_Proveedor" INT,
+    "Secuencial_Usuario" INT,
+    "Fecha" VARCHAR(25),
+    "Fecha_Vencimiento" VARCHAR(25),
+    "Total" DOUBLE,
+    "Saldo" DOUBLE,
+    "Pagado" DOUBLE,
+    "Otros_Cargos" DOUBLE,
+    "Descuento" DOUBLE,
+    "Impuesto" DOUBLE,
+    "Gran_Total" DOUBLE,
+    "Secuencial_Empresa" INT
+);
+
+CREATE TABLE IF NOT EXISTS "empresas" (
+    "Secuencial" INT AUTO_INCREMENT PRIMARY KEY,
+    "Nombre" VARCHAR(255),
+    "Direccion" VARCHAR(255),
+    "Telefono" VARCHAR(50),
+    "Email" VARCHAR(100),
+    "Moneda" VARCHAR(10),
+    "ISV" DOUBLE,
+    "Activa" BOOLEAN,
+    "Imagen" BLOB,
+    "Secuencial_Usuario" INT,
+    "RSS" TEXT
+);
+
+CREATE TABLE IF NOT EXISTS "ingresos" (
+    "Secuencial" INT AUTO_INCREMENT PRIMARY KEY,
+    "Secuencial_Factura" INT,
+    "Secuencial_Usuario" INT NOT NULL,
+    "Fecha" VARCHAR(25) NOT NULL,
+    "Tipo_Ingreso" VARCHAR(20) NOT NULL,
+    "Total" DOUBLE NOT NULL,
+    "Descripcion" VARCHAR(255) NOT NULL,
+    "Secuencial_Empresa" INT NOT NULL
+);
+
+
+CREATE TABLE IF NOT EXISTS "egresos" (
+    "Secuencial" INT AUTO_INCREMENT PRIMARY KEY,
+    "Secuencial_Factura" INT,
+    "Secuencial_Usuario" INT NOT NULL,
+    "Fecha" VARCHAR(25) NOT NULL,
+    "Tipo_Egreso" VARCHAR(20) NOT NULL,
+    "Total" DOUBLE NOT NULL,
+    "Descripcion" VARCHAR(255) NOT NULL,
+    "Secuencial_Empresa" INT NOT NULL
+);
+
