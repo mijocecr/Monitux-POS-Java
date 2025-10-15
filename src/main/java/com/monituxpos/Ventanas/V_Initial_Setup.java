@@ -33,6 +33,8 @@ public class V_Initial_Setup extends javax.swing.JFrame {
         this.getContentPane().setBackground(new Color(35,32,45));
         this.setLocationRelativeTo(null);
         this.setTitle("Configuración Inicial - Primer Arranque");
+        
+        
     }
 
     /**
@@ -74,6 +76,11 @@ public class V_Initial_Setup extends javax.swing.JFrame {
         setBackground(new java.awt.Color(35, 32, 45));
         setResizable(false);
         setType(java.awt.Window.Type.UTILITY);
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowOpened(java.awt.event.WindowEvent evt) {
+                formWindowOpened(evt);
+            }
+        });
 
         jPanel1.setBackground(new java.awt.Color(35, 32, 45));
 
@@ -220,7 +227,6 @@ public class V_Initial_Setup extends javax.swing.JFrame {
                                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                                 .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE))
                                             .addGroup(jPanel2Layout.createSequentialGroup()
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                                 .addComponent(jLabel13)
                                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                                 .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, 137, javax.swing.GroupLayout.PREFERRED_SIZE)))
@@ -589,6 +595,17 @@ if (!cadena.isEmpty()) {
         
 // TODO add your handling code here:
     }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
+      
+
+if (!AppSettings.getAjustes_Creados()){
+
+AppSettings.setPropiedades_Default();
+}        
+
+// TODO add your handling code here:
+    }//GEN-LAST:event_formWindowOpened
 
     
 private String construirCadenaSQLServer(String servidor, String usuario, String contraseña) {

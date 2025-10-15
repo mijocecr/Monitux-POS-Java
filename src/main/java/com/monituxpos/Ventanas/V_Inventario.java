@@ -550,7 +550,6 @@ public class V_Inventario extends javax.swing.JPanel {
         jComboBox4.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Entrada", "Salida" }));
 
         jButton11.setBackground(new java.awt.Color(0, 255, 51));
-        jButton11.setForeground(new java.awt.Color(0, 0, 0));
         jButton11.setText("Ejecutar");
         jButton11.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -587,7 +586,7 @@ public class V_Inventario extends javax.swing.JPanel {
                     .addComponent(jComboBox4, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jButton11)
-                .addContainerGap(8, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -615,7 +614,7 @@ public class V_Inventario extends javax.swing.JPanel {
 
         jLabel8.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/arrow_refresh.png"))); // NOI18N
         jLabel8.setToolTipText("Refrescar Datos.");
-        jLabel8.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        jLabel8.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         jLabel8.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 jLabel8MouseClicked(evt);
@@ -647,7 +646,7 @@ public class V_Inventario extends javax.swing.JPanel {
             }
         ));
         lista_tabla.setToolTipText("Doble Click Para Ver el Producto.");
-        lista_tabla.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        lista_tabla.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         lista_tabla.setVisible(false);
         jScrollPane2.setViewportView(lista_tabla);
 
@@ -665,6 +664,7 @@ public class V_Inventario extends javax.swing.JPanel {
 
             }
         ));
+        kardex_tabla.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         jScrollPane3.setViewportView(kardex_tabla);
 
         add(jScrollPane3);
@@ -949,10 +949,7 @@ public class V_Inventario extends javax.swing.JPanel {
     }.execute();
 }
 
-    
-    
-    
-  public void Modo_Cuadricula() {
+    public void Modo_Cuadricula() {
     try {
         jLabel14.setVisible(false);
         jLabel9.setText("Modo: Cuadricula");
@@ -993,14 +990,15 @@ public class V_Inventario extends javax.swing.JPanel {
                     if (em != null && em.isOpen()) {
                         cargarItems_Cuadricula(Secuencial_Empresa, contenedor);
                     }
-                } catch (Exception ignored) {
-                    // Error silenciado
+                } catch (Exception e) {
+                    JOptionPane.showMessageDialog(null, "❌ Error en modo cuadricula: " + e.getMessage());
+                    e.printStackTrace();
                 } finally {
                     if (em != null && em.isOpen()) {
                         try {
                             em.close();
                         } catch (Exception ignored) {
-                            // Error al cerrar silenciado
+                            // Silenciado
                         }
                     }
                 }
@@ -1015,10 +1013,81 @@ public class V_Inventario extends javax.swing.JPanel {
             }
         }.execute();
 
-    } catch (Exception ignored) {
-        // Error silenciado
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(null, "❌ Error general en Modo_Cuadricula: " + e.getMessage());
+        e.printStackTrace();
     }
 }
+
+    
+    
+//  public void Modo_Cuadricula() {
+//    try {
+//        jLabel14.setVisible(false);
+//        jLabel9.setText("Modo: Cuadricula");
+//
+//        jScrollPane2.setVisible(false);
+//        lista_tabla.setVisible(false);
+//        jScrollPane3.setVisible(false);
+//        jScrollPane1.setVisible(true);
+//
+//        jLabel6.setVisible(true);
+//        jLabel7.setVisible(true);
+//        contenedor.setVisible(true);
+//        kardex_tabla.setVisible(false);
+//
+//        Modo = "Cuadricula";
+//
+//        jComboBox3.removeAllItems();
+//        jComboBox3.addItem("Codigo");
+//        jComboBox3.addItem("Codigo_Barra");
+//        jComboBox3.addItem("Codigo_Fabricante");
+//        jComboBox3.addItem("Descripcion");
+//        jComboBox3.addItem("Fecha_Caducidad");
+//        jComboBox3.addItem("Marca");
+//        jComboBox3.setSelectedIndex(0);
+//
+//        jButton5.setVisible(true);
+//        jPanel1.setVisible(true);
+//        jPanel2.setVisible(false);
+//
+//        icono_carga.setVisible(true);
+//
+//        new SwingWorker<Void, Void>() {
+//            @Override
+//            protected Void doInBackground() {
+//                EntityManager em = null;
+//                try {
+//                    em = MonituxDBContext.getEntityManager();
+//                    if (em != null && em.isOpen()) {
+//                        cargarItems_Cuadricula(Secuencial_Empresa, contenedor);
+//                    }
+//                } catch (Exception ignored) {
+//                    // Error silenciado
+//                } finally {
+//                    if (em != null && em.isOpen()) {
+//                        try {
+//                            em.close();
+//                        } catch (Exception ignored) {
+//                            // Error al cerrar silenciado
+//                        }
+//                    }
+//                }
+//                return null;
+//            }
+//
+//            @Override
+//            protected void done() {
+//                icono_carga.setVisible(false);
+//                contenedor.revalidate();
+//                contenedor.repaint();
+//            }
+//        }.execute();
+//
+//    } catch (Exception ignored) {
+//        // Error silenciado
+//    }
+//}
 
     
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
@@ -1029,7 +1098,8 @@ public class V_Inventario extends javax.swing.JPanel {
         // TODO add your handling code here:
     }//GEN-LAST:event_jButton2ActionPerformed
 
-public void Modo_Lista() {
+    
+    public void Modo_Lista() {
     try {
         jLabel14.setVisible(true);
         jLabel9.setText("Modo: Lista");
@@ -1064,22 +1134,13 @@ public void Modo_Lista() {
         new SwingWorker<Void, Void>() {
             @Override
             protected Void doInBackground() {
-                EntityManager em = null;
                 try {
-                    em = MonituxDBContext.getEntityManager();
-                    if (em != null && em.isOpen()) {
-                        cargar_Items_Lista(Secuencial_Empresa, lista_tabla);
-                    }
-                } catch (Exception ignored) {
-                    // Error silenciado
-                } finally {
-                    if (em != null && em.isOpen()) {
-                        try {
-                            em.close();
-                        } catch (Exception ignored) {
-                            // Error al cerrar silenciado
-                        }
-                    }
+                    cargar_Items_Lista(Secuencial_Empresa, lista_tabla); // EM gestionado internamente
+                } catch (Exception e) {
+                    JOptionPane.showMessageDialog(lista_tabla,
+                        "Error al cargar lista: " + e.getMessage(),
+                        "Error", JOptionPane.ERROR_MESSAGE);
+                    e.printStackTrace();
                 }
                 return null;
             }
@@ -1092,11 +1153,84 @@ public void Modo_Lista() {
             }
         }.execute();
 
-    } catch (Exception ignored) {
-        // Error silenciado
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(null,
+            "Error general en Modo_Lista: " + e.getMessage(),
+            "Error", JOptionPane.ERROR_MESSAGE);
+        e.printStackTrace();
     }
 }
-  
+
+    
+    
+//public void Modo_Lista() {
+//    try {
+//        jLabel14.setVisible(true);
+//        jLabel9.setText("Modo: Lista");
+//
+//        contenedor.setVisible(false);
+//        kardex_tabla.setVisible(false);
+//        jScrollPane3.setVisible(false);
+//        jScrollPane2.setVisible(true);
+//        jScrollPane1.setVisible(false);
+//        lista_tabla.setVisible(true);
+//
+//        jLabel6.setVisible(true);
+//        jLabel7.setVisible(true);
+//
+//        Modo = "Lista";
+//
+//        jComboBox3.removeAllItems();
+//        jComboBox3.addItem("Codigo");
+//        jComboBox3.addItem("Codigo_Barra");
+//        jComboBox3.addItem("Codigo_Fabricante");
+//        jComboBox3.addItem("Descripcion");
+//        jComboBox3.addItem("Fecha_Caducidad");
+//        jComboBox3.addItem("Marca");
+//        jComboBox3.setSelectedIndex(0);
+//
+//        jButton5.setVisible(true);
+//        jPanel1.setVisible(true);
+//        jPanel2.setVisible(false);
+//
+//        icono_carga.setVisible(true);
+//
+//        new SwingWorker<Void, Void>() {
+//            @Override
+//            protected Void doInBackground() {
+//                EntityManager em = null;
+//                try {
+//                    em = MonituxDBContext.getEntityManager();
+//                    if (em != null && em.isOpen()) {
+//                        cargar_Items_Lista(Secuencial_Empresa, lista_tabla);
+//                    }
+//                } catch (Exception ignored) {
+//                    // Error silenciado
+//                } finally {
+//                    if (em != null && em.isOpen()) {
+//                        try {
+//                            em.close();
+//                        } catch (Exception ignored) {
+//                            // Error al cerrar silenciado
+//                        }
+//                    }
+//                }
+//                return null;
+//            }
+//
+//            @Override
+//            protected void done() {
+//                icono_carga.setVisible(false);
+//                lista_tabla.revalidate();
+//                lista_tabla.repaint();
+//            }
+//        }.execute();
+//
+//    } catch (Exception ignored) {
+//        // Error silenciado
+//    }
+//}
+//  
     
     
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
@@ -3089,18 +3223,15 @@ icono_carga.setVisible(true);
         // TODO add your handling code here:
     }//GEN-LAST:event_jLabel14MouseClicked
 
-    
-    
- public void cargarItems_Cuadricula(int secuencialEmpresa, JPanel contenedor) {
+    public void cargarItems_Cuadricula(int secuencialEmpresa, JPanel contenedor) {
     icono_carga.setVisible(true);
     contenedor.setLayout(new GridBagLayout());
     contenedor.removeAll();
 
     new SwingWorker<List<Producto>, Void>() {
-        EntityManager em = null;
-
         @Override
         protected List<Producto> doInBackground() {
+            EntityManager em = null;
             try {
                 em = MonituxDBContext.getEntityManager();
                 if (em == null || !em.isOpen()) {
@@ -3118,6 +3249,14 @@ icono_carga.setVisible(true);
                     "Error", JOptionPane.ERROR_MESSAGE);
                 ex.printStackTrace();
                 return Collections.emptyList();
+            } finally {
+                if (em != null && em.isOpen()) {
+                    try {
+                        em.close();
+                    } catch (Exception ignored) {
+                        // Silenciado
+                    }
+                }
             }
         }
 
@@ -3196,14 +3335,126 @@ icono_carga.setVisible(true);
                     "Error", JOptionPane.ERROR_MESSAGE);
                 ex.printStackTrace();
             } finally {
-                if (em != null && em.isOpen()) {
-                    em.close();
-                }
                 icono_carga.setVisible(false);
             }
         }
     }.execute();
 }
+
+    
+// public void cargarItems_Cuadricula(int secuencialEmpresa, JPanel contenedor) {
+//    icono_carga.setVisible(true);
+//    contenedor.setLayout(new GridBagLayout());
+//    contenedor.removeAll();
+//
+//    new SwingWorker<List<Producto>, Void>() {
+//        EntityManager em = null;
+//
+//        @Override
+//        protected List<Producto> doInBackground() {
+//            try {
+//                em = MonituxDBContext.getEntityManager();
+//                if (em == null || !em.isOpen()) {
+//                    throw new IllegalStateException("EntityManager no disponible.");
+//                }
+//
+//                return em.createQuery(
+//                    "SELECT p FROM Producto p WHERE p.Secuencial_Empresa = :empresa", Producto.class)
+//                    .setParameter("empresa", secuencialEmpresa)
+//                    .getResultList();
+//
+//            } catch (Exception ex) {
+//                JOptionPane.showMessageDialog(contenedor,
+//                    "Error al consultar productos: " + ex.getMessage(),
+//                    "Error", JOptionPane.ERROR_MESSAGE);
+//                ex.printStackTrace();
+//                return Collections.emptyList();
+//            }
+//        }
+//
+//        @Override
+//        protected void done() {
+//            try {
+//                List<Producto> productos = get();
+//
+//                GridBagConstraints gbc = new GridBagConstraints();
+//                gbc.insets = new Insets(5, 5, 5, 5);
+//                gbc.fill = GridBagConstraints.NONE;
+//                gbc.anchor = GridBagConstraints.NORTHWEST;
+//
+//                int col = 0, row = 0;
+//
+//                for (Producto producto : productos) {
+//                    Miniatura_Producto miniatura = new Miniatura_Producto(producto, false);
+//                    miniatura.setPreferredSize(new Dimension(120, 170));
+//
+//                    miniatura.addMouseListener(new MouseAdapter() {
+//                        @Override
+//                        public void mouseClicked(MouseEvent e) {
+//                            if (e.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(e)) {
+//                                Producto productoSeleccionado = miniatura.producto;
+//                                if (!"Servicio".equals(productoSeleccionado.getTipo())) {
+//                                    V_Kardex kardex = new V_Kardex(
+//                                        productoSeleccionado.getProducto().getSecuencial(),
+//                                        productoSeleccionado.getProducto().getCodigo()
+//                                    );
+//                                    kardex.setVisible(true);
+//                                    kardex.setLocationRelativeTo(null);
+//                                }
+//                            }
+//                        }
+//
+//                        @Override
+//                        public void mousePressed(MouseEvent e) {
+//                            if (e.isPopupTrigger()) {
+//                                menu_contextual.show(e.getComponent(), e.getX(), e.getY());
+//                            }
+//                        }
+//
+//                        @Override
+//                        public void mouseReleased(MouseEvent e) {
+//                            if (e.isPopupTrigger()) {
+//                                menu_contextual.show(e.getComponent(), e.getX(), e.getY());
+//                            }
+//                        }
+//                    });
+//
+//                    String comentario = miniatura.cargarComentario();
+//                    String descripcion = miniatura.producto.getDescripcion();
+//                    miniatura.setToolTipText(
+//                        comentario != null
+//                            ? "<html><b>" + descripcion + "</b><br>" + comentario + "</html>"
+//                            : "<html><b>" + descripcion + "</b><br></html>"
+//                    );
+//
+//                    gbc.gridx = col;
+//                    gbc.gridy = row;
+//                    contenedor.add(miniatura, gbc);
+//
+//                    col++;
+//                    if (col == 6) {
+//                        col = 0;
+//                        row++;
+//                    }
+//                }
+//
+//                contenedor.revalidate();
+//                contenedor.repaint();
+//
+//            } catch (Exception ex) {
+//                JOptionPane.showMessageDialog(contenedor,
+//                    "Error al procesar productos: " + ex.getMessage(),
+//                    "Error", JOptionPane.ERROR_MESSAGE);
+//                ex.printStackTrace();
+//            } finally {
+//                if (em != null && em.isOpen()) {
+//                    em.close();
+//                }
+//                icono_carga.setVisible(false);
+//            }
+//        }
+//    }.execute();
+//}
 
 
 //***********
@@ -4204,17 +4455,15 @@ public void Filtrar_Existencia_Minima_Cuadricula(int secuencialEmpresa, JPanel c
 
 
 
-
 public void Filtrar_Servicios_Cuadricula(int secuencialEmpresa, JPanel contenedor) {
     icono_carga.setVisible(true);
     contenedor.setLayout(new GridBagLayout());
     contenedor.removeAll();
 
     new SwingWorker<List<Producto>, Void>() {
-        EntityManager em = null;
-
         @Override
         protected List<Producto> doInBackground() {
+            EntityManager em = null;
             try {
                 em = MonituxDBContext.getEntityManager();
                 if (em == null || !em.isOpen()) {
@@ -4225,16 +4474,26 @@ public void Filtrar_Servicios_Cuadricula(int secuencialEmpresa, JPanel contenedo
                               "WHERE p.Secuencial_Empresa = :empresa " +
                               "AND p.Tipo = 'Servicio'";
 
-                TypedQuery<Producto> query = em.createQuery(jpql, Producto.class);
-                query.setParameter("empresa", secuencialEmpresa);
-                return query.getResultList();
+                return em.createQuery(jpql, Producto.class)
+                         .setParameter("empresa", secuencialEmpresa)
+                         .getResultList();
 
             } catch (Exception ex) {
-                JOptionPane.showMessageDialog(contenedor,
-                    "Error al consultar servicios: " + ex.getMessage(),
-                    "Error", JOptionPane.ERROR_MESSAGE);
+                SwingUtilities.invokeLater(() ->
+                    JOptionPane.showMessageDialog(contenedor,
+                        "Error al consultar servicios: " + ex.getMessage(),
+                        "Error", JOptionPane.ERROR_MESSAGE)
+                );
                 ex.printStackTrace();
                 return Collections.emptyList();
+            } finally {
+                if (em != null && em.isOpen()) {
+                    try {
+                        em.close();
+                    } catch (Exception ignored) {
+                        // Silenciado
+                    }
+                }
             }
         }
 
@@ -4306,9 +4565,6 @@ public void Filtrar_Servicios_Cuadricula(int secuencialEmpresa, JPanel contenedo
                     "Error", JOptionPane.ERROR_MESSAGE);
                 ex.printStackTrace();
             } finally {
-                if (em != null && em.isOpen()) {
-                    em.close();
-                }
                 icono_carga.setVisible(false);
             }
         }
@@ -4324,19 +4580,15 @@ public void Filtrar_Servicios_Cuadricula(int secuencialEmpresa, JPanel contenedo
 
 
 
-
 //*************************************
-
-
 
 public void Filtrar_Servicios_Lista(int secuencialEmpresa, JTable tabla) {
     icono_carga.setVisible(true);
 
     new SwingWorker<List<Producto>, Void>() {
-        EntityManager em = null;
-
         @Override
         protected List<Producto> doInBackground() {
+            EntityManager em = null;
             try {
                 em = MonituxDBContext.getEntityManager();
                 if (em == null || !em.isOpen()) {
@@ -4347,16 +4599,26 @@ public void Filtrar_Servicios_Lista(int secuencialEmpresa, JTable tabla) {
                               "WHERE p.Secuencial_Empresa = :empresa " +
                               "AND p.Tipo = 'Servicio'";
 
-                TypedQuery<Producto> query = em.createQuery(jpql, Producto.class);
-                query.setParameter("empresa", secuencialEmpresa);
-                return query.getResultList();
+                return em.createQuery(jpql, Producto.class)
+                         .setParameter("empresa", secuencialEmpresa)
+                         .getResultList();
 
             } catch (Exception ex) {
-                JOptionPane.showMessageDialog(tabla,
-                    "Error al consultar servicios: " + ex.getMessage(),
-                    "Error", JOptionPane.ERROR_MESSAGE);
+                SwingUtilities.invokeLater(() ->
+                    JOptionPane.showMessageDialog(tabla,
+                        "❌ Error al consultar servicios: " + ex.getMessage(),
+                        "Error", JOptionPane.ERROR_MESSAGE)
+                );
                 ex.printStackTrace();
                 return Collections.emptyList();
+            } finally {
+                if (em != null && em.isOpen()) {
+                    try {
+                        em.close();
+                    } catch (Exception ignored) {
+                        // Silenciado
+                    }
+                }
             }
         }
 
@@ -4434,13 +4696,10 @@ public void Filtrar_Servicios_Lista(int secuencialEmpresa, JTable tabla) {
 
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(tabla,
-                    "Error al procesar servicios: " + ex.getMessage(),
+                    "❌ Error al procesar servicios: " + ex.getMessage(),
                     "Error", JOptionPane.ERROR_MESSAGE);
                 ex.printStackTrace();
             } finally {
-                if (em != null && em.isOpen()) {
-                    em.close();
-                }
                 icono_carga.setVisible(false);
             }
         }
@@ -4454,10 +4713,9 @@ public void Filtrar_Agotados_Cuadricula(int secuencialEmpresa, JPanel contenedor
     contenedor.removeAll();
 
     new SwingWorker<List<Producto>, Void>() {
-        EntityManager em = null;
-
         @Override
         protected List<Producto> doInBackground() {
+            EntityManager em = null;
             try {
                 em = MonituxDBContext.getEntityManager();
                 if (em == null || !em.isOpen()) {
@@ -4469,16 +4727,26 @@ public void Filtrar_Agotados_Cuadricula(int secuencialEmpresa, JPanel contenedor
                               "AND p.Cantidad < p.Existencia_Minima " +
                               "AND p.Tipo <> 'Servicio'";
 
-                TypedQuery<Producto> query = em.createQuery(jpql, Producto.class);
-                query.setParameter("empresa", secuencialEmpresa);
-                return query.getResultList();
+                return em.createQuery(jpql, Producto.class)
+                         .setParameter("empresa", secuencialEmpresa)
+                         .getResultList();
 
             } catch (Exception ex) {
-                JOptionPane.showMessageDialog(contenedor,
-                    "Error al consultar productos agotados: " + ex.getMessage(),
-                    "Error", JOptionPane.ERROR_MESSAGE);
+                SwingUtilities.invokeLater(() ->
+                    JOptionPane.showMessageDialog(contenedor,
+                        "❌ Error al consultar productos agotados: " + ex.getMessage(),
+                        "Error", JOptionPane.ERROR_MESSAGE)
+                );
                 ex.printStackTrace();
                 return new ArrayList<>();
+            } finally {
+                if (em != null && em.isOpen()) {
+                    try {
+                        em.close();
+                    } catch (Exception ignored) {
+                        // Silenciado
+                    }
+                }
             }
         }
 
@@ -4551,14 +4819,15 @@ public void Filtrar_Agotados_Cuadricula(int secuencialEmpresa, JPanel contenedor
                     "Error", JOptionPane.ERROR_MESSAGE);
                 ex.printStackTrace();
             } finally {
-                if (em != null && em.isOpen()) {
-                    em.close();
-                }
                 icono_carga.setVisible(false);
             }
         }
     }.execute();
 }
+
+
+
+
 public void Filtrar_Lista_Categoria(int secuencialEmpresa, int secuencialCategoria, JTable tabla) {
     icono_carga.setVisible(true);
 
@@ -4911,15 +5180,13 @@ public void cargar_Items_Cuadricula(int secuencialEmpresa, JPanel contenedor) {
 }
 
 
-
 public void cargar_Items_Lista(int secuencialEmpresa, JTable tabla) {
     icono_carga.setVisible(true);
 
     new SwingWorker<List<Producto>, Void>() {
-        EntityManager em = null;
-
         @Override
         protected List<Producto> doInBackground() {
+            EntityManager em = null;
             try {
                 em = MonituxDBContext.getEntityManager();
                 if (em == null || !em.isOpen()) {
@@ -4933,13 +5200,17 @@ public void cargar_Items_Lista(int secuencialEmpresa, JTable tabla) {
 
             } catch (Exception ex) {
                 SwingUtilities.invokeLater(() ->
-                    JOptionPane.showMessageDialog(null, "Error al cargar productos: " + ex.getMessage())
+                    JOptionPane.showMessageDialog(null, "❌ Error al cargar productos: " + ex.getMessage())
                 );
                 ex.printStackTrace();
                 return Collections.emptyList();
             } finally {
                 if (em != null && em.isOpen()) {
-                    em.close();
+                    try {
+                        em.close();
+                    } catch (Exception ignored) {
+                        // Silenciado
+                    }
                 }
             }
         }
@@ -5025,6 +5296,122 @@ public void cargar_Items_Lista(int secuencialEmpresa, JTable tabla) {
         }
     }.execute();
 }
+
+
+//
+//public void cargar_Items_Lista(int secuencialEmpresa, JTable tabla) {
+//    icono_carga.setVisible(true);
+//
+//    new SwingWorker<List<Producto>, Void>() {
+//        EntityManager em = null;
+//
+//        @Override
+//        protected List<Producto> doInBackground() {
+//            try {
+//                em = MonituxDBContext.getEntityManager();
+//                if (em == null || !em.isOpen()) {
+//                    throw new IllegalStateException("EntityManager no disponible.");
+//                }
+//
+//                return em.createQuery(
+//                    "SELECT p FROM Producto p WHERE p.Secuencial_Empresa = :empresa", Producto.class)
+//                    .setParameter("empresa", secuencialEmpresa)
+//                    .getResultList();
+//
+//            } catch (Exception ex) {
+//                SwingUtilities.invokeLater(() ->
+//                    JOptionPane.showMessageDialog(null, "Error al cargar productos: " + ex.getMessage())
+//                );
+//                ex.printStackTrace();
+//                return Collections.emptyList();
+//            } finally {
+//                if (em != null && em.isOpen()) {
+//                    em.close();
+//                }
+//            }
+//        }
+//
+//        @Override
+//        protected void done() {
+//            try {
+//                List<Producto> productos = get();
+//
+//                DefaultTableModel modelo = new DefaultTableModel(new Object[]{
+//                    "S", "Codigo", "Descripción", "Marca", "Existencia", "E. mínima",
+//                    "C. Barra", "C. Fabricante", "F. Vencimiento", "P. Costo", "P. Venta"
+//                }, 0) {
+//                    @Override
+//                    public boolean isCellEditable(int row, int column) {
+//                        return false;
+//                    }
+//                };
+//
+//                for (Producto producto : productos) {
+//                    modelo.addRow(new Object[]{
+//                        producto.getSecuencial(),
+//                        producto.getCodigo(),
+//                        producto.getDescripcion(),
+//                        producto.getMarca(),
+//                        producto.getCantidad(),
+//                        producto.getExistencia_Minima(),
+//                        producto.getCodigo_Barra(),
+//                        producto.getCodigo_Fabricante(),
+//                        producto.getFecha_Caducidad(),
+//                        producto.getPrecio_Costo(),
+//                        producto.getPrecio_Venta()
+//                    });
+//                }
+//
+//                tabla.setModel(modelo);
+//                tabla.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+//
+//                for (MouseListener ml : tabla.getMouseListeners()) {
+//                    tabla.removeMouseListener(ml);
+//                }
+//
+//                tabla.addMouseListener(new MouseAdapter() {
+//                    @Override
+//                    public void mousePressed(MouseEvent e) {
+//                        if (SwingUtilities.isLeftMouseButton(e)) {
+//                            int fila = tabla.rowAtPoint(e.getPoint());
+//                            if (fila != -1) {
+//                                tabla.setRowSelectionInterval(fila, fila);
+//                            }
+//                        }
+//                    }
+//
+//                    @Override
+//                    public void mouseClicked(MouseEvent e) {
+//                        if (e.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(e)) {
+//                            int fila = tabla.rowAtPoint(e.getPoint());
+//                            if (fila != -1) {
+//                                tabla.setRowSelectionInterval(fila, fila);
+//                                String codigo = tabla.getValueAt(fila, 1).toString();
+//
+//                                Producto productoSeleccionado = productos.stream()
+//                                    .filter(p -> p.getCodigo().equals(codigo))
+//                                    .findFirst()
+//                                    .orElse(null);
+//
+//                                if (productoSeleccionado != null) {
+//                                    V_Producto form = new V_Producto(false, productoSeleccionado);
+//                                    form.setOnProductoEditado(() -> cargarItems_Cuadricula());
+//                                    form.setVisible(true);
+//                                }
+//                            }
+//                        }
+//                    }
+//                });
+//
+//            } catch (Exception ex) {
+//                JOptionPane.showMessageDialog(null, "Error al procesar productos: " + ex.getMessage());
+//                ex.printStackTrace();
+//            } finally {
+//                icono_carga.setVisible(false);
+//            }
+//        }
+//    }.execute();
+//}
 
 public void cargar_Items_Kardex(int secuencialEmpresa, JTable tabla) {
     icono_carga.setVisible(true);

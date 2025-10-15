@@ -26,7 +26,7 @@ public class NoticiasRSS {
 
     public void cargarTitularesRSS(String url) {
         if (url == null || url.isBlank()) {
-            url = "https://www.tunota.com/rss/honduras-hoy.xml";
+            url = AppSettings.getRSS();
         }
 
         try {

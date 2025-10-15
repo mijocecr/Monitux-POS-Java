@@ -11,6 +11,7 @@ import com.monituxpos.Clases.Util;
 import com.monituxpos.Clases.Venta;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.EntityTransaction;
 import jakarta.persistence.Persistence;
 import java.awt.Color;
 import java.awt.event.MouseAdapter;
@@ -503,9 +504,15 @@ int confirmResult = JOptionPane.showConfirmDialog(
         return;
     }
 
-    EntityManager em = MonituxDBContext.getEntityManager();
+    EntityManager em = null;
 
     try {
+        em = MonituxDBContext.getEntityManager();
+
+        if (em == null || !em.isOpen()) {
+            throw new IllegalStateException("EntityManager no disponible.");
+        }
+
         Ingreso ingreso = em.createQuery(
             "SELECT i FROM Ingreso i WHERE i.Secuencial = :secuencial " +
             "AND (i.Secuencial_Factura = 0 OR i.Secuencial_Factura IS NULL) " +
@@ -517,47 +524,59 @@ int confirmResult = JOptionPane.showConfirmDialog(
             .findFirst()
             .orElse(null);
 
-        if (ingreso != null) {
-            em.getTransaction().begin();
-            em.remove(ingreso);
-
-            Util.registrarActividad(
-                this.Secuencial_Usuario,
-                "Eliminó ingreso sin factura asociada. Monto: " + ingreso.getTotal() +
-                " | Tipo: " + ingreso.getTipo_Ingreso() +
-                " | Fecha: " + ingreso.getFecha(),
-                this.Secuencial_Empresa
-            );
-
-            em.getTransaction().commit();
-
+        if (ingreso == null) {
             JOptionPane.showMessageDialog(null,
-                "Ingreso sin factura asociada eliminado correctamente.",
-                "Éxito",
-                JOptionPane.INFORMATION_MESSAGE);
-
-            cargarDatos(); // Refrescar tabla
-        } else {
-            JOptionPane.showMessageDialog(null,
-                "No es posible eliminar el ingreso seleccionado.",
+                "No se encontró un ingreso válido para eliminar.",
                 "Error",
                 JOptionPane.ERROR_MESSAGE);
+            return;
         }
 
-        System.out.println("✅ Ingreso eliminado correctamente.");
-    } catch (Exception e) {
-        if (em.getTransaction().isActive()) {
-            em.getTransaction().rollback();
+        EntityTransaction tx = em.getTransaction();
+        if (!tx.isActive()) {
+            tx.begin();
         }
+
+        em.remove(ingreso);
+        tx.commit(); // Solo se hace commit si la transacción fue iniciada correctamente
+
+        // Registrar actividad en una transacción separada
+        Util.registrarActividad(
+            this.Secuencial_Usuario,
+            "Eliminó ingreso sin factura asociada. Monto: " + ingreso.getTotal() +
+            " | Tipo: " + ingreso.getTipo_Ingreso() +
+            " | Fecha: " + ingreso.getFecha(),
+            this.Secuencial_Empresa
+        );
+
+        JOptionPane.showMessageDialog(null,
+            "Ingreso sin factura asociada eliminado correctamente.",
+            "Éxito",
+            JOptionPane.INFORMATION_MESSAGE);
+
+        cargarDatos(); // Refrescar tabla
+
+    } catch (Exception e) {
+        try {
+            if (em != null && em.getTransaction().isActive()) {
+                em.getTransaction().rollback();
+            }
+        } catch (Exception rollbackEx) {
+            System.err.println("⚠️ Error al hacer rollback: " + rollbackEx.getMessage());
+        }
+
         JOptionPane.showMessageDialog(null,
             "Error al eliminar ingreso: " + e.getMessage(),
             "Error",
             JOptionPane.ERROR_MESSAGE);
         e.printStackTrace();
+
+    } finally {
+        if (em != null && em.isOpen()) {
+            em.close(); // Cierre seguro
+        }
     }
-
-
-
+   
         // TODO add your handling code here:
     }//GEN-LAST:event_jButton2ActionPerformed
 

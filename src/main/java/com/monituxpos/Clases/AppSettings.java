@@ -14,6 +14,22 @@ import java.util.prefs.Preferences;
 public class AppSettings {
     private static final Preferences prefs = Preferences.userRoot().node("Monitux_POS");
 
+    public static void setPropiedades_Default(){
+     prefs.put("CODIGO_LICENCIA", "");
+        prefs.put("CLIENTE", "");
+        prefs.put("FECHA_VENCIMIENTO", "");
+         prefs.put("DB_PROVIDER","");
+        prefs.put("DB_CONNECTION","");
+         prefs.putBoolean("PRIMER_ARRANQUE",true);
+          prefs.putBoolean("USUARIO_CREADO",false);
+        prefs.putBoolean("EMPRESA_CREADA",false);
+          prefs.putBoolean("LICENCIA_VALIDA",false);
+          prefs.put("RSS","https://www.tunota.com/rss/honduras-hoy.xml");
+          prefs.putBoolean("AJUSTES_CREADOS",true);
+          
+          System.out.println("Se establecieron las propiedades predeterminadas.");
+    }
+    
     
     public static void set_Licencia(String codigo_licencia, String cliente, String fecha_vencimiento) {
         prefs.put("CODIGO_LICENCIA", codigo_licencia);
@@ -56,7 +72,9 @@ public class AppSettings {
     
     
     
-    
+     public static String getRSS() {
+        return prefs.get("RSS", "");
+    }
      
     public static String getDB_Provider() {
         return prefs.get("DB_PROVIDER", "");
@@ -94,6 +112,10 @@ public class AppSettings {
 
      public static boolean getUsuario_Creado() {
         return prefs.getBoolean("USUARIO_CREADO", false);
+    }
+     
+      public static boolean getAjustes_Creados() {
+        return prefs.getBoolean("AJUSTES_CREADOS", false);
     }
 
      public static void setCredenciales(String usuario, String password) {

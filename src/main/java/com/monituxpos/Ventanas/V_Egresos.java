@@ -9,6 +9,7 @@ import com.monituxpos.Clases.MonituxDBContext;
 import com.monituxpos.Clases.Util;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.EntityTransaction;
 import jakarta.persistence.Persistence;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -392,8 +393,9 @@ int viewRowIndex = jTable1.getSelectedRow();
     }//GEN-LAST:event_jButton3ActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+//********************
 
-int confirmResult = JOptionPane.showConfirmDialog(
+ int confirmResult = JOptionPane.showConfirmDialog(
         null,
         "¿Está seguro de eliminar el egreso seleccionado?",
         "Confirmar Eliminación",
@@ -404,9 +406,15 @@ int confirmResult = JOptionPane.showConfirmDialog(
         return;
     }
 
-    EntityManager em = MonituxDBContext.getEntityManager();
+    EntityManager em = null;
 
     try {
+        em = MonituxDBContext.getEntityManager();
+
+        if (em == null || !em.isOpen()) {
+            throw new IllegalStateException("EntityManager no disponible.");
+        }
+
         Egreso egreso = em.createQuery(
             "SELECT e FROM Egreso e WHERE e.Secuencial = :secuencial " +
             "AND (e.Secuencial_Factura = 0 OR e.Secuencial_Factura IS NULL) " +
@@ -418,45 +426,62 @@ int confirmResult = JOptionPane.showConfirmDialog(
             .findFirst()
             .orElse(null);
 
-        if (egreso != null) {
-            em.getTransaction().begin();
-            em.remove(egreso);
-
-            Util.registrarActividad(
-                this.Secuencial_Usuario,
-                "Eliminó egreso sin factura asociada. Monto: " + egreso.getTotal() +
-                " | Tipo: " + egreso.getTipo_Egreso() +
-                " | Fecha: " + egreso.getFecha(),
-                this.Secuencial_Empresa
-            );
-
-            em.getTransaction().commit();
-
+        if (egreso == null) {
             JOptionPane.showMessageDialog(null,
-                "Egreso sin factura asociada eliminado correctamente.",
-                "Éxito",
-                JOptionPane.INFORMATION_MESSAGE);
-
-            cargarDatos(); // Refrescar tabla
-        } else {
-            JOptionPane.showMessageDialog(null,
-                "No es posible eliminar el egreso seleccionado.",
+                "No se encontró un egreso válido para eliminar.",
                 "Error",
                 JOptionPane.ERROR_MESSAGE);
+            return;
         }
 
-        System.out.println("✅ Egreso eliminado correctamente.");
-    } catch (Exception e) {
-        if (em.getTransaction().isActive()) {
-            em.getTransaction().rollback();
+        EntityTransaction tx = em.getTransaction();
+        if (!tx.isActive()) {
+            tx.begin();
         }
+
+        em.remove(egreso);
+        tx.commit(); // Commit solo si la transacción fue iniciada correctamente
+
+        // Registrar actividad en una transacción separada
+        Util.registrarActividad(
+            this.Secuencial_Usuario,
+            "Eliminó egreso sin factura asociada. Monto: " + egreso.getTotal() +
+            " | Tipo: " + egreso.getTipo_Egreso() +
+            " | Fecha: " + egreso.getFecha(),
+            this.Secuencial_Empresa
+        );
+
+        JOptionPane.showMessageDialog(null,
+            "Egreso sin factura asociada eliminado correctamente.",
+            "Éxito",
+            JOptionPane.INFORMATION_MESSAGE);
+
+        cargarDatos(); // Refrescar tabla
+        System.out.println("✅ Egreso eliminado correctamente.");
+
+    } catch (Exception e) {
+        try {
+            if (em != null && em.getTransaction().isActive()) {
+                em.getTransaction().rollback();
+            }
+        } catch (Exception rollbackEx) {
+            System.err.println("⚠️ Error al hacer rollback: " + rollbackEx.getMessage());
+        }
+
         JOptionPane.showMessageDialog(null,
             "Error al eliminar egreso: " + e.getMessage(),
             "Error",
             JOptionPane.ERROR_MESSAGE);
         e.printStackTrace();
+
+    } finally {
+        if (em != null && em.isOpen()) {
+            em.close(); // Cierre seguro del EntityManager
+        }
     }
 
+
+//*************
         // TODO add your handling code here:
     }//GEN-LAST:event_jButton2ActionPerformed
 

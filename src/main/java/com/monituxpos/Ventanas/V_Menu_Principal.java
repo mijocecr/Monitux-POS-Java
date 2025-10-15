@@ -6,8 +6,10 @@ package com.monituxpos.Ventanas;
 
 import com.monituxpos.Clases.AppSettings;
 import com.monituxpos.Clases.DBProvider;
+import com.monituxpos.Clases.Empresa;
 import com.monituxpos.Clases.MonituxDBContext;
 import com.monituxpos.Clases.NoticiasRSS;
+import com.monituxpos.Clases.Usuario;
 import com.monituxpos.Clases.Util;
 import jakarta.persistence.EntityManager;
 import java.awt.BorderLayout;
@@ -26,6 +28,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.beans.Statement;
 import java.io.File;
+import java.math.BigDecimal;
 import java.net.Socket;
 import java.net.URI;
 import java.net.URL;
@@ -50,13 +53,19 @@ public class V_Menu_Principal extends javax.swing.JFrame {
     
     public static int Secuencial_Empresa;
     public static int Secuencial_Usuario;
-    public static String Acceso;
+    public static String Acceso_Usuario;
     public static String Nombre_Empresa;
+    public static String Nombre_Usuario;
+    public static String Codigo_Usuario;
     public static String Telefono_Empresa;
     public static String Direccion_Empresa;
-    public static String Email;
-    public static String  URL_RSS;
-
+    public static String Email_Empresa;
+    public static String Moneda_Empresa;
+    public static boolean Activa_Empresa;
+    public static BigDecimal ISV_Empresa;
+    public static String  RSS_Empresa;
+public static byte[] Imagen_Usuario;
+public static byte[] Imagen_Empresa;
     
             private Timer cintaTimer;
 private int titularesMostrados = 0;
@@ -65,12 +74,35 @@ private int indiceActual = 0;
 private List<String[]> titulares = new ArrayList<>();
     
     
+public static void setEmpresaCargada(Empresa empresa) {
+    Secuencial_Empresa = empresa.getSecuencial();
+    Nombre_Empresa = empresa.getNombre();
+    Direccion_Empresa = empresa.getDireccion();
+    Telefono_Empresa = empresa.getTelefono();
+    Email_Empresa = empresa.getEmail();
+    Moneda_Empresa = empresa.getMoneda();
+    ISV_Empresa = empresa.getISV();
+    Activa_Empresa = empresa.isActiva();
+    Imagen_Empresa = empresa.getImagen();
+    RSS_Empresa = empresa.getRSS();
+}
+
+
+
+public static void setUsuarioAutenticado(Usuario usuario) {
+    Secuencial_Usuario = usuario.getSecuencial();
+    Acceso_Usuario = usuario.getAcceso();
+    Imagen_Usuario = usuario.getImagen();
+    Nombre_Usuario = usuario.getNombre();
+    Codigo_Usuario = usuario.getCodigo();
+}
+
     public static String getURL_RSS() {
-        return URL_RSS;
+        return RSS_Empresa;
     }
 
     public static void setURL_RSS(String URL_RSS) {
-        V_Menu_Principal.URL_RSS = URL_RSS;
+        V_Menu_Principal.RSS_Empresa = URL_RSS;
     }
 public NoticiasRSS fuente= new NoticiasRSS();//Esta linea es
 
@@ -91,15 +123,47 @@ public NoticiasRSS fuente= new NoticiasRSS();//Esta linea es
     }
 
     public static String getAcceso() {
-        return Acceso;
+        return Acceso_Usuario;
     }
 
     public static void setAcceso(String Acceso) {
-        V_Menu_Principal.Acceso = Acceso;
+        V_Menu_Principal.Acceso_Usuario = Acceso;
     }
 
     public static String getNombre_Empresa() {
         return Nombre_Empresa;
+    }
+
+    public static String getAcceso_Usuario() {
+        return Acceso_Usuario;
+    }
+
+    public static void setAcceso_Usuario(String Acceso_Usuario) {
+        V_Menu_Principal.Acceso_Usuario = Acceso_Usuario;
+    }
+
+    public static String getNombre_Usuario() {
+        return Nombre_Usuario;
+    }
+
+    public static void setNombre_Usuario(String Nombre_Usuario) {
+        V_Menu_Principal.Nombre_Usuario = Nombre_Usuario;
+    }
+
+    public static String getCodigo_Usuario() {
+        return Codigo_Usuario;
+    }
+
+    public static void setCodigo_Usuario(String Codigo_Usuario) {
+        V_Menu_Principal.Codigo_Usuario = Codigo_Usuario;
+    }
+
+    public static byte[] getImagen_Usuario() {
+        return Imagen_Usuario;
+    }
+
+    public static void setImagen_Usuario(byte[] Imagen_Usuario) {
+        V_Menu_Principal.Imagen_Usuario = Imagen_Usuario;
     }
 
     public static void setNombre_Empresa(String Nombre_Empresa) {
@@ -127,11 +191,11 @@ public NoticiasRSS fuente= new NoticiasRSS();//Esta linea es
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(V_Menu_Principal.class.getName());
 
     public static String getEmail() {
-        return Email;
+        return Email_Empresa;
     }
 
     public static void setEmail(String Email) {
-        V_Menu_Principal.Email = Email;
+        V_Menu_Principal.Email_Empresa = Email;
     }
 
 
@@ -155,7 +219,7 @@ public NoticiasRSS fuente= new NoticiasRSS();//Esta linea es
         @Override
         protected List<String[]> doInBackground() {
             NoticiasRSS fuente = new NoticiasRSS();
-            fuente.cargarTitularesRSS(URL_RSS);
+            fuente.cargarTitularesRSS(RSS_Empresa);
             return fuente.getTitulares();
         }
 
@@ -256,25 +320,25 @@ public NoticiasRSS fuente= new NoticiasRSS();//Esta linea es
           initComponents();
           
           
-
-String proveedor = AppSettings.getDB_Provider();
-String conexion = AppSettings.getDB_Connection();
-String usuario = AppSettings.getUsuario();
-String password = AppSettings.getPassword();
-
-System.out.println("Inicializando MonituxDBContext...");
-System.out.println("Proveedor: " + proveedor);
-System.out.println("Cadena de conexión: " + conexion);
-System.out.println("Usuario: " + usuario);
-System.out.println("Password: " + (password.isEmpty() ? "[VACÍA]" : "[OCULTA]"));
-
-MonituxDBContext.init(
-    DBProvider.valueOf(proveedor.toUpperCase()),
-    conexion,
-    usuario,
-    password
-);
-
+////**********************************************************
+//String proveedor = AppSettings.getDB_Provider();
+//String conexion = AppSettings.getDB_Connection();
+//String usuario = AppSettings.getUsuario();
+//String password = AppSettings.getPassword();
+//
+//System.out.println("Inicializando MonituxDBContext...");
+//System.out.println("Proveedor: " + proveedor);
+//System.out.println("Cadena de conexión: " + conexion);
+//System.out.println("Usuario: " + usuario);
+//System.out.println("Password: " + (password.isEmpty() ? "[VACIA]" : "[OCULTA]"));
+//
+//MonituxDBContext.init(
+//    DBProvider.valueOf(proveedor.toUpperCase()),
+//    conexion,
+//    usuario,
+//    password
+//);
+////************************************************************
 
 
 //            MonituxDBContext.init(
@@ -1013,7 +1077,6 @@ iniciarCintaLED(lblTitular);
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        jLabel3.setText("jLabel3");
         jLabel3.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255)));
 
         jLabel25.setForeground(new java.awt.Color(255, 255, 255));
@@ -1022,7 +1085,7 @@ iniciarCintaLED(lblTitular);
 
         jLabel26.setForeground(new java.awt.Color(255, 255, 255));
         jLabel26.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel26.setText("<html>Miguel Josue Cerrato Cruz</html>");
+        jLabel26.setText("Cargando Usuario...");
 
         jLabel27.setBackground(new java.awt.Color(0, 0, 0));
         jLabel27.setFont(new java.awt.Font("Segoe UI", 1, 20)); // NOI18N
@@ -1126,24 +1189,6 @@ iniciarCintaLED(lblTitular);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(20, 20, 20)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE, 101, Short.MAX_VALUE)
-                            .addComponent(jLabel25, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                    .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jLabel13, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jLabel7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jLabel16, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jLabel12, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jLabel20, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(jLabel26, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(jLabel27, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(ajustes_submenu, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
@@ -1154,6 +1199,27 @@ iniciarCintaLED(lblTitular);
                     .addComponent(movimientos_submenu, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(reportes_submenu, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addGap(7, 7, 7))
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jLabel13, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jLabel7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jLabel16, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jLabel12, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jLabel20, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jLabel27, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
+                                .addContainerGap()
+                                .addComponent(jLabel26, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
+                                .addGap(20, 20, 20)
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 121, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(jLabel25, javax.swing.GroupLayout.PREFERRED_SIZE, 121, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                        .addGap(0, 0, Short.MAX_VALUE)))
+                .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1161,9 +1227,9 @@ iniciarCintaLED(lblTitular);
                 .addGap(7, 7, 7)
                 .addComponent(jLabel25)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 128, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jLabel26, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jLabel26)
                 .addGap(15, 15, 15)
                 .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -1200,7 +1266,7 @@ iniciarCintaLED(lblTitular);
         lbl_Nombre_Empresa.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         lbl_Nombre_Empresa.setForeground(new java.awt.Color(255, 255, 255));
         lbl_Nombre_Empresa.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        lbl_Nombre_Empresa.setText("Nombre de Empresa o Negocio");
+        lbl_Nombre_Empresa.setText("Cargando Empresa...");
 
         lbl_version.setForeground(new java.awt.Color(0, 255, 0));
         lbl_version.setText("Monitux-POS v.1.8");
@@ -1251,7 +1317,7 @@ iniciarCintaLED(lblTitular);
         lblTitular.setText("Bienvenido a Monitux-POS — Edición Java");
         lblTitular.setToolTipText("");
         jPanel3.add(lblTitular);
-        lblTitular.setBounds(820, 0, 472, 40);
+        lblTitular.setBounds(820, 0, 456, 40);
 
         jScrollPane2.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         jScrollPane2.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
@@ -1279,7 +1345,7 @@ iniciarCintaLED(lblTitular);
             .addGroup(panelContenedorLayout.createSequentialGroup()
                 .addGap(69, 69, 69)
                 .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 420, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(754, Short.MAX_VALUE))
+                .addContainerGap(715, Short.MAX_VALUE))
         );
 
         jScrollPane2.setViewportView(panelContenedor);
@@ -1293,25 +1359,27 @@ iniciarCintaLED(lblTitular);
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 167, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(11, 11, 11)
-                        .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jPanel3, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
                         .addContainerGap())))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE))
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 800, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 752, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)))
+                .addContainerGap())
         );
 
         pack();
@@ -1321,6 +1389,13 @@ iniciarCintaLED(lblTitular);
 
         this.setLocationRelativeTo(null);
         this.getContentPane().setBackground(Color.black);
+        
+        ImageIcon imageU= new ImageIcon(Imagen_Usuario);
+        
+        jLabel3.setIcon(imageU);
+        jLabel25.setText(Acceso_Usuario);
+        jLabel26.setText(Nombre_Usuario);
+        lbl_Nombre_Empresa.setText(Nombre_Empresa);
         
         
         ImageIcon imagenOriginal = new ImageIcon(getClass().getResource("/icons/Logo.png"));
@@ -1341,12 +1416,12 @@ panelContenedor.repaint();
       
         //Bloque de variables de prueba
 //*********************************************
-        this.setAcceso("Administrador");
-       this.setSecuencial_Empresa(1);
+       // this.setAcceso("Administrador");
+       //this.setSecuencial_Empresa(1);
         this.setDireccion_Empresa("Juticalpa, Olancho");
-        this.setSecuencial_Usuario(1);
+       // this.setSecuencial_Usuario(1);
         this.setTelefono_Empresa("642883288");
-        this.setNombre_Empresa("One Click Solutions");
+        //this.setNombre_Empresa("One Click Solutions");
         this.setEmail("Empresa@gmail.com");
         
         this.setMaxTitularesPorCiclo(20);
@@ -1711,10 +1786,11 @@ aplicarColorFondo(jLabel11,new Color(35, 32, 45));
 
     private void jLabel16MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel16MouseClicked
 
+lbl_Descripcion.setText("<html>Consulte de forma rápida y sencilla los ingresos y egresos registrados en el sistema, tanto automáticos como manuales. Además, tiene la opción de añadir movimientos independientes al proceso de venta o compra.</html>");
 
             
          mostrarSubMenu(movimientos_submenu);
- lbl_Descripcion.setText("<html></html>");
+ 
 
         // TODO add your handling code here:
     }//GEN-LAST:event_jLabel16MouseClicked
@@ -1724,8 +1800,7 @@ aplicarColorFondo(jLabel11,new Color(35, 32, 45));
    V_Ingresos x = new V_Ingresos();
         abrirVentana(x);
         
-        lbl_Descripcion.setText("<html>Consulte de forma rápida y sencilla los ingresos registrados en el sistema, tanto automáticos como manuales. Además, tiene la opción de añadir ingresos independientes al proceso de venta.</html>");
-
+       
         // TODO add your handling code here:
     }//GEN-LAST:event_jLabel17MouseClicked
 
@@ -1746,8 +1821,7 @@ aplicarColorFondo(jLabel11,new Color(35, 32, 45));
         V_Egresos x = new V_Egresos();
         abrirVentana(x);
         
-        lbl_Descripcion.setText("<html>Consulte de forma rápida y sencilla los egresos registrados en el sistema, tanto automáticos como manuales. Además, tiene la opción de añadir egresos independientes al proceso de compra.</html>");
-
+      
 
         // TODO add your handling code here:
     }//GEN-LAST:event_jLabel18MouseClicked

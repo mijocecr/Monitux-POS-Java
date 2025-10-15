@@ -289,23 +289,25 @@ public class Util {
 //Fin Generar Codigo QR
     
   
-    
-   public static void registrarActividad(
+ public static void registrarActividad(
     int secuencialUsuario,
     String descripcion,
     int secuencialEmpresa
 ) {
     EntityManager em = null;
-    EntityTransaction tx = null;
 
     try {
         em = MonituxDBContext.getEntityManager();
+
         if (em == null || !em.isOpen()) {
             throw new IllegalStateException("EntityManager no disponible.");
         }
 
-        tx = em.getTransaction();
-        tx.begin();
+        EntityTransaction tx = em.getTransaction();
+
+        if (!tx.isActive()) {
+            tx.begin();
+        }
 
         Actividad actividad = new Actividad();
         actividad.setSecuencial_Usuario(secuencialUsuario);
@@ -319,15 +321,22 @@ public class Util {
 
         tx.commit();
         System.out.println("✅ Actividad registrada correctamente.");
+
     } catch (Exception e) {
-        if (tx != null && tx.isActive()) {
-            tx.rollback();
+        try {
+            if (em != null && em.getTransaction().isActive()) {
+                em.getTransaction().rollback();
+            }
+        } catch (Exception rollbackEx) {
+            System.err.println("⚠️ Error al hacer rollback: " + rollbackEx.getMessage());
         }
+
         System.err.println("❌ Error al registrar actividad: " + e.getMessage());
         e.printStackTrace();
+
     } finally {
         if (em != null && em.isOpen()) {
-            em.close();
+            em.close(); // Cierre seguro
         }
     }
 }
@@ -469,6 +478,29 @@ public class Util {
         e.printStackTrace();
     }
 }
+  
+  public static void llenarComboEmpresa(JComboBox<String> combo) {
+    combo.removeAllItems(); // Limpiar combo
+
+    EntityManager em = MonituxDBContext.getEntityManager();
+
+    try {
+        List<Empresa> empresas = em.createQuery(
+            "SELECT e FROM Empresa e WHERE e.Activa = true", Empresa.class)
+            .getResultList();
+
+        for (Empresa e : empresas) {
+            combo.addItem(e.getSecuencial() + " - " + e.getNombre());
+        }
+
+        System.out.println("Empresas cargadas correctamente.");
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(null, "Error al cargar empresas: " + e.getMessage());
+        e.printStackTrace();
+    }
+}
+
+  
 
     
     public static void llenarComboUsuario(JComboBox<String> combo, int secuencial_Empresa) {
@@ -658,7 +690,7 @@ public class Util {
             Transport.send(mensaje);
 
         } catch (Exception ex) {
-            JOptionPane.showMessageDialog(null, "Error al enviar el correo: " + ex.getMessage(), "Correo", JOptionPane.ERROR_MESSAGE);
+            //JOptionPane.showMessageDialog(null, "Error al enviar el correo: " + ex.getMessage(), "Correo", JOptionPane.ERROR_MESSAGE);
         }
     }
     
