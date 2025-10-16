@@ -12,6 +12,7 @@ import com.monituxpos.Clases.SelectorCantidad;
 import com.monituxpos.Clases.Util;
 import static com.monituxpos.Ventanas.V_Factura_Venta.listaDeItems;
 import static com.monituxpos.Ventanas.V_Factura_Venta.selectoresCantidad;
+import static com.monituxpos.Ventanas.V_Menu_Principal.getAcceso_Usuario;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
@@ -3210,6 +3211,8 @@ icono_carga.setVisible(true);
     private void jLabel14MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel14MouseClicked
 
 
+        if ("Administrador".equals(V_Menu_Principal.getAcceso_Usuario())) {
+        
         if (Modo=="Lista"){
         Util.exportarJTableAExcel(lista_tabla, "Vista_Inventario", "Vista_Inventario");
 
@@ -3218,7 +3221,10 @@ icono_carga.setVisible(true);
         Util.exportarJTableAExcel(kardex_tabla, "Vista_Kardex", "Vista_Kardex");
 
         }
+        }else{
         
+        JOptionPane.showMessageDialog(null, "No dispone de permiso para ejecutar esta accion.");
+        }
         
         // TODO add your handling code here:
     }//GEN-LAST:event_jLabel14MouseClicked

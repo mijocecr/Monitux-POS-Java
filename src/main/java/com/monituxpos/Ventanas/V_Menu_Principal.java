@@ -51,6 +51,7 @@ import javax.swing.Timer;
  */
 public class V_Menu_Principal extends javax.swing.JFrame {
     
+    public static String version="1.8";
     public static int Secuencial_Empresa;
     public static int Secuencial_Usuario;
     public static String Acceso_Usuario;
@@ -83,8 +84,15 @@ public static void setEmpresaCargada(Empresa empresa) {
     Moneda_Empresa = empresa.getMoneda();
     ISV_Empresa = empresa.getISV();
     Activa_Empresa = empresa.isActiva();
-    Imagen_Empresa = empresa.getImagen();
+   
+    if (!empresa.getRSS().isEmpty()){
     RSS_Empresa = empresa.getRSS();
+    }else{
+    
+    RSS_Empresa = AppSettings.getRSS();
+    }
+    
+     Imagen_Empresa = empresa.getImagen();
 }
 
 
@@ -92,9 +100,9 @@ public static void setEmpresaCargada(Empresa empresa) {
 public static void setUsuarioAutenticado(Usuario usuario) {
     Secuencial_Usuario = usuario.getSecuencial();
     Acceso_Usuario = usuario.getAcceso();
-    Imagen_Usuario = usuario.getImagen();
     Nombre_Usuario = usuario.getNombre();
     Codigo_Usuario = usuario.getCodigo();
+    Imagen_Usuario = usuario.getImagen();
 }
 
     public static String getURL_RSS() {
@@ -122,13 +130,9 @@ public NoticiasRSS fuente= new NoticiasRSS();//Esta linea es
         V_Menu_Principal.Secuencial_Usuario = Secuencial_Usuario;
     }
 
-    public static String getAcceso() {
-        return Acceso_Usuario;
-    }
+   
 
-    public static void setAcceso(String Acceso) {
-        V_Menu_Principal.Acceso_Usuario = Acceso;
-    }
+    
 
     public static String getNombre_Empresa() {
         return Nombre_Empresa;
@@ -538,15 +542,19 @@ iniciarCintaLED(lblTitular);
         panelContenedor = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setResizable(false);
         addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowClosing(java.awt.event.WindowEvent evt) {
+                formWindowClosing(evt);
+            }
             public void windowOpened(java.awt.event.WindowEvent evt) {
                 formWindowOpened(evt);
             }
         });
 
         jScrollPane1.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        jScrollPane1.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
 
         jPanel1.setBackground(new java.awt.Color(0, 0, 0));
         jPanel1.setForeground(new java.awt.Color(35, 32, 45));
@@ -1256,7 +1264,7 @@ iniciarCintaLED(lblTitular);
                 .addComponent(jLabel27, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(ajustes_submenu, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(23, Short.MAX_VALUE))
+                .addContainerGap(60, Short.MAX_VALUE))
         );
 
         jScrollPane1.setViewportView(jPanel1);
@@ -1314,10 +1322,10 @@ iniciarCintaLED(lblTitular);
 
         lblTitular.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
         lblTitular.setForeground(new java.awt.Color(128, 255, 255));
-        lblTitular.setText("Bienvenido a Monitux-POS — Edición Java");
+        lblTitular.setText("Bienvenido a Monitux-POS...");
         lblTitular.setToolTipText("");
         jPanel3.add(lblTitular);
-        lblTitular.setBounds(820, 0, 456, 40);
+        lblTitular.setBounds(820, 0, 304, 40);
 
         jScrollPane2.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         jScrollPane2.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
@@ -1338,14 +1346,14 @@ iniciarCintaLED(lblTitular);
             .addGroup(panelContenedorLayout.createSequentialGroup()
                 .addGap(161, 161, 161)
                 .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 488, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(247, Short.MAX_VALUE))
+                .addContainerGap(223, Short.MAX_VALUE))
         );
         panelContenedorLayout.setVerticalGroup(
             panelContenedorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(panelContenedorLayout.createSequentialGroup()
                 .addGap(69, 69, 69)
                 .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 420, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(715, Short.MAX_VALUE))
+                .addContainerGap(798, Short.MAX_VALUE))
         );
 
         jScrollPane2.setViewportView(panelContenedor);
@@ -1373,7 +1381,7 @@ iniciarCintaLED(lblTitular);
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 752, Short.MAX_VALUE)
+                        .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 633, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
@@ -1390,9 +1398,9 @@ iniciarCintaLED(lblTitular);
         this.setLocationRelativeTo(null);
         this.getContentPane().setBackground(Color.black);
         
-        ImageIcon imageU= new ImageIcon(Imagen_Usuario);
+       
         
-        jLabel3.setIcon(imageU);
+       
         jLabel25.setText(Acceso_Usuario);
         jLabel26.setText(Nombre_Usuario);
         lbl_Nombre_Empresa.setText(Nombre_Empresa);
@@ -1411,24 +1419,36 @@ panelContenedor.add(jLabel1, gbc);
 panelContenedor.revalidate();
 panelContenedor.repaint();
 
+    
+ if ("Vendedor".equals(getAcceso_Usuario())) {
+    jLabel27.setVisible(false);
+    jLabel20.setVisible(false);
+    jLabel13.setVisible(false);
+    jLabel16.setVisible(false);
+    
+}else{
+ 
+   jLabel27.setVisible(true);
+    jLabel20.setVisible(true);
+    jLabel13.setVisible(true);
+    jLabel16.setVisible(true);
+    
+ }
 
+     
+    
       
       
-        //Bloque de variables de prueba
-//*********************************************
-       // this.setAcceso("Administrador");
-       //this.setSecuencial_Empresa(1);
-        this.setDireccion_Empresa("Juticalpa, Olancho");
-       // this.setSecuencial_Usuario(1);
-        this.setTelefono_Empresa("642883288");
-        //this.setNombre_Empresa("One Click Solutions");
-        this.setEmail("Empresa@gmail.com");
         
+//*********************************************
+   
         this.setMaxTitularesPorCiclo(20);
        
 //***************************************************        
        lbl_Nombre_Empresa.setText(this.getNombre_Empresa());
           
+        ImageIcon imageU= new ImageIcon(Imagen_Usuario);
+         jLabel3.setIcon(imageU);
       
     }//GEN-LAST:event_formWindowOpened
 
@@ -1472,20 +1492,7 @@ panelContenedor.repaint();
       }
       
       
-      
-//    if (p_Reportes.isVisible()) {
-//        p_Reportes.setVisible(false);
-//    }
-//    if (panel11.isVisible()) {
-//        panel11.setVisible(false);
-//    }
-//    if (panel12.isVisible()) {
-//        panel12.setVisible(false);
-//    }
-//    if (p_Campania.isVisible()) {
-//        p_Campania.setVisible(false);
-//    }
-
+ 
   
 
     
@@ -1502,9 +1509,7 @@ panelContenedor.add(jLabel1, gbc);
 panelContenedor.revalidate();
 panelContenedor.repaint();
 
-
-
-    // lbl_Descripcion.setText("Sistema integral para la gestión de procesos de compra y venta, con módulos especializados para el control de productos, proveedores, categorías, clientes y facturación. Versión: " + VER);
+   
 }
 
     
@@ -2086,6 +2091,13 @@ x.setVisible(true);
     }//GEN-LAST:event_jLabel28MouseExited
 
     private void jLabel29MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel29MouseClicked
+
+
+            
+V_Empresa x = new V_Empresa();
+x.setVisible(true);
+
+        
         // TODO add your handling code here:
     }//GEN-LAST:event_jLabel29MouseClicked
 
@@ -2137,31 +2149,21 @@ x.setVisible(true);
         // TODO add your handling code here:
     }//GEN-LAST:event_jLabel1MouseWheelMoved
 
+    private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
+
+        V_Login x = new V_Login();
+        
+        x.setLocationRelativeTo(null);
+        x.setVisible(true);
+        x.requestFocus();
+
+        // TODO add your handling code here:
+    }//GEN-LAST:event_formWindowClosing
+
     /**
      * @param args the command line arguments
      */
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ReflectiveOperationException | javax.swing.UnsupportedLookAndFeelException ex) {
-            logger.log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
-
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(() -> new V_Menu_Principal().setVisible(true));
-    }
-
+   
     
     
      //*****************************

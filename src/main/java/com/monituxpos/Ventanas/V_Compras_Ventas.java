@@ -143,6 +143,13 @@ public static Map<String, Double> lista = new HashMap<>();
             }
         }
     });
+    
+    
+      if ("Vendedor".equals(V_Menu_Principal.getAcceso_Usuario())) {
+    jButton3.setVisible(false);
+        jButton6.setVisible(false);
+}
+    
 }
 
     

@@ -14,6 +14,7 @@ import java.math.BigDecimal;
 public class Empresa {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int Secuencial;
 
     private String Nombre = "";

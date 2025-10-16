@@ -871,41 +871,22 @@ cargarDatos();
 primera_carga();
          this.getContentPane().setBackground(Color.black);
         
-        setTitle("Monitux-POS v." + "");//V_Menu_Principal.VER);
+        setTitle("Monitux-POS v." + V_Menu_Principal.version);
 
 // Asigna el secuencial del usuario
 
 this.setLocationRelativeTo(null);
 
-
+     if ("Vendedor".equals(V_Menu_Principal.getAcceso_Usuario())) {
+    Menu_Eliminar.setVisible(false);
+}
         // TODO add your handling code here:
     }//GEN-LAST:event_formWindowOpened
 
     /**
      * @param args the command line arguments
      */
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ReflectiveOperationException | javax.swing.UnsupportedLookAndFeelException ex) {
-            logger.log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
-
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(() -> new V_Categoria().setVisible(true));
-    }
-
+   
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JMenuItem Menu_Eliminar;
     private javax.swing.JMenuItem Menu_Guardar;

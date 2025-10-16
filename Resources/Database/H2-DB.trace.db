@@ -1137,3 +1137,360 @@ The object is already closed [90007-224]
 org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "Empresa" no encontrada
 Table "Empresa" not found; SQL statement:
 select e1_0."Secuencial",e1_0."Activa",e1_0."Direccion",e1_0."Email",e1_0."ISV",e1_0."Imagen",e1_0."Moneda",e1_0."Nombre",e1_0."RSS",e1_0."Secuencial_Usuario",e1_0."Telefono" from "Empresa" e1_0 where e1_0."Activa"=true [42102-224]
+2025-10-16 17:23:01.561293+02:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: El objeto ya está cerrado
+The object is already closed [90007-224]
+2025-10-16 17:24:34.534180+02:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: El objeto ya está cerrado
+The object is already closed [90007-224]
+2025-10-16 17:30:05.732255+02:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: El objeto ya está cerrado
+The object is already closed [90007-224]
+2025-10-16 17:52:04.271600+02:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: El objeto ya está cerrado
+The object is already closed [90007-224]
+2025-10-16 17:52:57.365374+02:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: El objeto ya está cerrado
+The object is already closed [90007-224]
+2025-10-16 17:55:09.367770+02:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: El objeto ya está cerrado
+The object is already closed [90007-224]
+2025-10-16 17:56:01.969016+02:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: El objeto ya está cerrado
+The object is already closed [90007-224]
+2025-10-16 18:02:45.641784+02:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: El objeto ya está cerrado
+The object is already closed [90007-224]
+2025-10-16 18:06:59.097154+02:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: El objeto ya está cerrado
+The object is already closed [90007-224]
+2025-10-16 18:07:01.746376+02:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: El objeto ya está cerrado
+The object is already closed [90007-224]
+2025-10-16 18:08:35.182787+02:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: El objeto ya está cerrado
+The object is already closed [90007-224]
+2025-10-16 18:11:13.965878+02:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: El objeto ya está cerrado
+The object is already closed [90007-224]
+2025-10-16 18:11:48.241535+02:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: El objeto ya está cerrado
+The object is already closed [90007-224]
+2025-10-16 18:16:46.145160+02:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: El objeto ya está cerrado
+The object is already closed [90007-224]
+2025-10-16 18:16:47.698745+02:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: El objeto ya está cerrado
+The object is already closed [90007-224]
+2025-10-16 18:45:43.459794+02:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: El objeto ya está cerrado
+The object is already closed [90007-224]
+2025-10-16 19:36:28.317324+02:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: El objeto ya está cerrado
+The object is already closed [90007-224]
+2025-10-16 19:37:37.313759+02:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: El objeto ya está cerrado
+The object is already closed [90007-224]
+2025-10-16 23:15:47.612784+02:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: El objeto ya está cerrado
+The object is already closed [90007-224]
+2025-10-16 23:15:49.195825+02:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: El objeto ya está cerrado
+The object is already closed [90007-224]
+2025-10-16 23:47:44.685547+02:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: El objeto ya está cerrado
+The object is already closed [90007-224]
+2025-10-17 00:16:01.935977+02:00 jdbc[4]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: El objeto ya está cerrado
+The object is already closed [90007-224]
+2025-10-17 00:16:03.871336+02:00 jdbc[4]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: El objeto ya está cerrado
+The object is already closed [90007-224]
+2025-10-17 00:17:31.568602+02:00 jdbc[4]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: El objeto ya está cerrado
+The object is already closed [90007-224]
+2025-10-17 00:21:08.203963+02:00 jdbc[6]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: El objeto ya está cerrado
+The object is already closed [90007-224]
+2025-10-17 01:01:04.435179+02:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: El objeto ya está cerrado
+The object is already closed [90007-224]
+2025-10-17 01:03:48.208111+02:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: El objeto ya está cerrado
+The object is already closed [90007-224]
+2025-10-17 01:06:10.730892+02:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "abonos_compras" ya existe
+Table "abonos_compras" already exists; SQL statement:
+CREATE TABLE "abonos_compras" (
+  "Secuencial" INT AUTO_INCREMENT PRIMARY KEY,
+  "Secuencial_CTAP" INT NOT NULL,
+  "Secuencial_Usuario" INT NOT NULL,
+  "Secuencial_Proveedor" INT NOT NULL,
+  "Fecha" VARCHAR(255) NOT NULL,
+  "Monto" DOUBLE NOT NULL,
+  "Secuencial_Empresa" INT NOT NULL
+) [42101-224]
+2025-10-17 01:06:10.735142+02:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "abonos_ventas" ya existe
+Table "abonos_ventas" already exists; SQL statement:
+CREATE TABLE "abonos_ventas" (
+  "Secuencial" INT AUTO_INCREMENT PRIMARY KEY,
+  "Secuencial_CTAC" INT NOT NULL,
+  "Secuencial_Usuario" INT NOT NULL,
+  "Secuencial_Cliente" INT NOT NULL,
+  "Fecha" VARCHAR(255) NOT NULL,
+  "Monto" DOUBLE NOT NULL,
+  "Secuencial_Empresa" INT NOT NULL
+) [42101-224]
+2025-10-17 01:06:10.736140+02:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "actividades" ya existe
+Table "actividades" already exists; SQL statement:
+CREATE TABLE "actividades" (
+  "Secuencial" INT AUTO_INCREMENT PRIMARY KEY,
+  "Secuencial_Usuario" INT NOT NULL,
+  "Fecha" VARCHAR(255),
+  "Descripcion" VARCHAR(1000),
+  "Secuencial_Empresa" INT
+) [42101-224]
+2025-10-17 01:06:10.738139+02:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "categorias" ya existe
+Table "categorias" already exists; SQL statement:
+CREATE TABLE "categorias" (
+  "Secuencial" INT AUTO_INCREMENT PRIMARY KEY,
+  "Nombre" VARCHAR(150),
+  "Descripcion" VARCHAR(1000),
+  "Imagen" BLOB,
+  "Secuencial_Empresa" INT NOT NULL
+) [42101-224]
+2025-10-17 01:06:10.739142+02:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "clientes" ya existe
+Table "clientes" already exists; SQL statement:
+CREATE TABLE "clientes" (
+  "Secuencial" INT AUTO_INCREMENT PRIMARY KEY,
+  "Codigo" VARCHAR(50),
+  "Nombre" VARCHAR(150),
+  "Telefono" VARCHAR(20),
+  "Direccion" VARCHAR(1000),
+  "Email" VARCHAR(150),
+  "Imagen" BLOB,
+  "Activo" BOOLEAN,
+  "Secuencial_Empresa" INT
+) [42101-224]
+2025-10-17 01:06:10.740140+02:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "comentarios" ya existe
+Table "comentarios" already exists; SQL statement:
+CREATE TABLE "comentarios" (
+  "Secuencial" INT AUTO_INCREMENT PRIMARY KEY,
+  "Secuencial_Factura_C" INT,
+  "Secuencial_Factura_V" INT,
+  "Secuencial_Producto" INT,
+  "Secuencial_Cotizacion" INT,
+  "Secuencial_Orden" INT,
+  "Contenido" VARCHAR(1000),
+  "Secuencial_Empresa" INT
+) [42101-224]
+2025-10-17 01:06:10.741217+02:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "compras" ya existe
+Table "compras" already exists; SQL statement:
+CREATE TABLE "compras" (
+  "Secuencial" INT AUTO_INCREMENT PRIMARY KEY,
+  "Secuencial_Proveedor" INT,
+  "Secuencial_Usuario" INT,
+  "Fecha" VARCHAR(255),
+  "Tipo" VARCHAR(50),
+  "Forma_Pago" VARCHAR(50),
+  "Total" DOUBLE,
+  "Otros_Cargos" DOUBLE,
+  "Descuento" DOUBLE,
+  "Impuesto" DOUBLE,
+  "Gran_Total" DOUBLE,
+  "Secuencial_Empresa" INT,
+  "Documento" BLOB
+) [42101-224]
+2025-10-17 01:06:10.742254+02:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "compras_detalles" ya existe
+Table "compras_detalles" already exists; SQL statement:
+CREATE TABLE "compras_detalles" (
+  "Secuencial" INT AUTO_INCREMENT PRIMARY KEY,
+  "Secuencial_Factura" INT,
+  "Secuencial_Proveedor" INT,
+  "Secuencial_Producto" INT,
+  "Secuencial_Usuario" INT,
+  "Fecha" VARCHAR(255),
+  "Codigo" VARCHAR(25),
+  "Descripcion" VARCHAR(1000),
+  "Cantidad" DOUBLE,
+  "Precio" DOUBLE,
+  "Total" DOUBLE,
+  "Tipo" VARCHAR(50),
+  "Secuencial_Empresa" INT
+) [42101-224]
+2025-10-17 01:06:10.744348+02:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "cotizaciones" ya existe
+Table "cotizaciones" already exists; SQL statement:
+CREATE TABLE "cotizaciones" (
+  "Secuencial" INT AUTO_INCREMENT PRIMARY KEY,
+  "Secuencial_Cliente" INT,
+  "Secuencial_Usuario" INT,
+  "Fecha" VARCHAR(255),
+  "Total" DOUBLE,
+  "Otros_Cargos" DOUBLE,
+  "Descuento" DOUBLE,
+  "Impuesto" DOUBLE,
+  "Gran_Total" DOUBLE,
+  "Secuencial_Empresa" INT
+) [42101-224]
+2025-10-17 01:06:10.746348+02:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "cotizaciones_detalles" ya existe
+Table "cotizaciones_detalles" already exists; SQL statement:
+CREATE TABLE "cotizaciones_detalles" (
+  "Secuencial" INT AUTO_INCREMENT PRIMARY KEY,
+  "Secuencial_Cotizacion" INT,
+  "Secuencial_Usuario" INT,
+  "Secuencial_Cliente" INT,
+  "Secuencial_Producto" INT,
+  "Fecha" VARCHAR(255),
+  "Codigo" VARCHAR(25),
+  "Descripcion" VARCHAR(1000),
+  "Cantidad" DOUBLE,
+  "Precio" DOUBLE,
+  "Tipo" VARCHAR(50),
+  "Total" DOUBLE,
+  "Secuencial_Empresa" INT
+) [42101-224]
+2025-10-17 01:06:10.749651+02:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "kardex" ya existe
+Table "kardex" already exists; SQL statement:
+CREATE TABLE "kardex" (
+  "Secuencial" INT AUTO_INCREMENT PRIMARY KEY,
+  "Fecha" VARCHAR(255) NOT NULL,
+  "Secuencial_Producto" INT NOT NULL,
+  "Descripcion" VARCHAR(1000) NOT NULL,
+  "Cantidad" DOUBLE NOT NULL,
+  "Costo" DOUBLE NOT NULL,
+  "Costo_Total" DOUBLE NOT NULL,
+  "Venta" DOUBLE NOT NULL,
+  "Venta_Total" DOUBLE NOT NULL,
+  "Saldo" DOUBLE NOT NULL,
+  "Movimiento" VARCHAR(50) NOT NULL,
+  "Secuencial_Empresa" INT NOT NULL
+) [42101-224]
+2025-10-17 01:06:10.750632+02:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "ordenes" ya existe
+Table "ordenes" already exists; SQL statement:
+CREATE TABLE "ordenes" (
+  "Secuencial" INT AUTO_INCREMENT PRIMARY KEY,
+  "Secuencial_Proveedor" INT NOT NULL,
+  "Secuencial_Usuario" INT NOT NULL,
+  "Fecha" VARCHAR(255),
+  "Total" DOUBLE,
+  "Otros_Cargos" DOUBLE,
+  "Descuento" DOUBLE,
+  "Impuesto" DOUBLE,
+  "Gran_Total" DOUBLE,
+  "Secuencial_Empresa" INT
+) [42101-224]
+2025-10-17 01:06:10.752637+02:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "ordenes_detalles" ya existe
+Table "ordenes_detalles" already exists; SQL statement:
+CREATE TABLE "ordenes_detalles" (
+  "Secuencial" INT AUTO_INCREMENT PRIMARY KEY,
+  "Secuencial_Orden" INT NOT NULL,
+  "Secuencial_Usuario" INT NOT NULL,
+  "Secuencial_Proveedor" INT NOT NULL,
+  "Secuencial_Producto" INT NOT NULL,
+  "Fecha" VARCHAR(255),
+  "Codigo" VARCHAR(25),
+  "Descripcion" VARCHAR(1000),
+  "Cantidad" DOUBLE,
+  "Precio" DOUBLE,
+  "Tipo" VARCHAR(50),
+  "Total" DOUBLE,
+  "Secuencial_Empresa" INT
+) [42101-224]
+2025-10-17 01:06:10.754642+02:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "productos" ya existe
+Table "productos" already exists; SQL statement:
+CREATE TABLE "productos" (
+  "Secuencial" INT AUTO_INCREMENT PRIMARY KEY,
+  "Secuencial_Proveedor" INT NOT NULL,
+  "Codigo" VARCHAR(50) NOT NULL,
+  "Descripcion" VARCHAR(1000) NOT NULL,
+  "Cantidad" DOUBLE NOT NULL,
+  "Precio_Costo" DOUBLE NOT NULL,
+  "Precio_Venta" DOUBLE NOT NULL,
+  "Marca" VARCHAR(100),
+  "Codigo_Barra" VARCHAR(50),
+  "Codigo_Fabricante" VARCHAR(50),
+  "Imagen" BLOB,
+  "Fecha_Caducidad" VARCHAR(255),
+  "Tipo" VARCHAR(50),
+  "Secuencial_Categoria" INT NOT NULL,
+  "Expira" BOOLEAN NOT NULL,
+  "Existencia_Minima" DOUBLE NOT NULL,
+  "Secuencial_Empresa" INT NOT NULL
+) [42101-224]
+2025-10-17 01:06:10.755635+02:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "proveedores" ya existe
+Table "proveedores" already exists; SQL statement:
+CREATE TABLE "proveedores" (
+  "Secuencial" INT AUTO_INCREMENT PRIMARY KEY,
+  "Nombre" VARCHAR(150),
+  "Telefono" VARCHAR(20),
+  "Direccion" VARCHAR(1000),
+  "Email" VARCHAR(150),
+  "Contacto" VARCHAR(100),
+  "Tipo" VARCHAR(50),
+  "Imagen" BLOB,
+  "Activo" BOOLEAN,
+  "Secuencial_Empresa" INT
+) [42101-224]
+2025-10-17 01:06:10.756634+02:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "usuarios" ya existe
+Table "usuarios" already exists; SQL statement:
+CREATE TABLE "usuarios" (
+  "Secuencial" INT AUTO_INCREMENT PRIMARY KEY,
+  "Codigo" VARCHAR(50) NOT NULL,
+  "Nombre" VARCHAR(150),
+  "Password" VARCHAR(255) NOT NULL,
+  "Imagen" BLOB,
+  "Acceso" VARCHAR(50) NOT NULL,
+  "Activo" BOOLEAN NOT NULL,
+  "Secuencial_Empresa" INT NOT NULL
+) [42101-224]
+2025-10-17 01:06:10.757634+02:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "ventas" ya existe
+Table "ventas" already exists; SQL statement:
+CREATE TABLE "ventas" (
+  "Secuencial" INT AUTO_INCREMENT PRIMARY KEY,
+  "Secuencial_Cliente" INT NOT NULL,
+  "Secuencial_Usuario" INT NOT NULL,
+  "Fecha" VARCHAR(255),
+  "Tipo" VARCHAR(50),
+  "Forma_Pago" VARCHAR(50),
+  "Total" DOUBLE,
+  "Otros_Cargos" DOUBLE,
+  "Descuento" DOUBLE,
+  "Impuesto" DOUBLE,
+  "Gran_Total" DOUBLE,
+  "Secuencial_Empresa" INT,
+  "Documento" BLOB
+) [42101-224]
+2025-10-17 01:06:10.759627+02:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "ventas_detalles" ya existe
+Table "ventas_detalles" already exists; SQL statement:
+CREATE TABLE "ventas_detalles" (
+  "Secuencial" INT AUTO_INCREMENT PRIMARY KEY,
+  "Secuencial_Factura" INT NOT NULL,
+  "Secuencial_Cliente" INT NOT NULL,
+  "Secuencial_Producto" INT NOT NULL,
+  "Secuencial_Usuario" INT NOT NULL,
+  "Fecha" VARCHAR(255),
+  "Codigo" VARCHAR(25),
+  "Descripcion" VARCHAR(1000),
+  "Cantidad" DOUBLE,
+  "Precio" DOUBLE,
+  "Total" DOUBLE,
+  "Tipo" VARCHAR(50),
+  "Secuencial_Empresa" INT
+) [42101-224]

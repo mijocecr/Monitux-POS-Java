@@ -17,6 +17,7 @@ import jakarta.persistence.EntityTransaction;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -198,8 +199,18 @@ MonituxDBContext.init(
         jLabel6.setText("Password:");
 
         jTextField1.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        jTextField1.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                jTextField1KeyReleased(evt);
+            }
+        });
 
         jPasswordField1.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        jPasswordField1.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                jPasswordField1KeyReleased(evt);
+            }
+        });
 
         jButton1.setText("Registrar Nuevo");
         jButton1.addActionListener(new java.awt.event.ActionListener() {
@@ -789,6 +800,26 @@ jLabel7.setText("One Click Solutions");
             
 
     }//GEN-LAST:event_jComboBox1ItemStateChanged
+
+    private void jTextField1KeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextField1KeyReleased
+
+        
+    if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
+    jPasswordField1.requestFocusInWindow();
+}
+
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jTextField1KeyReleased
+
+    private void jPasswordField1KeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jPasswordField1KeyReleased
+
+        if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
+    jButton2.doClick();
+}
+
+
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jPasswordField1KeyReleased
 
     
    

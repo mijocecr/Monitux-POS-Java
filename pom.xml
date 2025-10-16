@@ -43,14 +43,6 @@
             <version>6.4.2.Final</version>
         </dependency>
 
-<dependency>
-  <groupId>com.h2database</groupId>
-  <artifactId>h2</artifactId>
-  <version>2.2.224</version>
-</dependency>
-
-
-
         <!-- JDBC Drivers -->
         <dependency>
             <groupId>com.mysql</groupId>
@@ -81,14 +73,18 @@
             <version>5.2.3</version>
         </dependency>
 
-
+<!-- H2 -->
 <dependency>
     <groupId>com.h2database</groupId>
     <artifactId>h2</artifactId>
     <version>2.2.224</version> <!-- O la versión más reciente -->
 </dependency>
 
-     
+     <dependency>
+    <groupId>org.apache.logging.log4j</groupId>
+    <artifactId>log4j-core</artifactId>
+    <version>2.20.0</version> <!-- Usa la versión que sea compatible con tu proyecto -->
+</dependency>
 
         <!-- Webcam -->
         <dependency>
