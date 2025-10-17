@@ -63,6 +63,22 @@ public class V_Empresa extends javax.swing.JFrame {
         this.setLocationRelativeTo(null);
         
 
+        if (AppSettings.getPrimer_Arranque()){
+String proveedor = AppSettings.getDB_Provider();
+String conexion = AppSettings.getDB_Connection();
+String usuario = AppSettings.getUsuario();
+String password = AppSettings.getPassword();
+
+       
+MonituxDBContext.init(
+    DBProvider.valueOf(proveedor.toUpperCase()),
+    conexion,
+    usuario,
+    password
+);
+        }  
+        
+        
         
     }
 
@@ -329,6 +345,7 @@ public class V_Empresa extends javax.swing.JFrame {
         });
         jScrollPane2.setViewportView(tableEmpresas);
 
+        checkBoxActivo.setBackground(new java.awt.Color(35, 32, 40));
         checkBoxActivo.setForeground(new java.awt.Color(255, 255, 255));
         checkBoxActivo.setText("Activa");
 
@@ -596,6 +613,19 @@ public class V_Empresa extends javax.swing.JFrame {
 
             JOptionPane.showMessageDialog(null, "Empresa creada correctamente.");
             Util.registrarActividad(Secuencial_Usuario, "Ha creado la empresa: " + empresa.getNombre(), Secuencial);
+       AppSettings.set_Empresa_Creada(true);
+       
+       if (AppSettings.getPrimer_Arranque()){
+       
+           V_Login x = new V_Login();
+           x.setVisible(true);
+           AppSettings.set_Usuario_Creado(false);
+       } else {
+       
+           this.dispose();
+       }
+        
+        
         } catch (Exception e) {
             JOptionPane.showMessageDialog(null, "Error al crear empresa: Ya existe o los datos no son válidos.");
             em.getTransaction().rollback();
@@ -607,6 +637,29 @@ public class V_Empresa extends javax.swing.JFrame {
       
     }//GEN-LAST:event_Menu_GuardarActionPerformed
 
+    
+      public static void main(String args[]) {
+        /* Set the Nimbus look and feel */
+        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
+        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
+         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+         */
+        try {
+            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
+            }
+        } catch (ReflectiveOperationException | javax.swing.UnsupportedLookAndFeelException ex) {
+            logger.log(java.util.logging.Level.SEVERE, null, ex);
+        }
+        //</editor-fold>
+
+        /* Create and display the form */
+        java.awt.EventQueue.invokeLater(() -> new V_Empresa().setVisible(true));
+    }
+    
     private void Menu_EliminarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Menu_EliminarActionPerformed
 
       

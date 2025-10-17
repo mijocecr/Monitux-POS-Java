@@ -507,6 +507,9 @@
                   </Border>
                 </Property>
               </Properties>
+              <Events>
+                <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="labelImagenMouseClicked"/>
+              </Events>
             </Component>
             <Component class="javax.swing.JLabel" name="labelImagen1">
               <Properties>

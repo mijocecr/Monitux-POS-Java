@@ -2151,6 +2151,7 @@ x.setVisible(true);
 
     private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
 
+        AppSettings.set_Primer_Arranque(false);
         V_Login x = new V_Login();
         
         x.setLocationRelativeTo(null);

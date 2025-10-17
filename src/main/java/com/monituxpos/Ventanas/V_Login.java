@@ -20,6 +20,7 @@ import java.awt.Image;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.util.Optional;
 import java.util.Random;
@@ -315,6 +316,11 @@ MonituxDBContext.init(
 
         labelImagen.setToolTipText("Click para escoger imagen.");
         labelImagen.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(255, 255, 255), 1, true));
+        labelImagen.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                labelImagenMouseClicked(evt);
+            }
+        });
 
         labelImagen1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/camera.png"))); // NOI18N
         labelImagen1.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -820,6 +826,51 @@ jLabel7.setText("One Click Solutions");
 
         // TODO add your handling code here:
     }//GEN-LAST:event_jPasswordField1KeyReleased
+
+    private void labelImagenMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_labelImagenMouseClicked
+
+ try {
+            String imagenSeleccionada = Util.abrirDialogoSeleccionFilename();
+
+            if (imagenSeleccionada != null && !imagenSeleccionada.trim().isEmpty()) {
+                File archivoImagen = new File(imagenSeleccionada);
+
+                if (archivoImagen.exists() && archivoImagen.isFile()) {
+                    // Cargar imagen como BufferedImage
+                    BufferedImage buffered = ImageIO.read(archivoImagen);
+
+                    if (buffered != null) {
+                        // Redimensionar al tamaño del JLabel
+                        int ancho = labelImagen.getWidth();
+                        int alto = labelImagen.getHeight();
+
+                        Image imagenEscalada = buffered.getScaledInstance(ancho, alto, Image.SCALE_SMOOTH);
+
+                        // Mostrar imagen redimensionada en el JLabel
+                        labelImagen.setIcon(new ImageIcon(imagenEscalada));
+
+                        // Convertir imagen original (no escalada) a byte[] para guardar
+                        ByteArrayOutputStream ms = new ByteArrayOutputStream();
+                        ImageIO.write(buffered, "png", ms);
+                        imagen = ms.toByteArray();
+                    } else {
+                        imagen = null;
+                        System.err.println("Formato de imagen no soportado.");
+                    }
+                } else {
+                    imagen = null;
+                    System.err.println("Archivo no encontrado o inválido: " + imagenSeleccionada);
+                }
+            }
+        } catch (IOException e) {
+            imagen = null;
+            e.printStackTrace();
+            // VMenuPrincipal.MSG.showMSG("No se pudo cargar la imagen seleccionada.", "Error");
+        }
+
+
+        // TODO add your handling code here:
+    }//GEN-LAST:event_labelImagenMouseClicked
 
     
    

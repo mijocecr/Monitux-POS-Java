@@ -584,8 +584,25 @@ if (!cadena.isEmpty()) {
 }
 
 
-        JOptionPane.showMessageDialog(null, "Configuración aplicada correctamente.", "Información", JOptionPane.INFORMATION_MESSAGE);
-        this.setVisible(false);
+     JOptionPane.showMessageDialog(null, "Configuración aplicada correctamente.", "Información", JOptionPane.INFORMATION_MESSAGE);
+this.dispose();
+
+// Evaluamos si debe ir a la creación de empresa
+boolean requiereEmpresa = !jCheckBox1.isSelected() && !AppSettings.getEmpresa_Creada();
+
+if (requiereEmpresa) {
+    JOptionPane.showMessageDialog(null, "Debe crear una Empresa", "Información", JOptionPane.INFORMATION_MESSAGE);
+    V_Empresa empresaFrame = new V_Empresa();
+    empresaFrame.setVisible(true);
+    empresaFrame.requestFocus();
+} else {
+    V_Login loginFrame = new V_Login();
+    loginFrame.setVisible(true);
+    loginFrame.requestFocus();
+}
+
+        
+        
 
     } catch (Exception ex) {
         JOptionPane.showMessageDialog(null, "Error inesperado: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
