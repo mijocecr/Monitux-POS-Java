@@ -1,4 +1,37 @@
-CREATE TABLE "abonos_compras" (
+
+SET REFERENTIAL_INTEGRITY FALSE;
+
+
+TRUNCATE TABLE "abonos_compras";
+TRUNCATE TABLE "abonos_ventas";
+TRUNCATE TABLE "actividades";
+TRUNCATE TABLE "categorias";
+TRUNCATE TABLE "clientes";
+TRUNCATE TABLE "comentarios";
+TRUNCATE TABLE "compras";
+TRUNCATE TABLE "compras_detalles";
+TRUNCATE TABLE "cotizaciones";
+TRUNCATE TABLE "cotizaciones_detalles";
+TRUNCATE TABLE "kardex";
+TRUNCATE TABLE "ordenes";
+TRUNCATE TABLE "ordenes_detalles";
+TRUNCATE TABLE "productos";
+TRUNCATE TABLE "proveedores";
+TRUNCATE TABLE "usuarios";
+TRUNCATE TABLE "ventas";
+TRUNCATE TABLE "ventas_detalles";
+TRUNCATE TABLE "cuentas_cobrar";
+TRUNCATE TABLE "cuentas_pagar";
+TRUNCATE TABLE "empresas";
+TRUNCATE TABLE "ingresos";
+TRUNCATE TABLE "egresos";
+
+
+SET REFERENTIAL_INTEGRITY TRUE;
+
+
+
+CREATE TABLE IF NOT EXISTS "abonos_compras" (
   "Secuencial" INT AUTO_INCREMENT PRIMARY KEY,
   "Secuencial_CTAP" INT NOT NULL,
   "Secuencial_Usuario" INT NOT NULL,
@@ -8,7 +41,7 @@ CREATE TABLE "abonos_compras" (
   "Secuencial_Empresa" INT NOT NULL
 );
 
-CREATE TABLE "abonos_ventas" (
+CREATE TABLE IF NOT EXISTS "abonos_ventas" (
   "Secuencial" INT AUTO_INCREMENT PRIMARY KEY,
   "Secuencial_CTAC" INT NOT NULL,
   "Secuencial_Usuario" INT NOT NULL,
@@ -18,7 +51,7 @@ CREATE TABLE "abonos_ventas" (
   "Secuencial_Empresa" INT NOT NULL
 );
 
-CREATE TABLE "actividades" (
+CREATE TABLE IF NOT EXISTS "actividades" (
   "Secuencial" INT AUTO_INCREMENT PRIMARY KEY,
   "Secuencial_Usuario" INT NOT NULL,
   "Fecha" VARCHAR(255),
@@ -26,7 +59,7 @@ CREATE TABLE "actividades" (
   "Secuencial_Empresa" INT
 );
 
-CREATE TABLE "categorias" (
+CREATE TABLE IF NOT EXISTS "categorias" (
   "Secuencial" INT AUTO_INCREMENT PRIMARY KEY,
   "Nombre" VARCHAR(150),
   "Descripcion" VARCHAR(1000),
@@ -34,7 +67,7 @@ CREATE TABLE "categorias" (
   "Secuencial_Empresa" INT NOT NULL
 );
 
-CREATE TABLE "clientes" (
+CREATE TABLE IF NOT EXISTS "clientes" (
   "Secuencial" INT AUTO_INCREMENT PRIMARY KEY,
   "Codigo" VARCHAR(50),
   "Nombre" VARCHAR(150),
@@ -46,7 +79,7 @@ CREATE TABLE "clientes" (
   "Secuencial_Empresa" INT
 );
 
-CREATE TABLE "comentarios" (
+CREATE TABLE IF NOT EXISTS "comentarios" (
   "Secuencial" INT AUTO_INCREMENT PRIMARY KEY,
   "Secuencial_Factura_C" INT,
   "Secuencial_Factura_V" INT,
@@ -57,7 +90,7 @@ CREATE TABLE "comentarios" (
   "Secuencial_Empresa" INT
 );
 
-CREATE TABLE "compras" (
+CREATE TABLE IF NOT EXISTS "compras" (
   "Secuencial" INT AUTO_INCREMENT PRIMARY KEY,
   "Secuencial_Proveedor" INT,
   "Secuencial_Usuario" INT,
@@ -73,7 +106,7 @@ CREATE TABLE "compras" (
   "Documento" BLOB
 );
 
-CREATE TABLE "compras_detalles" (
+CREATE TABLE IF NOT EXISTS "compras_detalles" (
   "Secuencial" INT AUTO_INCREMENT PRIMARY KEY,
   "Secuencial_Factura" INT,
   "Secuencial_Proveedor" INT,
@@ -89,7 +122,7 @@ CREATE TABLE "compras_detalles" (
   "Secuencial_Empresa" INT
 );
 
-CREATE TABLE "cotizaciones" (
+CREATE TABLE IF NOT EXISTS "cotizaciones" (
   "Secuencial" INT AUTO_INCREMENT PRIMARY KEY,
   "Secuencial_Cliente" INT,
   "Secuencial_Usuario" INT,
@@ -102,7 +135,7 @@ CREATE TABLE "cotizaciones" (
   "Secuencial_Empresa" INT
 );
 
-CREATE TABLE "cotizaciones_detalles" (
+CREATE TABLE IF NOT EXISTS "cotizaciones_detalles" (
   "Secuencial" INT AUTO_INCREMENT PRIMARY KEY,
   "Secuencial_Cotizacion" INT,
   "Secuencial_Usuario" INT,
@@ -118,7 +151,7 @@ CREATE TABLE "cotizaciones_detalles" (
   "Secuencial_Empresa" INT
 );
 
-CREATE TABLE "kardex" (
+CREATE TABLE IF NOT EXISTS "kardex" (
   "Secuencial" INT AUTO_INCREMENT PRIMARY KEY,
   "Fecha" VARCHAR(255) NOT NULL,
   "Secuencial_Producto" INT NOT NULL,
@@ -133,7 +166,7 @@ CREATE TABLE "kardex" (
   "Secuencial_Empresa" INT NOT NULL
 );
 
-CREATE TABLE "ordenes" (
+CREATE TABLE IF NOT EXISTS "ordenes" (
   "Secuencial" INT AUTO_INCREMENT PRIMARY KEY,
   "Secuencial_Proveedor" INT NOT NULL,
   "Secuencial_Usuario" INT NOT NULL,
@@ -146,7 +179,7 @@ CREATE TABLE "ordenes" (
   "Secuencial_Empresa" INT
 );
 
-CREATE TABLE "ordenes_detalles" (
+CREATE TABLE IF NOT EXISTS "ordenes_detalles" (
   "Secuencial" INT AUTO_INCREMENT PRIMARY KEY,
   "Secuencial_Orden" INT NOT NULL,
   "Secuencial_Usuario" INT NOT NULL,
@@ -162,7 +195,7 @@ CREATE TABLE "ordenes_detalles" (
   "Secuencial_Empresa" INT
 );
 
-CREATE TABLE "productos" (
+CREATE TABLE IF NOT EXISTS "productos" (
   "Secuencial" INT AUTO_INCREMENT PRIMARY KEY,
   "Secuencial_Proveedor" INT NOT NULL,
   "Codigo" VARCHAR(50) NOT NULL,
@@ -182,7 +215,7 @@ CREATE TABLE "productos" (
   "Secuencial_Empresa" INT NOT NULL
 );
 
-CREATE TABLE "proveedores" (
+CREATE TABLE IF NOT EXISTS "proveedores" (
   "Secuencial" INT AUTO_INCREMENT PRIMARY KEY,
   "Nombre" VARCHAR(150),
   "Telefono" VARCHAR(20),
@@ -195,7 +228,7 @@ CREATE TABLE "proveedores" (
   "Secuencial_Empresa" INT
 );
 
-CREATE TABLE "usuarios" (
+CREATE TABLE IF NOT EXISTS "usuarios" (
   "Secuencial" INT AUTO_INCREMENT PRIMARY KEY,
   "Codigo" VARCHAR(50) NOT NULL,
   "Nombre" VARCHAR(150),
@@ -206,7 +239,7 @@ CREATE TABLE "usuarios" (
   "Secuencial_Empresa" INT NOT NULL
 );
 
-CREATE TABLE "ventas" (
+CREATE TABLE IF NOT EXISTS "ventas" (
   "Secuencial" INT AUTO_INCREMENT PRIMARY KEY,
   "Secuencial_Cliente" INT NOT NULL,
   "Secuencial_Usuario" INT NOT NULL,
@@ -222,7 +255,7 @@ CREATE TABLE "ventas" (
   "Documento" BLOB
 );
 
-CREATE TABLE "ventas_detalles" (
+CREATE TABLE IF NOT EXISTS "ventas_detalles" (
   "Secuencial" INT AUTO_INCREMENT PRIMARY KEY,
   "Secuencial_Factura" INT NOT NULL,
   "Secuencial_Cliente" INT NOT NULL,
