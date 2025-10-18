@@ -18,7 +18,7 @@ public class Proveedor {
     private String Contacto;
     private String Tipo;
 
- 
+  @Basic
 @Column(name = "Imagen")
 private byte[] Imagen;
 

@@ -11,6 +11,8 @@ import com.monituxpos.Clases.MonituxDBContext;
 import com.monituxpos.Clases.Util;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
+import jakarta.persistence.metamodel.Attribute;
+import jakarta.persistence.metamodel.EntityType;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
@@ -23,6 +25,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import javax.imageio.ImageIO;
@@ -37,6 +40,7 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
+import org.hibernate.Metamodel;
 
 /**
  *
@@ -542,7 +546,11 @@ MonituxDBContext.init(
 
     private void Menu_GuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Menu_GuardarActionPerformed
 
+       
+        
         byte[] imagenBytes = null;
+
+    // Obtener imagen del label
     Icon icono = labelImagen.getIcon();
     if (icono instanceof ImageIcon) {
         Image imagen = ((ImageIcon) icono).getImage();
@@ -551,9 +559,11 @@ MonituxDBContext.init(
         g2d.drawImage(imagen, 0, 0, null);
         g2d.dispose();
         imagenBytes = Util.comprimirImagen(copia, 100f);
+
+        System.out.println("🖼️ Imagen comprimida: " + imagenBytes.length + " bytes");
     }
 
-    // Validaciones
+    // Validaciones básicas
     if (txt_Nombre.getText().isBlank()) {
         JOptionPane.showMessageDialog(null, "El nombre de la empresa no puede estar vacío.");
         return;
@@ -562,78 +572,87 @@ MonituxDBContext.init(
         JOptionPane.showMessageDialog(null, "La dirección no puede estar vacía.");
         return;
     }
-//    if (txt_Moneda.getText().isBlank()) {
-//        JOptionPane.showMessageDialog(null, "Debe especificar la moneda.");
-//        return;
-//    }
 
-    EntityManager em = MonituxDBContext.getEntityManager();
+    MonituxDBContext.ensureEntityManagerFactoryReady();
+EntityManager em = MonituxDBContext.getEntityManager();
 
-    if (Secuencial != 0) {
-        // MODO EDICIÓN
-        Empresa empresa = em.find(Empresa.class, Secuencial);
-        if (empresa != null) {
-            em.getTransaction().begin();
+
+   // EntityManager em = MonituxDBContext.getEntityManager();
+    if (em == null || !em.isOpen()) {
+        JOptionPane.showMessageDialog(null, "❌ EntityManager no disponible.");
+        return;
+    }
+
+    try {
+        em.getTransaction().begin();
+
+        if (Secuencial != 0) {
+            // MODO EDICIÓN
+            Empresa empresa = em.find(Empresa.class, Secuencial);
+            if (empresa == null) {
+                throw new IllegalStateException("Empresa no encontrada con ID: " + Secuencial);
+            }
+
             empresa.setNombre(txt_Nombre.getText());
             empresa.setDireccion(txt_Direccion.getText());
             empresa.setTelefono(txt_Telefono.getText());
             empresa.setEmail(txt_Email.getText());
-       
             empresa.setMoneda(jComboBox1.getSelectedItem().toString().split("-")[0].trim());
+            if (!txt_ISV.getText().isEmpty()){
             empresa.setISV(new BigDecimal(txt_ISV.getText()));
+            }
             empresa.setActiva(checkBoxActivo.isSelected());
             empresa.setRSS(txt_RSS.getText());
             empresa.setSecuencial_Usuario(Secuencial_Usuario);
             if (imagenBytes != null) {
                 empresa.setImagen(imagenBytes);
             }
+
             em.getTransaction().commit();
-
-            Util.registrarActividad(Secuencial_Usuario, "Ha modificado la empresa: " + empresa.getNombre(), Secuencial);
             JOptionPane.showMessageDialog(null, "Empresa actualizada correctamente.");
-        }
-    } else {
-        // MODO CREACIÓN
-        Empresa empresa = new Empresa();
-        empresa.setNombre(txt_Nombre.getText());
-        empresa.setDireccion(txt_Direccion.getText());
-        empresa.setTelefono(txt_Telefono.getText());
-        empresa.setEmail(txt_Email.getText());
-        empresa.setMoneda(jComboBox1.getSelectedItem().toString().split("-")[0].trim());
-        empresa.setISV(new BigDecimal(txt_ISV.getText()));
-        empresa.setActiva(true);
-        empresa.setRSS(txt_RSS.getText());
-        empresa.setSecuencial_Usuario(Secuencial_Usuario);
-        empresa.setImagen(imagenBytes);
+            Util.registrarActividad(Secuencial_Usuario, "Ha modificado la empresa: " + empresa.getNombre(), Secuencial);
 
-        try {
-            em.getTransaction().begin();
+        } else {
+            // MODO CREACIÓN
+            Empresa empresa = new Empresa();
+            empresa.setNombre(txt_Nombre.getText());
+            empresa.setDireccion(txt_Direccion.getText());
+            empresa.setTelefono(txt_Telefono.getText());
+            empresa.setEmail(txt_Email.getText());
+            empresa.setMoneda(jComboBox1.getSelectedItem().toString().split("-")[0].trim());
+            if (!txt_ISV.getText().isEmpty()){
+            empresa.setISV(new BigDecimal(txt_ISV.getText()));
+            }
+            
+            empresa.setActiva(true);
+            empresa.setRSS(txt_RSS.getText());
+            empresa.setSecuencial_Usuario(Secuencial_Usuario);
+            //empresa.setImagen(imagenBytes);
+empresa.setImagen(imagenBytes != null ? imagenBytes : new byte[0]);
+
             em.persist(empresa);
             em.getTransaction().commit();
 
+            System.out.println("🆔 Empresa creada con ID: " + empresa.getSecuencial());
             JOptionPane.showMessageDialog(null, "Empresa creada correctamente.");
-            Util.registrarActividad(Secuencial_Usuario, "Ha creado la empresa: " + empresa.getNombre(), Secuencial);
-       AppSettings.set_Empresa_Creada(true);
-       
-       if (AppSettings.getPrimer_Arranque()){
-       
-           V_Login x = new V_Login();
-           x.setVisible(true);
-           AppSettings.set_Usuario_Creado(false);
-       } else {
-       
-           this.dispose();
-       }
-        
-        
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "Error al crear empresa: Ya existe o los datos no son válidos.");
+            Util.registrarActividad(Secuencial_Usuario, "Ha creado la empresa: " + empresa.getNombre(), empresa.getSecuencial());
+            AppSettings.set_Empresa_Creada(true);
+
+            if (AppSettings.getPrimer_Arranque()) {
+                new V_Login().setVisible(true);
+                AppSettings.set_Usuario_Creado(false);
+            } else {
+                this.dispose();
+            }
+        }
+
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(null, "❌ Error al guardar empresa: " + e.getMessage());
+        e.printStackTrace();
+        if (em.getTransaction().isActive()) {
             em.getTransaction().rollback();
-            return;
         }
     }
-
-    dispose(); // Cierra el formulario actual
       
     }//GEN-LAST:event_Menu_GuardarActionPerformed
 

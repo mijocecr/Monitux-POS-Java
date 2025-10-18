@@ -35,7 +35,7 @@ private int Secuencial;
     private int Secuencial_Empresa;
 
   // 📄 Nuevo campo para almacenar el documento PDF
-      
+      @Basic 
 @Column(name = "Documento")
 private byte[] Documento;
 

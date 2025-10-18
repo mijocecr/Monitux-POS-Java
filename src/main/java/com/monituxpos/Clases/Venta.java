@@ -38,7 +38,7 @@ private int Secuencial;
     private int Secuencial_Empresa = 0;
 
    
-    
+    @Basic
 @Column(name = "Documento")
 private byte[] Documento;
 

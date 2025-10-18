@@ -30,7 +30,7 @@ public class Producto {
     private String Codigo_Barra;
     private String Codigo_Fabricante;
 
- 
+  @Basic
 @Column(name = "Imagen")
 private byte[] Imagen;
 

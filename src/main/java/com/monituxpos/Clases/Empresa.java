@@ -17,23 +17,19 @@ public class Empresa {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int Secuencial;
 
+     private boolean Activa = true;
+     private String Direccion = "";
+      private String Email = "";
+      private BigDecimal ISV = BigDecimal.ZERO; // Manejo preciso de valores monetarios
+   @Basic
+@Column(name = "Imagen")
+private byte[] Imagen;
+   private String Moneda = "";
     private String Nombre = "";
-    private String Direccion = "";
+     private String RSS = "https://www.tunota.com/rss/honduras-hoy.xml";
+ private int Secuencial_Usuario;
     private String Telefono = "";
-    private String Email = "";
-    private String Moneda = "";
-
-    private BigDecimal ISV = BigDecimal.ZERO; // Manejo preciso de valores monetarios
-
-    private boolean Activa = true;
-
-    
-    private byte[] Imagen; // Puede ser null por defecto
-
-    private int Secuencial_Usuario;
-
-    private String RSS = "https://www.tunota.com/rss/honduras-hoy.xml";
-
+ 
     // Getters y setters pueden generarse automáticamente
 
     public int getSecuencial() {

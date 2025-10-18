@@ -667,8 +667,9 @@ MonituxDBContext.init(
                 if (respuesta.equals(Pin) && !"****".equals(Pin)) {
                     usuario.setAcceso("Administrador");
                 } else {
+                     usuario.setAcceso("Vendedor");
                     JOptionPane.showMessageDialog(null, "Pin incorrecto. El usuario no se ha creado como administrador.", "Información", JOptionPane.INFORMATION_MESSAGE);
-                    return;
+                    
                 }
             }
         }

@@ -1,4 +1,78 @@
 
+   
+
+	CREATE TABLE cuentas_cobrar (
+        [Secuencial] INT IDENTITY(1,1) PRIMARY KEY,
+        [Secuencial_Factura] INT,
+        [Secuencial_Cliente] INT,
+        [Secuencial_Usuario] INT,
+        [Fecha] VARCHAR(25),
+        [Fecha_Vencimiento] VARCHAR(25),
+        [Total] FLOAT,
+        [Saldo] FLOAT,
+        [Pagado] FLOAT,
+        [Descuento] FLOAT,
+        [Impuesto] FLOAT,
+        [Otros_Cargos] FLOAT,
+        [Gran_Total] FLOAT,
+        [Secuencial_Empresa] INT
+    );
+
+
+	 CREATE TABLE cuentas_pagar (
+        [Secuencial] INT IDENTITY(1,1) PRIMARY KEY,
+        [Secuencial_Factura] INT,
+        [Secuencial_Proveedor] INT,
+        [Secuencial_Usuario] INT,
+        [Fecha] VARCHAR(25),
+        [Fecha_Vencimiento] VARCHAR(25),
+        [Total] FLOAT,
+        [Saldo] FLOAT,
+        [Pagado] FLOAT,
+        [Otros_Cargos] FLOAT,
+        [Descuento] FLOAT,
+        [Impuesto] FLOAT,
+        [Gran_Total] FLOAT,
+        [Secuencial_Empresa] INT
+    );
+
+
+	 CREATE TABLE egresos (
+        [Secuencial] INT IDENTITY(1,1) PRIMARY KEY,
+        [Secuencial_Factura] INT,
+        [Secuencial_Usuario] INT NOT NULL,
+        [Fecha] VARCHAR(25) NOT NULL,
+        [Tipo_Egreso] VARCHAR(20) NOT NULL,
+        [Total] FLOAT NOT NULL,
+        [Descripcion] VARCHAR(255) NOT NULL,
+        [Secuencial_Empresa] INT NOT NULL
+    );
+
+	 CREATE TABLE ingresos (
+        [Secuencial] INT IDENTITY(1,1) PRIMARY KEY,
+        [Secuencial_Factura] INT,
+        [Secuencial_Usuario] INT NOT NULL,
+        [Fecha] VARCHAR(25) NOT NULL,
+        [Tipo_Ingreso] VARCHAR(20) NOT NULL,
+        [Total] FLOAT NOT NULL,
+        [Descripcion] VARCHAR(255) NOT NULL,
+        [Secuencial_Empresa] INT NOT NULL
+    );
+
+	CREATE TABLE empresas (
+        [Secuencial] INT IDENTITY(1,1) PRIMARY KEY,
+        [Nombre] VARCHAR(255),
+        [Direccion] VARCHAR(255),
+        [Telefono] VARCHAR(50),
+        [Email] VARCHAR(100),
+        [Moneda] VARCHAR(10),
+        [ISV] FLOAT,
+        [Activa] BIT,
+        [Imagen] VARBINARY(MAX),
+        [Secuencial_Usuario] INT,
+        [RSS] VARCHAR(MAX)
+    );
+
 CREATE TABLE abonos_compras (
     [Secuencial] INT IDENTITY(1,1) NOT NULL,
     [Secuencial_CTAP] INT NOT NULL,
@@ -256,6 +330,9 @@ CREATE TABLE ventas_detalles (
     [Secuencial_Empresa] INT NOT NULL,
     CONSTRAINT PK_Ventas_Detalles PRIMARY KEY ([Secuencial])
 );
+
+
+
 
 ALTER DATABASE monitux SET READ_WRITE;
 

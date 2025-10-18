@@ -13,7 +13,7 @@ public class Categoria {
     private String Nombre;
     private String Descripcion;
 
-   
+    @Basic
 @Column(name = "Imagen")
 private byte[] Imagen;
 

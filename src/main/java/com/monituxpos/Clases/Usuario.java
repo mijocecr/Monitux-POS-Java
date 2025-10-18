@@ -18,7 +18,7 @@ public class Usuario {
     @Column(nullable = false)
     private String Password;
 
-
+ @Basic
 @Column(name = "Imagen")
 private byte[] Imagen;
 

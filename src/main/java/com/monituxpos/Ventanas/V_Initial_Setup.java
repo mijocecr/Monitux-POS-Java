@@ -10,6 +10,7 @@ import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -139,7 +140,7 @@ public class V_Initial_Setup extends javax.swing.JFrame {
         jLabel8.setText("🌐 Soporte para sistema distribuido");
 
         jLabel9.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel9.setText("🖼️ Transaccionalidad y gestion de Memoria Optimizadas");
+        jLabel9.setText("🖼️ Gestion de Memoria Optimizada");
 
         jPanel2.setBackground(new java.awt.Color(35, 32, 45));
 
@@ -183,6 +184,11 @@ public class V_Initial_Setup extends javax.swing.JFrame {
         jButton1.setText("<html><br>Guardar  y</br><br>Continuar</br></html>");
         jButton1.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255)));
         jButton1.setEnabled(false);
+        jButton1.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jButton1MouseClicked(evt);
+            }
+        });
         jButton1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton1ActionPerformed(evt);
@@ -344,18 +350,32 @@ String cadena = "";
 
 switch (proveedor.toUpperCase()) {
    
+// case "H2":
+//    File dbFile = new File(System.getProperty("user.dir"), "Resources/Database/H2-DB");
+//    String basePath = dbFile.getAbsolutePath().replace("\\", "/");
+//
+//    // Activamos AUTO_SERVER para permitir múltiples conexiones sin bloqueo
+//    // DB_CLOSE_ON_EXIT lo dejamos en TRUE para liberar el archivo al cerrar la JVM
+//    cadena = "jdbc:h2:file:" + basePath +
+//             ";AUTO_SERVER=TRUE" +
+//             ";DB_CLOSE_DELAY=-1" +
+//             ";DB_CLOSE_ON_EXIT=TRUE";
+//
+//    break;
+    
     case "H2":
-   File dbFile = new File(System.getProperty("user.dir"), "Resources/Database/H2-DB");
-    String basePath = dbFile.getAbsolutePath().replace("\\", "/");
+    Path dbPath = Paths.get(System.getProperty("user.dir"), "Resources", "Database", "H2-DB");
+    String basePath = dbPath.toAbsolutePath().normalize().toString().replace("\\", "/");
 
     // Activamos AUTO_SERVER para permitir múltiples conexiones sin bloqueo
     // DB_CLOSE_ON_EXIT lo dejamos en TRUE para liberar el archivo al cerrar la JVM
-     cadena = "jdbc:h2:file:" + basePath +
-                    ";AUTO_SERVER=TRUE" +
-                    ";DB_CLOSE_DELAY=-1" +
-                    ";DB_CLOSE_ON_EXIT=TRUE";
+    cadena = "jdbc:h2:file:" + basePath +
+             ";AUTO_SERVER=TRUE" +
+             ";DB_CLOSE_DELAY=-1" +
+             ";DB_CLOSE_ON_EXIT=TRUE";
+    break;
 
-     break;
+
 
 
     case "MYSQL":
@@ -407,8 +427,10 @@ if (!cadena.isEmpty()) {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
 
+        //*************************
         
-         if (jCheckBox1.isSelected()) {
+        
+    if (jCheckBox1.isSelected()) {
         AppSettings.set_Empresa_Creada(true);
         AppSettings.set_Primer_Arranque(false);
     } else {
@@ -420,25 +442,40 @@ if (!cadena.isEmpty()) {
         String proveedor = jComboBox1.getSelectedItem() != null
             ? jComboBox1.getSelectedItem().toString().trim().toUpperCase()
             : null;
-        String conexion = jTextField1.getText().trim();
 
-        if (!"H2".equals(proveedor)) {
-            if (proveedor == null || proveedor.isBlank()) {
-                JOptionPane.showMessageDialog(null, "Debe seleccionar un proveedor de base de datos.", "Advertencia", JOptionPane.WARNING_MESSAGE);
-                return;
+        if (proveedor == null || proveedor.isBlank()) {
+            JOptionPane.showMessageDialog(null, "Debe seleccionar un proveedor de base de datos.", "Advertencia", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        // Registro manual del driver JDBC
+        try {
+            switch (proveedor) {
+                case "SQLSERVER" -> {
+                    DriverManager.registerDriver(new com.microsoft.sqlserver.jdbc.SQLServerDriver());
+                    Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
+                }
+                case "POSTGRESQL" -> {
+                    DriverManager.registerDriver(new org.postgresql.Driver());
+                    Class.forName("org.postgresql.Driver");
+                }
+                case "H2" -> {
+                    DriverManager.registerDriver(new org.h2.Driver());
+                    Class.forName("org.h2.Driver");
+                }
             }
-            if (conexion.isBlank()) {
-                JOptionPane.showMessageDialog(null, "Debe ingresar una cadena de conexión válida.", "Advertencia", JOptionPane.WARNING_MESSAGE);
-                return;
-            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, "Error al registrar el driver JDBC: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+            return;
         }
 
         String archivo = switch (proveedor) {
-            case "MYSQL" -> Paths.get(System.getProperty("user.dir"), "Resources", "Database", "MySQL-DB.sql").toString();
-            case "SQLSERVER" -> Paths.get(System.getProperty("user.dir"), "Resources", "Database", "SQL-DB.sql").toString();
+            case "MYSQL"      -> Paths.get(System.getProperty("user.dir"), "Resources", "Database", "MySQL-DB.sql").toString();
+            case "SQLSERVER"  -> Paths.get(System.getProperty("user.dir"), "Resources", "Database", "SQL-DB.sql").toString();
             case "POSTGRESQL" -> Paths.get(System.getProperty("user.dir"), "Resources", "Database", "Postgres-DB.sql").toString();
-            case "H2" -> Paths.get(System.getProperty("user.dir"), "Resources", "Database", "H2-DB.sql").toString();
-            default -> null;
+            case "H2"         -> Paths.get(System.getProperty("user.dir"), "Resources", "Database", "H2-DB.sql").toString();
+            default           -> null;
         };
 
         if (archivo == null || !Files.exists(Paths.get(archivo))) {
@@ -509,7 +546,7 @@ if (!cadena.isEmpty()) {
                 }
             }
 
-            JOptionPane.showMessageDialog(null, "Base de datos SQL configurada correctamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Base de datos SQL Server configurada correctamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
 
         } else if ("POSTGRESQL".equals(proveedor)) {
             String serverConnection = "jdbc:postgresql://" + server + ":5432/postgres?user=" + user + "&password=" + password;
@@ -541,84 +578,83 @@ if (!cadena.isEmpty()) {
 
             JOptionPane.showMessageDialog(null, "Base de datos PostgreSQL configurada exitosamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
 
-        } 
-        
- else if ("H2".equals(proveedor)) {
-    File dbFile = new File(System.getProperty("user.dir"), "Resources/Database/H2-DB");
-    String basePath = dbFile.getAbsolutePath().replace("\\", "/");
+        } else if ("H2".equals(proveedor)) {
+            Path dbPath = Paths.get(System.getProperty("user.dir"), "Resources", "Database", "H2-DB");
+            String basePath = dbPath.toAbsolutePath().normalize().toString().replace("\\", "/");
 
-    String dbConnection = "jdbc:h2:file:" + basePath +
-                          ";AUTO_SERVER=TRUE" +
-                          ";DB_CLOSE_DELAY=-1" +
-                          ";DB_CLOSE_ON_EXIT=TRUE";
+            String dbConnection = "jdbc:h2:file:" + basePath +
+                                  ";AUTO_SERVER=TRUE" +
+                                  ";DB_CLOSE_DELAY=-1" +
+                                  ";DB_CLOSE_ON_EXIT=TRUE";
 
-    AppSettings.set_Conexion("H2", dbConnection);
-    AppSettings.setCredenciales("sa", "");
+            AppSettings.set_Conexion("H2", dbConnection);
+            AppSettings.setCredenciales("sa", "");
 
-    if (!jCheckBox1.isSelected()) {
-        try (Connection conn = DriverManager.getConnection(dbConnection, "sa", "")) {
-            String script = Files.readString(Paths.get(archivo));
+            if (!jCheckBox1.isSelected()) {
+                try (Connection conn = DriverManager.getConnection(dbConnection, "sa", "")) {
+                    String script = Files.readString(Paths.get(archivo));
 
-            for (String sentencia : script.split(";")) {
-                sentencia = sentencia.trim();
-                if (!sentencia.isEmpty()) {
-                    try (Statement stmt = conn.createStatement()) {
-                        stmt.execute(sentencia);
-                    } catch (SQLException e) {
-                        System.err.println("⚠️ Error ejecutando sentencia:\n" + sentencia);
-                        e.printStackTrace();
+                    for (String sentencia : script.split(";")) {
+                        sentencia = sentencia.trim();
+                        if (!sentencia.isEmpty()) {
+                            try (Statement stmt = conn.createStatement()) {
+                                stmt.execute(sentencia);
+                            } catch (SQLException e) {
+                                System.err.println("⚠️ Error ejecutando sentencia:\n" + sentencia);
+                                e.printStackTrace();
+                            }
+                        }
                     }
-                }
-            }
 
-            JOptionPane.showMessageDialog(null,
-                "Base de datos H2 configurada exitosamente.",
-                "Éxito",
+                    JOptionPane.showMessageDialog(null,
+                        "Base de datos H2 configurada exitosamente.",
+                        "Éxito",
+                        JOptionPane.INFORMATION_MESSAGE);
+
+                } catch (SQLException | IOException e) {
+                    JOptionPane.showMessageDialog(null,
+                        "Error al configurar la base de datos H2:\n" + e.getMessage(),
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE);
+                    e.printStackTrace();
+                }
+            } else {
+                JOptionPane.showMessageDialog(null,
+                    "Conexión H2 establecida sin vaciar base de datos.",
+                    "Conexión establecida",
+                    JOptionPane.INFORMATION_MESSAGE);
+            }
+        }
+
+        JOptionPane.showMessageDialog(null, "Configuración aplicada correctamente.", "Información", JOptionPane.INFORMATION_MESSAGE);
+        this.dispose();
+
+        boolean requiereEmpresa = !jCheckBox1.isSelected() && !AppSettings.getEmpresa_Creada();
+        if (requiereEmpresa) {
+             JOptionPane.showMessageDialog(null,
+                "Debe crear una Empresa",
+                "Información",
                 JOptionPane.INFORMATION_MESSAGE);
 
-        } catch (SQLException | IOException e) {
-            JOptionPane.showMessageDialog(null,
-                "Error al configurar la base de datos H2:\n" + e.getMessage(),
-                "Error",
-                JOptionPane.ERROR_MESSAGE);
-            e.printStackTrace();
+            V_Empresa empresaFrame = new V_Empresa();
+            empresaFrame.setVisible(true);
+            empresaFrame.requestFocus();
+        } else {
+            V_Login loginFrame = new V_Login();
+            loginFrame.setVisible(true);
+            loginFrame.requestFocus();
         }
-    } else {
-        JOptionPane.showMessageDialog(null,
-            "Conexión H2 establecida sin ejecutar el script.",
-            "Conexión establecida",
-            JOptionPane.INFORMATION_MESSAGE);
-    }
-}
-
-
- 
-     JOptionPane.showMessageDialog(null, "Configuración aplicada correctamente.", "Información", JOptionPane.INFORMATION_MESSAGE);
-this.dispose();
-
-// Evaluamos si debe ir a la creación de empresa
-boolean requiereEmpresa = !jCheckBox1.isSelected() && !AppSettings.getEmpresa_Creada();
-
-if (requiereEmpresa) {
-    JOptionPane.showMessageDialog(null, "Debe crear una Empresa", "Información", JOptionPane.INFORMATION_MESSAGE);
-    V_Empresa empresaFrame = new V_Empresa();
-    empresaFrame.setVisible(true);
-    empresaFrame.requestFocus();
-} else {
-    V_Login loginFrame = new V_Login();
-    loginFrame.setVisible(true);
-    loginFrame.requestFocus();
-}
-
-        
-        
 
     } catch (Exception ex) {
-        JOptionPane.showMessageDialog(null, "Error inesperado: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(null,
+            "Error inesperado: " + ex.getMessage(),
+            "Error",
+            JOptionPane.ERROR_MESSAGE);
         ex.printStackTrace();
     }
         
-        
+          
+        //*************************
 // TODO add your handling code here:
     }//GEN-LAST:event_jButton1ActionPerformed
 
@@ -636,6 +672,10 @@ AppSettings.setPropiedades_Default();
     private void jCheckBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBox1ActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_jCheckBox1ActionPerformed
+
+    private void jButton1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton1MouseClicked
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButton1MouseClicked
 
     
 private String construirCadenaSQLServer(String servidor, String usuario, String contraseña) {

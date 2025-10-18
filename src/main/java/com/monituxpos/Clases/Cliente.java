@@ -17,7 +17,7 @@ public class Cliente {
     private String Direccion;
     private String Email;
 
-  
+   @Basic
 @Column(name = "Imagen")
 private byte[] Imagen;
 
