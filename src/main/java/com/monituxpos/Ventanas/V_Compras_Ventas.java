@@ -238,7 +238,7 @@ public static Map<String, Double> lista = new HashMap<>();
                 jComboBox1PropertyChange(evt);
             }
         });
-        jPanel2.add(jComboBox1, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 40, 190, -1));
+        jPanel2.add(jComboBox1, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 40, 190, -1));
 
         jLabel4.setForeground(new java.awt.Color(255, 255, 255));
         jLabel4.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
@@ -304,7 +304,7 @@ public static Map<String, Double> lista = new HashMap<>();
         ));
         jScrollPane3.setViewportView(jTable2);
 
-        jPanel2.add(jScrollPane3, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 290, 390, 186));
+        jPanel2.add(jScrollPane3, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 290, 390, 180));
 
         jButton1.setText("Imprimir");
         jButton1.addActionListener(new java.awt.event.ActionListener() {
@@ -312,7 +312,7 @@ public static Map<String, Double> lista = new HashMap<>();
                 jButton1ActionPerformed(evt);
             }
         });
-        jPanel2.add(jButton1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 480, -1, -1));
+        jPanel2.add(jButton1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 470, -1, -1));
 
         jButton2.setText("Enviar");
         jButton2.addActionListener(new java.awt.event.ActionListener() {
@@ -320,7 +320,7 @@ public static Map<String, Double> lista = new HashMap<>();
                 jButton2ActionPerformed(evt);
             }
         });
-        jPanel2.add(jButton2, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 480, -1, -1));
+        jPanel2.add(jButton2, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 470, -1, -1));
 
         jButton3.setText("Modificar");
         jButton3.addActionListener(new java.awt.event.ActionListener() {
@@ -328,9 +328,9 @@ public static Map<String, Double> lista = new HashMap<>();
                 jButton3ActionPerformed(evt);
             }
         });
-        jPanel2.add(jButton3, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 480, 90, -1));
+        jPanel2.add(jButton3, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 470, 90, -1));
 
-        jPanel1.add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(18, 62, 392, -1));
+        jPanel1.add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(18, 62, 392, 510));
 
         jPanel4.setBackground(new java.awt.Color(0, 102, 255));
         jPanel4.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -385,7 +385,7 @@ public static Map<String, Double> lista = new HashMap<>();
 
         jLabel11.setForeground(new java.awt.Color(255, 255, 255));
         jLabel11.setText("Proveedor:");
-        jPanel4.add(jLabel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 40, 60, 30));
+        jPanel4.add(jLabel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 40, 70, 30));
 
         jComboBox2.addItemListener(new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
@@ -397,7 +397,7 @@ public static Map<String, Double> lista = new HashMap<>();
                 jComboBox2ActionPerformed(evt);
             }
         });
-        jPanel4.add(jComboBox2, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 40, 190, -1));
+        jPanel4.add(jComboBox2, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 40, 190, -1));
 
         jLabel12.setForeground(new java.awt.Color(51, 255, 51));
         jLabel12.setText("Telefono:");
@@ -421,7 +421,7 @@ public static Map<String, Double> lista = new HashMap<>();
                 jButton4ActionPerformed(evt);
             }
         });
-        jPanel4.add(jButton4, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 480, -1, -1));
+        jPanel4.add(jButton4, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 470, -1, -1));
 
         jButton5.setText("Enviar");
         jButton5.addActionListener(new java.awt.event.ActionListener() {
@@ -429,7 +429,7 @@ public static Map<String, Double> lista = new HashMap<>();
                 jButton5ActionPerformed(evt);
             }
         });
-        jPanel4.add(jButton5, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 480, -1, -1));
+        jPanel4.add(jButton5, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 470, -1, -1));
 
         jButton6.setText("Modificar");
         jButton6.addActionListener(new java.awt.event.ActionListener() {
@@ -437,9 +437,9 @@ public static Map<String, Double> lista = new HashMap<>();
                 jButton6ActionPerformed(evt);
             }
         });
-        jPanel4.add(jButton6, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 480, 90, -1));
+        jPanel4.add(jButton6, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 470, 90, -1));
 
-        jPanel1.add(jPanel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(422, 62, 394, -1));
+        jPanel1.add(jPanel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(422, 62, 394, 510));
 
         jLabel1.setBackground(new java.awt.Color(0, 0, 0));
         jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N

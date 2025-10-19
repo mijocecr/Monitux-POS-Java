@@ -1253,6 +1253,7 @@ primera_carga();
  {
      isAdmin = false; // Cambia el estado a no administrador
      jLabel1.setForeground(Color.white);
+     Pin="****";
  }
 
         
