@@ -78,7 +78,7 @@ double descuento = 0.0;
     public V_Factura_Compra() {
      
         initComponents(); // Primero inicializa los componentes
-
+listaDeItems.clear();
     SwingUtilities.invokeLater(() -> {
         
         Util.llenarComboProveedor(comboProveedor, Secuencial_Empresa);

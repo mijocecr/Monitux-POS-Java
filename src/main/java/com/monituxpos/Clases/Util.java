@@ -42,6 +42,7 @@ import javax.imageio.ImageWriter;
 import javax.imageio.stream.ImageOutputStream;
 import javax.swing.JFileChooser;
 import com.monituxpos.Clases.*;
+import com.monituxpos.Ventanas.V_Menu_Principal;
 
 import com.monituxpos.Ventanas.VisorPDFBox;
 import jakarta.persistence.EntityTransaction;
@@ -423,6 +424,48 @@ public class Util {
             em.close();
         }
     }
+}
+
+    
+  public static List<ProductoTopVR> obtenerTopProductosVendidos(int cantidadTop) {
+    EntityManager em = MonituxDBContext.getEntityManager();
+    List<ProductoTopVR> resultado = new ArrayList<>();
+
+    try {
+        // Consulta JPQL que devuelve directamente el objeto Producto y la suma de cantidades
+        List<Object[]> resumen = em.createQuery(
+            "SELECT k.producto, SUM(k.cantidad) " +
+            "FROM Kardex k " +
+            "WHERE k.movimiento = :mov AND k.Secuencial_Empresa = :empresa " +
+            "GROUP BY k.producto " +
+            "ORDER BY SUM(k.cantidad) DESC"
+        )
+        .setParameter("mov", "Salida")
+        .setParameter("empresa", V_Menu_Principal.getSecuencial_Empresa())
+        .setMaxResults(cantidadTop)
+        .getResultList();
+
+        // Construcción de objetos ProductoTopVR directamente desde los resultados
+        for (Object[] fila : resumen) {
+            Producto producto = (Producto) fila[0];
+            double totalVendido = (double) fila[1];
+
+            ProductoTopVR top = new ProductoTopVR(
+                producto.getSecuencial(),
+                producto.getDescripcion(),
+                producto.getCodigo(),
+                totalVendido,
+                producto.getPrecio_Venta(),
+                producto.getSecuencial_Empresa()
+            );
+            resultado.add(top);
+        }
+    } catch (Exception ex) {
+        System.err.println("❌ Error al obtener productos top vendidos: " + ex.getMessage());
+        ex.printStackTrace();
+    }
+
+    return resultado;
 }
 
     

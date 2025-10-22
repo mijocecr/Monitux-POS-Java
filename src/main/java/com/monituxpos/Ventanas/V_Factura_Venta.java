@@ -78,7 +78,8 @@ double descuento = 0.0;
      * Creates new form V_Factura_Venta
      */
     public V_Factura_Venta() {
-       initComponents(); // Primero inicializa los componentes
+      listaDeItems.clear();
+        initComponents(); // Primero inicializa los componentes
 
     SwingUtilities.invokeLater(() -> {
         Util.llenarComboCliente(comboCliente, Secuencial_Empresa);

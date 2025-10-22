@@ -1670,6 +1670,11 @@ aplicarColorFondo(jLabel8,new Color(35, 32, 45));
     }//GEN-LAST:event_jLabel8MouseExited
 
     private void jLabel9MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel9MouseClicked
+
+        V_Venta_Rapida x = new V_Venta_Rapida();
+        
+        abrirVentana(x);
+
         // TODO add your handling code here:
     }//GEN-LAST:event_jLabel9MouseClicked
 
