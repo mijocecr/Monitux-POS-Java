@@ -2284,7 +2284,7 @@ ActualizarNumeros(); // Actualizar totales y visuales
         }
 
         for (Producto producto : productos) {
-            Miniatura_Producto miniatura = new Miniatura_Producto(producto, true);
+            Miniatura_Producto miniatura = new Miniatura_Producto(producto, false);
             miniatura.setCantidadSelecccionItem(itemC.getValue().intValue());
             miniatura.setPreferredSize(new Dimension(120, 170));
 

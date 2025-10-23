@@ -1779,7 +1779,7 @@ public void cargar_Items(int secuencialEmpresa, JPanel contenedor, JPanel conten
     int col = 0, row = 0;
 
     for (Producto producto : productos) {
-        Miniatura_Producto miniatura = new Miniatura_Producto(producto, false);
+        Miniatura_Producto miniatura = new Miniatura_Producto(producto, true);
         miniatura.setPreferredSize(new Dimension(120, 170));
 
         miniatura.addMouseListener(new MouseAdapter() {

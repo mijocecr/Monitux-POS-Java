@@ -14,11 +14,19 @@ import com.google.zxing.NotFoundException;
 import com.google.zxing.Result;
 import com.google.zxing.client.j2se.BufferedImageLuminanceSource;
 import com.google.zxing.common.HybridBinarizer;
+import com.monituxpos.Clases.Cliente;
+import com.monituxpos.Clases.Cuentas_Cobrar;
+import com.monituxpos.Clases.FacturaCompletaPDF_Venta;
+import com.monituxpos.Clases.Ingreso;
+import com.monituxpos.Clases.Item_Factura;
 import com.monituxpos.Clases.Miniatura_Producto;
 import com.monituxpos.Clases.MonituxDBContext;
 import com.monituxpos.Clases.Producto;
 import com.monituxpos.Clases.ProductoTopVR;
 import com.monituxpos.Clases.Util;
+import com.monituxpos.Clases.Venta;
+import com.monituxpos.Clases.Venta_Detalle;
+import static com.monituxpos.Ventanas.V_Factura_Venta.listaDeItems;
 import jakarta.persistence.EntityManager;
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -30,6 +38,10 @@ import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -67,7 +79,7 @@ public class V_Venta_Rapida extends javax.swing.JPanel {
            double subTotal = 0.0;
 double total = 0.0;
 double otrosCargos = 0.0;
-double impuesto = 0.0;
+double impuesto = 15.0;// Tengo que cambiar esto
 double descuento = 0.0;
     
        public static final Map<String, Miniatura_Producto> listaDeItems = new HashMap<>();
@@ -230,25 +242,11 @@ listaDeItems.clear();
 
         jPanel1.setBackground(new java.awt.Color(0, 0, 0));
         jPanel1.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255)));
+        jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jLabel4.setBorder(javax.swing.BorderFactory.createMatteBorder(1, 1, 1, 1, new java.awt.Color(51, 255, 0)));
-
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 166, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
-        );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
+        jPanel1.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(7, 7, 170, 80));
+        jLabel4.setVisible(false);
 
         jPanel2.setBackground(new java.awt.Color(35, 32, 45));
         jPanel2.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255)));
@@ -388,13 +386,14 @@ listaDeItems.clear();
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel5Layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, 193, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jComboBox1, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(jPanel5Layout.createSequentialGroup()
                         .addComponent(jLabel2)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(icono_carga)))
-                .addContainerGap(17, Short.MAX_VALUE))
+                        .addGap(33, 33, 33)
+                        .addComponent(icono_carga)
+                        .addGap(0, 11, Short.MAX_VALUE)))
+                .addContainerGap())
         );
         jPanel5Layout.setVerticalGroup(
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -577,7 +576,7 @@ listaDeItems.clear();
                     .addComponent(jLabel7))
                 .addGap(18, 18, 18)
                 .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(lblSubTotal, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(lblSubTotal, javax.swing.GroupLayout.DEFAULT_SIZE, 14, Short.MAX_VALUE)
                     .addComponent(lblISV, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(lblTotal, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
@@ -612,6 +611,11 @@ listaDeItems.clear();
                 jButton3MouseClicked(evt);
             }
         });
+        jButton3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton3ActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel10Layout = new javax.swing.GroupLayout(jPanel10);
         jPanel10.setLayout(jPanel10Layout);
@@ -639,7 +643,7 @@ listaDeItems.clear();
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(jPanel3, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 180, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
@@ -752,9 +756,10 @@ panel.repaint();
         // TODO add your handling code here:
     }//GEN-LAST:event_jComboBox1ActionPerformed
 
-    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-
-
+    
+    private void Limpiar_Factura(){
+    
+        
         Util.llenarComboCliente(jComboBox1, Secuencial_Empresa);
         
         jComboBox1.setSelectedIndex(-1); // Limpiar la selección del cliente
@@ -787,6 +792,12 @@ listaDeItems.clear();
     jLabel3.setText("Opciones Rapidas");
     jButton4.setEnabled(true);
 
+
+    
+    }
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+
+        Limpiar_Factura();
 
         // TODO add your handling code here:
     }//GEN-LAST:event_jButton2ActionPerformed
@@ -888,14 +899,222 @@ destino.setVisible(true); // Primero mostrar
 V_Menu_Principal.abrirVentana(destino); // Registrar en navegación
 
 SwingUtilities.invokeLater(() -> {
-    destino.recibirItems(new HashMap<>(this.listaDeItems)); // Ahora sí: contenedor ya renderizado
+    destino.recibirItems(new HashMap<>(this.listaDeItems),jComboBox1.getSelectedItem().toString()); // Ahora sí: contenedor ya renderizado
 });
 
     
         // TODO add your handling code here:
     }//GEN-LAST:event_jButton5ActionPerformed
 
+    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+
+
+        //******************************
+        
+         
+        icono_carga.setVisible(true);
+    actualizarTotal();
+
+    if (listaDeItems.isEmpty()) {
+        JOptionPane.showMessageDialog(null, "No hay items seleccionados para registrar la venta.", "Error", JOptionPane.ERROR_MESSAGE);
+        icono_carga.setVisible(false);
+        return;
+    }
+
     
+
+    if (total <= 0) {
+        JOptionPane.showMessageDialog(null, "El total de la venta debe ser mayor a cero.", "Error", JOptionPane.ERROR_MESSAGE);
+        icono_carga.setVisible(false);
+        return;
+    }
+
+    EntityManager em = null;
+    List<Object[]> movimientosPendientes = new ArrayList<>();
+    byte[] pdfBytes = null;
+    String destinatario = null;
+
+    try {
+        em = MonituxDBContext.getEntityManager();
+        em.getTransaction().begin();
+
+        Venta venta = new Venta();
+        venta.setSecuencial_Empresa(Secuencial_Empresa);
+        venta.setSecuencial_Cliente(Integer.parseInt(jComboBox1.getSelectedItem().toString().split("-")[0].trim()));
+        venta.setSecuencial_Usuario(Secuencial_Usuario);
+        venta.setFecha(new SimpleDateFormat("dd/MM/yyyy hh:mm:ss a").format(new Date()));
+        venta.setTipo("Contado");
+        venta.setForma_Pago("Efectivo");
+        venta.setTotal(Util.redondear(subTotal));
+        venta.setGran_Total(Util.redondear(total));
+        venta.setImpuesto(impuesto);
+        venta.setOtros_Cargos(otrosCargos);
+        venta.setDescuento(descuento);
+
+        em.persist(venta);
+
+        for (Miniatura_Producto pro : listaDeItems.values()) {
+            Venta_Detalle detalle = new Venta_Detalle();
+            detalle.setSecuencial_Empresa(venta.getSecuencial_Empresa());
+            detalle.setSecuencial_Factura(venta.getSecuencial());
+            detalle.setSecuencial_Cliente(venta.getSecuencial_Cliente());
+            detalle.setSecuencial_Usuario(venta.getSecuencial_Usuario());
+            detalle.setFecha(venta.getFecha());
+            detalle.setSecuencial_Producto(pro.producto.getSecuencial());
+            detalle.setCodigo(pro.producto.getCodigo());
+            detalle.setDescripcion(pro.producto.getDescripcion());
+            detalle.setCantidad(Double.valueOf(pro.getCantidadSelecccion()));
+            detalle.setPrecio(Util.redondear(pro.producto.getPrecio_Venta()));
+            detalle.setTotal(Util.redondear(pro.getCantidadSelecccion() * pro.producto.getPrecio_Venta()));
+            detalle.setTipo(pro.producto.getTipo());
+
+            em.persist(detalle);
+
+           
+        }
+
+        
+
+        FacturaCompletaPDF_Venta factura = new FacturaCompletaPDF_Venta();
+        factura.setSecuencial(venta.getSecuencial());
+        factura.setCliente(jComboBox1.getSelectedItem().toString().split("-")[1].trim());
+        factura.setTipoVenta(venta.getTipo());
+        factura.setMetodoPago(venta.getForma_Pago());
+        factura.setFecha(venta.getFecha());
+        factura.setItems(ObtenerItemsDesdeGrid(jTable1));
+        factura.setISV(venta.getImpuesto());
+        factura.setOtrosCargos(venta.getOtros_Cargos());
+        factura.setDescuento(venta.getDescuento());
+
+        pdfBytes = factura.GeneratePdfToBytes();
+        venta.setDocumento(pdfBytes);
+        em.merge(venta);
+
+        V_Visor_Factura visor = new V_Visor_Factura();
+        visor.setDocumentoEnBytes(pdfBytes);
+        visor.setTitulo("Factura de Venta No. " + factura.getSecuencial());
+        visor.mostrar();
+
+        Cliente destinatarioCliente = em.find(Cliente.class, venta.getSecuencial_Cliente());
+        destinatario = destinatarioCliente != null ? destinatarioCliente.getEmail() : null;
+
+        em.getTransaction().commit();
+
+        for (Object[] mov : movimientosPendientes) {
+            Util.registrarMovimientoKardex(
+                (int) mov[0],
+                (double) mov[1],
+                (String) mov[2],
+                (double) mov[3],
+                (double) mov[4],
+                (double) mov[5],
+                (String) mov[6],
+                (int) mov[7]
+            );
+        }
+
+        if (destinatario != null && !destinatario.isBlank()) {
+            Util.EnviarCorreoConPdfBytes(
+                "monitux.pos@gmail.com",
+                destinatario,
+                "Nombre Empresa - Comprobante de Venta",
+                "Gracias por su compra. Adjunto tiene su comprobante.",
+                pdfBytes,
+                "smtp.gmail.com",
+                587,
+                "monitux.pos",
+                "ffeg qqnx zaij otmb"
+            );
+        }
+
+        Util.registrarActividad(
+            Secuencial_Usuario,
+            "Ha registrado una venta" + ("Credito".equals(venta.getTipo()) ? " al crédito" : "") +
+            ", factura: " + venta.getSecuencial() + ", por un valor de: " + venta.getTotal() + " Lps",
+            Secuencial_Empresa
+        );
+
+        
+        
+        Limpiar_Factura();
+
+        JOptionPane.showMessageDialog(
+            null,
+            "Credito".equals(venta.getTipo())
+                ? "Venta al crédito registrada correctamente.\n\nRecuerde que debe cobrar la cuenta pendiente antes de la fecha de vencimiento."
+                : "Venta registrada correctamente.",
+            "Éxito",
+            JOptionPane.INFORMATION_MESSAGE
+        );
+
+    } catch (Exception ex) {
+        if (em != null && em.getTransaction().isActive()) {
+            em.getTransaction().rollback();
+        }
+        JOptionPane.showMessageDialog(null, "Error al registrar la venta: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        ex.printStackTrace();
+    } finally {
+        if (em != null && em.isOpen()) {
+            em.close();
+        }
+        icono_carga.setVisible(false);
+    
+    }
+        
+        //******************************
+
+
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButton3ActionPerformed
+
+     public int obtenerIndiceColumna(JTable table, String nombreColumna) {
+    for (int i = 0; i < table.getColumnCount(); i++) {
+        if (table.getColumnName(i).equalsIgnoreCase(nombreColumna)) {
+            return i;
+        }
+    }
+    return -1; // No encontrada
+}
+
+    
+     public List<Item_Factura> ObtenerItemsDesdeGrid(JTable table) {
+    List<Item_Factura> lista = new ArrayList<>();
+
+    DefaultTableModel model = (DefaultTableModel) table.getModel();
+    int rowCount = model.getRowCount();
+
+    for (int i = 0; i < rowCount; i++) {
+        // Puedes omitir filas vacías si lo deseas
+        Object codigoObj = model.getValueAt(i, obtenerIndiceColumna(table, "Codigo"));
+        Object descripcionObj = model.getValueAt(i, obtenerIndiceColumna(table, "Descripcion"));
+        Object cantidadObj = model.getValueAt(i, obtenerIndiceColumna(table, "Cantidad"));
+        Object precioObj = model.getValueAt(i, obtenerIndiceColumna(table, "Precio"));
+
+       if (codigoObj != null && cantidadObj != null && precioObj != null) {
+    try {
+        Item_Factura item = new Item_Factura();
+        item.setCodigo(codigoObj.toString());
+        item.setDescripcion(descripcionObj != null ? descripcionObj.toString() : "");
+
+        // Manejo seguro de cantidad (puede venir como "1.0")
+        double cantidadDouble = Double.parseDouble(cantidadObj.toString());
+        item.setCantidad((int) cantidadDouble); // redondeo truncado
+
+        // Manejo seguro de precio
+        double precio = Double.parseDouble(precioObj.toString());
+        item.setPrecio(precio);
+
+        lista.add(item);
+    } catch (NumberFormatException ex) {
+        JOptionPane.showMessageDialog(null, "Error al convertir cantidad o precio: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+    }
+}
+
+    }
+
+    return lista;
+}
+
     
     //*****************************
     
@@ -1106,10 +1325,9 @@ private void agregarProductoATabla(Producto producto, double cantidad, DefaultTa
 
     panel.removeAll(); // Limpiar el panel
 
-    // Contenedor interno con layout vertical
     JPanel contenedorVertical = new JPanel();
     contenedorVertical.setLayout(new BoxLayout(contenedorVertical, BoxLayout.Y_AXIS));
-    contenedorVertical.setBackground(panel.getBackground()); // Mantener estilo
+    contenedorVertical.setBackground(panel.getBackground());
     contenedorVertical.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
     List<ProductoTopVR> topProductos = Util.obtenerTopProductosVendidos(6);
@@ -1123,20 +1341,21 @@ private void agregarProductoATabla(Producto producto, double cantidad, DefaultTa
     } else {
         for (ProductoTopVR producto : topProductos) {
             JButton btn = new JButton();
-            btn.setMaximumSize(new Dimension(Integer.MAX_VALUE, 60)); // ancho flexible
-            btn.setBackground(new Color(0,168,107));
+            btn.setMaximumSize(new Dimension(Integer.MAX_VALUE, 60));
+            btn.setBackground(new Color(0, 168, 107));
             btn.setForeground(Color.WHITE);
             btn.setFont(new Font("Segoe UI", Font.BOLD, 13));
             btn.setFocusPainted(false);
             btn.setAlignmentX(Component.CENTER_ALIGNMENT);
             btn.setBorder(BorderFactory.createLineBorder(Color.BLACK));
 
-            String texto = producto.getDescripcion().length() > 35
-                ? producto.getDescripcion().substring(0, 35) + "..."
-                : producto.getDescripcion();
-            btn.setText("<html><center>" + texto + "<br><b>" + String.format("%.2f", producto.getVenta()) + "</b></center></html>");
+            // Mostrar el código como texto del botón
+            btn.setText("<html><center>" + producto.getCodigo() + "<br><b>" + String.format("%.2f", producto.getVenta()) + "</b></center></html>");
+
+            // Mostrar la descripción como tooltip
+            btn.setToolTipText(producto.getDescripcion());
+
             btn.putClientProperty("producto", producto);
-            btn.setToolTipText(producto.getCodigo());
 
             btn.addActionListener(e -> {
                 try {
@@ -1158,11 +1377,11 @@ private void agregarProductoATabla(Producto producto, double cantidad, DefaultTa
             });
 
             contenedorVertical.add(btn);
-            contenedorVertical.add(Box.createVerticalStrut(4)); // espacio entre botones
+            contenedorVertical.add(Box.createVerticalStrut(4));
         }
     }
 
-    panel.setLayout(new BorderLayout()); // Asegura que el contenedor se expanda
+    panel.setLayout(new BorderLayout());
     panel.add(contenedorVertical, BorderLayout.CENTER);
 
     restaurarFocoEscaner();
@@ -1178,9 +1397,17 @@ private void agregarProductoATabla(Producto producto, double cantidad, DefaultTa
     
     
     public void actualizarTotal() {
-    double total = 0.0;
-    double subtotal = 0.0;
-    double isv = 0.0; // Reiniciar el ISV antes de calcular
+        
+         
+           subTotal = 0.0;
+
+otrosCargos = 0.0;
+impuesto = 0.0;
+descuento = 0.0;
+        
+     total = 0.0;
+     
+     
 
     DefaultTableModel modelo = (DefaultTableModel) jTable1.getModel();
 
@@ -1189,7 +1416,7 @@ private void agregarProductoATabla(Producto producto, double cantidad, DefaultTa
         if (valorCelda != null) {
             try {
                 double valor = Double.parseDouble(valorCelda.toString());
-                subtotal += valor;
+                subTotal += valor;
             } catch (NumberFormatException e) {
                 // Ignorar valores no numéricos
             }
@@ -1197,15 +1424,15 @@ private void agregarProductoATabla(Producto producto, double cantidad, DefaultTa
     }
 
     if (jCheckBox2.isSelected()) {
-        isv = subtotal * 0.15;//Cambiar esto a un Setting
+        impuesto = subTotal * 0.15;//Cambiar esto a un Setting
     } else {
-        isv = 0.0;
+        impuesto = 0.0;
     }
 
-    total = subtotal + isv;
+    total = subTotal + impuesto;
 
-    lblSubTotal.setText(String.format("%.2f", subtotal));
-    lblISV.setText(String.format("%.2f", isv));
+    lblSubTotal.setText(String.format("%.2f", subTotal));
+    lblISV.setText(String.format("%.2f", impuesto));
     lblTotal.setText(String.format("%.2f", total));
 
     restaurarFocoEscaner();

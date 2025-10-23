@@ -701,8 +701,13 @@ double descuento = 0.0;
     }// </editor-fold>//GEN-END:initComponents
 
 
- public void recibirItems(Map<String, Miniatura_Producto> itemsImportados) {
-    System.out.println("→ Simulando carga desde lista recibida...");
+ public void recibirItems(Map<String, Miniatura_Producto> itemsImportados, String cliente) {
+ 
+     
+     comboCliente.setSelectedItem(cliente);
+     
+     
+     System.out.println("→ Simulando carga desde lista recibida...");
 
     listaDeItems.clear();
     selectoresCantidad.clear();
@@ -987,7 +992,7 @@ public void cargarItemsFiltrados(
         int col = 0, row = 0;
 
         for (Producto producto : query.getResultList()) {
-            Miniatura_Producto miniatura = new Miniatura_Producto(producto, true);
+            Miniatura_Producto miniatura = new Miniatura_Producto(producto, false);
             miniatura.setPreferredSize(new Dimension(120, 170));
 
             miniatura.addMouseListener(new MouseAdapter() {
