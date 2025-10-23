@@ -455,7 +455,7 @@ public static Map<String, Double> lista = new HashMap<>();
 
         jScrollPane1.setViewportView(jPanel1);
 
-        add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 10, 820, 620));
+        add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 10, 830, 620));
     }// </editor-fold>//GEN-END:initComponents
 
     

@@ -1298,7 +1298,7 @@ iniciarCintaLED(lblTitular);
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel2Layout.createSequentialGroup()
                         .addGap(12, 12, 12)
-                        .addComponent(lbl_Nombre_Empresa, javax.swing.GroupLayout.DEFAULT_SIZE, 262, Short.MAX_VALUE))
+                        .addComponent(lbl_Nombre_Empresa, javax.swing.GroupLayout.DEFAULT_SIZE, 246, Short.MAX_VALUE))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(lbl_version, javax.swing.GroupLayout.PREFERRED_SIZE, 105, javax.swing.GroupLayout.PREFERRED_SIZE)))
@@ -1347,7 +1347,7 @@ iniciarCintaLED(lblTitular);
             .addGroup(panelContenedorLayout.createSequentialGroup()
                 .addGap(161, 161, 161)
                 .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 488, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(223, Short.MAX_VALUE))
+                .addContainerGap(224, Short.MAX_VALUE))
         );
         panelContenedorLayout.setVerticalGroup(
             panelContenedorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1370,10 +1370,9 @@ iniciarCintaLED(lblTitular);
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jPanel3, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
-                        .addContainerGap())))
+                        .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addContainerGap())
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -2176,26 +2175,25 @@ x.setVisible(true);
      //*****************************
     
     
-    private JPanel activePanel = null;
+    private static JPanel activePanel = null;
 
-public void abrirVentana(JPanel childPanel) {
-    if (activePanel != null) {
-        panelContenedor.remove(activePanel);
+public static void abrirVentana(JPanel childPanel) {
+        if (childPanel == null || panelContenedor == null) return;
+        if (activePanel == childPanel) return;
+
+        panelContenedor.removeAll();
+
+        activePanel = childPanel;
+        childPanel.setVisible(true);
+        childPanel.setOpaque(true);
+        childPanel.setBorder(null);
+
+        panelContenedor.setLayout(new BorderLayout());
+        panelContenedor.add(childPanel, BorderLayout.CENTER);
+
+        panelContenedor.revalidate();
+        panelContenedor.repaint();
     }
-
-    activePanel = childPanel;
-    childPanel.setVisible(true);
-    childPanel.setOpaque(true);
-    childPanel.setBorder(null);
-
-    panelContenedor.removeAll();
-    panelContenedor.setLayout(new BorderLayout());
-    panelContenedor.add(childPanel, BorderLayout.CENTER);
-
-    panelContenedor.revalidate();
-    panelContenedor.repaint();
-}
-
     
     
     
@@ -2249,7 +2247,7 @@ public void abrirVentana(JPanel childPanel) {
     private javax.swing.JLabel lbl_Nombre_Empresa;
     private javax.swing.JLabel lbl_version;
     private javax.swing.JPanel movimientos_submenu;
-    private javax.swing.JPanel panelContenedor;
+    public static javax.swing.JPanel panelContenedor;
     private javax.swing.JPanel reportes_submenu;
     // End of variables declaration//GEN-END:variables
 }

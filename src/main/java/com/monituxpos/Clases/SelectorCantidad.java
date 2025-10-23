@@ -93,6 +93,7 @@ public String codigo;
         checkBoxSeleccionado = new JCheckBox("Quitar");
         checkBoxSeleccionado.setFont(new Font("Arial", Font.PLAIN, 12));
         checkBoxSeleccionado.setPreferredSize(new Dimension(80, 25));
+        checkBoxSeleccionado.setBackground(Color.white);
 
         // 🧩 Panel horizontal para spinner + checkbox
         JPanel panelCentro = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 0));

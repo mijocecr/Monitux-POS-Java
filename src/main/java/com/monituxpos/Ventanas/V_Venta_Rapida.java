@@ -196,6 +196,8 @@ listaDeItems.clear();
         jLabel4 = new javax.swing.JLabel();
         jPanel2 = new javax.swing.JPanel();
         jLabel3 = new javax.swing.JLabel();
+        jButton4 = new javax.swing.JButton();
+        jButton5 = new javax.swing.JButton();
         jPanel3 = new javax.swing.JPanel();
         jPanel4 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
@@ -255,7 +257,21 @@ listaDeItems.clear();
         jLabel3.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         jLabel3.setForeground(new java.awt.Color(255, 255, 255));
         jLabel3.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel3.setText("Productos mas Vendidos");
+        jLabel3.setText("Opciones Rapidas");
+
+        jButton4.setText("Importar Cotizacion");
+        jButton4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton4ActionPerformed(evt);
+            }
+        });
+
+        jButton5.setText("Cambiar Modo");
+        jButton5.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton5ActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -263,15 +279,22 @@ listaDeItems.clear();
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jButton4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jButton5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+            .addGroup(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addContainerGap())
+                .addComponent(jLabel3)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jButton4)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jButton5)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         jPanel3.setBackground(new java.awt.Color(35, 32, 45));
@@ -342,6 +365,11 @@ listaDeItems.clear();
         jComboBox1.addItemListener(new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
                 jComboBox1ItemStateChanged(evt);
+            }
+        });
+        jComboBox1.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jComboBox1MouseClicked(evt);
             }
         });
         jComboBox1.addActionListener(new java.awt.event.ActionListener() {
@@ -477,6 +505,11 @@ listaDeItems.clear();
         jLabel5.setText("Buscar Por:");
 
         jTextField1.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        jTextField1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jTextField1ActionPerformed(evt);
+            }
+        });
         jTextField1.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyReleased(java.awt.event.KeyEvent evt) {
                 jTextField1KeyReleased(evt);
@@ -544,7 +577,7 @@ listaDeItems.clear();
                     .addComponent(jLabel7))
                 .addGap(18, 18, 18)
                 .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(lblSubTotal, javax.swing.GroupLayout.DEFAULT_SIZE, 13, Short.MAX_VALUE)
+                    .addComponent(lblSubTotal, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(lblISV, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(lblTotal, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
@@ -722,14 +755,12 @@ panel.repaint();
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
 
 
+        Util.llenarComboCliente(jComboBox1, Secuencial_Empresa);
+        
         jComboBox1.setSelectedIndex(-1); // Limpiar la selección del cliente
+        
+        jComboBox1.setEnabled(true);
 
-// jTextField1.setText("1");
-// jTextField1.requestFocusInWindow();
-
-// Simular Enter (opcional, requiere Robot o KeyEvent)
-// Puedes usar esto si necesitas simular Enter:
-// jTextField1.dispatchEvent(new KeyEvent(jTextField1, KeyEvent.KEY_PRESSED, System.currentTimeMillis(), 0, KeyEvent.VK_ENTER, '\n'));
 
 icono_carga.setVisible(false); // Equivalente a pictureBox2.Visible = false
 
@@ -753,7 +784,8 @@ jCheckBox2.setSelected(false); // Desmarcar checkbox de ISV
 restaurarFocoEscaner(); // Método personalizado
 
 listaDeItems.clear();
-        
+    jLabel3.setText("Opciones Rapidas");
+    jButton4.setEnabled(true);
 
 
         // TODO add your handling code here:
@@ -813,11 +845,114 @@ restaurarFocoEscaner();
             String texto = jTextField1.getText().trim();
             if (!texto.isEmpty()) {
                 Ejecutar_BC();
+                jTextField1.setText("");
             }
         }
         
     }//GEN-LAST:event_jTextField1KeyReleased
 
+    private void jTextField1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField1ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jTextField1ActionPerformed
+
+    private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
+
+
+        icono_carga.setVisible(true);
+
+    V_Importar_Cotizacion dialogo = new V_Importar_Cotizacion();
+    dialogo.onAceptar = () -> {
+        importarCotizacion(dialogo.getLista(), dialogo.getClienteSeleccionado());
+
+        actualizarTotal(); // ✅ Ahora se ejecuta después de importar
+
+        icono_carga.setVisible(false);
+        jButton4.setEnabled(false);
+    };
+
+    dialogo.setVisible(true); // No bloquea si el diálogo no es modal
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButton4ActionPerformed
+
+    private void jComboBox1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jComboBox1MouseClicked
+
+        Util.llenarComboCliente(jComboBox1, Secuencial_Empresa);
+
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jComboBox1MouseClicked
+
+    private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
+
+V_Factura_Venta destino = new V_Factura_Venta();
+destino.setVisible(true); // Primero mostrar
+V_Menu_Principal.abrirVentana(destino); // Registrar en navegación
+
+SwingUtilities.invokeLater(() -> {
+    destino.recibirItems(new HashMap<>(this.listaDeItems)); // Ahora sí: contenedor ya renderizado
+});
+
+    
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButton5ActionPerformed
+
+    
+    
+    //*****************************
+    
+   public void importarCotizacion(Map<String, Double> lista, String cliente) {
+    jComboBox1.setSelectedItem(cliente);
+    jComboBox1.setEnabled(false);
+
+    EntityManager em = null;
+    DefaultTableModel modeloTabla = (DefaultTableModel) jTable1.getModel(); // ← Asumiendo jTable1 como destino
+
+    try {
+        em = MonituxDBContext.getEntityManager();
+
+        for (Map.Entry<String, Double> itemC : lista.entrySet()) {
+            String codigo = itemC.getKey();
+            Double cantidadSeleccionada = itemC.getValue();
+
+            if (cantidadSeleccionada == null || cantidadSeleccionada <= 0) {
+                mostrarError("Cantidad inválida para el producto: " + codigo);
+                continue;
+            }
+
+            List<Producto> productos = em.createQuery(
+                "SELECT p FROM Producto p WHERE p.Codigo = :codigo AND p.Secuencial_Empresa = :empresa",
+                Producto.class)
+                .setParameter("codigo", codigo)
+                .setParameter("empresa", Secuencial_Empresa)
+                .getResultList();
+
+            for (Producto producto : productos) {
+                icono_carga.setVisible(true);
+
+                agregarProductoATabla(producto, cantidadSeleccionada, modeloTabla);
+
+                icono_carga.setVisible(false);
+            }
+        }
+
+        //jButton6.doClick(); // Simula actualización visual
+
+    } catch (Exception e) {
+        mostrarError("Error al importar cotización: " + e.getMessage());
+        e.printStackTrace();
+    } finally {
+        if (em != null && em.isOpen()) {
+            em.close();
+        }
+    }
+}
+
+    
+    
+    //*****************************
+    
+    
+    
+    
     private void Ejecutar_BC(){
     
       
@@ -827,12 +962,14 @@ restaurarFocoEscaner();
        
             filtrar(jComboBox2.getSelectedItem().toString(), texto, V_Menu_Principal.Secuencial_Empresa);
             actualizarTotal();
-
+cerrarCamara();
            
             if (jCheckBox1.isSelected()) {
                 iniciarEscaner(); // Reiniciar la cámara para escanear el siguiente código de barras
             }
         }
+    
+    
     
     }
     
@@ -1091,6 +1228,8 @@ private void agregarProductoATabla(Producto producto, double cantidad, DefaultTa
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
+    private javax.swing.JButton jButton4;
+    private javax.swing.JButton jButton5;
     private javax.swing.JCheckBox jCheckBox1;
     private javax.swing.JCheckBox jCheckBox2;
     private javax.swing.JComboBox<String> jComboBox1;

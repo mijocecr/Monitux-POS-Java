@@ -70,15 +70,21 @@ double otrosCargos = 0.0;
 double impuesto = 0.0;
 double descuento = 0.0;
     
-       public static final Map<String, Miniatura_Producto> listaDeItems = new HashMap<>();
+       public static  Map<String, Miniatura_Producto> listaDeItems = new HashMap<>();
        public static final Map<String, SelectorCantidad> selectoresCantidad = new HashMap<>();
 
     
     /**
      * Creates new form V_Factura_Venta
      */
+       
+       
+       
+       
+       
+       
     public V_Factura_Venta() {
-      listaDeItems.clear();
+      //listaDeItems.clear();
         initComponents(); // Primero inicializa los componentes
 
     SwingUtilities.invokeLater(() -> {
@@ -694,7 +700,46 @@ double descuento = 0.0;
 
     }// </editor-fold>//GEN-END:initComponents
 
-    
+
+ public void recibirItems(Map<String, Miniatura_Producto> itemsImportados) {
+    System.out.println("→ Simulando carga desde lista recibida...");
+
+    listaDeItems.clear();
+    selectoresCantidad.clear();
+    contenedor_selector.removeAll();
+
+    for (Map.Entry<String, Miniatura_Producto> entry : itemsImportados.entrySet()) {
+        final String codigo = entry.getKey();
+        final Miniatura_Producto miniatura = entry.getValue();
+
+        if (codigo == null || miniatura == null || miniatura.getProducto() == null) {
+            System.out.println("⚠️ Miniatura inválida: " + codigo);
+            continue;
+        }
+
+        // Simular clic: agregar a lista lógica
+        listaDeItems.put(codigo, miniatura);
+
+        // Crear selector como si el usuario hubiera hecho clic
+        SelectorCantidad selector = new SelectorCantidad(codigo, (int) miniatura.getCantidadSelecccion());
+        selector.setCantidad((int) miniatura.getCantidadSelecccion());
+        selectoresCantidad.put(codigo, selector);
+
+        contenedor_selector.add(selector);
+        selector.setVisible(true);
+        selector.revalidate();
+        selector.repaint();
+
+        System.out.println("✅ Selector agregado: " + codigo);
+    }
+
+    contenedor_selector.revalidate();
+    contenedor_selector.repaint();
+
+    // Procesar tabla y totales
+    jButton6.doClick();
+}
+ 
     
 
 public void cargarItems(int secuencialEmpresa, JPanel contenedor, JPanel contenedor_selector) {
@@ -901,120 +946,6 @@ public void cargar_Items(int secuencialEmpresa, JPanel contenedor, JPanel conten
 }
 
 
-
-
-
-public void cargar_ItemsFiltrados(
-    int secuencialEmpresa,
-    JComboBox<String> comboFiltro,
-    JTextField campoValorFiltro,
-    JPanel contenedor,
-    JPanel contenedor_selector
-) {
-    icono_carga.setVisible(true);
-
-    contenedor.setLayout(new GridLayout(0, 3, 5, 5));
-    contenedor_selector.setLayout(new GridLayout(0, 1, 5, 5));
-    contenedor.removeAll();
-    contenedor_selector.removeAll();
-    listaDeItems.clear();
-    selectoresCantidad.clear();
-
-    String campoFiltro = (String) comboFiltro.getSelectedItem();
-    String valorFiltro = campoValorFiltro.getText();
-
-    boolean aplicarFiltro = campoFiltro != null && !campoFiltro.trim().isEmpty()
-                         && valorFiltro != null && !valorFiltro.trim().isEmpty();
-
-    List<Producto> productos = new ArrayList<>();
-    EntityManager em = null;
-
-    try {
-        em = MonituxDBContext.getEntityManager();
-        if (em == null || !em.isOpen()) {
-            throw new IllegalStateException("EntityManager no disponible.");
-        }
-
-        String jpql = "SELECT p FROM Producto p WHERE p.Secuencial_Empresa = :empresa"
-                    + (aplicarFiltro ? " AND LOWER(p." + campoFiltro + ") LIKE :valorFiltro" : "");
-
-        TypedQuery<Producto> query = em.createQuery(jpql, Producto.class);
-        query.setParameter("empresa", secuencialEmpresa);
-        if (aplicarFiltro) {
-            query.setParameter("valorFiltro", "%" + valorFiltro.toLowerCase() + "%");
-        }
-
-        productos = query.getResultList();
-
-    } catch (Exception e) {
-        JOptionPane.showMessageDialog(null, "Error al filtrar productos: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-        e.printStackTrace();
-    } finally {
-        if (em != null && em.isOpen()) {
-            em.close();
-        }
-    }
-
-    for (Producto producto : productos) {
-        ImageIcon imagenIcon = (producto.getImagen() != null && producto.getImagen().length > 0)
-            ? new ImageIcon(producto.getImagen())
-            : new ImageIcon(getClass().getResource("/icons/no-image-icon-10.png"));
-
-        Miniatura_Producto miniatura = new Miniatura_Producto(producto, false);
-        miniatura.setPreferredSize(new Dimension(120, 170));
-
-        miniatura.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                SelectorCantidad selector = selectoresCantidad.computeIfAbsent(
-                    producto.getCodigo(),
-                    codigo -> {
-                        SelectorCantidad nuevo = new SelectorCantidad(codigo, 0);
-                        nuevo.setCantidad(0);
-                        return nuevo;
-                    }
-                );
-
-                if (!listaDeItems.containsKey(producto.getCodigo())) {
-                    listaDeItems.put(producto.getCodigo(), miniatura);
-                    if (!Arrays.asList(contenedor_selector.getComponents()).contains(selector)) {
-                        contenedor_selector.add(selector);
-                    }
-                }
-
-                contenedor_selector.revalidate();
-                contenedor_selector.repaint();
-            }
-
-            @Override
-            public void mousePressed(MouseEvent e) {
-                if (e.isPopupTrigger()) {
-                    menu_contextual.show(e.getComponent(), e.getX(), e.getY());
-                }
-            }
-
-            @Override
-            public void mouseReleased(MouseEvent e) {
-                if (e.isPopupTrigger()) {
-                    menu_contextual.show(e.getComponent(), e.getX(), e.getY());
-                }
-            }
-        });
-
-        String comentario = miniatura.cargarComentario(); // Este método debe abrir su propio EM
-        String descripcion = miniatura.producto.getDescripcion();
-        miniatura.setToolTipText("<html><b>" + descripcion + "</b><br>" + (comentario != null ? comentario : "") + "</html>");
-
-        contenedor.add(miniatura);
-    }
-
-    contenedor.revalidate();
-    contenedor.repaint();
-    icono_carga.setVisible(false);
-}
-
-
-
 public void cargarItemsFiltrados(
     int secuencialEmpresa,
     JComboBox<String> comboFiltro,
@@ -1027,24 +958,17 @@ public void cargarItemsFiltrados(
     contenedor.setLayout(new GridBagLayout());
     contenedor_selector.setLayout(new GridLayout(0, 1, 5, 5));
     contenedor.removeAll();
-    contenedor_selector.removeAll();
-    listaDeItems.clear();
-    selectoresCantidad.clear();
 
-    String campoFiltro = (String) comboFiltro.getSelectedItem();
-    String valorFiltro = campoValorFiltro.getText();
-
-    boolean aplicarFiltro = campoFiltro != null && !campoFiltro.trim().isEmpty()
-                         && valorFiltro != null && !valorFiltro.trim().isEmpty();
-
-    List<Producto> productos = new ArrayList<>();
     EntityManager em = null;
 
     try {
         em = MonituxDBContext.getEntityManager();
-        if (em == null || !em.isOpen()) {
-            throw new IllegalStateException("EntityManager no disponible.");
-        }
+
+        String campoFiltro = (String) comboFiltro.getSelectedItem();
+        String valorFiltro = campoValorFiltro.getText();
+
+        boolean aplicarFiltro = campoFiltro != null && !campoFiltro.trim().isEmpty()
+                             && valorFiltro != null && !valorFiltro.trim().isEmpty();
 
         String jpql = "SELECT p FROM Producto p WHERE p.Secuencial_Empresa = :empresa"
                     + (aplicarFiltro ? " AND LOWER(p." + campoFiltro + ") LIKE :valorFiltro" : "");
@@ -1055,84 +979,83 @@ public void cargarItemsFiltrados(
             query.setParameter("valorFiltro", "%" + valorFiltro.toLowerCase() + "%");
         }
 
-        productos = query.getResultList();
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.fill = GridBagConstraints.NONE;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
+
+        int col = 0, row = 0;
+
+        for (Producto producto : query.getResultList()) {
+            Miniatura_Producto miniatura = new Miniatura_Producto(producto, true);
+            miniatura.setPreferredSize(new Dimension(120, 170));
+
+            miniatura.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    SelectorCantidad selector = selectoresCantidad.computeIfAbsent(
+                        producto.getCodigo(),
+                        codigo -> new SelectorCantidad(codigo, 0)
+                    );
+
+                    selector.setCantidad(0);
+
+                    if (!listaDeItems.containsKey(producto.getCodigo())) {
+                        listaDeItems.put(producto.getCodigo(), miniatura);
+
+                        if (!Arrays.asList(contenedor_selector.getComponents()).contains(selector)) {
+                            contenedor_selector.add(selector);
+                        }
+                    }
+
+                    contenedor_selector.revalidate();
+                    contenedor_selector.repaint();
+                }
+
+                @Override
+                public void mousePressed(MouseEvent e) {
+                    if (e.isPopupTrigger()) {
+                        menu_contextual.show(e.getComponent(), e.getX(), e.getY());
+                    }
+                }
+
+                @Override
+                public void mouseReleased(MouseEvent e) {
+                    if (e.isPopupTrigger()) {
+                        menu_contextual.show(e.getComponent(), e.getX(), e.getY());
+                    }
+                }
+            });
+
+            String comentario = miniatura.cargarComentario();
+            String descripcion = miniatura.producto.getDescripcion();
+            miniatura.setToolTipText("<html><b>" + descripcion + "</b><br>" + (comentario != null ? comentario : "") + "</html>");
+
+            gbc.gridx = col;
+            gbc.gridy = row;
+            contenedor.add(miniatura, gbc);
+
+            col++;
+            if (col == 3) {
+                col = 0;
+                row++;
+            }
+        }
 
     } catch (Exception e) {
-        JOptionPane.showMessageDialog(null, "Error al filtrar productos: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(null,
+            "Error al cargar ítems filtrados para venta: " + e.getMessage(),
+            "Error",
+            JOptionPane.ERROR_MESSAGE);
         e.printStackTrace();
     } finally {
         if (em != null && em.isOpen()) {
             em.close();
         }
+        contenedor.revalidate();
+        contenedor.repaint();
+        icono_carga.setVisible(false);
     }
-
-    GridBagConstraints gbc = new GridBagConstraints();
-    gbc.insets = new Insets(5, 5, 5, 5);
-    gbc.fill = GridBagConstraints.NONE;
-    gbc.anchor = GridBagConstraints.NORTHWEST;
-
-    int col = 0, row = 0;
-
-    for (Producto producto : productos) {
-        Miniatura_Producto miniatura = new Miniatura_Producto(producto, false);
-        miniatura.setPreferredSize(new Dimension(120, 170));
-
-        miniatura.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                SelectorCantidad selector = selectoresCantidad.computeIfAbsent(
-                    producto.getCodigo(),
-                    codigo -> {
-                        SelectorCantidad nuevo = new SelectorCantidad(codigo, 0);
-                        nuevo.setCantidad(0);
-                        return nuevo;
-                    }
-                );
-
-                if (!listaDeItems.containsKey(producto.getCodigo())) {
-                    listaDeItems.put(producto.getCodigo(), miniatura);
-                    if (!Arrays.asList(contenedor_selector.getComponents()).contains(selector)) {
-                        contenedor_selector.add(selector);
-                    }
-                }
-
-                contenedor_selector.revalidate();
-                contenedor_selector.repaint();
-            }
-
-            @Override
-            public void mousePressed(MouseEvent e) {
-                if (e.isPopupTrigger()) {
-                    menu_contextual.show(e.getComponent(), e.getX(), e.getY());
-                }
-            }
-
-            @Override
-            public void mouseReleased(MouseEvent e) {
-                if (e.isPopupTrigger()) {
-                    menu_contextual.show(e.getComponent(), e.getX(), e.getY());
-                }
-            }
-        });
-
-        String comentario = miniatura.cargarComentario(); // Este método debe abrir su propio EM
-        String descripcion = miniatura.producto.getDescripcion();
-        miniatura.setToolTipText("<html><b>" + descripcion + "</b><br>" + (comentario != null ? comentario : "") + "</html>");
-
-        gbc.gridx = col;
-        gbc.gridy = row;
-        contenedor.add(miniatura, gbc);
-
-        col++;
-        if (col == 3) {
-            col = 0;
-            row++;
-        }
-    }
-
-    contenedor.revalidate();
-    contenedor.repaint();
-    icono_carga.setVisible(false);
 }
 
 
@@ -1501,8 +1424,7 @@ jTable1.setShowGrid(true); // Mostrar líneas
     
     private void jLabel4MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel4MouseClicked
 
-     
-      
+    
 
         // TODO add your handling code here:
     }//GEN-LAST:event_jLabel4MouseClicked
@@ -1581,51 +1503,24 @@ if (lbl_descuento.getText().trim().isEmpty()) {
 
     private void jTextField1KeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextField1KeyReleased
 
-     if (evt.getKeyCode() != KeyEvent.VK_ENTER) return;
-
-    String textoFiltro = jTextField1.getText().trim();
-    if (textoFiltro.isEmpty()) {
-        JOptionPane.showMessageDialog(null, "Ingresa un texto para filtrar.", "Aviso", JOptionPane.WARNING_MESSAGE);
-        return;
-    }
-
-    icono_carga.setVisible(true);
-
-    new SwingWorker<Void, Void>() {
+    if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
         EntityManager em = null;
 
-        @Override
-        protected Void doInBackground() {
-            try {
-                em = MonituxDBContext.getEntityManager();
-                if (em == null || !em.isOpen()) {
-                    throw new IllegalStateException("EntityManager no disponible.");
-                }
-
-                cargarItemsFiltrados(Secuencial_Empresa, jComboBox1, jTextField1, contenedor, contenedor_selector);
-
-            } catch (Exception ex) {
-                SwingUtilities.invokeLater(() ->
-                    JOptionPane.showMessageDialog(null,
-                        "Error al filtrar ítems: " + ex.getMessage(),
-                        "Error", JOptionPane.ERROR_MESSAGE)
-                );
-                ex.printStackTrace();
-            } finally {
-                if (em != null && em.isOpen()) {
-                    em.close();
-                }
+        try {
+            em = MonituxDBContext.getEntityManager();
+            cargarItemsFiltrados(Secuencial_Empresa, jComboBox1, jTextField1, contenedor, contenedor_selector);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null,
+                "Error al filtrar ítems: " + e.getMessage(),
+                "Error",
+                JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+        } finally {
+            if (em != null && em.isOpen()) {
+                em.close();
             }
-            return null;
         }
-
-        @Override
-        protected void done() {
-            icono_carga.setVisible(false);
-            contenedor.revalidate();
-            contenedor.repaint();
-        }
-    }.execute();
+    }
         
     }//GEN-LAST:event_jTextField1KeyReleased
 
