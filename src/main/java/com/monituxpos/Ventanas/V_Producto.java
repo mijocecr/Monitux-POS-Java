@@ -404,6 +404,16 @@ private String valueOrEmpty(String valor) {
         jLabel11.setForeground(new java.awt.Color(255, 255, 255));
 
         jComboBox3.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Producto", "Servicio" }));
+        jComboBox3.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                jComboBox3ItemStateChanged(evt);
+            }
+        });
+        jComboBox3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jComboBox3ActionPerformed(evt);
+            }
+        });
 
         jLabel12.setText("Codigo Fabricante:");
         jLabel12.setForeground(new java.awt.Color(255, 255, 255));
@@ -1023,10 +1033,16 @@ private String valueOrEmpty(String valor) {
 
     private void Menu_GuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Menu_GuardarActionPerformed
 
-     EntityManager em = null;
+        
+        
+        //*******************
+        
+        EntityManager em = null;
+    boolean emAbierto = false;
 
     try {
         em = MonituxDBContext.getEntityManager();
+        emAbierto = em != null && em.isOpen();
 
         boolean esServicio = "Servicio".equals(jComboBox3.getSelectedItem());
         boolean tipoSeleccionado = jComboBox3.getSelectedIndex() != -1;
@@ -1099,19 +1115,24 @@ private String valueOrEmpty(String valor) {
             producto.setSecuencial_Proveedor(0);
         }
 
+        // Primera transacción: persistencia principal
         em.getTransaction().begin();
         if (esNuevo) {
             em.persist(producto);
+        } else {
+            em.merge(producto);
         }
         em.getTransaction().commit();
 
+        // Segunda transacción: imagen
         if (imagen != null && imagen.length > 0) {
-            em.getTransaction().begin();
+            if (!em.getTransaction().isActive()) em.getTransaction().begin();
             producto.setImagen(imagen);
             em.merge(producto);
             em.getTransaction().commit();
         }
 
+        // Movimiento de inventario
         if (!esServicio) {
             double diferencia = producto.getCantidad() - cantidadAnterior;
             if (esNuevo || diferencia != 0) {
@@ -1132,39 +1153,52 @@ private String valueOrEmpty(String valor) {
         JOptionPane.showMessageDialog(null,
             esNuevo ? "Producto creado correctamente." : "Producto actualizado correctamente.");
 
-        if (em.isOpen()) {
+        // Actividad del usuario
+        if (emAbierto) {
             Util.registrarActividad(
                 Secuencial_Usuario,
                 "Ha " + (esNuevo ? "creado" : "modificado") + " el producto: " + producto.getCodigo(),
                 producto.getSecuencial_Empresa());
         }
 
+        // Callback en segundo plano
         if (onProductoEditado != null) {
-    new SwingWorker<Void, Void>() {
-        @Override
-        protected Void doInBackground() {
-            onProductoEditado.run();
-            return null;
+            new SwingWorker<Void, Void>() {
+                @Override
+                protected Void doInBackground() {
+                    onProductoEditado.run();
+                    return null;
+                }
+            }.execute();
         }
-    }.execute();
-}
-
 
         this.dispose();
         System.out.println("✅ Producto " + (esNuevo ? "creado" : "actualizado") + " correctamente.");
 
     } catch (Exception ex) {
         if (em != null && em.getTransaction().isActive()) {
-            em.getTransaction().rollback();
+            try {
+                em.getTransaction().rollback();
+            } catch (Exception rollbackEx) {
+                System.err.println("⚠️ Error al hacer rollback: " + rollbackEx.getMessage());
+            }
         }
         JOptionPane.showMessageDialog(null, "❌ Error al guardar el producto: " + ex.getMessage());
         ex.printStackTrace();
     } finally {
-        if (em != null && em.isOpen()) {
-            em.close();
+        try {
+            if (em != null && em.isOpen()) {
+                em.close();
+            }
+        } catch (Exception closeEx) {
+            System.err.println("⚠️ Error al cerrar EntityManager: " + closeEx.getMessage());
         }
-       
     }
+        
+        //******************
+        
+        
+    
     }//GEN-LAST:event_Menu_GuardarActionPerformed
 
     private void Menu_NuevoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Menu_NuevoActionPerformed
@@ -1411,6 +1445,55 @@ x.setVisible(true);
     private void comboProveedorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_comboProveedorActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_comboProveedorActionPerformed
+
+    private void jComboBox3ItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_jComboBox3ItemStateChanged
+
+
+        
+        //***************
+        
+        
+        if (jComboBox3.getSelectedIndex() == 1) {
+    jCheckBox1.setSelected(false);
+    jCheckBox1.setEnabled(false); // Deshabilitar el checkbox si el tipo es "Servicio"
+    comboCategoria.setEnabled(false); // Deshabilitar el ComboBox de categoría
+    txt_CodigoFabricante.setText("No Aplica"); // Código Fabricante a "No Aplica"
+ txt_Marca.setText("No Aplica"); // Código Fabricante a "No Aplica"
+
+    comboProveedor.setEnabled(false); // Deshabilitar proveedor
+    txt_Cantidad.setEnabled(false); // Deshabilitar cantidad
+    txt_Cantidad.setText("0"); // Cantidad a 0
+
+    txt_ExistenciaMinima.setText("0"); // Existencia mínima a 0
+    txt_ExistenciaMinima.setEnabled(false); // Deshabilitar existencia mínima
+
+    txt_Marca.setEnabled(false); // Deshabilitar marca
+    txt_CodigoFabricante.setEnabled(false); // Deshabilitar código fabricante
+} else {
+    jCheckBox1.setEnabled(true); // Habilitar checkbox
+    comboCategoria.setEnabled(true); // Habilitar categoría
+    comboProveedor.setEnabled(true); // Habilitar proveedor
+
+    if (Secuencial == 0) {
+        txt_Cantidad.setEnabled(true); // Habilitar cantidad
+    }
+
+    txt_ExistenciaMinima.setEnabled(true); // Habilitar existencia mínima
+    txt_Marca.setEnabled(true); // Habilitar marca
+    txt_CodigoFabricante.setEnabled(true); // Habilitar código fabricante
+}
+
+        
+        
+        //************
+
+
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jComboBox3ItemStateChanged
+
+    private void jComboBox3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox3ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jComboBox3ActionPerformed
 
     /**
      * @param args the command line arguments

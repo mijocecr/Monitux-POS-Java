@@ -108,16 +108,26 @@ private Timer escaneoTimer;
 //    escaneoTimer = new Timer(200, e -> escanearFrame());
 //    escaneoTimer.start();
 //}
+
+
+
 private void escanearFrame() {
-    if (webcam != null && webcam.isOpen()) {
-        BufferedImage imagenOriginal = webcam.getImage();
-        if (imagenOriginal != null) {
+    try {
+        if (webcam != null && webcam.isOpen()) {
+            BufferedImage imagenOriginal = webcam.getImage();
+
+            if (imagenOriginal == null) return;
+
             int ancho = jLabel4.getWidth();
             int alto = jLabel4.getHeight();
 
             if (ancho > 0 && alto > 0) {
-                Image imagenEscalada = imagenOriginal.getScaledInstance(ancho, alto, Image.SCALE_SMOOTH);
-                jLabel4.setIcon(new ImageIcon(imagenEscalada));
+                try {
+                    Image imagenEscalada = imagenOriginal.getScaledInstance(ancho, alto, Image.SCALE_SMOOTH);
+                    jLabel4.setIcon(new ImageIcon(imagenEscalada));
+                } catch (Exception e) {
+                    System.err.println("⚠️ Error al escalar imagen: " + e.getMessage());
+                }
             }
 
             try {
@@ -128,14 +138,21 @@ private void escanearFrame() {
                 if (result != null) {
                     jTextField1.setText(result.getText());
                     jTextField1.requestFocusInWindow();
-                    Ejecutar_BC(); // Se ejecuta cada vez que se detecta un código
+                    Ejecutar_BC();
                 }
-            } catch (NotFoundException ex) {
-                // No se detectó código, continuar escaneando
+            } catch (NotFoundException nf) {
+                // No se detectó código
+            } catch (Exception ex) {
+                System.err.println("⚠️ Error al decodificar código de barras: " + ex.getMessage());
             }
         }
+    } catch (Throwable t) {
+        System.err.println("💥 Error crítico en escanearFrame: " + t.getMessage());
+        t.printStackTrace();
     }
 }
+
+
 
 private void iniciarEscaner() {
     jTextField1.setText(""); // Limpiar campo
@@ -969,6 +986,30 @@ SwingUtilities.invokeLater(() -> {
             detalle.setTipo(pro.producto.getTipo());
 
             em.persist(detalle);
+            
+              if (!"Servicio".equals(detalle.getTipo())) {
+                Producto productoBD = em.find(Producto.class, pro.producto.getSecuencial());
+                if (productoBD != null) {
+                    double cantidadActual = productoBD.getCantidad();
+                    double cantidadVender = pro.getCantidadSelecccion();
+
+                    movimientosPendientes.add(new Object[] {
+                        productoBD.getSecuencial(),
+                        cantidadActual,
+                        productoBD.getDescripcion(),
+                        cantidadVender,
+                        productoBD.getPrecio_Costo(),
+                        productoBD.getPrecio_Venta(),
+                        "Salida",
+                        Secuencial_Empresa
+                    });
+
+                    productoBD.setCantidad(cantidadActual - cantidadVender);
+                    em.merge(productoBD);
+                }
+            }
+            
+            
 
            
         }
