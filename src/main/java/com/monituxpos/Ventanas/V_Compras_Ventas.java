@@ -330,7 +330,7 @@ public static Map<String, Double> lista = new HashMap<>();
         });
         jPanel2.add(jButton3, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 480, 90, -1));
 
-        jPanel1.add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 60, 400, 520));
+        jPanel1.add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 60, 400, 520));
 
         jPanel4.setBackground(new java.awt.Color(0, 102, 255));
         jPanel4.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -439,7 +439,7 @@ public static Map<String, Double> lista = new HashMap<>();
         });
         jPanel4.add(jButton6, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 480, 90, -1));
 
-        jPanel1.add(jPanel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 60, 394, 520));
+        jPanel1.add(jPanel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(430, 60, 394, 520));
 
         jLabel1.setBackground(new java.awt.Color(0, 0, 0));
         jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
@@ -447,7 +447,7 @@ public static Map<String, Double> lista = new HashMap<>();
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel1.setText("Gestión de Facturas");
         jLabel1.setOpaque(true);
-        jPanel1.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 830, 50));
+        jPanel1.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 840, 50));
 
         jLabel8.setForeground(new java.awt.Color(255, 255, 255));
         jLabel8.setText("🔔 Atención: Modificar una factura es una acción delicada. Los cambios realizados no se pueden deshacer. Proceda con precaución.");
@@ -455,7 +455,7 @@ public static Map<String, Double> lista = new HashMap<>();
 
         jScrollPane1.setViewportView(jPanel1);
 
-        add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 10, 830, 620));
+        add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 10, 840, 620));
     }// </editor-fold>//GEN-END:initComponents
 
     

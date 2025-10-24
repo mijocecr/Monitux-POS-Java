@@ -25,12 +25,12 @@
           <Group type="102" alignment="0" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="102" alignment="0" attributes="0">
+                  <Group type="102" attributes="0">
                       <Component id="jPanel5" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="32767" attributes="0"/>
                   </Group>
-                  <Group type="102" alignment="0" attributes="0">
-                      <Component id="jLabel19" min="-2" pref="515" max="-2" attributes="0"/>
+                  <Group type="102" attributes="0">
+                      <Component id="jLabel19" min="-2" pref="620" max="-2" attributes="0"/>
                       <EmptySpace max="32767" attributes="0"/>
                       <Component id="jButton1" min="-2" max="-2" attributes="0"/>
                       <EmptySpace min="-2" pref="58" max="-2" attributes="0"/>
@@ -807,7 +807,7 @@
           <Color blue="33" green="0" red="ff" type="rgb"/>
         </Property>
         <Property name="horizontalAlignment" type="int" value="0"/>
-        <Property name="text" type="java.lang.String" value="&lt;html&gt; &#x26a0; Atenci&#xf3;n: operaci&#xf3;n sensible  &lt;br&gt;Este procedimiento afecta directamente la integridad de los datos del sistema.&lt;/br&gt;&lt;br&gt; Si no est&#xe1; completamente seguro de lo que est&#xe1; por hacer, se recomienda cerrar esta ventana y consultar con el administrador o soporte t&#xe9;cnico. &lt;/br&gt;&lt;br&gt; Una acci&#xf3;n incorrecta podr&#xed;a ocasionar la p&#xe9;rdida de informaci&#xf3;n&lt;/br&gt; importante.&lt;/html&gt;"/>
+        <Property name="text" type="java.lang.String" value="&lt;html&gt; &#x26a0; Atenci&#xf3;n: operaci&#xf3;n sensible  &lt;br&gt;Este procedimiento afecta directamente la integridad de los datos del sistema. Si no est&#xe1; completamente seguro de lo que est&#xe1; por hacer, se recomienda cerrar esta ventana y consultar con el administrador o soporte t&#xe9;cnico. &lt;/br&gt;&lt;br&gt; Una acci&#xf3;n incorrecta podr&#xed;a ocasionar la p&#xe9;rdida de informaci&#xf3;n&lt;/br&gt; importante.&lt;/html&gt;"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JButton" name="jButton1">

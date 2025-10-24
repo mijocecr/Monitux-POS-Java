@@ -699,7 +699,7 @@ switch (AppSettings.getDB_Provider()) {
 
         jLabel19.setForeground(new java.awt.Color(255, 0, 51));
         jLabel19.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel19.setText("<html> ⚠ Atención: operación sensible  <br>Este procedimiento afecta directamente la integridad de los datos del sistema.</br><br> Si no está completamente seguro de lo que está por hacer, se recomienda cerrar esta ventana y consultar con el administrador o soporte técnico. </br><br> Una acción incorrecta podría ocasionar la pérdida de información</br> importante.</html>");
+        jLabel19.setText("<html> ⚠ Atención: operación sensible  <br>Este procedimiento afecta directamente la integridad de los datos del sistema. Si no está completamente seguro de lo que está por hacer, se recomienda cerrar esta ventana y consultar con el administrador o soporte técnico. </br><br> Una acción incorrecta podría ocasionar la pérdida de información</br> importante.</html>");
 
         jButton1.setBackground(new java.awt.Color(255, 0, 0));
         jButton1.setForeground(new java.awt.Color(255, 255, 255));
@@ -722,7 +722,7 @@ switch (AppSettings.getDB_Provider()) {
                         .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel19, javax.swing.GroupLayout.PREFERRED_SIZE, 515, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jLabel19, javax.swing.GroupLayout.PREFERRED_SIZE, 620, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(jButton1)
                         .addGap(58, 58, 58))))

@@ -1908,6 +1908,12 @@ em.close();
     }//GEN-LAST:event_jLabel21MouseExited
 
     private void jLabel22MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel22MouseClicked
+
+        
+        V_Reportes_Cuentas x = new V_Reportes_Cuentas();
+        abrirVentana(x);
+
+
         // TODO add your handling code here:
     }//GEN-LAST:event_jLabel22MouseClicked
 
