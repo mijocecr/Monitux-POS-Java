@@ -120,8 +120,8 @@ public class V_Reportes_Cuentas extends javax.swing.JPanel {
 
         jPanel4.setBackground(new java.awt.Color(35, 32, 45));
 
-        jLabel1.setForeground(new java.awt.Color(255, 255, 0));
         jLabel1.setText("Todas las Cuentas Registradas");
+        jLabel1.setForeground(new java.awt.Color(255, 255, 0));
 
         jButton2.setText("Generar");
         jButton2.addActionListener(new java.awt.event.ActionListener() {
@@ -153,16 +153,16 @@ public class V_Reportes_Cuentas extends javax.swing.JPanel {
 
         jPanel5.setBackground(new java.awt.Color(35, 32, 45));
 
-        jLabel2.setForeground(new java.awt.Color(255, 255, 0));
         jLabel2.setText("Cuentas por Rango de Saldos:");
+        jLabel2.setForeground(new java.awt.Color(255, 255, 0));
 
+        jLabel3.setText("De:");
         jLabel3.setBackground(new java.awt.Color(35, 32, 45));
         jLabel3.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel3.setText("De:");
 
+        jLabel4.setText("A:");
         jLabel4.setBackground(new java.awt.Color(35, 32, 45));
         jLabel4.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel4.setText("A:");
 
         jButton1.setText("Generar");
         jButton1.addActionListener(new java.awt.event.ActionListener() {
@@ -210,8 +210,8 @@ public class V_Reportes_Cuentas extends javax.swing.JPanel {
 
         jPanel6.setBackground(new java.awt.Color(35, 32, 45));
 
-        jLabel5.setForeground(new java.awt.Color(255, 255, 255));
         jLabel5.setText("Cuentas por Cliente:");
+        jLabel5.setForeground(new java.awt.Color(255, 255, 255));
 
         jButton3.setText("Generar");
         jButton3.addActionListener(new java.awt.event.ActionListener() {
@@ -250,8 +250,8 @@ public class V_Reportes_Cuentas extends javax.swing.JPanel {
 
         jPanel7.setBackground(new java.awt.Color(35, 32, 45));
 
-        jLabel6.setForeground(new java.awt.Color(255, 255, 255));
         jLabel6.setText("Todas las Cuentas Vencidas");
+        jLabel6.setForeground(new java.awt.Color(255, 255, 255));
 
         jButton4.setText("Generar");
         jButton4.addActionListener(new java.awt.event.ActionListener() {
@@ -281,10 +281,10 @@ public class V_Reportes_Cuentas extends javax.swing.JPanel {
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        jLabel13.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
-        jLabel13.setForeground(new java.awt.Color(255, 255, 255));
         jLabel13.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel13.setText("Por Cobrar");
+        jLabel13.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
+        jLabel13.setForeground(new java.awt.Color(255, 255, 255));
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -318,13 +318,13 @@ public class V_Reportes_Cuentas extends javax.swing.JPanel {
 
         jPanel3.setBackground(new java.awt.Color(0, 0, 0));
 
+        jLabel15.setText("Desde:");
         jLabel15.setBackground(new java.awt.Color(0, 0, 0));
         jLabel15.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel15.setText("Desde:");
 
+        jLabel16.setText("Hasta:");
         jLabel16.setBackground(new java.awt.Color(0, 0, 0));
         jLabel16.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel16.setText("Hasta:");
 
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
@@ -350,7 +350,7 @@ public class V_Reportes_Cuentas extends javax.swing.JPanel {
                     .addComponent(datePicker2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel15)
                     .addComponent(jLabel16))
-                .addContainerGap(17, Short.MAX_VALUE))
+                .addContainerGap(11, Short.MAX_VALUE))
         );
 
         jPanel8.setBackground(new java.awt.Color(0, 102, 255));
@@ -358,8 +358,8 @@ public class V_Reportes_Cuentas extends javax.swing.JPanel {
 
         jPanel9.setBackground(new java.awt.Color(35, 32, 45));
 
-        jLabel7.setForeground(new java.awt.Color(255, 255, 0));
         jLabel7.setText("Todas las Cuentas Registradas");
+        jLabel7.setForeground(new java.awt.Color(255, 255, 0));
 
         jButton5.setText("Generar");
         jButton5.addActionListener(new java.awt.event.ActionListener() {
@@ -391,16 +391,16 @@ public class V_Reportes_Cuentas extends javax.swing.JPanel {
 
         jPanel10.setBackground(new java.awt.Color(35, 32, 45));
 
-        jLabel8.setForeground(new java.awt.Color(255, 255, 0));
         jLabel8.setText("Cuentas por Rango de Saldos:");
+        jLabel8.setForeground(new java.awt.Color(255, 255, 0));
 
+        jLabel9.setText("De:");
         jLabel9.setBackground(new java.awt.Color(35, 32, 45));
         jLabel9.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel9.setText("De:");
 
+        jLabel10.setText("A:");
         jLabel10.setBackground(new java.awt.Color(35, 32, 45));
         jLabel10.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel10.setText("A:");
 
         jButton6.setText("Generar");
         jButton6.addActionListener(new java.awt.event.ActionListener() {
@@ -447,8 +447,8 @@ public class V_Reportes_Cuentas extends javax.swing.JPanel {
 
         jPanel11.setBackground(new java.awt.Color(35, 32, 45));
 
-        jLabel11.setForeground(new java.awt.Color(255, 255, 255));
         jLabel11.setText("Cuentas por Proveedor:");
+        jLabel11.setForeground(new java.awt.Color(255, 255, 255));
 
         jButton7.setText("Generar");
         jButton7.addActionListener(new java.awt.event.ActionListener() {
@@ -487,8 +487,8 @@ public class V_Reportes_Cuentas extends javax.swing.JPanel {
 
         jPanel12.setBackground(new java.awt.Color(35, 32, 45));
 
-        jLabel12.setForeground(new java.awt.Color(255, 255, 255));
         jLabel12.setText("Todas las Cuentas Vencidas");
+        jLabel12.setForeground(new java.awt.Color(255, 255, 255));
 
         jButton8.setText("Generar");
         jButton8.addActionListener(new java.awt.event.ActionListener() {
@@ -518,10 +518,10 @@ public class V_Reportes_Cuentas extends javax.swing.JPanel {
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        jLabel14.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
-        jLabel14.setForeground(new java.awt.Color(255, 255, 255));
         jLabel14.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel14.setText("Por Pagar");
+        jLabel14.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
+        jLabel14.setForeground(new java.awt.Color(255, 255, 255));
 
         javax.swing.GroupLayout jPanel8Layout = new javax.swing.GroupLayout(jPanel8);
         jPanel8.setLayout(jPanel8Layout);
@@ -555,9 +555,9 @@ public class V_Reportes_Cuentas extends javax.swing.JPanel {
 
         jPanel2.setBackground(new java.awt.Color(0, 0, 0));
 
-        jLabel17.setForeground(new java.awt.Color(255, 255, 255));
         jLabel17.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel17.setText("Los campos con distinción amarilla requieren un rango de fechas.");
+        jLabel17.setText("Los reportes con distinción amarilla requieren un rango de fechas.");
+        jLabel17.setForeground(new java.awt.Color(255, 255, 255));
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -603,7 +603,7 @@ public class V_Reportes_Cuentas extends javax.swing.JPanel {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jPanel8, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 28, Short.MAX_VALUE)
+                .addGap(18, 18, Short.MAX_VALUE)
                 .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );

@@ -1884,11 +1884,9 @@ lbl_Descripcion.setText("<html>Consulte de forma rápida y sencilla los ingresos
 
     private void jLabel21MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel21MouseClicked
 
+V_Reportes_Facturas x = new V_Reportes_Facturas();
+abrirVentana(x);
 
-        EntityManager em = MonituxDBContext.getEntityManager();
-List<?> result = em.createQuery("SELECT 1").getResultList();
-System.out.println("Conexión JPA OK: " + result);
-em.close();
         
         // TODO add your handling code here:
     }//GEN-LAST:event_jLabel21MouseClicked
