@@ -1354,7 +1354,7 @@ iniciarCintaLED(lblTitular);
             .addGroup(panelContenedorLayout.createSequentialGroup()
                 .addGap(69, 69, 69)
                 .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 420, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(798, Short.MAX_VALUE))
+                .addContainerGap(768, Short.MAX_VALUE))
         );
 
         jScrollPane2.setViewportView(panelContenedor);
@@ -1928,6 +1928,12 @@ aplicarColorFondo(jLabel22,new Color(35, 32, 45));
     }//GEN-LAST:event_jLabel22MouseExited
 
     private void jLabel23MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel23MouseClicked
+
+        V_Reportes_Inventario x = new V_Reportes_Inventario();
+        abrirVentana(x);
+        
+        
+
         // TODO add your handling code here:
     }//GEN-LAST:event_jLabel23MouseClicked
 

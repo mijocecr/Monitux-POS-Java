@@ -851,6 +851,8 @@ private String valueOrEmpty(String valor) {
 
     private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
  
+    
+        
         
         if ("Vendedor".equals(V_Menu_Principal.getAcceso_Usuario())) {
     Menu_Eliminar.setVisible(false);
@@ -863,9 +865,9 @@ private String valueOrEmpty(String valor) {
         Util.llenar_Combo_Categoria(comboCategoria, Secuencial_Empresa);
 
      
-          setTitle("Monitux-POS v." + V_Menu_Principal.version);
+        setTitle("Monitux-POS v." + V_Menu_Principal.version);
 
-          Dibujar_Codigos();
+        Dibujar_Codigos();
 
 
 

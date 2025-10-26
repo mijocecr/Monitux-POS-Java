@@ -124,6 +124,8 @@ public class V_Reportes_Cuentas extends javax.swing.JPanel {
         jLabel1.setForeground(new java.awt.Color(255, 255, 0));
 
         jButton2.setText("Generar");
+        jButton2.setBackground(new java.awt.Color(255, 255, 0));
+        jButton2.setForeground(new java.awt.Color(0, 0, 0));
         jButton2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton2ActionPerformed(evt);
@@ -165,6 +167,8 @@ public class V_Reportes_Cuentas extends javax.swing.JPanel {
         jLabel4.setForeground(new java.awt.Color(255, 255, 255));
 
         jButton1.setText("Generar");
+        jButton1.setBackground(new java.awt.Color(255, 255, 0));
+        jButton1.setForeground(new java.awt.Color(0, 0, 0));
         jButton1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton1ActionPerformed(evt);
@@ -362,6 +366,8 @@ public class V_Reportes_Cuentas extends javax.swing.JPanel {
         jLabel7.setForeground(new java.awt.Color(255, 255, 0));
 
         jButton5.setText("Generar");
+        jButton5.setBackground(new java.awt.Color(255, 255, 0));
+        jButton5.setForeground(new java.awt.Color(0, 0, 0));
         jButton5.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton5ActionPerformed(evt);
@@ -403,6 +409,8 @@ public class V_Reportes_Cuentas extends javax.swing.JPanel {
         jLabel10.setForeground(new java.awt.Color(255, 255, 255));
 
         jButton6.setText("Generar");
+        jButton6.setBackground(new java.awt.Color(255, 255, 0));
+        jButton6.setForeground(new java.awt.Color(0, 0, 0));
         jButton6.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton6ActionPerformed(evt);
