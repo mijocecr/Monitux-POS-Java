@@ -364,6 +364,7 @@ public class Util {
 
  
     
+ 
     
     public static void registrarMovimientoKardex(
     int secuencialProducto, double existencia,
@@ -387,7 +388,7 @@ public class Util {
         tx = em.getTransaction();
         tx.begin();
 
-        double saldoNuevo = movimiento.equals("Entrada")
+        double saldoNuevo = movimiento.equalsIgnoreCase("Entrada")
             ? existencia + cantidadUnidades
             : existencia - cantidadUnidades;
 
@@ -398,7 +399,7 @@ public class Util {
 
         Kardex kardex = new Kardex();
         kardex.setProducto(producto);
-        kardex.setSecuencial_Empresa(secuencialEmpresa);
+        kardex.setSecuencial_Empresa(secuencialEmpresa); // ✅ si el setter se llama así en tu clase
         kardex.setDescripcion(descripcion);
         kardex.setCantidad(cantidadUnidades);
         kardex.setCosto(costo);
@@ -410,8 +411,8 @@ public class Util {
         kardex.setFecha(LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
 
         em.persist(kardex);
-
         tx.commit();
+
         System.out.println("✅ Movimiento registrado en Kardex correctamente.");
     } catch (Exception e) {
         if (tx != null && tx.isActive()) {
@@ -426,6 +427,9 @@ public class Util {
     }
 }
 
+    
+    
+    
     
   public static List<ProductoTopVR> obtenerTopProductosVendidos(int cantidadTop) {
     EntityManager em = MonituxDBContext.getEntityManager();

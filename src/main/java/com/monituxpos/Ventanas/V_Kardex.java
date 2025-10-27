@@ -224,9 +224,8 @@ setTitle("Monitux-POS v." + V_Menu_Principal.version);
     }//GEN-LAST:event_formWindowOpened
 
     
-    public void filtrarKardex(int secuencialProducto, String movimiento, JTable tabla) {
+public void filtrarKardex(int secuencialProducto, String movimiento, JTable tabla) {
     List<Kardex> kardexList = new ArrayList<>();
-
     EntityManager em = MonituxDBContext.getEntityManager();
 
     try {
@@ -244,22 +243,14 @@ setTitle("Monitux-POS v." + V_Menu_Principal.version);
         return;
     }
 
-    // Configurar columnas si es necesario
-    if (tabla.getColumnCount() == 0) {
-        DefaultTableModel modelo = new DefaultTableModel(new Object[]{
-            "S", "Fecha", "Descripción", "Cantidad", "Saldo"
-        }, 0) {
-            @Override
-            public boolean isCellEditable(int row, int column) {
-                return false;
-            }
-        };
-        tabla.setModel(modelo);
-    }
-
-    // Limpiar filas antes de agregar nuevas
-    DefaultTableModel modelo = (DefaultTableModel) tabla.getModel();
-    modelo.setRowCount(0);
+    DefaultTableModel modelo = new DefaultTableModel(new Object[]{
+        "S", "Fecha", "Descripción", "Cantidad", "Saldo"
+    }, 0) {
+        @Override
+        public boolean isCellEditable(int row, int column) {
+            return false;
+        }
+    };
 
     for (Kardex item : kardexList) {
         modelo.addRow(new Object[]{
@@ -271,6 +262,7 @@ setTitle("Monitux-POS v." + V_Menu_Principal.version);
         });
     }
 
+    tabla.setModel(modelo);
     tabla.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
     for (MouseListener ml : tabla.getMouseListeners()) {
@@ -295,9 +287,8 @@ setTitle("Monitux-POS v." + V_Menu_Principal.version);
     System.out.println("✅ Kardex filtrado correctamente.");
 }
 
- 
-    
-  public void mostrarUltimoMovimientoKardex(int secuencialProducto, int secuencialEmpresa, JLabel label) {
+
+public void mostrarUltimoMovimientoKardex(int secuencialProducto, int secuencialEmpresa, JLabel label) {
     EntityManager em = null;
 
     try {
@@ -306,11 +297,12 @@ setTitle("Monitux-POS v." + V_Menu_Principal.version);
             throw new IllegalStateException("EntityManager no disponible.");
         }
 
-        TypedQuery<Object[]> query = em.createQuery(
-            "SELECT k.fecha, k.cantidad, p.Codigo, k.saldo, p.Descripcion, p.Tipo " +
-            "FROM Kardex k JOIN k.producto p " +
-            "WHERE k.producto.Secuencial = :producto AND k.Secuencial_Empresa = :empresa " +
-            "ORDER BY k.fecha DESC, k.secuencial DESC", Object[].class);
+       TypedQuery<Object[]> query = em.createQuery(
+    "SELECT k.fecha, k.cantidad, p.Codigo, k.saldo, p.Descripcion, p.Tipo " +
+    "FROM Kardex k JOIN k.producto p " +
+    "WHERE p.Secuencial = :producto AND k.secuencial_empresa = :empresa " +
+    "ORDER BY k.fecha DESC, k.secuencial DESC", Object[].class);
+
 
         query.setParameter("producto", secuencialProducto);
         query.setParameter("empresa", secuencialEmpresa);
@@ -334,7 +326,7 @@ setTitle("Monitux-POS v." + V_Menu_Principal.version);
         System.out.println("✅ Último movimiento de Kardex consultado correctamente.");
     } catch (Exception ex) {
         if (label != null) {
-            label.setText("❌ Error al consultar el Kardex: " + ex.getMessage());
+            label.setText("Error al consultar el Kardex: " + ex.getMessage());
         }
         ex.printStackTrace();
     } finally {
@@ -344,7 +336,6 @@ setTitle("Monitux-POS v." + V_Menu_Principal.version);
     }
 }
 
-    
     
     
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed

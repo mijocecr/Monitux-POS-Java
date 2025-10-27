@@ -14,14 +14,18 @@ import com.lowagie.text.Phrase;
 import com.lowagie.text.pdf.PdfPCell;
 import com.lowagie.text.pdf.PdfPTable;
 import com.lowagie.text.pdf.PdfWriter;
+import com.monituxpos.Clases.Kardex;
 import com.monituxpos.Clases.MonituxDBContext;
+import com.monituxpos.Clases.Producto;
 import com.monituxpos.Clases.Util;
 import jakarta.persistence.EntityManager;
 import java.awt.Color;
 import java.io.ByteArrayOutputStream;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -629,7 +633,810 @@ public class V_Reportes_Inventario extends javax.swing.JPanel {
 }
 
  
+ public void RPT_Precio_Venta(int secuencialEmpresa) {
+    EntityManager em = null;
+
+    try {
+        MonituxDBContext.ensureEntityManagerFactoryReady();
+        em = MonituxDBContext.getEntityManager();
+
+        // Obtener productos agrupados por proveedor
+        List<Object[]> productos = em.createQuery(
+            "SELECT pr.Nombre, p.Codigo, p.Descripcion, p.Marca, p.Precio_Venta " +
+            "FROM Producto p " +
+            "JOIN Proveedor pr ON p.Secuencial_Proveedor = pr.Secuencial " +
+            "WHERE p.Secuencial_Empresa = :empresa " +
+            "ORDER BY pr.Nombre, p.Descripcion", Object[].class)
+            .setParameter("empresa", secuencialEmpresa)
+            .getResultList();
+
+        // Agrupar por proveedor
+        Map<String, List<Object[]>> agrupadoPorProveedor = productos.stream()
+            .collect(Collectors.groupingBy(p -> (String) p[0], LinkedHashMap::new, Collectors.toList()));
+
+        // Generar PDF en memoria
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        Document document = new Document(PageSize.A4);
+        PdfWriter.getInstance(document, baos);
+        document.open();
+
+        Font fontHeader     = new Font(Font.HELVETICA, 16, Font.BOLD);
+        Font fontNormal     = new Font(Font.HELVETICA, 9, Font.NORMAL);
+        Font fontSmall      = new Font(Font.HELVETICA, 7, Font.NORMAL);
+        Font fontBold       = new Font(Font.HELVETICA, 9, Font.BOLD);
+        Font fontProveedor  = new Font(Font.HELVETICA, 11, Font.BOLD, new Color(0, 70, 160));
+
+        document.add(new Paragraph("💸 Listado de Precios de Venta", fontHeader));
+        document.add(new Paragraph("Empresa: " + secuencialEmpresa, fontNormal));
+        document.add(new Paragraph("Generado el: " + new SimpleDateFormat("dd/MM/yyyy HH:mm").format(new Date()), fontNormal));
+        document.add(Chunk.NEWLINE);
+
+        for (Map.Entry<String, List<Object[]>> grupo : agrupadoPorProveedor.entrySet()) {
+            Paragraph tituloProveedor = new Paragraph("🔹 Proveedor: " + grupo.getKey(), fontProveedor);
+            tituloProveedor.setSpacingAfter(2f);
+            document.add(tituloProveedor);
+
+            PdfPTable table = new PdfPTable(4);
+            table.setWidthPercentage(100);
+            table.setSpacingBefore(2f);
+            table.setSpacingAfter(8f);
+            table.setWidths(new float[] {
+                1.5f, // Código
+                4f,   // Descripción
+                2f,   // Marca
+                1.5f  // Precio Venta
+            });
+
+            String[] columnas = { "Código", "Descripción", "Marca", "Venta" };
+            for (String col : columnas) {
+                PdfPCell cell = new PdfPCell(new Phrase(col, fontBold));
+                cell.setBackgroundColor(Color.LIGHT_GRAY);
+                cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+                cell.setPadding(4f);
+                table.addCell(cell);
+            }
+
+            for (Object[] fila : grupo.getValue()) {
+                table.addCell(new Phrase(String.valueOf(fila[1]), fontNormal)); // Código
+                table.addCell(new Phrase(String.valueOf(fila[2]), fontSmall));  // Descripción
+                table.addCell(new Phrase(String.valueOf(fila[3]), fontNormal)); // Marca
+                table.addCell(new Phrase(String.format("%.2f", fila[4]), fontNormal)); // Precio Venta (sin símbolo)
+            }
+
+            document.add(table);
+        }
+
+        document.add(new Paragraph("Sistema Monitux-POS · Listado de precios agrupado por proveedor", fontNormal));
+        document.close();
+
+        // Mostrar visor directamente desde memoria
+        V_Visor_Factura visor = new V_Visor_Factura();
+        visor.setDocumentoEnBytes(baos.toByteArray());
+        visor.setTitulo("Listado de precios por proveedor");
+        visor.mostrar();
+
+    } catch (Exception ex) {
+        ex.printStackTrace();
+        JOptionPane.showMessageDialog(null, "❌ Error al generar el reporte:\n" + ex.getMessage(), "Monitux-POS", JOptionPane.ERROR_MESSAGE);
+    } finally {
+        if (em != null && em.isOpen()) em.close();
+    }
+}
+
+ 
+ public void RPT_Precio_Costo(int secuencialEmpresa) {
+    EntityManager em = null;
+
+    try {
+        MonituxDBContext.ensureEntityManagerFactoryReady();
+        em = MonituxDBContext.getEntityManager();
+
+        // Obtener productos agrupados por proveedor
+        List<Object[]> productos = em.createQuery(
+            "SELECT pr.Nombre, p.Codigo, p.Descripcion, p.Marca, p.Precio_Costo " +
+            "FROM Producto p " +
+            "JOIN Proveedor pr ON p.Secuencial_Proveedor = pr.Secuencial " +
+            "WHERE p.Secuencial_Empresa = :empresa " +
+            "ORDER BY pr.Nombre, p.Descripcion", Object[].class)
+            .setParameter("empresa", secuencialEmpresa)
+            .getResultList();
+
+        // Agrupar por proveedor
+        Map<String, List<Object[]>> agrupadoPorProveedor = productos.stream()
+            .collect(Collectors.groupingBy(p -> (String) p[0], LinkedHashMap::new, Collectors.toList()));
+
+        // Generar PDF en memoria
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        Document document = new Document(PageSize.A4);
+        PdfWriter.getInstance(document, baos);
+        document.open();
+
+        Font fontHeader     = new Font(Font.HELVETICA, 16, Font.BOLD);
+        Font fontNormal     = new Font(Font.HELVETICA, 9, Font.NORMAL);
+        Font fontSmall      = new Font(Font.HELVETICA, 7, Font.NORMAL);
+        Font fontBold       = new Font(Font.HELVETICA, 9, Font.BOLD);
+        Font fontProveedor  = new Font(Font.HELVETICA, 11, Font.BOLD, new Color(0, 70, 160));
+
+        document.add(new Paragraph("📦 Listado de Costos de Productos", fontHeader));
+        document.add(new Paragraph("Empresa: " + secuencialEmpresa, fontNormal));
+        document.add(new Paragraph("Generado el: " + new SimpleDateFormat("dd/MM/yyyy HH:mm").format(new Date()), fontNormal));
+        document.add(Chunk.NEWLINE);
+
+        for (Map.Entry<String, List<Object[]>> grupo : agrupadoPorProveedor.entrySet()) {
+            Paragraph tituloProveedor = new Paragraph("🔹 Proveedor: " + grupo.getKey(), fontProveedor);
+            tituloProveedor.setSpacingAfter(2f);
+            document.add(tituloProveedor);
+
+            PdfPTable table = new PdfPTable(4);
+            table.setWidthPercentage(100);
+            table.setSpacingBefore(2f);
+            table.setSpacingAfter(8f);
+            table.setWidths(new float[] {
+                1.5f, // Código
+                4f,   // Descripción
+                2f,   // Marca
+                1.5f  // Precio Costo
+            });
+
+            String[] columnas = { "Código", "Descripción", "Marca", "Costo" };
+            for (String col : columnas) {
+                PdfPCell cell = new PdfPCell(new Phrase(col, fontBold));
+                cell.setBackgroundColor(Color.LIGHT_GRAY);
+                cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+                cell.setPadding(4f);
+                table.addCell(cell);
+            }
+
+            for (Object[] fila : grupo.getValue()) {
+                table.addCell(new Phrase(String.valueOf(fila[1]), fontNormal)); // Código
+                table.addCell(new Phrase(String.valueOf(fila[2]), fontSmall));  // Descripción
+                table.addCell(new Phrase(String.valueOf(fila[3]), fontNormal)); // Marca
+                table.addCell(new Phrase(String.format("%.2f", fila[4]), fontNormal)); // Precio Costo (sin símbolo)
+            }
+
+            document.add(table);
+        }
+
+        document.add(new Paragraph("Sistema Monitux-POS · Listado de costos agrupado por proveedor", fontNormal));
+        document.close();
+
+        // Mostrar visor directamente desde memoria
+        V_Visor_Factura visor = new V_Visor_Factura();
+        visor.setDocumentoEnBytes(baos.toByteArray());
+        visor.setTitulo("Listado de costos por proveedor");
+        visor.mostrar();
+
+    } catch (Exception ex) {
+        ex.printStackTrace();
+        JOptionPane.showMessageDialog(null, "❌ Error al generar el reporte:\n" + ex.getMessage(), "Monitux-POS", JOptionPane.ERROR_MESSAGE);
+    } finally {
+        if (em != null && em.isOpen()) em.close();
+    }
+}
+
+ public void RPT_Servicios_Registrados(int secuencialEmpresa) {
+    EntityManager em = null;
+
+    try {
+        MonituxDBContext.ensureEntityManagerFactoryReady();
+        em = MonituxDBContext.getEntityManager();
+
+        // Filtrar productos que son servicios
+        List<Object[]> servicios = em.createQuery(
+            "SELECT p.Codigo, p.Descripcion, p.Precio_Venta, p.Precio_Costo " +
+            "FROM Producto p " +
+            "WHERE p.Secuencial_Empresa = :empresa AND TRIM(p.Tipo) = 'Servicio' " +
+            "ORDER BY p.Codigo", Object[].class)
+            .setParameter("empresa", secuencialEmpresa)
+            .getResultList();
+
+        // Generar PDF en memoria
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        Document document = new Document(PageSize.A4);
+        PdfWriter.getInstance(document, baos);
+        document.open();
+
+        Font fontHeader     = new Font(Font.HELVETICA, 16, Font.BOLD);
+        Font fontNormal     = new Font(Font.HELVETICA, 9, Font.NORMAL);
+        Font fontSmall      = new Font(Font.HELVETICA, 7, Font.NORMAL);
+        Font fontBold       = new Font(Font.HELVETICA, 9, Font.BOLD);
+
+        document.add(new Paragraph("🛠️ Reporte de Servicios Registrados", fontHeader));
+        document.add(new Paragraph("Total servicios: " + servicios.size(), fontNormal));
+        document.add(new Paragraph("Generado el: " + new SimpleDateFormat("dd/MM/yyyy HH:mm").format(new Date()), fontNormal));
+        document.add(Chunk.NEWLINE);
+
+        PdfPTable table = new PdfPTable(4);
+        table.setWidthPercentage(100);
+        table.setSpacingBefore(2f);
+        table.setSpacingAfter(8f);
+        table.setWidths(new float[] {
+            1.5f, // Código
+            4f,   // Descripción
+            1.5f, // Precio Venta
+            1.5f  // Precio Costo
+        });
+
+        String[] columnas = { "Código", "Descripción", "Venta", "Costo" };
+        for (String col : columnas) {
+            PdfPCell cell = new PdfPCell(new Phrase(col, fontBold));
+            cell.setBackgroundColor(Color.LIGHT_GRAY);
+            cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+            cell.setPadding(4f);
+            table.addCell(cell);
+        }
+
+        for (Object[] fila : servicios) {
+            table.addCell(new Phrase(String.valueOf(fila[0]), fontNormal)); // Código
+            table.addCell(new Phrase(String.valueOf(fila[1]), fontSmall));  // Descripción
+            table.addCell(new Phrase(String.format("%.2f", fila[2]), fontNormal)); // Precio Venta
+            table.addCell(new Phrase(String.format("%.2f", fila[3]), fontNormal)); // Precio Costo
+        }
+
+        document.add(table);
+        document.add(new Paragraph("Sistema Monitux-POS · Reporte exclusivo de servicios", fontNormal));
+        document.close();
+
+        // Mostrar visor directamente desde memoria
+        V_Visor_Factura visor = new V_Visor_Factura();
+        visor.setDocumentoEnBytes(baos.toByteArray());
+        visor.setTitulo("Reporte de servicios registrados");
+        visor.mostrar();
+
+    } catch (Exception ex) {
+        ex.printStackTrace();
+        JOptionPane.showMessageDialog(null, "❌ Error al generar el reporte:\n" + ex.getMessage(), "Monitux-POS", JOptionPane.ERROR_MESSAGE);
+    } finally {
+        if (em != null && em.isOpen()) em.close();
+    }
+}
+
+public void RPT_Kardex_Movimientos(int secuencialEmpresa, LocalDate fechaInicio, LocalDate fechaFin) {
+    EntityManager em = null;
+
+    try {
+        MonituxDBContext.ensureEntityManagerFactoryReady();
+        em = MonituxDBContext.getEntityManager();
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        String fechaInicioStr = fechaInicio.format(formatter);
+        String fechaFinStr = fechaFin.format(formatter);
+
+        List<Object[]> movimientos = em.createQuery(
+           "SELECT k.Secuencial_Producto, k.descripcion, k.fecha, k.movimiento, k.cantidad,\n" +
+        "k.costo, k.costo_total, k.venta_total, k.saldo\n" +
+        "FROM Kardex k\n" +
+        "WHERE k.secuencial_empresa = :empresa\n" +
+        "AND k.fecha BETWEEN :inicio AND :fin", Object[].class)
+            .setParameter("empresa", secuencialEmpresa)
+            .setParameter("inicio", fechaInicioStr)
+            .setParameter("fin", fechaFinStr)
+            .getResultList();
+
+        Map<String, List<Object[]>> agrupado = movimientos.stream()
+            .collect(Collectors.groupingBy(
+                k -> k[0] + "||" + k[1], // Secuencial_Producto || Descripción
+                LinkedHashMap::new,
+                Collectors.toList()
+            ));
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        Document document = new Document(PageSize.A4);
+        PdfWriter.getInstance(document, baos);
+        document.open();
+
+        Font fontHeader = new Font(Font.HELVETICA, 16, Font.BOLD);
+        Font fontNormal = new Font(Font.HELVETICA, 9, Font.NORMAL);
+        Font fontSmall  = new Font(Font.HELVETICA, 7, Font.NORMAL);
+        Font fontBold   = new Font(Font.HELVETICA, 9, Font.BOLD);
+        Font fontGrupo  = new Font(Font.HELVETICA, 10, Font.BOLD, new Color(80, 80, 80));
+
+        document.add(new Paragraph("📦 Reporte Kardex agrupado por producto", fontHeader));
+        document.add(new Paragraph("Rango: " + fechaInicioStr + " a " + fechaFinStr, fontNormal));
+        document.add(new Paragraph("Generado el: " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")), fontNormal));
+        document.add(Chunk.NEWLINE);
+
+        PdfPTable table = new PdfPTable(8);
+        table.setWidthPercentage(100);
+        table.setSpacingBefore(2f);
+        table.setSpacingAfter(8f);
+        table.setWidths(new float[] {
+            1.5f, 1.5f, 2f, 1f, 1.5f, 1.5f, 1.5f, 1f
+        });
+
+        String[] columnas = {
+            "Fecha", "Código", "Movimiento", "Cantidad",
+            "Costo", "Costo total", "Venta total", "Saldo"
+        };
+
+        for (String col : columnas) {
+            PdfPCell cell = new PdfPCell(new Phrase(col, fontBold));
+            cell.setBackgroundColor(Color.LIGHT_GRAY);
+            cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+            cell.setPadding(4f);
+            table.addCell(cell);
+        }
+
+        for (Map.Entry<String, List<Object[]>> grupo : agrupado.entrySet()) {
+            String[] clave = grupo.getKey().split("\\|\\|");
+            String codigo = clave[0];
+            String descripcion = clave[1];
+
+            PdfPCell grupoCell = new PdfPCell(new Phrase("Producto: " + descripcion + " (Código: " + codigo + ")", fontGrupo));
+            grupoCell.setColspan(8);
+            grupoCell.setBackgroundColor(Color.LIGHT_GRAY);
+            grupoCell.setPadding(6f);
+            table.addCell(grupoCell);
+
+            for (Object[] fila : grupo.getValue()) {
+                table.addCell(new Phrase(String.valueOf(fila[2]), fontNormal)); // Fecha
+                table.addCell(new Phrase(String.valueOf(fila[0]), fontNormal)); // Código
+                table.addCell(new Phrase(String.valueOf(fila[3]), fontNormal)); // Movimiento
+                table.addCell(new Phrase(String.format("%.0f", fila[4]), fontNormal)); // Cantidad
+                table.addCell(new Phrase(String.format("%.2f", fila[5]), fontNormal)); // Costo
+                table.addCell(new Phrase(String.format("%.2f", fila[6]), fontNormal)); // Costo Total
+                table.addCell(new Phrase(String.format("%.2f", fila[7]), fontNormal)); // Venta Total
+                table.addCell(new Phrase(String.format("%.0f", fila[8]), fontNormal)); // Saldo
+            }
+        }
+
+        document.add(table);
+        document.add(new Paragraph("Sistema Monitux-POS · Reporte generado automáticamente", fontNormal));
+        document.close();
+
+        V_Visor_Factura visor = new V_Visor_Factura();
+        visor.setDocumentoEnBytes(baos.toByteArray());
+        visor.setTitulo("Reporte Kardex agrupado");
+        visor.mostrar();
+
+    } catch (Exception ex) {
+        ex.printStackTrace();
+        JOptionPane.showMessageDialog(null, "❌ Error al generar el reporte:\n" + ex.getMessage(), "Monitux-POS", JOptionPane.ERROR_MESSAGE);
+    } finally {
+        if (em != null && em.isOpen()) em.close();
+    }
+}
+
+ 
+public void RPT_Entradas_PorProducto(String codigoProducto, int secuencialEmpresa) {
+    EntityManager em = null;
+
+    try {
+        em = MonituxDBContext.getEntityManager();
+        if (em == null || !em.isOpen()) {
+            throw new IllegalStateException("EntityManager no disponible.");
+        }
+
+        List<Kardex> entradas = em.createQuery(
+            "SELECT k FROM Kardex k JOIN FETCH k.producto p " +
+            "WHERE p.Codigo = :codigo AND k.secuencial_empresa = :empresa AND k.movimiento = 'Entrada'",
+            Kardex.class)
+            .setParameter("codigo", codigoProducto)
+            .setParameter("empresa", secuencialEmpresa)
+            .getResultList();
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        entradas.sort(Comparator.comparing(k -> {
+            try {
+                return LocalDate.parse(k.getFecha(), formatter);
+            } catch (Exception e) {
+                return LocalDate.MIN;
+            }
+        }));
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        Document document = new Document(PageSize.A4);
+        PdfWriter.getInstance(document, baos);
+        document.open();
+
+        Font tituloFont = new Font(Font.HELVETICA, 16, Font.BOLD);
+        Font normalFont = new Font(Font.HELVETICA, 10);
+        Font boldFont = new Font(Font.HELVETICA, 10, Font.BOLD);
+
+        document.add(new Paragraph("📦 Reporte de entradas por producto", tituloFont));
+        document.add(new Paragraph("Código: " + codigoProducto, normalFont));
+        document.add(new Paragraph("Generado el: " +
+            LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")), normalFont));
+        document.add(Chunk.NEWLINE);
+
+        PdfPTable tablaPDF = new PdfPTable(6);
+        tablaPDF.setWidthPercentage(100);
+        tablaPDF.setWidths(new float[]{2, 5, 2, 2, 2, 2});
+
+        String[] titulos = {
+            "Fecha", "Descripción", "Cantidad",
+            "Costo", "Costo total", "Saldo"
+        };
+
+        for (String titulo : titulos) {
+            PdfPCell celda = new PdfPCell(new Phrase(titulo, boldFont));
+            celda.setBackgroundColor(Color.LIGHT_GRAY);
+            celda.setPadding(5);
+            tablaPDF.addCell(celda);
+        }
+
+        for (Kardex entrada : entradas) {
+            tablaPDF.addCell(new Phrase(entrada.getFecha(), normalFont));
+            tablaPDF.addCell(new Phrase(entrada.getDescripcion(), normalFont));
+            tablaPDF.addCell(new Phrase(String.format("%,.0f", entrada.getCantidad()), normalFont));
+            tablaPDF.addCell(new Phrase(String.format("%,.2f", entrada.getCosto()), normalFont));
+            tablaPDF.addCell(new Phrase(String.format("%,.2f", entrada.getCosto_Total()), normalFont));
+            tablaPDF.addCell(new Phrase(String.format("%,.0f", entrada.getSaldo()), normalFont));
+        }
+
+        document.add(tablaPDF);
+        document.add(Chunk.NEWLINE);
+
+        Paragraph footer = new Paragraph("Sistema Monitux-POS · Reporte generado automáticamente", boldFont);
+        footer.setAlignment(Element.ALIGN_CENTER);
+        document.add(footer);
+
+        document.close();
+
+        V_Visor_Factura visor = new V_Visor_Factura();
+        visor.setDocumentoEnBytes(baos.toByteArray());
+        visor.setTitulo("Reporte de entradas: " + codigoProducto);
+        visor.mostrar();
+
+        
+
+    } catch (Exception ex) {
+        JOptionPane.showMessageDialog(null, "❌ Error al generar el reporte: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        ex.printStackTrace();
+    } finally {
+        if (em != null && em.isOpen()) {
+            em.close();
+        }
+    }
+}
+
+
+public void RPT_Salidas_PorProducto(String codigoProducto, int secuencialEmpresa) {
+    EntityManager em = null;
+
+    try {
+        em = MonituxDBContext.getEntityManager();
+        if (em == null || !em.isOpen()) {
+            throw new IllegalStateException("EntityManager no disponible.");
+        }
+
+        List<Kardex> salidas = em.createQuery(
+            "SELECT k FROM Kardex k JOIN FETCH k.producto p " +
+            "WHERE p.Codigo = :codigo AND k.secuencial_empresa = :empresa AND k.movimiento = 'Salida'",
+            Kardex.class)
+            .setParameter("codigo", codigoProducto)
+            .setParameter("empresa", secuencialEmpresa)
+            .getResultList();
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        salidas.sort(Comparator.comparing(k -> {
+            try {
+                return LocalDate.parse(k.getFecha(), formatter);
+            } catch (Exception e) {
+                return LocalDate.MIN;
+            }
+        }));
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        Document document = new Document(PageSize.A4);
+        PdfWriter.getInstance(document, baos);
+        document.open();
+
+        Font tituloFont = new Font(Font.HELVETICA, 16, Font.BOLD);
+        Font normalFont = new Font(Font.HELVETICA, 10);
+        Font boldFont = new Font(Font.HELVETICA, 10, Font.BOLD);
+
+        document.add(new Paragraph("📦 Reporte de salidas por producto", tituloFont));
+        document.add(new Paragraph("Código: " + codigoProducto, normalFont));
+        document.add(new Paragraph("Generado el: " +
+            LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")), normalFont));
+        document.add(Chunk.NEWLINE);
+
+        PdfPTable tablaPDF = new PdfPTable(6);
+        tablaPDF.setWidthPercentage(100);
+        tablaPDF.setWidths(new float[]{2, 5, 2, 2, 2, 2});
+
+        String[] titulos = {
+            "Fecha", "Descripción", "Cantidad",
+            "Venta", "Venta total", "Saldo"
+        };
+
+        for (String titulo : titulos) {
+            PdfPCell celda = new PdfPCell(new Phrase(titulo, boldFont));
+            celda.setBackgroundColor(Color.LIGHT_GRAY);
+            celda.setPadding(5);
+            tablaPDF.addCell(celda);
+        }
+
+        for (Kardex salida : salidas) {
+            tablaPDF.addCell(new Phrase(salida.getFecha(), normalFont));
+            tablaPDF.addCell(new Phrase(salida.getDescripcion(), normalFont));
+            tablaPDF.addCell(new Phrase(String.format("%,.0f", salida.getCantidad()), normalFont));
+            tablaPDF.addCell(new Phrase(String.format("%,.2f", salida.getVenta()), normalFont));
+            tablaPDF.addCell(new Phrase(String.format("%,.2f", salida.getVenta_Total()), normalFont));
+            tablaPDF.addCell(new Phrase(String.format("%,.0f", salida.getSaldo()), normalFont));
+        }
+
+        document.add(tablaPDF);
+        document.add(Chunk.NEWLINE);
+
+        Paragraph footer = new Paragraph("Sistema Monitux-POS · Reporte generado automáticamente", boldFont);
+        footer.setAlignment(Element.ALIGN_CENTER);
+        document.add(footer);
+
+        document.close();
+
+        V_Visor_Factura visor = new V_Visor_Factura();
+        visor.setDocumentoEnBytes(baos.toByteArray());
+        visor.setTitulo("Reporte de salidas: " + codigoProducto);
+        visor.mostrar();
+
+    } catch (Exception ex) {
+        JOptionPane.showMessageDialog(null, "❌ Error al generar el reporte: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        ex.printStackTrace();
+    } finally {
+        if (em != null && em.isOpen()) {
+            em.close();
+        }
+    }
+}
+
+
+public void RPT_Productos_Con_Existencia_Minima(int secuencialEmpresa) {
+    EntityManager em = null;
+
+    try {
+        em = MonituxDBContext.getEntityManager();
+        if (em == null || !em.isOpen()) {
+            throw new IllegalStateException("EntityManager no disponible.");
+        }
+
+        List<Object[]> productosBajos = em.createQuery(
+            "SELECT p.Codigo, p.Descripcion, p.Cantidad, p.Existencia_Minima " +
+            "FROM Producto p " +
+            "WHERE p.Secuencial_Empresa = :empresa AND p.Cantidad = p.Existencia_Minima AND p.Tipo = 'Producto'",
+            Object[].class)
+            .setParameter("empresa", secuencialEmpresa)
+            .getResultList();
+
+        productosBajos.sort(Comparator.comparing(p -> ((Number) p[2]).doubleValue()));
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        Document document = new Document(PageSize.A4);
+        PdfWriter.getInstance(document, baos);
+        document.open();
+
+        Font tituloFont = new Font(Font.HELVETICA, 16, Font.BOLD);
+        Font normalFont = new Font(Font.HELVETICA, 10);
+        Font boldFont = new Font(Font.HELVETICA, 10, Font.BOLD);
+
+        document.add(new Paragraph("📉 Reporte de productos con existencia mínima", tituloFont));
+        document.add(new Paragraph("Generado el: " +
+            LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")), normalFont));
+        document.add(Chunk.NEWLINE);
+
+        PdfPTable tablaPDF = new PdfPTable(4);
+        tablaPDF.setWidthPercentage(100);
+        tablaPDF.setWidths(new float[]{2, 5, 2, 2});
+
+        String[] titulos = { "Código", "Descripción", "Cantidad", "Mínimo" };
+
+        for (String titulo : titulos) {
+            PdfPCell celda = new PdfPCell(new Phrase(titulo, boldFont));
+            celda.setBackgroundColor(Color.LIGHT_GRAY);
+            celda.setPadding(5);
+            tablaPDF.addCell(celda);
+        }
+
+        for (Object[] producto : productosBajos) {
+            tablaPDF.addCell(new Phrase(String.valueOf(producto[0]), normalFont)); // Código
+            tablaPDF.addCell(new Phrase(String.valueOf(producto[1]), normalFont)); // Descripción
+            tablaPDF.addCell(new Phrase(String.format("%,.0f", producto[2]), normalFont)); // Cantidad
+            tablaPDF.addCell(new Phrase(String.format("%,.0f", producto[3]), normalFont)); // Mínimo
+        }
+
+        document.add(tablaPDF);
+        document.add(Chunk.NEWLINE);
+
+        Paragraph footer = new Paragraph("Sistema Monitux-POS · Reporte generado automáticamente", boldFont);
+        footer.setAlignment(Element.ALIGN_CENTER);
+        document.add(footer);
+
+        document.close();
+
+        V_Visor_Factura visor = new V_Visor_Factura();
+        visor.setDocumentoEnBytes(baos.toByteArray());
+        visor.setTitulo("Productos con existencia mínima");
+        visor.mostrar();
+
+      
+
+    } catch (Exception ex) {
+        JOptionPane.showMessageDialog(null, "❌ Error al generar el reporte: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        ex.printStackTrace();
+    } finally {
+        if (em != null && em.isOpen()) {
+            em.close();
+        }
+    }
+}
+
   
+public void RPT_Productos_Agotados(int secuencialEmpresa) {
+    EntityManager em = null;
+
+    try {
+        em = MonituxDBContext.getEntityManager();
+        if (em == null || !em.isOpen()) {
+            throw new IllegalStateException("EntityManager no disponible.");
+        }
+
+        List<Object[]> productosAgotados = em.createQuery(
+            "SELECT p.Codigo, p.Descripcion, p.Existencia_Minima, p.Cantidad " +
+            "FROM Producto p " +
+            "WHERE p.Secuencial_Empresa = :empresa " +
+            "AND (p.Cantidad <= 0 OR p.Cantidad < p.Existencia_Minima) " +
+            "AND p.Tipo = 'Producto'",
+            Object[].class)
+            .setParameter("empresa", secuencialEmpresa)
+            .getResultList();
+
+        productosAgotados.sort(Comparator.comparing(p -> String.valueOf(p[1]))); // Ordenar por descripción
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        Document document = new Document(PageSize.A4);
+        PdfWriter.getInstance(document, baos);
+        document.open();
+
+        Font tituloFont = new Font(Font.HELVETICA, 16, Font.BOLD);
+        Font normalFont = new Font(Font.HELVETICA, 10);
+        Font boldFont = new Font(Font.HELVETICA, 10, Font.BOLD);
+
+        document.add(new Paragraph("🚫 Reporte de productos agotados", tituloFont));
+        document.add(new Paragraph("Generado el: " +
+            LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")), normalFont));
+        document.add(Chunk.NEWLINE);
+
+        PdfPTable tablaPDF = new PdfPTable(4);
+        tablaPDF.setWidthPercentage(100);
+        tablaPDF.setWidths(new float[]{2, 5, 2, 2});
+
+        String[] titulos = { "Código", "Descripción", "Mínimo", "Cantidad" };
+
+        for (String titulo : titulos) {
+            PdfPCell celda = new PdfPCell(new Phrase(titulo, boldFont));
+            celda.setBackgroundColor(Color.LIGHT_GRAY);
+            celda.setPadding(5);
+            tablaPDF.addCell(celda);
+        }
+
+        for (Object[] producto : productosAgotados) {
+            tablaPDF.addCell(new Phrase(String.valueOf(producto[0]), normalFont)); // Código
+            tablaPDF.addCell(new Phrase(String.valueOf(producto[1]), normalFont)); // Descripción
+            tablaPDF.addCell(new Phrase(String.format("%,.0f", producto[2]), normalFont)); // Mínimo
+            tablaPDF.addCell(new Phrase(String.format("%,.0f", producto[3]), normalFont)); // Cantidad actual
+        }
+
+        document.add(tablaPDF);
+        document.add(Chunk.NEWLINE);
+
+        Paragraph footer = new Paragraph("Sistema Monitux-POS · Reporte generado automáticamente", boldFont);
+        footer.setAlignment(Element.ALIGN_CENTER);
+        document.add(footer);
+
+        document.close();
+
+        V_Visor_Factura visor = new V_Visor_Factura();
+        visor.setDocumentoEnBytes(baos.toByteArray());
+        visor.setTitulo("Productos agotados o bajo mínimo");
+        visor.mostrar();
+
+      
+
+    } catch (Exception ex) {
+        JOptionPane.showMessageDialog(null, "❌ Error al generar el reporte: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        ex.printStackTrace();
+    } finally {
+        if (em != null && em.isOpen()) {
+            em.close();
+        }
+    }
+}
+
+
+public void RPT_Productos_Vencidos(int secuencialEmpresa) {
+    EntityManager em = null;
+
+    try {
+        em = MonituxDBContext.getEntityManager();
+        if (em == null || !em.isOpen()) {
+            throw new IllegalStateException("EntityManager no disponible.");
+        }
+
+        List<Producto> productos = em.createQuery(
+            "SELECT p FROM Producto p " +
+            "WHERE p.Secuencial_Empresa = :empresa AND p.Tipo = 'Producto' AND p.Fecha_Caducidad IS NOT NULL",
+            Producto.class)
+            .setParameter("empresa", secuencialEmpresa)
+            .getResultList();
+
+        LocalDate hoy = LocalDate.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
+        List<Producto> productosVencidos = productos.stream()
+            .filter(p -> {
+                try {
+                    LocalDate vencimiento = LocalDate.parse(p.getFecha_Caducidad(), formatter);
+                    return vencimiento.isBefore(hoy);
+                } catch (Exception e) {
+                    return false;
+                }
+            })
+            .sorted(Comparator.comparing(p -> LocalDate.parse(p.getFecha_Caducidad(), formatter)))
+            .collect(Collectors.toList());
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        Document document = new Document(PageSize.A4);
+        PdfWriter.getInstance(document, baos);
+        document.open();
+
+        Font tituloFont = new Font(Font.HELVETICA, 16, Font.BOLD);
+        Font normalFont = new Font(Font.HELVETICA, 10);
+        Font boldFont = new Font(Font.HELVETICA, 10, Font.BOLD);
+
+        document.add(new Paragraph("⏳ Reporte de productos vencidos", tituloFont));
+        document.add(new Paragraph("Generado el: " +
+            LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")), normalFont));
+        document.add(Chunk.NEWLINE);
+
+        PdfPTable tablaPDF = new PdfPTable(4);
+        tablaPDF.setWidthPercentage(100);
+        tablaPDF.setWidths(new float[]{2, 5, 2, 2});
+
+        String[] titulos = { "Código", "Descripción", "Vencimiento", "Cantidad" };
+
+        for (String titulo : titulos) {
+            PdfPCell celda = new PdfPCell(new Phrase(titulo, boldFont));
+            celda.setBackgroundColor(Color.PINK);
+            celda.setPadding(5);
+            tablaPDF.addCell(celda);
+        }
+
+        for (Producto p : productosVencidos) {
+            tablaPDF.addCell(new Phrase(p.getCodigo(), normalFont));
+            tablaPDF.addCell(new Phrase(p.getDescripcion(), normalFont));
+            tablaPDF.addCell(new Phrase(p.getFecha_Caducidad(), normalFont));
+            tablaPDF.addCell(new Phrase(String.format("%,.0f", p.getCantidad()), normalFont));
+        }
+
+        document.add(tablaPDF);
+        document.add(Chunk.NEWLINE);
+
+        Paragraph footer = new Paragraph("Sistema Monitux-POS · Reporte generado automáticamente", boldFont);
+        footer.setAlignment(Element.ALIGN_CENTER);
+        document.add(footer);
+
+        document.close();
+
+        V_Visor_Factura visor = new V_Visor_Factura();
+        visor.setDocumentoEnBytes(baos.toByteArray());
+        visor.setTitulo("Productos vencidos");
+        visor.mostrar();
+
+       
+
+    } catch (Exception ex) {
+        JOptionPane.showMessageDialog(null, "❌ Error al generar el reporte: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        ex.printStackTrace();
+    } finally {
+        if (em != null && em.isOpen()) {
+            em.close();
+        }
+    }
+}
+
+
+
     
     /**
      * This method is called from within the constructor to initialize the form.
@@ -695,46 +1502,46 @@ public class V_Reportes_Inventario extends javax.swing.JPanel {
         jPanel2.setBackground(new java.awt.Color(0, 102, 255));
         jPanel2.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255)));
 
-        jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
-        jLabel1.setForeground(new java.awt.Color(255, 255, 255));
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel1.setText("Inventario");
+        jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
+        jLabel1.setForeground(new java.awt.Color(255, 255, 255));
 
+        jLabel6.setText("Todos los Productos");
         jLabel6.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         jLabel6.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel6.setText("Todos los Productos");
 
+        jLabel7.setText("Productos por Marca");
         jLabel7.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         jLabel7.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel7.setText("Productos por Marca");
 
+        jLabel8.setText("Por Proveedor");
         jLabel8.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         jLabel8.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel8.setText("Por Proveedor");
 
+        jLabel9.setText("Por Categoria");
         jLabel9.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         jLabel9.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel9.setText("Por Categoria");
 
+        jLabel10.setText("Productos Perecederos");
         jLabel10.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         jLabel10.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel10.setText("Productos Perecederos");
 
+        jLabel11.setText("Productos Mas Vendidos");
         jLabel11.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         jLabel11.setForeground(new java.awt.Color(255, 255, 51));
-        jLabel11.setText("Productos Mas Vendidos");
 
+        jLabel12.setText("Lista de Precios de Venta");
         jLabel12.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         jLabel12.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel12.setText("Lista de Precios de Venta");
 
+        jLabel13.setText("Lista de Precios de Costo");
         jLabel13.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         jLabel13.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel13.setText("Lista de Precios de Costo");
 
+        jLabel14.setText("Servicios");
         jLabel14.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         jLabel14.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel14.setText("Servicios");
 
         jButton1.setText("Generar");
         jButton1.addActionListener(new java.awt.event.ActionListener() {
@@ -771,9 +1578,9 @@ public class V_Reportes_Inventario extends javax.swing.JPanel {
             }
         });
 
+        jButton6.setText("Generar");
         jButton6.setBackground(new java.awt.Color(255, 255, 51));
         jButton6.setForeground(new java.awt.Color(0, 0, 0));
-        jButton6.setText("Generar");
         jButton6.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton6ActionPerformed(evt);
@@ -781,10 +1588,25 @@ public class V_Reportes_Inventario extends javax.swing.JPanel {
         });
 
         jButton7.setText("Generar");
+        jButton7.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton7ActionPerformed(evt);
+            }
+        });
 
         jButton8.setText("Generar");
+        jButton8.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton8ActionPerformed(evt);
+            }
+        });
 
         jButton9.setText("Generar");
+        jButton9.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton9ActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -819,15 +1641,6 @@ public class V_Reportes_Inventario extends javax.swing.JPanel {
                             .addComponent(jLabel14)
                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(jButton9))
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel2Layout.createSequentialGroup()
-                                .addComponent(jLabel6)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(jButton1))
-                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel2Layout.createSequentialGroup()
-                                .addComponent(jLabel7)
-                                .addGap(18, 18, 18)
-                                .addComponent(jButton2)))
                         .addGroup(jPanel2Layout.createSequentialGroup()
                             .addComponent(jLabel11)
                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -835,7 +1648,15 @@ public class V_Reportes_Inventario extends javax.swing.JPanel {
                         .addGroup(jPanel2Layout.createSequentialGroup()
                             .addComponent(jLabel10)
                             .addGap(33, 33, 33)
-                            .addComponent(jButton5)))))
+                            .addComponent(jButton5))
+                        .addGroup(jPanel2Layout.createSequentialGroup()
+                            .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addComponent(jLabel7)
+                                .addComponent(jLabel6))
+                            .addGap(18, 18, 18)
+                            .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addComponent(jButton1)
+                                .addComponent(jButton2))))))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -886,62 +1707,98 @@ public class V_Reportes_Inventario extends javax.swing.JPanel {
         jPanel3.setBackground(new java.awt.Color(0, 102, 255));
         jPanel3.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255)));
 
-        jLabel2.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
-        jLabel2.setForeground(new java.awt.Color(255, 255, 255));
         jLabel2.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel2.setText("Kardex");
+        jLabel2.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
+        jLabel2.setForeground(new java.awt.Color(255, 255, 255));
 
-        jLabel15.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        jLabel15.setForeground(new java.awt.Color(255, 255, 255));
         jLabel15.setText("Todos los Movimientos");
+        jLabel15.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        jLabel15.setForeground(new java.awt.Color(255, 255, 0));
 
+        jLabel16.setText("Entradas por Producto");
         jLabel16.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         jLabel16.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel16.setText("Entradas por Producto");
 
+        jLabel17.setText("Salidas por Producto");
         jLabel17.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         jLabel17.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel17.setText("Salidas por Producto");
 
+        jLabel18.setText("Todas las Entradas");
         jLabel18.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         jLabel18.setForeground(new java.awt.Color(255, 255, 0));
-        jLabel18.setText("Todas las Entradas");
 
+        jLabel19.setText("Todas las Salidas");
         jLabel19.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         jLabel19.setForeground(new java.awt.Color(255, 255, 0));
-        jLabel19.setText("Todas las Salidas");
 
+        jLabel20.setText("Baja Existencia");
         jLabel20.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         jLabel20.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel20.setText("Baja Existencia");
 
+        jLabel21.setText("Productos Agotados");
         jLabel21.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         jLabel21.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel21.setText("Productos Agotados");
 
+        jLabel22.setText("Productos Vencidos");
         jLabel22.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         jLabel22.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel22.setText("Productos Vencidos");
 
         jButton10.setText("Generar");
+        jButton10.setBackground(new java.awt.Color(255, 255, 0));
+        jButton10.setForeground(new java.awt.Color(0, 0, 0));
+        jButton10.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton10ActionPerformed(evt);
+            }
+        });
+
+        jTextField1.setToolTipText("Ingrese aqui el codigo de producto a consultar.");
 
         jButton11.setText("Generar");
+        jButton11.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton11ActionPerformed(evt);
+            }
+        });
+
+        jTextField2.setToolTipText("Ingrese aqui el codigo de producto a consultar.");
 
         jButton12.setText("Generar");
+        jButton12.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton12ActionPerformed(evt);
+            }
+        });
 
+        jButton13.setText("Generar");
         jButton13.setBackground(new java.awt.Color(255, 255, 0));
         jButton13.setForeground(new java.awt.Color(0, 0, 0));
-        jButton13.setText("Generar");
 
+        jButton14.setText("Generar");
         jButton14.setBackground(new java.awt.Color(255, 255, 0));
         jButton14.setForeground(new java.awt.Color(0, 0, 0));
-        jButton14.setText("Generar");
 
         jButton15.setText("Generar");
+        jButton15.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton15ActionPerformed(evt);
+            }
+        });
 
         jButton16.setText("Generar");
+        jButton16.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton16ActionPerformed(evt);
+            }
+        });
 
         jButton17.setText("Generar");
+        jButton17.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton17ActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
@@ -1037,11 +1894,11 @@ public class V_Reportes_Inventario extends javax.swing.JPanel {
 
         jPanel1.setBackground(new java.awt.Color(0, 0, 0));
 
-        jLabel3.setForeground(new java.awt.Color(255, 255, 255));
         jLabel3.setText("Desde:");
+        jLabel3.setForeground(new java.awt.Color(255, 255, 255));
 
-        jLabel4.setForeground(new java.awt.Color(255, 255, 255));
         jLabel4.setText("Hasta:");
+        jLabel4.setForeground(new java.awt.Color(255, 255, 255));
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -1072,10 +1929,10 @@ public class V_Reportes_Inventario extends javax.swing.JPanel {
 
         jPanel4.setBackground(new java.awt.Color(0, 0, 0));
 
-        jLabel5.setBackground(new java.awt.Color(0, 0, 0));
-        jLabel5.setForeground(new java.awt.Color(255, 255, 255));
         jLabel5.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel5.setText("Los reportes con distinción amarilla requieren un rango de fechas.");
+        jLabel5.setBackground(new java.awt.Color(0, 0, 0));
+        jLabel5.setForeground(new java.awt.Color(255, 255, 255));
 
         javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
         jPanel4.setLayout(jPanel4Layout);
@@ -1202,6 +2059,89 @@ RPT_Productos_Mas_Vendidos(Secuencial_Empresa, fechaInicio, fechaFin);
 
         // TODO add your handling code here:
     }//GEN-LAST:event_jButton6ActionPerformed
+
+    private void jButton7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton7ActionPerformed
+
+
+        RPT_Precio_Venta(Secuencial_Empresa);
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButton7ActionPerformed
+
+    private void jButton8ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton8ActionPerformed
+
+RPT_Precio_Costo(Secuencial_Empresa);
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButton8ActionPerformed
+
+    private void jButton9ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton9ActionPerformed
+
+
+        RPT_Servicios_Registrados(Secuencial_Empresa);
+
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButton9ActionPerformed
+
+    private void jButton10ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton10ActionPerformed
+
+
+
+           LocalDate fechaInicio = datePicker1.getDate();
+        LocalDate fechaFin = datePicker2.getDate();
+
+// Validar fechas
+if (fechaInicio == null || fechaFin == null) {
+    JOptionPane.showMessageDialog(this, "Debe seleccionar ambas fechas.", "Error", JOptionPane.ERROR_MESSAGE);
+    return;
+}
+
+
+
+// Ejecutar reporte
+RPT_Kardex_Movimientos(Secuencial_Empresa, fechaInicio, fechaFin);
+
+
+
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButton10ActionPerformed
+
+    private void jButton12ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton12ActionPerformed
+
+
+        RPT_Entradas_PorProducto(jTextField1.getText(),Secuencial_Empresa);
+        
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButton12ActionPerformed
+
+    private void jButton11ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton11ActionPerformed
+
+   RPT_Salidas_PorProducto(jTextField2.getText(),Secuencial_Empresa);
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButton11ActionPerformed
+
+    private void jButton15ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton15ActionPerformed
+
+
+        RPT_Productos_Con_Existencia_Minima(Secuencial_Empresa);
+        
+
+
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButton15ActionPerformed
+
+    private void jButton16ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton16ActionPerformed
+
+
+RPT_Productos_Agotados(Secuencial_Empresa);
+
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButton16ActionPerformed
+
+    private void jButton17ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton17ActionPerformed
+
+        RPT_Productos_Vencidos(Secuencial_Empresa);
+
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButton17ActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

@@ -31,13 +31,13 @@ public class Kardex {
     private double costo;
 
     @Column(name = "Costo_Total")
-    private double Costo_Total;
+    private double costo_total;
 
     @Column(name = "Venta")
     private double venta;
 
     @Column(name = "Venta_Total")
-    private double Venta_Total;
+    private double venta_total;
 
     @Column(name = "Saldo")
     private double saldo;
@@ -46,7 +46,7 @@ public class Kardex {
     private String movimiento;
 
     @Column(name = "Secuencial_Empresa")
-    private int Secuencial_Empresa;
+    private int secuencial_empresa;
 
     // Getters y setters
     public int getSecuencial() { return secuencial; }
@@ -70,14 +70,14 @@ public class Kardex {
     public double getCosto() { return costo; }
     public void setCosto(double costo) { this.costo = costo; }
 
-    public double getCosto_Total() { return Costo_Total; }
-    public void setCosto_Total(double Costo_Total) { this.Costo_Total = Costo_Total; }
+    public double getCosto_Total() { return costo_total; }
+    public void setCosto_Total(double Costo_Total) { this.costo_total = Costo_Total; }
 
     public double getVenta() { return venta; }
     public void setVenta(double venta) { this.venta = venta; }
 
-    public double getVenta_Total() { return Venta_Total; }
-    public void setVenta_Total(double Venta_Total) { this.Venta_Total = Venta_Total; }
+    public double getVenta_Total() { return venta_total; }
+    public void setVenta_Total(double Venta_Total) { this.venta_total = Venta_Total; }
 
     public double getSaldo() { return saldo; }
     public void setSaldo(double saldo) { this.saldo = saldo; }
@@ -85,6 +85,6 @@ public class Kardex {
     public String getMovimiento() { return movimiento; }
     public void setMovimiento(String movimiento) { this.movimiento = movimiento; }
 
-    public int getSecuencial_Empresa() { return Secuencial_Empresa; }
-    public void setSecuencial_Empresa(int Secuencial_Empresa) { this.Secuencial_Empresa = Secuencial_Empresa; }
+    public int getSecuencial_Empresa() { return secuencial_empresa; }
+    public void setSecuencial_Empresa(int Secuencial_Empresa) { this.secuencial_empresa = Secuencial_Empresa; }
 }

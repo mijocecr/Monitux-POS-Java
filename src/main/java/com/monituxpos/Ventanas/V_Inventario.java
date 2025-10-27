@@ -40,6 +40,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.imageio.ImageIO;
@@ -1238,6 +1239,7 @@ public class V_Inventario extends javax.swing.JPanel {
     }//GEN-LAST:event_jButton3ActionPerformed
 
     
+   
     public void Filtrar_Kardex_Proveedor(int secuencialEmpresa, int secuencialProveedor, JTable tabla) {
     icono_carga.setVisible(true);
 
@@ -1252,8 +1254,9 @@ public class V_Inventario extends javax.swing.JPanel {
                     throw new IllegalStateException("EntityManager no disponible.");
                 }
 
+                // ✅ Usar nombres de atributos Java (case-sensitive)
                 return em.createQuery(
-                    "SELECT k FROM Kardex k JOIN FETCH k.producto p WHERE k.Secuencial_Empresa = :empresa AND p.Secuencial_Proveedor = :proveedor",
+                    "SELECT k FROM Kardex k JOIN FETCH k.producto p WHERE k.secuencial_empresa = :empresa AND p.secuencialProveedor = :proveedor",
                     Kardex.class)
                     .setParameter("empresa", secuencialEmpresa)
                     .setParameter("proveedor", secuencialProveedor)
@@ -1276,7 +1279,7 @@ public class V_Inventario extends javax.swing.JPanel {
                 List<Kardex> kardexList = get();
 
                 DefaultTableModel modelo = new DefaultTableModel(new Object[]{
-                    "S", "Codigo", "Fecha", "Descripción", "Movimiento", "Cantidad",
+                    "S", "Código", "Fecha", "Descripción", "Movimiento", "Cantidad",
                     "Costo", "Costo Total", "Venta", "Venta Total", "Saldo",
                     "Sec. Producto", "Sec. Empresa"
                 }, 0) {
@@ -1364,6 +1367,9 @@ public class V_Inventario extends javax.swing.JPanel {
     }.execute();
 }
 
+    
+    
+    
     public void Modo_Kardex() {
     try {
         jLabel14.setVisible(true);
@@ -1989,8 +1995,7 @@ icono_carga.setVisible(true);
         // TODO add your handling code here:
     }//GEN-LAST:event_jButton9ActionPerformed
 
-    
-    public void Filtrar_Kardex_Categoria(int secuencialEmpresa, int secuencialCategoria, JTable tabla) {
+   public void Filtrar_Kardex_Categoria(int secuencialEmpresa, int secuencialCategoria, JTable tabla) {
     icono_carga.setVisible(true);
 
     new SwingWorker<List<Kardex>, Void>() {
@@ -2004,8 +2009,9 @@ icono_carga.setVisible(true);
                     throw new IllegalStateException("EntityManager no disponible.");
                 }
 
+                // ✅ Usar nombres de atributos Java (case-sensitive)
                 return em.createQuery(
-                    "SELECT k FROM Kardex k JOIN FETCH k.producto p WHERE k.Secuencial_Empresa = :empresa AND p.Secuencial_Categoria = :categoria",
+                    "SELECT k FROM Kardex k JOIN FETCH k.producto p WHERE k.secuencial_empresa = :empresa AND p.secuencialCategoria = :categoria",
                     Kardex.class)
                     .setParameter("empresa", secuencialEmpresa)
                     .setParameter("categoria", secuencialCategoria)
@@ -2028,7 +2034,7 @@ icono_carga.setVisible(true);
                 List<Kardex> kardexList = get();
 
                 DefaultTableModel modelo = new DefaultTableModel(new Object[]{
-                    "S", "Codigo", "Fecha", "Descripción", "Movimiento", "Cantidad",
+                    "S", "Código", "Fecha", "Descripción", "Movimiento", "Cantidad",
                     "Costo", "Costo Total", "Venta", "Venta Total", "Saldo",
                     "Sec. Producto", "Sec. Empresa"
                 }, 0) {
@@ -2197,7 +2203,7 @@ icono_carga.setVisible(true);
         // TODO add your handling code here:
     }//GEN-LAST:event_jLabel6MouseClicked
 
-    public void Filtrar_Existencia_Minima_Kardex(int secuencialEmpresa, JTable tabla) {
+   public void Filtrar_Existencia_Minima_Kardex(int secuencialEmpresa, JTable tabla) {
     icono_carga.setVisible(true);
 
     new SwingWorker<List<Kardex>, Void>() {
@@ -2212,7 +2218,7 @@ icono_carga.setVisible(true);
                 }
 
                 return em.createQuery(
-                    "SELECT k FROM Kardex k JOIN FETCH k.producto p WHERE k.Secuencial_Empresa = :empresa AND k.Saldo <= p.Existencia_Minima",
+                    "SELECT k FROM Kardex k JOIN FETCH k.producto p WHERE k.secuencial_empresa = :empresa AND k.saldo <= p.existenciaMinima",
                     Kardex.class)
                     .setParameter("empresa", secuencialEmpresa)
                     .getResultList();
@@ -2234,7 +2240,7 @@ icono_carga.setVisible(true);
                 List<Kardex> kardexList = get();
 
                 DefaultTableModel modelo = new DefaultTableModel(new Object[]{
-                    "S", "Codigo", "Fecha", "Descripción", "Movimiento", "Cantidad",
+                    "S", "Código", "Fecha", "Descripción", "Movimiento", "Cantidad",
                     "Costo", "Costo Total", "Venta", "Venta Total", "Saldo",
                     "Sec. Producto", "Sec. Empresa"
                 }, 0) {
@@ -2403,7 +2409,7 @@ icono_carga.setVisible(true);
     }//GEN-LAST:event_jLabel7MouseClicked
 
     
-    public void Filtrar_Agotados_Kardex(int secuencialEmpresa, JTable tabla) {
+   public void Filtrar_Agotados_Kardex(int secuencialEmpresa, JTable tabla) {
     icono_carga.setVisible(true);
 
     new SwingWorker<List<Kardex>, Void>() {
@@ -2418,7 +2424,7 @@ icono_carga.setVisible(true);
                 }
 
                 return em.createQuery(
-                    "SELECT k FROM Kardex k JOIN FETCH k.producto p WHERE k.Secuencial_Empresa = :empresa AND k.Saldo <= 0",
+                    "SELECT k FROM Kardex k JOIN FETCH k.producto p WHERE k.secuencial_empresa = :empresa AND k.saldo <= 0",
                     Kardex.class)
                     .setParameter("empresa", secuencialEmpresa)
                     .getResultList();
@@ -2440,7 +2446,7 @@ icono_carga.setVisible(true);
                 List<Kardex> kardexList = get();
 
                 DefaultTableModel modelo = new DefaultTableModel(new Object[]{
-                    "S", "Codigo", "Fecha", "Descripción", "Movimiento", "Cantidad",
+                    "S", "Código", "Fecha", "Descripción", "Movimiento", "Cantidad",
                     "Costo", "Costo Total", "Venta", "Venta Total", "Saldo",
                     "Sec. Producto", "Sec. Empresa"
                 }, 0) {
@@ -2529,7 +2535,6 @@ icono_carga.setVisible(true);
 }
 
     
-    
     private void jButton7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton7ActionPerformed
 
       icono_carga.setVisible(true);
@@ -2610,7 +2615,7 @@ icono_carga.setVisible(true);
     }//GEN-LAST:event_jButton7ActionPerformed
 
     
-    public void Filtrar_Kardex_Fecha(int secuencialEmpresa, String fechaTexto, JTable tabla) {
+   public void Filtrar_Kardex_Fecha(int secuencialEmpresa, String fechaTexto, JTable tabla) {
     icono_carga.setVisible(true);
 
     new SwingWorker<List<Kardex>, Void>() {
@@ -2624,12 +2629,17 @@ icono_carga.setVisible(true);
                     throw new IllegalStateException("EntityManager no disponible.");
                 }
 
-                return em.createQuery(
-                    "SELECT k FROM Kardex k JOIN FETCH k.producto p WHERE k.Secuencial_Empresa = :empresa AND FUNCTION('DATE_FORMAT', k.Fecha, '%d/%m/%Y') = :fecha",
+                // ✅ Usar nombres de atributos Java
+                List<Kardex> todos = em.createQuery(
+                    "SELECT k FROM Kardex k JOIN FETCH k.producto WHERE k.secuencial_empresa = :empresa",
                     Kardex.class)
                     .setParameter("empresa", secuencialEmpresa)
-                    .setParameter("fecha", fechaTexto)
                     .getResultList();
+
+                // ✅ Filtrar por fecha en Java
+                return todos.stream()
+                    .filter(k -> fechaTexto.equals(k.getFecha()))
+                    .collect(Collectors.toList());
 
             } catch (Exception ex) {
                 SwingUtilities.invokeLater(() ->
@@ -2639,6 +2649,10 @@ icono_carga.setVisible(true);
                 );
                 ex.printStackTrace();
                 return Collections.emptyList();
+            } finally {
+                if (em != null && em.isOpen()) {
+                    em.close();
+                }
             }
         }
 
@@ -2648,7 +2662,7 @@ icono_carga.setVisible(true);
                 List<Kardex> kardexList = get();
 
                 DefaultTableModel modelo = new DefaultTableModel(new Object[]{
-                    "S", "Codigo", "Fecha", "Descripción", "Movimiento", "Cantidad",
+                    "S", "Código", "Fecha", "Descripción", "Movimiento", "Cantidad",
                     "Costo", "Costo Total", "Venta", "Venta Total", "Saldo",
                     "Sec. Producto", "Sec. Empresa"
                 }, 0) {
@@ -2727,16 +2741,12 @@ icono_carga.setVisible(true);
                     "Error", JOptionPane.ERROR_MESSAGE);
                 ex.printStackTrace();
             } finally {
-                if (em != null && em.isOpen()) {
-                    em.close();
-                }
                 icono_carga.setVisible(false);
             }
         }
     }.execute();
 }
 
-    
     
     
     private void jButton8ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton8ActionPerformed
@@ -3022,7 +3032,8 @@ icono_carga.setVisible(true);
         // TODO add your handling code here:
     }//GEN-LAST:event_jButton9MouseClicked
 
-   public void filtrarItemsKardexConsulta(String fechaInicioTexto, String fechaFinTexto, String codigo, String movimiento, int secuencialEmpresa, JTable tabla) {
+  
+  public void filtrarItemsKardexConsulta(String fechaInicioTexto, String fechaFinTexto, String codigo, String movimiento, int secuencialEmpresa, JTable tabla) {
     icono_carga.setVisible(true);
 
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
@@ -3049,18 +3060,19 @@ icono_carga.setVisible(true);
                 }
 
                 List<Kardex> todos = em.createQuery(
-                    "SELECT k FROM Kardex k WHERE k.Secuencial_Empresa = :empresa", Kardex.class)
+                    "SELECT k FROM Kardex k JOIN FETCH k.producto WHERE k.secuencial_empresa = :empresa", Kardex.class)
                     .setParameter("empresa", secuencialEmpresa)
                     .getResultList();
 
                 return todos.stream()
                     .filter(k -> {
                         try {
+                            if (k.getFecha() == null || k.getProducto() == null) return false;
+
                             LocalDate fechaKardex = LocalDate.parse(k.getFecha(), formatter);
                             return !fechaKardex.isBefore(fechaInicio) &&
                                    !fechaKardex.isAfter(fechaFin) &&
                                    k.getMovimiento().equalsIgnoreCase(movimiento) &&
-                                   k.getProducto() != null &&
                                    k.getProducto().getCodigo().equalsIgnoreCase(codigo);
                         } catch (Exception ex) {
                             return false;
@@ -3074,6 +3086,10 @@ icono_carga.setVisible(true);
                     "Error", JOptionPane.ERROR_MESSAGE);
                 ex.printStackTrace();
                 return Collections.emptyList();
+            } finally {
+                if (em != null && em.isOpen()) {
+                    em.close();
+                }
             }
         }
 
@@ -3082,19 +3098,9 @@ icono_carga.setVisible(true);
             try {
                 List<Kardex> filtrados = get();
 
-                if (filtrados.isEmpty()) {
-                    JOptionPane.showMessageDialog(null,
-                        "No se encontraron registros que coincidan con los criterios de búsqueda.",
-                        "Kardex", JOptionPane.INFORMATION_MESSAGE);
-                } else {
-                    JOptionPane.showMessageDialog(null,
-                        "Registros obtenidos: " + filtrados.size(),
-                        "Kardex", JOptionPane.INFORMATION_MESSAGE);
-                }
-
                 DefaultTableModel modelo = new DefaultTableModel(new Object[]{
-                    "Secuencial", "Codigo", "Fecha", "Descripción", "Movimiento", "Cantidad",
-                    "Costo", "Costo Total", "Venta", "Venta Total", "Saldo", "Secuencial Producto", "Secuencial Empresa"
+                    "Secuencial", "Código", "Fecha", "Descripción", "Movimiento", "Cantidad",
+                    "Costo", "Costo Total", "Venta", "Venta Total", "Saldo", "Sec. Producto", "Sec. Empresa"
                 }, 0) {
                     @Override
                     public boolean isCellEditable(int row, int column) {
@@ -3124,23 +3130,24 @@ icono_carga.setVisible(true);
                 tabla.setModel(modelo);
                 tabla.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
+                String mensaje = filtrados.isEmpty()
+                    ? "No se encontraron registros que coincidan con los criterios de búsqueda."
+                    : "Registros obtenidos: " + filtrados.size();
+
+                JOptionPane.showMessageDialog(null, mensaje, "Kardex", JOptionPane.INFORMATION_MESSAGE);
+
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(tabla,
                     "Error al procesar registros de Kardex: " + ex.getMessage(),
                     "Error", JOptionPane.ERROR_MESSAGE);
                 ex.printStackTrace();
             } finally {
-                if (em != null && em.isOpen()) {
-                    em.close();
-                }
                 icono_carga.setVisible(false);
             }
         }
     }.execute();
 }
 
-    
-   
     
     
     private void jButton11ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton11ActionPerformed
@@ -3838,7 +3845,14 @@ public void cargar_ItemsFiltrados_Kardex(int secuencialEmpresa, JComboBox<String
     String valorFiltro = campoValorFiltro.getText().trim().toLowerCase();
     boolean aplicarFiltro = !campoFiltro.isEmpty() && !valorFiltro.isEmpty();
 
-    Set<String> camposProducto = Set.of("Codigo", "Descripcion", "Marca", "Codigo_Barra", "Codigo_Fabricante");
+    // ✅ Atributos reales en la clase Producto
+    Map<String, String> camposProducto = Map.of(
+        "Codigo", "codigo",
+        "Descripción", "descripcion",
+        "Marca", "marca",
+        "Código de Barra", "codigoBarra",
+        "Código de Fabricante", "codigoFabricante"
+    );
 
     new SwingWorker<List<Kardex>, Void>() {
         EntityManager em = null;
@@ -3854,20 +3868,21 @@ public void cargar_ItemsFiltrados_Kardex(int secuencialEmpresa, JComboBox<String
                 String jpql;
                 TypedQuery<Kardex> query;
 
-                if (aplicarFiltro && camposProducto.contains(campoFiltro)) {
+                if (aplicarFiltro && camposProducto.containsKey(campoFiltro)) {
+                    String atributo = camposProducto.get(campoFiltro);
                     jpql = "SELECT k FROM Kardex k JOIN FETCH k.producto p " +
-                           "WHERE k.Secuencial_Empresa = :empresa AND LOWER(p." + campoFiltro + ") LIKE :valorFiltro";
+                           "WHERE k.secuencial_empresa = :empresa AND LOWER(p." + atributo + ") LIKE :valorFiltro";
                     query = em.createQuery(jpql, Kardex.class);
                     query.setParameter("empresa", secuencialEmpresa);
                     query.setParameter("valorFiltro", "%" + valorFiltro + "%");
                 } else if (aplicarFiltro) {
                     jpql = "SELECT k FROM Kardex k JOIN FETCH k.producto " +
-                           "WHERE k.Secuencial_Empresa = :empresa AND LOWER(k." + campoFiltro + ") LIKE :valorFiltro";
+                           "WHERE k.secuencial_empresa = :empresa AND LOWER(k." + campoFiltro + ") LIKE :valorFiltro";
                     query = em.createQuery(jpql, Kardex.class);
                     query.setParameter("empresa", secuencialEmpresa);
                     query.setParameter("valorFiltro", "%" + valorFiltro + "%");
                 } else {
-                    jpql = "SELECT k FROM Kardex k JOIN FETCH k.producto WHERE k.Secuencial_Empresa = :empresa";
+                    jpql = "SELECT k FROM Kardex k JOIN FETCH k.producto WHERE k.secuencial_empresa = :empresa";
                     query = em.createQuery(jpql, Kardex.class);
                     query.setParameter("empresa", secuencialEmpresa);
                 }
@@ -3952,7 +3967,6 @@ public void cargar_ItemsFiltrados_Kardex(int secuencialEmpresa, JComboBox<String
                                 if (seleccionado != null) {
                                     JOptionPane.showMessageDialog(null,
                                         "Doble clic en: " + seleccionado.getDescripcion());
-                                    // Aquí puedes abrir un formulario de edición si lo deseas
                                 }
                             }
                         }
@@ -3973,7 +3987,6 @@ public void cargar_ItemsFiltrados_Kardex(int secuencialEmpresa, JComboBox<String
         }
     }.execute();
 }
-
 
 
 
@@ -5427,8 +5440,9 @@ public void cargar_Items_Kardex(int secuencialEmpresa, JTable tabla) {
                     throw new IllegalStateException("EntityManager no disponible.");
                 }
 
+                // ✅ Usar nombres de atributos Java (case-sensitive)
                 return em.createQuery(
-                    "SELECT k FROM Kardex k JOIN FETCH k.producto WHERE k.Secuencial_Empresa = :empresa", Kardex.class)
+                    "SELECT k FROM Kardex k JOIN FETCH k.producto WHERE k.secuencial_empresa = :empresa", Kardex.class)
                     .setParameter("empresa", secuencialEmpresa)
                     .getResultList();
 
@@ -5451,7 +5465,7 @@ public void cargar_Items_Kardex(int secuencialEmpresa, JTable tabla) {
                 List<Kardex> kardexList = get();
 
                 DefaultTableModel modelo = new DefaultTableModel(new Object[]{
-                    "S", "Codigo", "Fecha", "Descripción", "Movimiento", "Cantidad",
+                    "S", "Código", "Fecha", "Descripción", "Movimiento", "Cantidad",
                     "Costo", "Costo Total", "Venta", "Venta Total", "Saldo",
                     "Sec. Producto", "Sec. Empresa"
                 }, 0) {
