@@ -47,10 +47,11 @@ import javax.swing.table.TableColumnModel;
  */
 public class V_Usuario extends javax.swing.JFrame {
 
-    public int Secuencial_Usuario=V_Menu_Principal.getSecuencial_Usuario();//Cambiar esto
-    public int Secuencial_Empresa=V_Menu_Principal.getSecuencial_Empresa();//Cambiar esto
+        public int Secuencial_Usuario;
+    public int Secuencial_Empresa;
+   
     public int Secuencial;
-    
+    private boolean debe_cargar_datos=true;
     
     private byte[] imagen;
 
@@ -68,9 +69,36 @@ public void setImagen(byte[] imagen) {
      */
     public V_Usuario() {
         initComponents();
-       
+        Secuencial_Usuario=V_Menu_Principal.getSecuencial_Usuario();
+        Secuencial_Empresa=V_Menu_Principal.getSecuencial_Empresa();
+   
         
     }
+    
+   public V_Usuario(int secuencialEmpresa) {
+    initComponents();
+
+    Secuencial_Usuario=V_Menu_Principal.getSecuencial_Usuario();
+    this.Secuencial_Empresa = secuencialEmpresa;
+
+    debe_cargar_datos=false;
+    
+    limpiarCampos();
+    
+    
+}
+
+   
+   private void limpiarCampos() {
+    Secuencial = 0;
+    if (txt_Codigo != null) txt_Codigo.setText("");
+    if (txt_Nombre != null) txt_Nombre.setText("");
+    if (txt_Password != null) txt_Password.setText("");
+    if (checkBoxActivo != null) checkBoxActivo.setSelected(true);
+    if (labelImagen != null) labelImagen.setIcon(null);
+}
+
+   
 
  private void cargarDatos() {
     DefaultTableModel model = new DefaultTableModel(
@@ -479,8 +507,18 @@ DefaultTableModel model = (DefaultTableModel) tableUsuarios.getModel();
 model.setRowCount(0);
 this.setLocationRelativeTo(null);
 // Carga los datos
-cargarDatos();
-primera_carga();
+
+   
+
+if (debe_cargar_datos==true){
+    
+    cargarDatos();
+ primera_carga();
+}else{
+
+    limpiarCampos();
+    
+}
 
 // Centra el contenido de las celdas
 DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
@@ -540,8 +578,9 @@ if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
 
     private void tableUsuariosKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tableUsuariosKeyReleased
     
+        if (debe_cargar_datos){
         
-          try {
+             try {
         int rowIndex = tableUsuarios.getSelectedRow();
         if (rowIndex < 0) return;
 
@@ -601,10 +640,14 @@ if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
     }
         
         
+        }
+         
+        
 }
 
    private void Cargar_Datos_Fila_Actual() {
-    try {
+   
+       try {
         int rowIndex = tableUsuarios.getSelectedRow();
         if (rowIndex < 0) return;
 
@@ -752,7 +795,10 @@ private void primera_carga() {
     private void tableUsuariosMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tableUsuariosMouseClicked
 
         
-         try {
+        if (debe_cargar_datos){
+        
+            
+             try {
         int rowIndex = tableUsuarios.getSelectedRow();
         if (rowIndex < 0) return;
 
@@ -810,6 +856,10 @@ private void primera_carga() {
         labelImagen.setIcon(null);
         ex.printStackTrace();
     }
+        
+            
+            
+        }
         
 
         // TODO add your handling code here:
@@ -994,7 +1044,8 @@ try {
         }
     }
 
-    dispose(); // Cierra el formulario actual
+this.dispose();
+
         }
     }//GEN-LAST:event_Menu_GuardarActionPerformed
 

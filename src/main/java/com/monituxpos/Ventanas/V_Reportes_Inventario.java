@@ -1437,6 +1437,223 @@ public void RPT_Productos_Vencidos(int secuencialEmpresa) {
 
 
 
+
+public void RPT_Entradas_Generales(int secuencialEmpresa) {
+    EntityManager em = null;
+
+    try {
+        MonituxDBContext.ensureEntityManagerFactoryReady();
+        em = MonituxDBContext.getEntityManager();
+
+        List<Kardex> entradas = em.createQuery(
+            "SELECT k FROM Kardex k JOIN FETCH k.producto p " +
+            "WHERE k.secuencial_empresa = :empresa AND k.movimiento = 'Entrada'",
+            Kardex.class)
+            .setParameter("empresa", secuencialEmpresa)
+            .getResultList();
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        entradas.sort(Comparator.comparing(k -> {
+            try {
+                return LocalDate.parse(k.getFecha(), formatter);
+            } catch (Exception e) {
+                return LocalDate.MIN;
+            }
+        }));
+
+        Map<String, List<Kardex>> agrupado = entradas.stream()
+            .collect(Collectors.groupingBy(
+                k -> k.getProducto().getCodigo() + "||" + k.getProducto().getDescripcion(),
+                LinkedHashMap::new,
+                Collectors.toList()
+            ));
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        Document document = new Document(PageSize.A4);
+        PdfWriter.getInstance(document, baos);
+        document.open();
+
+        Font tituloFont = new Font(Font.HELVETICA, 16, Font.BOLD);
+        Font normalFont = new Font(Font.HELVETICA, 10);
+        Font boldFont = new Font(Font.HELVETICA, 10, Font.BOLD);
+        Font grupoFont = new Font(Font.HELVETICA, 10, Font.BOLD, new Color(80, 80, 80));
+
+        document.add(new Paragraph("📦 Reporte de entradas ", tituloFont));
+        document.add(new Paragraph("Generado el: " +
+            LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")), normalFont));
+        document.add(Chunk.NEWLINE);
+
+        PdfPTable tablaPDF = new PdfPTable(6);
+        tablaPDF.setWidthPercentage(100);
+        tablaPDF.setWidths(new float[]{2, 5, 2, 2, 2, 2});
+
+        String[] titulos = {
+            "Fecha", "Descripción", "Cantidad",
+            "Costo", "Costo total", "Saldo"
+        };
+
+        for (String titulo : titulos) {
+            PdfPCell celda = new PdfPCell(new Phrase(titulo, boldFont));
+            celda.setBackgroundColor(Color.LIGHT_GRAY);
+            celda.setPadding(5);
+            tablaPDF.addCell(celda);
+        }
+
+        for (Map.Entry<String, List<Kardex>> grupo : agrupado.entrySet()) {
+            String[] clave = grupo.getKey().split("\\|\\|");
+            String codigo = clave[0];
+            String descripcion = clave[1];
+
+            PdfPCell grupoCell = new PdfPCell(new Phrase("Producto: " + descripcion + " (Código: " + codigo + ")", grupoFont));
+            grupoCell.setColspan(6);
+            grupoCell.setBackgroundColor(Color.LIGHT_GRAY);
+            grupoCell.setPadding(6f);
+            tablaPDF.addCell(grupoCell);
+
+            for (Kardex entrada : grupo.getValue()) {
+                tablaPDF.addCell(new Phrase(entrada.getFecha(), normalFont));
+                tablaPDF.addCell(new Phrase(entrada.getDescripcion(), normalFont));
+                tablaPDF.addCell(new Phrase(String.format("%,.0f", entrada.getCantidad()), normalFont));
+                tablaPDF.addCell(new Phrase(String.format("%,.2f", entrada.getCosto()), normalFont));
+                tablaPDF.addCell(new Phrase(String.format("%,.2f", entrada.getCosto_Total()), normalFont));
+                tablaPDF.addCell(new Phrase(String.format("%,.0f", entrada.getSaldo()), normalFont));
+            }
+        }
+
+        document.add(tablaPDF);
+        document.add(Chunk.NEWLINE);
+
+        Paragraph footer = new Paragraph("Sistema Monitux-POS · Reporte generado automáticamente", boldFont);
+        footer.setAlignment(Element.ALIGN_CENTER);
+        document.add(footer);
+
+        document.close();
+
+        V_Visor_Factura visor = new V_Visor_Factura();
+        visor.setDocumentoEnBytes(baos.toByteArray());
+        visor.setTitulo("Reporte de entradas de producto");
+        visor.mostrar();
+
+    } catch (Exception ex) {
+        JOptionPane.showMessageDialog(null, "❌ Error al generar el reporte: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        ex.printStackTrace();
+    } finally {
+        if (em != null && em.isOpen()) {
+            em.close();
+        }
+    }
+}
+
+
+
+
+public void RPT_Salidas_Generales(int secuencialEmpresa) {
+    EntityManager em = null;
+
+    try {
+        MonituxDBContext.ensureEntityManagerFactoryReady();
+        em = MonituxDBContext.getEntityManager();
+
+        List<Kardex> salidas = em.createQuery(
+            "SELECT k FROM Kardex k JOIN FETCH k.producto p " +
+            "WHERE k.secuencial_empresa = :empresa AND k.movimiento = 'Salida'",
+            Kardex.class)
+            .setParameter("empresa", secuencialEmpresa)
+            .getResultList();
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        salidas.sort(Comparator.comparing(k -> {
+            try {
+                return LocalDate.parse(k.getFecha(), formatter);
+            } catch (Exception e) {
+                return LocalDate.MIN;
+            }
+        }));
+
+        Map<String, List<Kardex>> agrupado = salidas.stream()
+            .collect(Collectors.groupingBy(
+                k -> k.getProducto().getCodigo() + "||" + k.getProducto().getDescripcion(),
+                LinkedHashMap::new,
+                Collectors.toList()
+            ));
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        Document document = new Document(PageSize.A4);
+        PdfWriter.getInstance(document, baos);
+        document.open();
+
+        Font tituloFont = new Font(Font.HELVETICA, 16, Font.BOLD);
+        Font normalFont = new Font(Font.HELVETICA, 10);
+        Font boldFont = new Font(Font.HELVETICA, 10, Font.BOLD);
+        Font grupoFont = new Font(Font.HELVETICA, 10, Font.BOLD, new Color(80, 80, 80));
+
+        document.add(new Paragraph("📦 Reporte de salidas", tituloFont));
+        document.add(new Paragraph("Generado el: " +
+            LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")), normalFont));
+        document.add(Chunk.NEWLINE);
+
+        PdfPTable tablaPDF = new PdfPTable(6);
+        tablaPDF.setWidthPercentage(100);
+        tablaPDF.setWidths(new float[]{2, 5, 2, 2, 2, 2});
+
+        String[] titulos = {
+            "Fecha", "Descripción", "Cantidad",
+            "Costo", "Costo total", "Saldo"
+        };
+
+        for (String titulo : titulos) {
+            PdfPCell celda = new PdfPCell(new Phrase(titulo, boldFont));
+            celda.setBackgroundColor(Color.LIGHT_GRAY);
+            celda.setPadding(5);
+            tablaPDF.addCell(celda);
+        }
+
+        for (Map.Entry<String, List<Kardex>> grupo : agrupado.entrySet()) {
+            String[] clave = grupo.getKey().split("\\|\\|");
+            String codigo = clave[0];
+            String descripcion = clave[1];
+
+            PdfPCell grupoCell = new PdfPCell(new Phrase("Producto: " + descripcion + " (Código: " + codigo + ")", grupoFont));
+            grupoCell.setColspan(6);
+            grupoCell.setBackgroundColor(Color.LIGHT_GRAY);
+            grupoCell.setPadding(6f);
+            tablaPDF.addCell(grupoCell);
+
+            for (Kardex salida : grupo.getValue()) {
+                tablaPDF.addCell(new Phrase(salida.getFecha(), normalFont));
+                tablaPDF.addCell(new Phrase(salida.getDescripcion(), normalFont));
+                tablaPDF.addCell(new Phrase(String.format("%,.0f", salida.getCantidad()), normalFont));
+                tablaPDF.addCell(new Phrase(String.format("%,.2f", salida.getCosto()), normalFont));
+                tablaPDF.addCell(new Phrase(String.format("%,.2f", salida.getCosto_Total()), normalFont));
+                tablaPDF.addCell(new Phrase(String.format("%,.0f", salida.getSaldo()), normalFont));
+            }
+        }
+
+        document.add(tablaPDF);
+        document.add(Chunk.NEWLINE);
+
+        Paragraph footer = new Paragraph("Sistema Monitux-POS · Reporte generado automáticamente", boldFont);
+        footer.setAlignment(Element.ALIGN_CENTER);
+        document.add(footer);
+
+        document.close();
+
+        V_Visor_Factura visor = new V_Visor_Factura();
+        visor.setDocumentoEnBytes(baos.toByteArray());
+        visor.setTitulo("Reporte de salidas de producto");
+        visor.mostrar();
+
+    } catch (Exception ex) {
+        JOptionPane.showMessageDialog(null, "❌ Error al generar el reporte: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        ex.printStackTrace();
+    } finally {
+        if (em != null && em.isOpen()) {
+            em.close();
+        }
+    }
+}
+
+
     
     /**
      * This method is called from within the constructor to initialize the form.
@@ -1774,10 +1991,20 @@ public void RPT_Productos_Vencidos(int secuencialEmpresa) {
         jButton13.setText("Generar");
         jButton13.setBackground(new java.awt.Color(255, 255, 0));
         jButton13.setForeground(new java.awt.Color(0, 0, 0));
+        jButton13.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton13ActionPerformed(evt);
+            }
+        });
 
         jButton14.setText("Generar");
         jButton14.setBackground(new java.awt.Color(255, 255, 0));
         jButton14.setForeground(new java.awt.Color(0, 0, 0));
+        jButton14.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton14ActionPerformed(evt);
+            }
+        });
 
         jButton15.setText("Generar");
         jButton15.addActionListener(new java.awt.event.ActionListener() {
@@ -2142,6 +2369,22 @@ RPT_Productos_Agotados(Secuencial_Empresa);
 
         // TODO add your handling code here:
     }//GEN-LAST:event_jButton17ActionPerformed
+
+    private void jButton14ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton14ActionPerformed
+
+
+         RPT_Salidas_Generales(Secuencial_Empresa);
+
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButton14ActionPerformed
+
+    private void jButton13ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton13ActionPerformed
+
+
+        RPT_Entradas_Generales(Secuencial_Empresa);
+
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButton13ActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
