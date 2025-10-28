@@ -79,7 +79,7 @@ public class V_Venta_Rapida extends javax.swing.JPanel {
            double subTotal = 0.0;
 double total = 0.0;
 double otrosCargos = 0.0;
-double impuesto = 15.0;// Tengo que cambiar esto
+double impuesto = V_Menu_Principal.getISV_Empresa().doubleValue() / 100.0;
 double descuento = 0.0;
     
        public static final Map<String, Miniatura_Producto> listaDeItems = new HashMap<>();

@@ -130,6 +130,38 @@ public NoticiasRSS fuente= new NoticiasRSS();//Esta linea es
         V_Menu_Principal.Secuencial_Usuario = Secuencial_Usuario;
     }
 
+    public static String getEmail_Empresa() {
+        return Email_Empresa;
+    }
+
+    public static void setEmail_Empresa(String Email_Empresa) {
+        V_Menu_Principal.Email_Empresa = Email_Empresa;
+    }
+
+    public static String getMoneda_Empresa() {
+        return Moneda_Empresa;
+    }
+
+    public static void setMoneda_Empresa(String Moneda_Empresa) {
+        V_Menu_Principal.Moneda_Empresa = Moneda_Empresa;
+    }
+
+    public static BigDecimal getISV_Empresa() {
+        return ISV_Empresa;
+    }
+
+    public static void setISV_Empresa(BigDecimal ISV_Empresa) {
+        V_Menu_Principal.ISV_Empresa = ISV_Empresa;
+    }
+
+    public static byte[] getImagen_Empresa() {
+        return Imagen_Empresa;
+    }
+
+    public static void setImagen_Empresa(byte[] Imagen_Empresa) {
+        V_Menu_Principal.Imagen_Empresa = Imagen_Empresa;
+    }
+
    
 
     
@@ -1951,6 +1983,16 @@ aplicarColorFondo(jLabel22,new Color(35, 32, 45));
     }//GEN-LAST:event_jLabel23MouseExited
 
     private void jLabel24MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel24MouseClicked
+
+        
+        V_Reportes_Movimientos x = new V_Reportes_Movimientos();
+        
+        abrirVentana(x);
+        
+        
+        
+
+
         // TODO add your handling code here:
     }//GEN-LAST:event_jLabel24MouseClicked
 
