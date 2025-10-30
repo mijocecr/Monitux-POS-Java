@@ -1,6 +1,7 @@
 package com.monituxpos.Clases;
 
 
+import java.awt.Dimension;
 
 import com.google.zxing.*;
 import com.google.zxing.common.BitMatrix;
@@ -46,6 +47,7 @@ import com.monituxpos.Ventanas.V_Menu_Principal;
 
 import com.monituxpos.Ventanas.VisorPDFBox;
 import jakarta.persistence.EntityTransaction;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
 import java.io.FileOutputStream;
@@ -63,6 +65,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
@@ -71,6 +74,16 @@ import org.apache.poi.sl.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.CategoryPlot;
+import org.jfree.chart.plot.PiePlot;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.renderer.category.BarRenderer;
+import org.jfree.data.category.DefaultCategoryDataset;
+import org.jfree.data.general.DefaultPieDataset;
+import org.jfree.data.general.DefaultValueDataset;
 
 
 
@@ -524,6 +537,39 @@ public class Util {
 }
 
     
+ public static void seleccionar_Por_Secuencial(JComboBox<String> combo, String secuencialBuscado) {
+    if (secuencialBuscado == null || secuencialBuscado.isEmpty()) {
+        System.out.println("⚠️ Secuencial buscado es nulo o vacío.");
+        return;
+    }
+
+    String normalizado = secuencialBuscado.trim().replaceFirst("^0+(?!$)", "");
+    System.out.println("🔍 Buscando secuencial normalizado: " + normalizado);
+
+    for (int i = 0; i < combo.getItemCount(); i++) {
+        String item = combo.getItemAt(i);
+        System.out.println("🔎 Item[" + i + "]: " + item);
+
+        if (item != null) {
+            String[] partes = item.split(" -", 2);
+            if (partes.length > 0) {
+                String secuencialItem = partes[0].trim().replaceFirst("^0+(?!$)", "");
+                System.out.println("➡️ Comparando con: " + secuencialItem);
+                if (secuencialItem.equals(normalizado)) {
+                    combo.setSelectedIndex(i);
+                    System.out.println("✅ Seleccionado: " + item);
+                    return;
+                }
+            }
+        }
+    }
+
+    System.out.println("❌ No se encontró coincidencia para: " + secuencialBuscado);
+}
+
+  
+  
+  
   public static void llenarComboProveedor(JComboBox<String> combo, int secuencial_Empresa) {
     combo.removeAllItems(); // Limpiar combo
 
@@ -881,9 +927,245 @@ public class Util {
 
  
      
-  
- //******************************    
-     
+ //****************************
+ 
+
+
+    
+    
+    
+    
+    
+    
+    //***************************
+       public static JPanel crearGraficoComprasVsVentas(double compras, double ventas) {
+        // Crear dataset circular
+        DefaultPieDataset dataset = new DefaultPieDataset();
+        dataset.setValue("Compras", compras);
+        dataset.setValue("Ventas", ventas);
+
+        // Crear gráfico circular
+        JFreeChart chart = ChartFactory.createPieChart(
+            "Compras vs Ventas", // Título
+            dataset,
+            true,   // Mostrar leyenda
+            true,   // Tooltips
+            false   // URLs
+        );
+
+        // Panel con el gráfico
+        ChartPanel chartPanel = new ChartPanel(chart);
+        chartPanel.setPreferredSize(new Dimension(273, 182)); // Tamaño personalizado
+
+        return chartPanel;
+    }
+    
+//******************************
+       
+       
+        public static JPanel Grafico_CTAS_CP(double cobrar, double pagar) {
+        // Dataset horizontal
+        DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+        dataset.addValue(cobrar, "Cuentas por Cobrar", "Estado");
+        dataset.addValue(pagar, "Cuentas por Pagar", "Estado");
+
+        // Crear gráfico de barras horizontales
+        JFreeChart chart = ChartFactory.createBarChart(
+            "Cuentas por Cobrar vs Pagar",             // Título
+            "Tipo de Cuenta",                          // Eje X (categoría)
+            "Monto (" + V_Menu_Principal.getMoneda_Empresa() + ")", // Eje Y (valor)
+            dataset,
+            PlotOrientation.HORIZONTAL,                // 👈 Orientación horizontal
+            true, true, false
+        );
+
+        // Panel con el gráfico
+        ChartPanel chartPanel = new ChartPanel(chart);
+        chartPanel.setPreferredSize(new Dimension(214, 182)); // Ajusta según tu layout
+
+        return chartPanel;
+    }
+       
+       
+       
+//******************************       
+       
+
+   
+    
+  public static JPanel crearGraficoCuentasPorPagarVsCobrar(double totalPorPagar, double totalPorCobrar) {
+    // Dataset de barras
+    DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+
+    dataset.addValue(totalPorPagar, "Por Pagar", "Cuentas");
+    dataset.addValue(totalPorCobrar, "Por Cobrar", "Cuentas");
+
+    // Crear gráfico de barras
+    JFreeChart chart = ChartFactory.createBarChart(
+        "a Pagar vs a Cobrar (Mes Actual)", // Título
+        "Categoría",                               // Eje X
+        "Monto (" + V_Menu_Principal.getMoneda_Empresa() + ")", // Eje Y
+        dataset
+    );
+
+    // Reducir tamaño del título
+    chart.getTitle().setFont(new Font("SansSerif", Font.BOLD, 14)); // tamaño más pequeño
+
+    // Personalizar colores y estilo
+    CategoryPlot plot = chart.getCategoryPlot();
+    BarRenderer renderer = (BarRenderer) plot.getRenderer();
+
+    // Colores modernos
+    renderer.setSeriesPaint(0, new Color(0xFF, 0x6B, 0x6B)); // Rojo coral
+    renderer.setSeriesPaint(1, new Color(0x51, 0xCF, 0x66)); // Verde esmeralda
+
+    // Fondo oscuro y ejes claros
+    plot.setBackgroundPaint(new Color(0x1E, 0x1E, 0x1E)); // gris muy oscuro
+    plot.setDomainGridlinePaint(new Color(0x55, 0x55, 0x55));
+    plot.setRangeGridlinePaint(new Color(0x55, 0x55, 0x55));
+
+    chart.setBackgroundPaint(new Color(0x17, 0x17, 0x17));
+    chart.getTitle().setPaint(Color.WHITE);
+    chart.getCategoryPlot().getDomainAxis().setTickLabelPaint(Color.WHITE);
+    chart.getCategoryPlot().getRangeAxis().setTickLabelPaint(Color.WHITE);
+    chart.getCategoryPlot().getDomainAxis().setLabelPaint(Color.LIGHT_GRAY);
+    chart.getCategoryPlot().getRangeAxis().setLabelPaint(Color.LIGHT_GRAY);
+
+    // Panel con el gráfico
+    ChartPanel chartPanel = new ChartPanel(chart);
+    chartPanel.setPreferredSize(new Dimension(334, 182)); // Ajusta según tu layout
+
+    return chartPanel;
+}
+
+    
+    
+ //******************************
+
+//
+//    public static JPanel crearGraficoCircularOperaciones(
+//        double ventasContado,
+//        double ventasCredito,
+//        double comprasContado,
+//        double comprasCredito
+//    ) {
+//        // Dataset circular
+//        DefaultPieDataset dataset = new DefaultPieDataset();
+//        dataset.setValue("Ventas Contado", ventasContado);
+//        dataset.setValue("Ventas Crédito", ventasCredito);
+//        dataset.setValue("Compras Contado", comprasContado);
+//        dataset.setValue("Compras Crédito", comprasCredito);
+//
+//        // Crear gráfico circular
+//        JFreeChart chart = ChartFactory.createPieChart(
+//            "Distribución de Operaciones",
+//            dataset,
+//            true,   // leyenda
+//            true,   // tooltips
+//            false   // URLs
+//        );
+//
+//        // Panel con el gráfico
+//        ChartPanel chartPanel = new ChartPanel(chart);
+//        chartPanel.setPreferredSize(new Dimension(320, 146)); // Ajusta según tu layout
+//
+//        return chartPanel;
+//    }
+//    
+//    
+    
+    
+   
+    public static JPanel crearGraficoCircularOperaciones(
+    double ventasContado,
+    double ventasCredito,
+    double comprasContado,
+    double comprasCredito
+) {
+    DefaultPieDataset dataset = new DefaultPieDataset();
+    dataset.setValue("Ventas Contado", ventasContado);
+    dataset.setValue("Ventas Crédito", ventasCredito);
+    dataset.setValue("Compras Contado", comprasContado);
+    dataset.setValue("Compras Crédito", comprasCredito);
+
+    JFreeChart chart = ChartFactory.createPieChart(
+        "Distribución de Operaciones (Mes Actual)",
+        dataset,
+        true,   // leyenda
+        true,   // tooltips
+        false   // URLs
+    );
+
+    // 🎨 Fondo general del gráfico
+    chart.setBackgroundPaint(new Color(30, 30, 30)); // gris oscuro
+
+    // 🎨 Estilo del título
+    chart.getTitle().setPaint(new Color(224, 224, 224)); // blanco suave
+    chart.getTitle().setFont(new Font("Segoe UI", Font.BOLD, 14));
+
+    // 🎨 Fondo y estilo del área de dibujo
+    PiePlot plot = (PiePlot) chart.getPlot();
+    plot.setBackgroundPaint(new Color(44, 44, 44)); // fondo del plot
+    plot.setOutlineVisible(false);
+    plot.setLabelBackgroundPaint(new Color(60, 60, 60));
+    plot.setLabelPaint(new Color(240, 240, 240)); // texto claro
+    plot.setLabelFont(new Font("Segoe UI", Font.PLAIN, 12));
+
+    // 🎨 Colores modernos por categoría
+    plot.setSectionPaint("Ventas Contado", new Color(33, 150, 243));    // azul moderno
+    plot.setSectionPaint("Ventas Crédito", new Color(76, 175, 80));     // verde suave
+    plot.setSectionPaint("Compras Contado", new Color(255, 235, 59));   // amarillo vibrante
+    plot.setSectionPaint("Compras Crédito", new Color(244, 67, 54));    // rojo moderno
+
+    // 🎨 Panel contenedor con fondo oscuro
+    ChartPanel chartPanel = new ChartPanel(chart);
+    chartPanel.setPreferredSize(new Dimension(320, 146));
+    chartPanel.setBackground(new Color(30, 30, 30)); // fondo del panel
+
+    return chartPanel;
+}
+
+    
+    
+    
+    
+     public static JPanel crearGraficoIngresosVsEgresosAnual(List<Double> ingresos, List<Double> egresos) {
+        if (ingresos.size() != 12 || egresos.size() != 12) {
+            throw new IllegalArgumentException("Las listas deben contener 12 valores (uno por mes).");
+        }
+
+        String[] meses = {
+            "Ene", "Feb", "Mar", "Abr", "May", "Jun",
+            "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"
+        };
+
+        DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+
+        for (int i = 0; i < 12; i++) {
+            dataset.addValue(ingresos.get(i), "Ingresos", meses[i]);
+            dataset.addValue(egresos.get(i), "Egresos", meses[i]);
+        }
+
+        JFreeChart chart = ChartFactory.createBarChart(
+            "Ingresos vs Egresos Anuales",
+            "Mes",
+            "Monto (" + V_Menu_Principal.getMoneda_Empresa() + ")",
+            dataset
+        );
+
+        ChartPanel chartPanel = new ChartPanel(chart);
+        chartPanel.setPreferredSize(new Dimension(810, 200));
+
+        return chartPanel;
+    }
+
+    
+    
+    
+    
+
+    
+     //**************************
      
      public static <T extends Component> T clonarControl(T controlOriginal) {
     try {
@@ -912,6 +1194,10 @@ public class Util {
     }
 }
 
+     
+     
+     
+    
      
  public static void llenar_Combo_Categoria(JComboBox<String> comboCategoria, int secuencialEmpresa) {
     comboCategoria.removeAllItems(); // Limpiar combo

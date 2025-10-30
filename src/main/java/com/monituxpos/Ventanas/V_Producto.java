@@ -34,10 +34,12 @@ import java.util.List;
 import javax.imageio.ImageIO;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
+import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerDateModel;
+import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.WindowConstants;
 
@@ -119,7 +121,9 @@ public void setImagen(byte[] imagen) {
     public V_Producto() {
         initComponents();
         
-       
+        Util.llenarComboProveedor(comboProveedor, Secuencial_Empresa);
+        Util.llenar_Combo_Categoria(comboCategoria, Secuencial_Empresa);
+
         
         
     }
@@ -176,9 +180,20 @@ public void setImagen(byte[] imagen) {
         Secuencial_Categoria = vistaProducto.getSecuencial_Categoria();
 
         // Combos
+      
+        
         Util.llenarComboProveedor(comboProveedor, Secuencial_Empresa);
-        Util.llenar_Combo_Categoria(comboCategoria, Secuencial_Empresa);
+        SwingUtilities.invokeLater(() -> {
+        Util.seleccionar_Por_Secuencial(comboProveedor, String.valueOf(Secuencial_Proveedor));
+            });
 
+         Util.llenar_Combo_Categoria(comboCategoria, Secuencial_Empresa);
+        SwingUtilities.invokeLater(() -> {
+        Util.seleccionar_Por_Secuencial(comboCategoria, String.valueOf(Secuencial_Categoria));
+            });
+
+      
+        
         // Imagen redimensionada
         imagen = vistaProducto.getImagen();
         if (imagen != null) {
@@ -861,8 +876,8 @@ private String valueOrEmpty(String valor) {
         
         this.setLocationRelativeTo(null);
         this.getContentPane().setBackground(Color.black);
-        Util.llenarComboProveedor(comboProveedor, Secuencial_Empresa);
-        Util.llenar_Combo_Categoria(comboCategoria, Secuencial_Empresa);
+       // Util.llenarComboProveedor(comboProveedor, Secuencial_Empresa);
+       // Util.llenar_Combo_Categoria(comboCategoria, Secuencial_Empresa);
 
      
         setTitle("Monitux-POS v." + V_Menu_Principal.version);
@@ -931,6 +946,13 @@ private String valueOrEmpty(String valor) {
         // TODO add your handling code here:
     }//GEN-LAST:event_Menu_SalirActionPerformed
 
+    
+    
+  
+    
+    
+    
+    
     private void Menu_EliminarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Menu_EliminarActionPerformed
 
         

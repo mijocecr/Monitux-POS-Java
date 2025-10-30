@@ -1371,6 +1371,11 @@ iniciarCintaLED(lblTitular);
                 jLabel1MouseWheelMoved(evt);
             }
         });
+        jLabel1.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jLabel1MouseClicked(evt);
+            }
+        });
 
         javax.swing.GroupLayout panelContenedorLayout = new javax.swing.GroupLayout(panelContenedor);
         panelContenedor.setLayout(panelContenedorLayout);
@@ -2217,6 +2222,16 @@ x.setVisible(true);
 
         // TODO add your handling code here:
     }//GEN-LAST:event_formWindowClosing
+
+    private void jLabel1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel1MouseClicked
+
+
+        V_Dashboard x = new V_Dashboard();
+        
+        abrirVentana(x);
+
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jLabel1MouseClicked
 
     /**
      * @param args the command line arguments

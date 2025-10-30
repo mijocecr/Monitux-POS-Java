@@ -182,9 +182,6 @@ public class Cuentas_Cobrar {
         this.Secuencial_Empresa = Secuencial_Empresa;
     }
     
-    
-    
-    
-    
+      
     
 }
