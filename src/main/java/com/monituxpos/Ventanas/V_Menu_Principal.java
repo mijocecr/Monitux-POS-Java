@@ -21,6 +21,7 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Image;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -75,6 +76,15 @@ private int indiceActual = 0;
 private List<String[]> titulares = new ArrayList<>();
     
     
+
+public static Image set_IconoFormulario() {
+    return Toolkit.getDefaultToolkit().getImage(
+        Util.class.getResource("/icons/icono.png")
+    );
+}
+
+
+
 public static void setEmpresaCargada(Empresa empresa) {
     Secuencial_Empresa = empresa.getSecuencial();
     Nombre_Empresa = empresa.getNombre();
@@ -354,7 +364,7 @@ public NoticiasRSS fuente= new NoticiasRSS();//Esta linea es
     public V_Menu_Principal() {
         
           initComponents();
-          
+         this.setTitle("Monitux-POS");
           
 ////**********************************************************
 //String proveedor = AppSettings.getDB_Provider();
@@ -447,14 +457,7 @@ titulares = fuente.getTitulares();
 
 iniciarCintaLED(lblTitular);
 
-
-
-     
-
-
-
-
-
+ 
   
     }
     
@@ -575,6 +578,7 @@ iniciarCintaLED(lblTitular);
         jLabel1 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setIconImage(set_IconoFormulario());
         setResizable(false);
         addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowClosing(java.awt.event.WindowEvent evt) {
@@ -1690,6 +1694,13 @@ aplicarColorFondo(jLabel6,new Color(35, 32, 45));
     }//GEN-LAST:event_jLabel7MouseClicked
 
     private void jLabel8MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel8MouseClicked
+
+
+          V_Dashboard x = new V_Dashboard();
+        
+        abrirVentana(x);
+        
+
         // TODO add your handling code here:
     }//GEN-LAST:event_jLabel8MouseClicked
 
@@ -1914,7 +1925,7 @@ lbl_Descripcion.setText("<html>Consulte de forma rápida y sencilla los ingresos
 
             
          mostrarSubMenu(reportes_submenu);
- lbl_Descripcion.setText("Pendiente Descripcion.");
+ lbl_Descripcion.setText("<html>Desde esta sección puede generar reportes detallados de los principales módulos del sistema, como Movimientos, Facturas, Inventario y Kardex, permitiendo un análisis claro y estructurado de la información registrada.</html>");
 
         // TODO add your handling code here:
     }//GEN-LAST:event_jLabel20MouseClicked
@@ -2226,9 +2237,7 @@ x.setVisible(true);
     private void jLabel1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel1MouseClicked
 
 
-        V_Dashboard x = new V_Dashboard();
-        
-        abrirVentana(x);
+      
 
         // TODO add your handling code here:
     }//GEN-LAST:event_jLabel1MouseClicked

@@ -50,6 +50,7 @@ import jakarta.persistence.EntityTransaction;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
+import java.awt.Toolkit;
 import java.io.FileOutputStream;
 import java.lang.reflect.Field;
 import java.net.URL;
@@ -60,6 +61,9 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.TreeMap;
 import javax.mail.util.ByteArrayDataSource;
 import javax.swing.ImageIcon;
 import javax.swing.JComboBox;
@@ -77,13 +81,22 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.axis.SymbolAxis;
 import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.plot.PiePlot;
 import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.renderer.category.AreaRenderer;
 import org.jfree.chart.renderer.category.BarRenderer;
+import org.jfree.chart.renderer.category.LineAndShapeRenderer;
+import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.data.general.DefaultPieDataset;
 import org.jfree.data.general.DefaultValueDataset;
+import org.jfree.data.xy.DefaultXYZDataset;
+import org.jfree.data.xy.XYSeries;
+import org.jfree.data.xy.XYSeriesCollection;
 
 
 
@@ -1038,8 +1051,261 @@ public class Util {
     return chartPanel;
 }
 
-    
-    
+
+  
+  public static JPanel crearGraficoBarrasPorCategoria(int secuencialEmpresa) {
+    EntityManager em = MonituxDBContext.getEntityManager();
+
+    // Consulta: nombre de categoría y cantidad de productos
+    List<Object[]> resultados = em.createQuery(
+        "SELECT c.Nombre, COUNT(p) " +
+        "FROM Categoria c LEFT JOIN Producto p ON p.Secuencial_Categoria = c.Secuencial " +
+        "WHERE c.Secuencial_Empresa = :empresa " +
+        "GROUP BY c.Nombre", Object[].class)
+        .setParameter("empresa", secuencialEmpresa)
+        .getResultList();
+
+    em.close();
+
+    // Dataset para gráfico de barras
+    DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+
+    for (Object[] fila : resultados) {
+        String nombreCategoria = (String) fila[0];
+        Long cantidad = ((Number) fila[1]).longValue();
+        dataset.addValue(cantidad, "Productos", nombreCategoria);
+    }
+
+    // Crear gráfico de barras verticales
+    JFreeChart chart = ChartFactory.createBarChart(
+        "Cantidad de Productos por Categoría",
+        "Categoría",
+        "Cantidad",
+        dataset,
+        PlotOrientation.VERTICAL,
+        false, true, false
+    );
+
+    // Estilo visual oscuro
+    chart.getTitle().setFont(new Font("SansSerif", Font.BOLD, 14));
+    chart.setBackgroundPaint(new Color(0x17, 0x17, 0x17));
+    chart.getTitle().setPaint(Color.WHITE);
+
+    CategoryPlot plot = chart.getCategoryPlot();
+    plot.setBackgroundPaint(new Color(0x1E, 0x1E, 0x1E));
+    plot.setDomainGridlinePaint(new Color(0x55, 0x55, 0x55));
+    plot.setRangeGridlinePaint(new Color(0x55, 0x55, 0x55));
+
+//    BarRenderer renderer = (BarRenderer) plot.getRenderer();
+//    renderer.setSeriesPaint(0, new Color(0x00, 0x72, 0xB2)); // Azul real
+
+BarRenderer renderer = (BarRenderer) plot.getRenderer();
+renderer.setSeriesPaint(0, new Color(0xE6, 0x9F, 0x00)); // Naranja fuerte
+
+
+    plot.getDomainAxis().setTickLabelPaint(Color.WHITE);
+    plot.getRangeAxis().setTickLabelPaint(Color.WHITE);
+    plot.getDomainAxis().setLabelPaint(Color.LIGHT_GRAY);
+    plot.getRangeAxis().setLabelPaint(Color.LIGHT_GRAY);
+
+    ChartPanel chartPanel = new ChartPanel(chart);
+    chartPanel.setPreferredSize(new Dimension(334, 182));
+
+    return chartPanel;
+}
+
+  
+  
+  public static JPanel crearGraficoLinealDiarioIngresosEgresos(int secuencialEmpresa) {
+    EntityManager em = MonituxDBContext.getEntityManager();
+
+    LocalDate inicioMes = LocalDate.now().withDayOfMonth(1);
+    LocalDate finMes = inicioMes.plusMonths(1).minusDays(1);
+
+    // Formato real de la fecha almacenada: "dd/MM/yyyy hh:mm:ss a"
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy hh:mm:ss a", new Locale("es", "ES"));
+
+    // Consultar ingresos y egresos
+    List<Ingreso> ingresos = em.createQuery(
+        "SELECT i FROM Ingreso i WHERE i.Secuencial_Empresa = :empresa", Ingreso.class)
+        .setParameter("empresa", secuencialEmpresa)
+        .getResultList();
+
+    List<Egreso> egresos = em.createQuery(
+        "SELECT e FROM Egreso e WHERE e.Secuencial_Empresa = :empresa", Egreso.class)
+        .setParameter("empresa", secuencialEmpresa)
+        .getResultList();
+
+    em.close();
+
+    // Agrupación por día
+    Map<String, Double> ingresosTotales = new TreeMap<>();
+    Map<String, Double> ingresosManuales = new TreeMap<>();
+    Map<String, Double> egresosTotales = new TreeMap<>();
+    Map<String, Double> egresosManuales = new TreeMap<>();
+
+    for (Ingreso ingreso : ingresos) {
+        try {
+            LocalDateTime fechaHora = LocalDateTime.parse(ingreso.getFecha().replace(" ", " "), formatter);
+            LocalDate fecha = fechaHora.toLocalDate();
+            if (!fecha.isBefore(inicioMes) && !fecha.isAfter(finMes)) {
+                String dia = fecha.format(DateTimeFormatter.ofPattern("dd/MM"));
+                double monto = ingreso.getTotal();
+                String tipo = ingreso.getTipo_Ingreso().toLowerCase();
+
+                if (tipo.contains("manual")) {
+                    ingresosManuales.merge(dia, monto, Double::sum);
+                } else {
+                    ingresosTotales.merge(dia, monto, Double::sum);
+                }
+            }
+        } catch (Exception ignored) {}
+    }
+
+    for (Egreso egreso : egresos) {
+        try {
+            LocalDateTime fechaHora = LocalDateTime.parse(egreso.getFecha().replace(" ", " "), formatter);
+            LocalDate fecha = fechaHora.toLocalDate();
+            if (!fecha.isBefore(inicioMes) && !fecha.isAfter(finMes)) {
+                String dia = fecha.format(DateTimeFormatter.ofPattern("dd/MM"));
+                double monto = egreso.getTotal();
+                String tipo = egreso.getTipo_Egreso().toLowerCase();
+
+                if (tipo.contains("manual")) {
+                    egresosManuales.merge(dia, monto, Double::sum);
+                } else {
+                    egresosTotales.merge(dia, monto, Double::sum);
+                }
+            }
+        } catch (Exception ignored) {}
+    }
+
+    // Dataset para gráfico
+    DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+    ingresosTotales.forEach((dia, monto) -> dataset.addValue(monto, "Ingresos", dia));
+    ingresosManuales.forEach((dia, monto) -> dataset.addValue(monto, "Ingresos Manuales", dia));
+    egresosTotales.forEach((dia, monto) -> dataset.addValue(monto, "Egresos", dia));
+    egresosManuales.forEach((dia, monto) -> dataset.addValue(monto, "Egresos Manuales", dia));
+
+    // Crear gráfico
+    JFreeChart chart = ChartFactory.createLineChart(
+        "Flujo Diario de Ingresos y Egresos",
+        "Día",
+        "Monto (" + V_Menu_Principal.getMoneda_Empresa() + ")",
+        dataset
+    );
+
+    // Estilo visual oscuro
+    chart.getTitle().setFont(new Font("SansSerif", Font.BOLD, 14));
+    chart.setBackgroundPaint(new Color(0x17, 0x17, 0x17));
+    chart.getTitle().setPaint(Color.WHITE);
+
+    CategoryPlot plot = chart.getCategoryPlot();
+    plot.setBackgroundPaint(new Color(0x1E, 0x1E, 0x1E));
+    plot.setDomainGridlinePaint(new Color(0x55, 0x55, 0x55));
+    plot.setRangeGridlinePaint(new Color(0x55, 0x55, 0x55));
+
+    plot.getDomainAxis().setTickLabelPaint(Color.WHITE);
+    plot.getRangeAxis().setTickLabelPaint(Color.WHITE);
+    plot.getDomainAxis().setLabelPaint(Color.LIGHT_GRAY);
+    plot.getRangeAxis().setLabelPaint(Color.LIGHT_GRAY);
+
+   LineAndShapeRenderer renderer = (LineAndShapeRenderer) plot.getRenderer();
+renderer.setSeriesPaint(0, new Color(0x00, 0x72, 0xB2)); // Azul real
+renderer.setSeriesPaint(1, new Color(0xE6, 0x9F, 0x00)); // Naranja fuerte
+renderer.setSeriesPaint(2, new Color(0xD5, 0x5E, 0x00)); // Rojo escarlata
+renderer.setSeriesPaint(3, new Color(0x00, 0x9E, 0x73)); // Verde bosque
+
+    ChartPanel chartPanel = new ChartPanel(chart);
+    chartPanel.setPreferredSize(new Dimension(805, 200));
+
+    return chartPanel;
+}
+
+  
+ public static JPanel crearGraficoBarrasHorizontalesComprasVsVentasMesActual(int secuencialEmpresa) {
+    EntityManager em = MonituxDBContext.getEntityManager();
+
+    LocalDate inicioMes = LocalDate.now().withDayOfMonth(1);
+    LocalDate finMes = inicioMes.plusMonths(1).minusDays(1);
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy hh:mm:ss a", new Locale("es", "ES"));
+
+    List<Compra> compras = em.createQuery(
+        "SELECT c FROM Compra c WHERE c.Secuencial_Empresa = :empresa", Compra.class)
+        .setParameter("empresa", secuencialEmpresa)
+        .getResultList();
+
+    List<Venta> ventas = em.createQuery(
+        "SELECT v FROM Venta v WHERE v.Secuencial_Empresa = :empresa", Venta.class)
+        .setParameter("empresa", secuencialEmpresa)
+        .getResultList();
+
+    em.close();
+
+    double totalCompras = 0.0;
+    double totalVentas = 0.0;
+
+    for (Compra compra : compras) {
+        try {
+            LocalDate fecha = LocalDateTime.parse(compra.getFecha().replace(" ", " "), formatter).toLocalDate();
+            if (!fecha.isBefore(inicioMes) && !fecha.isAfter(finMes)) {
+                totalCompras += compra.getGran_Total();
+            }
+        } catch (Exception ignored) {}
+    }
+
+    for (Venta venta : ventas) {
+        try {
+            LocalDate fecha = LocalDateTime.parse(venta.getFecha().replace(" ", " "), formatter).toLocalDate();
+            if (!fecha.isBefore(inicioMes) && !fecha.isAfter(finMes)) {
+                totalVentas += venta.getGran_Total();
+            }
+        } catch (Exception ignored) {}
+    }
+
+    DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+    dataset.addValue(totalCompras, "Compras", "Mes Actual");
+    dataset.addValue(totalVentas, "Ventas", "Mes Actual");
+
+    // Crear gráfico de barras horizontales
+    JFreeChart chart = ChartFactory.createBarChart(
+        "Comparativa de Compras y Ventas",
+        "Monto (" + V_Menu_Principal.getMoneda_Empresa() + ")",
+        "Periodo",
+        dataset,
+        PlotOrientation.HORIZONTAL,
+        true, true, false
+    );
+
+    // Estilo visual oscuro
+    chart.getTitle().setFont(new Font("SansSerif", Font.BOLD, 14));
+    chart.setBackgroundPaint(new Color(0x17, 0x17, 0x17));
+    chart.getTitle().setPaint(Color.WHITE);
+
+    CategoryPlot plot = chart.getCategoryPlot();
+    plot.setBackgroundPaint(new Color(0x1E, 0x1E, 0x1E));
+    plot.setDomainGridlinePaint(new Color(0x55, 0x55, 0x55));
+    plot.setRangeGridlinePaint(new Color(0x55, 0x55, 0x55));
+
+    plot.getDomainAxis().setTickLabelPaint(Color.WHITE);
+    plot.getRangeAxis().setTickLabelPaint(Color.WHITE);
+    plot.getDomainAxis().setLabelPaint(Color.LIGHT_GRAY);
+    plot.getRangeAxis().setLabelPaint(Color.LIGHT_GRAY);
+
+    BarRenderer renderer = (BarRenderer) plot.getRenderer();
+    renderer.setSeriesPaint(0, new Color(0x00, 0x72, 0xB2)); // Azul real
+    renderer.setSeriesPaint(1, new Color(0x00, 0x9E, 0x73)); // Verde bosque para ventas
+
+    ChartPanel chartPanel = new ChartPanel(chart);
+    chartPanel.setPreferredSize(new Dimension(805, 200));
+
+    return chartPanel;
+}
+
+  
+  
+  
+  
  //******************************
 
 //
@@ -1075,8 +1341,60 @@ public class Util {
 //    
     
     
-   
-    public static JPanel crearGraficoCircularOperaciones(
+//   
+//    public static JPanel crearGraficoCircularOperaciones(
+//    double ventasContado,
+//    double ventasCredito,
+//    double comprasContado,
+//    double comprasCredito
+//) {
+//    DefaultPieDataset dataset = new DefaultPieDataset();
+//    dataset.setValue("Ventas Contado", ventasContado);
+//    dataset.setValue("Ventas Crédito", ventasCredito);
+//    dataset.setValue("Compras Contado", comprasContado);
+//    dataset.setValue("Compras Crédito", comprasCredito);
+//
+//    JFreeChart chart = ChartFactory.createPieChart(
+//        "Distribución de Operaciones (Mes Actual)",
+//        dataset,
+//        true,   // leyenda
+//        true,   // tooltips
+//        false   // URLs
+//    );
+//
+//    // 🎨 Fondo general del gráfico
+//    chart.setBackgroundPaint(new Color(30, 30, 30)); // gris oscuro
+//
+//    // 🎨 Estilo del título
+//    chart.getTitle().setPaint(new Color(224, 224, 224)); // blanco suave
+//    chart.getTitle().setFont(new Font("Segoe UI", Font.BOLD, 14));
+//
+//    // 🎨 Fondo y estilo del área de dibujo
+//    PiePlot plot = (PiePlot) chart.getPlot();
+//    plot.setBackgroundPaint(new Color(44, 44, 44)); // fondo del plot
+//    plot.setOutlineVisible(false);
+//    plot.setLabelBackgroundPaint(new Color(60, 60, 60));
+//    plot.setLabelPaint(new Color(240, 240, 240)); // texto claro
+//    plot.setLabelFont(new Font("Segoe UI", Font.PLAIN, 12));
+//
+//    // 🎨 Colores modernos por categoría
+//    plot.setSectionPaint("Ventas Contado", new Color(33, 150, 243));    // azul moderno
+//    plot.setSectionPaint("Ventas Crédito", new Color(76, 175, 80));     // verde suave
+//    plot.setSectionPaint("Compras Contado", new Color(255, 235, 59));   // amarillo vibrante
+//    plot.setSectionPaint("Compras Crédito", new Color(244, 67, 54));    // rojo moderno
+//
+//    // 🎨 Panel contenedor con fondo oscuro
+//    ChartPanel chartPanel = new ChartPanel(chart);
+//    chartPanel.setPreferredSize(new Dimension(320, 146));
+//    chartPanel.setBackground(new Color(30, 30, 30)); // fondo del panel
+//
+//    return chartPanel;
+//}
+//
+//    
+    
+    
+public static JPanel crearGraficoCircularOperaciones(
     double ventasContado,
     double ventasCredito,
     double comprasContado,
@@ -1111,11 +1429,12 @@ public class Util {
     plot.setLabelPaint(new Color(240, 240, 240)); // texto claro
     plot.setLabelFont(new Font("Segoe UI", Font.PLAIN, 12));
 
-    // 🎨 Colores modernos por categoría
-    plot.setSectionPaint("Ventas Contado", new Color(33, 150, 243));    // azul moderno
-    plot.setSectionPaint("Ventas Crédito", new Color(76, 175, 80));     // verde suave
-    plot.setSectionPaint("Compras Contado", new Color(255, 235, 59));   // amarillo vibrante
-    plot.setSectionPaint("Compras Crédito", new Color(244, 67, 54));    // rojo moderno
+    // 🎨 Colores por tipo y modalidad
+    plot.setSectionPaint("Compras Contado", new Color(0x00, 0x72, 0xB2));   // Azul real
+    plot.setSectionPaint("Compras Crédito", new Color(0x64, 0xB5, 0xF6));   // Azul claro
+
+    plot.setSectionPaint("Ventas Contado", new Color(0x00, 0x9E, 0x73));    // Verde bosque
+    plot.setSectionPaint("Ventas Crédito", new Color(0x81, 0xC7, 0x84));    // Verde suave
 
     // 🎨 Panel contenedor con fondo oscuro
     ChartPanel chartPanel = new ChartPanel(chart);
@@ -1125,46 +1444,7 @@ public class Util {
     return chartPanel;
 }
 
-    
-    
-    
-    
-     public static JPanel crearGraficoIngresosVsEgresosAnual(List<Double> ingresos, List<Double> egresos) {
-        if (ingresos.size() != 12 || egresos.size() != 12) {
-            throw new IllegalArgumentException("Las listas deben contener 12 valores (uno por mes).");
-        }
 
-        String[] meses = {
-            "Ene", "Feb", "Mar", "Abr", "May", "Jun",
-            "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"
-        };
-
-        DefaultCategoryDataset dataset = new DefaultCategoryDataset();
-
-        for (int i = 0; i < 12; i++) {
-            dataset.addValue(ingresos.get(i), "Ingresos", meses[i]);
-            dataset.addValue(egresos.get(i), "Egresos", meses[i]);
-        }
-
-        JFreeChart chart = ChartFactory.createBarChart(
-            "Ingresos vs Egresos Anuales",
-            "Mes",
-            "Monto (" + V_Menu_Principal.getMoneda_Empresa() + ")",
-            dataset
-        );
-
-        ChartPanel chartPanel = new ChartPanel(chart);
-        chartPanel.setPreferredSize(new Dimension(810, 200));
-
-        return chartPanel;
-    }
-
-    
-    
-    
-    
-
-    
      //**************************
      
      public static <T extends Component> T clonarControl(T controlOriginal) {

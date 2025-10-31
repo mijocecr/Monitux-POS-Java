@@ -4,6 +4,7 @@
  */
 package com.monituxpos.Ventanas;
 
+import com.monituxpos.Clases.Actividad;
 import com.monituxpos.Clases.Cliente;
 import com.monituxpos.Clases.Compra;
 import com.monituxpos.Clases.Cuentas_Cobrar;
@@ -11,24 +12,38 @@ import com.monituxpos.Clases.Cuentas_Pagar;
 import com.monituxpos.Clases.MonituxDBContext;
 import com.monituxpos.Clases.Producto;
 import com.monituxpos.Clases.TarjetaDashboard;
+import com.monituxpos.Clases.Usuario;
 import com.monituxpos.Clases.Util;
 import com.monituxpos.Clases.Venta;
 import jakarta.persistence.EntityManager;
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
+import java.awt.Cursor;
 import java.awt.Font;
 import java.awt.Point;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
+import javax.swing.JTextArea;
+import javax.swing.SwingUtilities;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
 
 /**
  *
@@ -83,6 +98,21 @@ Cargar_Grafico_Operaciones();
 
 Cargar_Grafico_CTAS();
 
+Crear_Grafico_IngresosEgresos();
+
+  jPanel7.removeAll();
+jPanel7.add(jScrollPane1);
+ jTable1.setVisible(true);
+  jPanel7.revalidate();
+        jPanel7.repaint();
+
+        llenarTablaActividadesRecientes(jTable1, Secuencial_Empresa);
+        
+        jTable1.setToolTipText("Doble click para mas detalles");
+
+
+
+
 
     
     }
@@ -109,6 +139,25 @@ jPanel8.repaint();
 
         
         
+    
+    
+    }
+    
+    
+    
+    private void Cargar_Grafico_Inventario(){
+    
+    
+               
+               jPanel2.removeAll();
+jPanel2.setLayout(new BorderLayout());
+
+ jPanel2.add(Util.crearGraficoBarrasPorCategoria(Secuencial_Empresa));
+       
+
+jPanel2.revalidate();
+jPanel2.repaint();
+
     
     
     }
@@ -154,6 +203,9 @@ jPanel8.repaint();
         jLabel9 = new javax.swing.JLabel();
         jButton8 = new javax.swing.JButton();
         jButton1 = new javax.swing.JButton();
+        jButton2 = new javax.swing.JButton();
+        jButton3 = new javax.swing.JButton();
+        jButton4 = new javax.swing.JButton();
 
         setBackground(new java.awt.Color(0, 0, 0));
 
@@ -482,7 +534,33 @@ jPanel8.repaint();
                 .addGap(18, 18, 18))
         );
 
-        jButton1.setText("jButton1");
+        jButton1.setText("Actividades Recientes");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+
+        jButton2.setText("Ingresos /Egresos");
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
+
+        jButton3.setText("Compras / Ventas");
+        jButton3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton3ActionPerformed(evt);
+            }
+        });
+
+        jButton4.setText("Inventario");
+        jButton4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton4ActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -493,8 +571,14 @@ jPanel8.repaint();
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                             .addGroup(layout.createSequentialGroup()
+                                .addComponent(jButton1)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(jButton2)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jButton3))
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                                     .addComponent(jPanel9, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                     .addComponent(jPanel16, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
@@ -504,14 +588,15 @@ jPanel8.repaint();
                                     .addComponent(jPanel15, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                 .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(jPanel7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                            .addComponent(jPanel7, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jPanel6, javax.swing.GroupLayout.DEFAULT_SIZE, 334, Short.MAX_VALUE)
-                            .addComponent(jPanel8, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jButton1)
-                        .addGap(0, 0, Short.MAX_VALUE)))
+                            .addComponent(jPanel6, javax.swing.GroupLayout.DEFAULT_SIZE, 329, Short.MAX_VALUE)
+                            .addComponent(jPanel8, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                .addGap(0, 0, Short.MAX_VALUE)
+                                .addComponent(jButton4)
+                                .addGap(112, 112, 112)))))
                 .addContainerGap())
         );
 
@@ -539,7 +624,11 @@ jPanel8.repaint();
                     .addComponent(jPanel8, javax.swing.GroupLayout.DEFAULT_SIZE, 182, Short.MAX_VALUE)
                     .addComponent(jPanel7, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jButton1)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jButton1)
+                    .addComponent(jButton2)
+                    .addComponent(jButton3)
+                    .addComponent(jButton4))
                 .addContainerGap(11, Short.MAX_VALUE))
         );
 
@@ -625,6 +714,9 @@ jPanel7.add(jScrollPane1);
     }//GEN-LAST:event_jButton8ActionPerformed
 
     private void jButton7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton7ActionPerformed
+
+
+        
 jPanel7.removeAll();
 jPanel7.add(jScrollPane1);
  jTable1.setVisible(true);
@@ -671,6 +763,83 @@ jPanel7.add(jScrollPane1);
         // TODO add your handling code here:
     }//GEN-LAST:event_jButton10ActionPerformed
 
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+
+            
+       jPanel7.removeAll();
+jPanel7.add(jScrollPane1);
+ jTable1.setVisible(true);
+  jPanel7.revalidate();
+        jPanel7.repaint();
+
+        llenarTablaActividadesRecientes(jTable1, Secuencial_Empresa);
+        
+        jTable1.setToolTipText("Doble click para mas detalles");
+
+
+
+
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
+
+
+        Cargar_Grafico_Inventario();
+
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButton4ActionPerformed
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        
+
+        Crear_Grafico_IngresosEgresos();
+
+// TODO add your handling code here:
+    }//GEN-LAST:event_jButton2ActionPerformed
+
+    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+
+        
+Crear_Grafico_Compras_Ventas();
+
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButton3ActionPerformed
+
+    
+    private void Crear_Grafico_Compras_Ventas(){
+    
+                         
+               jPanel2.removeAll();
+jPanel2.setLayout(new BorderLayout());
+
+ jPanel2.add(Util.crearGraficoBarrasHorizontalesComprasVsVentasMesActual(Secuencial_Empresa));
+       
+
+jPanel2.revalidate();
+jPanel2.repaint();
+
+    
+    
+    
+    }
+    
+    
+    private void Crear_Grafico_IngresosEgresos(){
+    
+                     
+               jPanel2.removeAll();
+jPanel2.setLayout(new BorderLayout());
+
+ jPanel2.add(Util.crearGraficoLinealDiarioIngresosEgresos(Secuencial_Empresa));
+       
+
+jPanel2.revalidate();
+jPanel2.repaint();
+
+    
+    
+    }
     
     
     public static int contarProductosVencidos(int secuencialEmpresa) {
@@ -783,6 +952,11 @@ jPanel7.add(jScrollPane1);
     }
 
     tabla.setModel(modelo);
+    
+    // 🧹 Eliminar listeners anteriores
+    for (MouseListener ml : tabla.getMouseListeners()) {
+        tabla.removeMouseListener(ml);
+    }
 
     tabla.setBackground(new Color(30, 30, 30));
     tabla.setForeground(new Color(255, 0, 255));
@@ -828,6 +1002,11 @@ jPanel7.add(jScrollPane1);
     }
 
     tabla.setModel(modelo);
+    
+    // 🧹 Eliminar listeners anteriores
+    for (MouseListener ml : tabla.getMouseListeners()) {
+        tabla.removeMouseListener(ml);
+    }
 
     tabla.setBackground(new Color(30, 30, 30));
     tabla.setForeground(Color.YELLOW);
@@ -873,6 +1052,11 @@ jPanel7.add(jScrollPane1);
 
     tabla.setModel(modelo);
 
+    // 🧹 Eliminar listeners anteriores
+    for (MouseListener ml : tabla.getMouseListeners()) {
+        tabla.removeMouseListener(ml);
+    }
+    
     tabla.setBackground(new Color(30, 30, 30));
     tabla.setForeground(Color.RED);
     tabla.setSelectionBackground(new Color(80, 0, 0));
@@ -925,6 +1109,11 @@ jPanel7.add(jScrollPane1);
     }
 
     tabla.setModel(modelo);
+    
+    // 🧹 Eliminar listeners anteriores
+    for (MouseListener ml : tabla.getMouseListeners()) {
+        tabla.removeMouseListener(ml);
+    }
 
     // 🎨 Estilo mejorado: fondo gris oscuro + fuente verde legible + encabezado claro
     Color fondoLegible = new Color(30, 30, 30); // gris oscuro
@@ -984,6 +1173,12 @@ jPanel7.add(jScrollPane1);
 
     tabla.setModel(modelo);
 
+    // 🧹 Eliminar listeners anteriores
+    for (MouseListener ml : tabla.getMouseListeners()) {
+        tabla.removeMouseListener(ml);
+    }
+    
+    
     // 🎨 Estilo mejorado
     Color fondoLegible = new Color(30, 30, 30); // gris oscuro
     Color azulLegible = new Color(70, 130, 255); // azul claro
@@ -1324,13 +1519,143 @@ jPanel7.add(jScrollPane1);
     return total;
 }
 
-     
-      
+public static void llenarTablaActividadesRecientes(JTable tabla, int secuencialEmpresa) {
+    EntityManager em = MonituxDBContext.getEntityManager();
+
+    // Obtener actividades
+    List<Actividad> actividades = em.createQuery(
+        "SELECT a FROM Actividad a WHERE a.Secuencial_Empresa = :empresa", Actividad.class)
+        .setParameter("empresa", secuencialEmpresa)
+        .getResultList();
+
+    // Obtener usuarios en un mapa para mostrar nombres
+    List<Usuario> usuarios = em.createQuery("SELECT u FROM Usuario u", Usuario.class).getResultList();
+    Map<Integer, String> mapaUsuarios = new HashMap<>();
+    for (Usuario u : usuarios) {
+        mapaUsuarios.put(u.getSecuencial(), u.getNombre());
+    }
+
+    em.close();
+
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+
+    actividades.sort((a1, a2) -> {
+        LocalDateTime f1 = LocalDateTime.parse(a1.getFecha(), formatter);
+        LocalDateTime f2 = LocalDateTime.parse(a2.getFecha(), formatter);
+        return f2.compareTo(f1);
+    });
+
+    List<Actividad> recientes = actividades.stream().limit(10).collect(Collectors.toList());
+
+    DefaultTableModel modelo = new DefaultTableModel() {
+        @Override
+        public boolean isCellEditable(int row, int column) {
+            return false;
+        }
+    };
+
+    modelo.addColumn("Fecha y hora");
+    modelo.addColumn("Usuario");
+    modelo.addColumn("Descripción");
+    
+
+    for (Actividad a : recientes) {
+        String fechaCompleta = a.getFecha();
+        String nombreUsuario = mapaUsuarios.getOrDefault(a.getSecuencial_Usuario(), "---");
+        modelo.addRow(new Object[] {
+            fechaCompleta,
+            nombreUsuario,
+            a.getDescripcion()
+        });
+    }
+
+    tabla.setModel(modelo);
+
+    // 🧹 Eliminar listeners anteriores
+    for (MouseListener ml : tabla.getMouseListeners()) {
+        tabla.removeMouseListener(ml);
+    }
+
+    // 🖱️ Mostrar fecha, usuario y descripción al hacer doble clic
+    tabla.addMouseListener(new MouseAdapter() {
+        @Override
+        public void mouseClicked(MouseEvent e) {
+            if (SwingUtilities.isLeftMouseButton(e) && e.getClickCount() == 2) {
+                int fila = tabla.rowAtPoint(e.getPoint());
+                if (fila != -1) {
+                    String fecha = tabla.getValueAt(fila, 0).toString();
+                    String usuario = tabla.getValueAt(fila, 1).toString();
+                    String descripcion = tabla.getValueAt(fila, 2).toString();
+                    JOptionPane.showMessageDialog(tabla,
+                        
+                        "Usuario: " + usuario +
+                        "\n" + descripcion,
+                        "Detalle de actividad",
+                        JOptionPane.INFORMATION_MESSAGE);
+                }
+            }
+        }
+    });
+
+    // 🧩 Renderizador para todas las columnas con ajuste de altura
+    TableCellRenderer ajusteRenderer = new TableCellRenderer() {
+        @Override
+        public Component getTableCellRendererComponent(JTable table, Object value,
+                boolean isSelected, boolean hasFocus, int row, int column) {
+            JTextArea area = new JTextArea(value != null ? value.toString() : "");
+            area.setLineWrap(true);
+            area.setWrapStyleWord(true);
+            area.setFont(table.getFont());
+            area.setOpaque(true);
+            area.setBackground(isSelected ? table.getSelectionBackground() : table.getBackground());
+            area.setForeground(isSelected ? table.getSelectionForeground() : table.getForeground());
+
+            int altura = area.getPreferredSize().height;
+            if (table.getRowHeight(row) != altura) {
+                table.setRowHeight(row, altura);
+            }
+
+            return area;
+        }
+    };
+
+    for (int i = 0; i < tabla.getColumnCount(); i++) {
+        tabla.getColumnModel().getColumn(i).setCellRenderer(ajusteRenderer);
+    }
+
+    // 🎨 Estilo visual Monitux
+    tabla.setBackground(new Color(30, 30, 30));
+    tabla.setForeground(Color.WHITE);
+    tabla.setSelectionBackground(new Color(0, 120, 215));
+    tabla.setSelectionForeground(Color.WHITE);
+    tabla.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+    tabla.getTableHeader().setBackground(new Color(60, 60, 60));
+    tabla.getTableHeader().setForeground(Color.WHITE);
+    tabla.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 14));
+
+    // 📐 Ajuste automático de ancho horizontal por contenido
+    for (int columna = 0; columna < tabla.getColumnCount(); columna++) {
+        TableColumn tableColumn = tabla.getColumnModel().getColumn(columna);
+        int anchoMaximo = 50;
+
+        for (int fila = 0; fila < tabla.getRowCount(); fila++) {
+            TableCellRenderer renderer = tabla.getCellRenderer(fila, columna);
+            Component comp = tabla.prepareRenderer(renderer, fila, columna);
+            anchoMaximo = Math.max(comp.getPreferredSize().width + 10, anchoMaximo);
+        }
+
+        tableColumn.setPreferredWidth(anchoMaximo);
+    }
+}
+  
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton10;
     private javax.swing.JButton jButton11;
+    private javax.swing.JButton jButton2;
+    private javax.swing.JButton jButton3;
+    private javax.swing.JButton jButton4;
     private javax.swing.JButton jButton7;
     private javax.swing.JButton jButton8;
     private javax.swing.JButton jButton9;
