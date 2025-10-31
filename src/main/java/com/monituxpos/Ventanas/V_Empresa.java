@@ -758,6 +758,7 @@ empresa.setImagen(imagenBytes != null ? imagenBytes : new byte[0]);
             if (AppSettings.getPrimer_Arranque()) {
                 new V_Login().setVisible(true);
                 AppSettings.set_Usuario_Creado(false);
+                this.dispose();
             } else {
                 this.dispose();
                 Secuencial_Empresa=V_Menu_Principal.getSecuencial_Empresa();
@@ -769,6 +770,7 @@ empresa.setImagen(imagenBytes != null ? imagenBytes : new byte[0]);
         e.printStackTrace();
         if (em.getTransaction().isActive()) {
             em.getTransaction().rollback();
+            this.dispose();
         }
     }
       

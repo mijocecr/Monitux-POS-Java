@@ -1,0 +1,198 @@
+2025-10-31 18:29:06.579816+01:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "empresas" not found (this database is empty); SQL statement:
+/* SELECT e FROM Empresa e WHERE e.Activa = true */ select e1_0."Secuencial",e1_0."Activa",e1_0."Direccion",e1_0."Email",e1_0."ISV",e1_0."Imagen",e1_0."Moneda",e1_0."Nombre",e1_0."RSS",e1_0."Secuencial_Usuario",e1_0."Telefono" from "empresas" e1_0 where e1_0."Activa"=true [42104-224]
+2025-10-31 18:30:11.475090+01:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "abonos_compras" not found (this database is empty); SQL statement:
+TRUNCATE TABLE "abonos_compras" [42104-224]
+2025-10-31 18:30:11.494525+01:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "abonos_ventas" not found (this database is empty); SQL statement:
+TRUNCATE TABLE "abonos_ventas" [42104-224]
+2025-10-31 18:30:11.498094+01:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "actividades" not found (this database is empty); SQL statement:
+TRUNCATE TABLE "actividades" [42104-224]
+2025-10-31 18:30:11.502793+01:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "categorias" not found (this database is empty); SQL statement:
+TRUNCATE TABLE "categorias" [42104-224]
+2025-10-31 18:30:11.505849+01:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "clientes" not found (this database is empty); SQL statement:
+TRUNCATE TABLE "clientes" [42104-224]
+2025-10-31 18:30:11.508851+01:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "comentarios" not found (this database is empty); SQL statement:
+TRUNCATE TABLE "comentarios" [42104-224]
+2025-10-31 18:30:11.511852+01:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "compras" not found (this database is empty); SQL statement:
+TRUNCATE TABLE "compras" [42104-224]
+2025-10-31 18:30:11.515330+01:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "compras_detalles" not found (this database is empty); SQL statement:
+TRUNCATE TABLE "compras_detalles" [42104-224]
+2025-10-31 18:30:11.518331+01:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "cotizaciones" not found (this database is empty); SQL statement:
+TRUNCATE TABLE "cotizaciones" [42104-224]
+2025-10-31 18:30:11.521029+01:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "cotizaciones_detalles" not found (this database is empty); SQL statement:
+TRUNCATE TABLE "cotizaciones_detalles" [42104-224]
+2025-10-31 18:30:11.523428+01:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "kardex" not found (this database is empty); SQL statement:
+TRUNCATE TABLE "kardex" [42104-224]
+2025-10-31 18:30:11.525917+01:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "ordenes" not found (this database is empty); SQL statement:
+TRUNCATE TABLE "ordenes" [42104-224]
+2025-10-31 18:30:11.528920+01:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "ordenes_detalles" not found (this database is empty); SQL statement:
+TRUNCATE TABLE "ordenes_detalles" [42104-224]
+2025-10-31 18:30:11.531922+01:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "productos" not found (this database is empty); SQL statement:
+TRUNCATE TABLE "productos" [42104-224]
+2025-10-31 18:30:11.534951+01:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "proveedores" not found (this database is empty); SQL statement:
+TRUNCATE TABLE "proveedores" [42104-224]
+2025-10-31 18:30:11.538955+01:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "usuarios" not found (this database is empty); SQL statement:
+TRUNCATE TABLE "usuarios" [42104-224]
+2025-10-31 18:30:11.541948+01:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "ventas" not found (this database is empty); SQL statement:
+TRUNCATE TABLE "ventas" [42104-224]
+2025-10-31 18:30:11.543953+01:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "ventas_detalles" not found (this database is empty); SQL statement:
+TRUNCATE TABLE "ventas_detalles" [42104-224]
+2025-10-31 18:30:11.546422+01:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "cuentas_cobrar" not found (this database is empty); SQL statement:
+TRUNCATE TABLE "cuentas_cobrar" [42104-224]
+2025-10-31 18:30:11.549480+01:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "cuentas_pagar" not found (this database is empty); SQL statement:
+TRUNCATE TABLE "cuentas_pagar" [42104-224]
+2025-10-31 18:30:11.551476+01:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "empresas" not found (this database is empty); SQL statement:
+TRUNCATE TABLE "empresas" [42104-224]
+2025-10-31 18:30:11.553481+01:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "ingresos" not found (this database is empty); SQL statement:
+TRUNCATE TABLE "ingresos" [42104-224]
+2025-10-31 18:30:11.555739+01:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "egresos" not found (this database is empty); SQL statement:
+TRUNCATE TABLE "egresos" [42104-224]
+2025-10-31 18:31:10.900729+01:00 jdbc[4]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: El objeto ya está cerrado
+The object is already closed [90007-224]
+2025-10-31 18:31:12.999722+01:00 jdbc[4]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: El objeto ya está cerrado
+The object is already closed [90007-224]
+2025-10-31 18:32:07.159645+01:00 jdbc[5]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: El objeto ya está cerrado
+The object is already closed [90007-224]
+2025-10-31 18:32:09.013600+01:00 jdbc[5]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: El objeto ya está cerrado
+The object is already closed [90007-224]
+2025-10-31 18:35:17.431751+01:00 jdbc[5]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: El objeto ya está cerrado
+The object is already closed [90007-224]
+2025-10-31 18:35:18.708588+01:00 jdbc[5]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: El objeto ya está cerrado
+The object is already closed [90007-224]
+2025-10-31 18:36:44.892253+01:00 jdbc[5]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: El objeto ya está cerrado
+The object is already closed [90007-224]
+2025-10-31 18:36:46.236580+01:00 jdbc[5]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: El objeto ya está cerrado
+The object is already closed [90007-224]
+2025-10-31 18:38:32.323561+01:00 jdbc[5]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: El objeto ya está cerrado
+The object is already closed [90007-224]
+2025-10-31 18:38:32.343186+01:00 jdbc[5]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: El objeto ya está cerrado
+The object is already closed [90007-224]
+2025-10-31 18:38:33.809106+01:00 jdbc[5]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: El objeto ya está cerrado
+The object is already closed [90007-224]
+2025-10-31 18:39:20.720336+01:00 jdbc[5]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: El objeto ya está cerrado
+The object is already closed [90007-224]
+2025-10-31 18:39:20.722569+01:00 jdbc[5]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: El objeto ya está cerrado
+The object is already closed [90007-224]
+2025-10-31 18:39:20.725659+01:00 jdbc[5]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: El objeto ya está cerrado
+The object is already closed [90007-224]
+2025-10-31 18:39:21.250492+01:00 jdbc[5]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: El objeto ya está cerrado
+The object is already closed [90007-224]
+2025-10-31 18:39:31.499452+01:00 jdbc[5]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: El objeto ya está cerrado
+The object is already closed [90007-224]
+2025-10-31 18:41:26.505623+01:00 jdbc[5]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: El objeto ya está cerrado
+The object is already closed [90007-224]
+2025-10-31 18:41:28.082319+01:00 jdbc[5]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: El objeto ya está cerrado
+The object is already closed [90007-224]
+2025-10-31 18:42:04.172537+01:00 jdbc[5]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: El objeto ya está cerrado
+The object is already closed [90007-224]
+2025-10-31 18:42:05.247569+01:00 jdbc[5]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: El objeto ya está cerrado
+The object is already closed [90007-224]
+2025-10-31 18:42:09.819870+01:00 jdbc[5]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: El objeto ya está cerrado
+The object is already closed [90007-224]
+2025-10-31 18:42:09.821870+01:00 jdbc[5]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: El objeto ya está cerrado
+The object is already closed [90007-224]
+2025-10-31 18:42:09.825418+01:00 jdbc[5]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: El objeto ya está cerrado
+The object is already closed [90007-224]
+2025-10-31 18:42:09.878907+01:00 jdbc[5]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: El objeto ya está cerrado
+The object is already closed [90007-224]
+2025-10-31 18:42:20.129919+01:00 jdbc[5]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: El objeto ya está cerrado
+The object is already closed [90007-224]
+2025-10-31 18:56:50.832047+01:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: El objeto ya está cerrado
+The object is already closed [90007-224]
+2025-10-31 18:56:51.839236+01:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: El objeto ya está cerrado
+The object is already closed [90007-224]
+2025-10-31 19:14:24.698517+01:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: El objeto ya está cerrado
+The object is already closed [90007-224]
+2025-10-31 19:14:24.705496+01:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: El objeto ya está cerrado
+The object is already closed [90007-224]
+2025-10-31 19:14:24.711084+01:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: El objeto ya está cerrado
+The object is already closed [90007-224]
+2025-10-31 19:14:25.304915+01:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: El objeto ya está cerrado
+The object is already closed [90007-224]
+2025-10-31 19:14:35.472728+01:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: El objeto ya está cerrado
+The object is already closed [90007-224]
+2025-10-31 19:15:39.712507+01:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: El objeto ya está cerrado
+The object is already closed [90007-224]
+2025-10-31 19:15:39.713509+01:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: El objeto ya está cerrado
+The object is already closed [90007-224]
+2025-10-31 19:15:39.716509+01:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: El objeto ya está cerrado
+The object is already closed [90007-224]
+2025-10-31 19:15:39.785751+01:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: El objeto ya está cerrado
+The object is already closed [90007-224]
+2025-10-31 19:15:49.870233+01:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: El objeto ya está cerrado
+The object is already closed [90007-224]
+2025-10-31 19:16:53.715328+01:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: El objeto ya está cerrado
+The object is already closed [90007-224]
+2025-10-31 19:16:53.716545+01:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: El objeto ya está cerrado
+The object is already closed [90007-224]
+2025-10-31 19:16:53.720397+01:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: El objeto ya está cerrado
+The object is already closed [90007-224]
+2025-10-31 19:16:53.774886+01:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: El objeto ya está cerrado
+The object is already closed [90007-224]
+2025-10-31 19:17:03.887213+01:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: El objeto ya está cerrado
+The object is already closed [90007-224]

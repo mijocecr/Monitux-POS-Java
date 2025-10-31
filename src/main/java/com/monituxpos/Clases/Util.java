@@ -1116,16 +1116,15 @@ renderer.setSeriesPaint(0, new Color(0xE6, 0x9F, 0x00)); // Naranja fuerte
 
   
   
-  public static JPanel crearGraficoLinealDiarioIngresosEgresos(int secuencialEmpresa) {
+ 
+  public static JPanel crearGraficoBarrasDiariasIngresosEgresos(int secuencialEmpresa) {
     EntityManager em = MonituxDBContext.getEntityManager();
 
     LocalDate inicioMes = LocalDate.now().withDayOfMonth(1);
     LocalDate finMes = inicioMes.plusMonths(1).minusDays(1);
-
-    // Formato real de la fecha almacenada: "dd/MM/yyyy hh:mm:ss a"
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy hh:mm:ss a", new Locale("es", "ES"));
+    DateTimeFormatter diaFormatter = DateTimeFormatter.ofPattern("dd/MM");
 
-    // Consultar ingresos y egresos
     List<Ingreso> ingresos = em.createQuery(
         "SELECT i FROM Ingreso i WHERE i.Secuencial_Empresa = :empresa", Ingreso.class)
         .setParameter("empresa", secuencialEmpresa)
@@ -1138,7 +1137,6 @@ renderer.setSeriesPaint(0, new Color(0xE6, 0x9F, 0x00)); // Naranja fuerte
 
     em.close();
 
-    // Agrupación por día
     Map<String, Double> ingresosTotales = new TreeMap<>();
     Map<String, Double> ingresosManuales = new TreeMap<>();
     Map<String, Double> egresosTotales = new TreeMap<>();
@@ -1146,10 +1144,9 @@ renderer.setSeriesPaint(0, new Color(0xE6, 0x9F, 0x00)); // Naranja fuerte
 
     for (Ingreso ingreso : ingresos) {
         try {
-            LocalDateTime fechaHora = LocalDateTime.parse(ingreso.getFecha().replace(" ", " "), formatter);
-            LocalDate fecha = fechaHora.toLocalDate();
+            LocalDate fecha = LocalDateTime.parse(ingreso.getFecha().replace(" ", " "), formatter).toLocalDate();
             if (!fecha.isBefore(inicioMes) && !fecha.isAfter(finMes)) {
-                String dia = fecha.format(DateTimeFormatter.ofPattern("dd/MM"));
+                String dia = fecha.format(diaFormatter);
                 double monto = ingreso.getTotal();
                 String tipo = ingreso.getTipo_Ingreso().toLowerCase();
 
@@ -1164,10 +1161,9 @@ renderer.setSeriesPaint(0, new Color(0xE6, 0x9F, 0x00)); // Naranja fuerte
 
     for (Egreso egreso : egresos) {
         try {
-            LocalDateTime fechaHora = LocalDateTime.parse(egreso.getFecha().replace(" ", " "), formatter);
-            LocalDate fecha = fechaHora.toLocalDate();
+            LocalDate fecha = LocalDateTime.parse(egreso.getFecha().replace(" ", " "), formatter).toLocalDate();
             if (!fecha.isBefore(inicioMes) && !fecha.isAfter(finMes)) {
-                String dia = fecha.format(DateTimeFormatter.ofPattern("dd/MM"));
+                String dia = fecha.format(diaFormatter);
                 double monto = egreso.getTotal();
                 String tipo = egreso.getTipo_Egreso().toLowerCase();
 
@@ -1180,22 +1176,21 @@ renderer.setSeriesPaint(0, new Color(0xE6, 0x9F, 0x00)); // Naranja fuerte
         } catch (Exception ignored) {}
     }
 
-    // Dataset para gráfico
     DefaultCategoryDataset dataset = new DefaultCategoryDataset();
     ingresosTotales.forEach((dia, monto) -> dataset.addValue(monto, "Ingresos", dia));
     ingresosManuales.forEach((dia, monto) -> dataset.addValue(monto, "Ingresos Manuales", dia));
     egresosTotales.forEach((dia, monto) -> dataset.addValue(monto, "Egresos", dia));
     egresosManuales.forEach((dia, monto) -> dataset.addValue(monto, "Egresos Manuales", dia));
 
-    // Crear gráfico
-    JFreeChart chart = ChartFactory.createLineChart(
+    JFreeChart chart = ChartFactory.createBarChart(
         "Flujo Diario de Ingresos y Egresos",
         "Día",
         "Monto (" + V_Menu_Principal.getMoneda_Empresa() + ")",
-        dataset
+        dataset,
+        PlotOrientation.VERTICAL,
+        true, true, false
     );
 
-    // Estilo visual oscuro
     chart.getTitle().setFont(new Font("SansSerif", Font.BOLD, 14));
     chart.setBackgroundPaint(new Color(0x17, 0x17, 0x17));
     chart.getTitle().setPaint(Color.WHITE);
@@ -1210,18 +1205,24 @@ renderer.setSeriesPaint(0, new Color(0xE6, 0x9F, 0x00)); // Naranja fuerte
     plot.getDomainAxis().setLabelPaint(Color.LIGHT_GRAY);
     plot.getRangeAxis().setLabelPaint(Color.LIGHT_GRAY);
 
-   LineAndShapeRenderer renderer = (LineAndShapeRenderer) plot.getRenderer();
-renderer.setSeriesPaint(0, new Color(0x00, 0x72, 0xB2)); // Azul real
-renderer.setSeriesPaint(1, new Color(0xE6, 0x9F, 0x00)); // Naranja fuerte
-renderer.setSeriesPaint(2, new Color(0xD5, 0x5E, 0x00)); // Rojo escarlata
-renderer.setSeriesPaint(3, new Color(0x00, 0x9E, 0x73)); // Verde bosque
+  BarRenderer renderer = (BarRenderer) plot.getRenderer();
 
+// Ingresos
+renderer.setSeriesPaint(0, new Color(0x00, 0xA8, 0x4A)); // Verde intenso
+renderer.setSeriesPaint(1, new Color(0x66, 0xD9, 0x8F)); // Verde claro brillante
+
+// Egresos
+renderer.setSeriesPaint(2, new Color(0xC70039));         // Rojo intenso
+renderer.setSeriesPaint(3, new Color(0xFF6F61));         // Rojo coral claro
     ChartPanel chartPanel = new ChartPanel(chart);
     chartPanel.setPreferredSize(new Dimension(805, 200));
 
     return chartPanel;
 }
 
+  
+  
+  
   
  public static JPanel crearGraficoBarrasHorizontalesComprasVsVentasMesActual(int secuencialEmpresa) {
     EntityManager em = MonituxDBContext.getEntityManager();

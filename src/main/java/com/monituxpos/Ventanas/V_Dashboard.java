@@ -831,7 +831,7 @@ jPanel2.repaint();
                jPanel2.removeAll();
 jPanel2.setLayout(new BorderLayout());
 
- jPanel2.add(Util.crearGraficoLinealDiarioIngresosEgresos(Secuencial_Empresa));
+ jPanel2.add(Util.crearGraficoBarrasDiariasIngresosEgresos(Secuencial_Empresa));
        
 
 jPanel2.revalidate();
