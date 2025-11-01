@@ -328,7 +328,7 @@ public static Map<String, Double> lista = new HashMap<>();
                 jButton3ActionPerformed(evt);
             }
         });
-        jPanel2.add(jButton3, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 480, 90, -1));
+        jPanel2.add(jButton3, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 480, 110, -1));
 
         jPanel1.add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 60, 400, 520));
 
@@ -437,7 +437,7 @@ public static Map<String, Double> lista = new HashMap<>();
                 jButton6ActionPerformed(evt);
             }
         });
-        jPanel4.add(jButton6, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 480, 90, -1));
+        jPanel4.add(jButton6, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 480, 110, -1));
 
         jPanel1.add(jPanel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(430, 60, 394, 520));
 

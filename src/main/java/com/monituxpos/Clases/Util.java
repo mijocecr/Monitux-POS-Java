@@ -968,7 +968,7 @@ public class Util {
 
         // Panel con el gráfico
         ChartPanel chartPanel = new ChartPanel(chart);
-        chartPanel.setPreferredSize(new Dimension(273, 182)); // Tamaño personalizado
+        chartPanel.setPreferredSize(new Dimension(798, 182)); // Tamaño personalizado
 
         return chartPanel;
     }
@@ -994,7 +994,7 @@ public class Util {
 
         // Panel con el gráfico
         ChartPanel chartPanel = new ChartPanel(chart);
-        chartPanel.setPreferredSize(new Dimension(214, 182)); // Ajusta según tu layout
+        chartPanel.setPreferredSize(new Dimension(271, 150)); // Ajusta según tu layout
 
         return chartPanel;
     }
@@ -1046,7 +1046,7 @@ public class Util {
 
     // Panel con el gráfico
     ChartPanel chartPanel = new ChartPanel(chart);
-    chartPanel.setPreferredSize(new Dimension(334, 182)); // Ajusta según tu layout
+    chartPanel.setPreferredSize(new Dimension(271, 130)); // Ajusta según tu layout
 
     return chartPanel;
 }
@@ -1109,7 +1109,7 @@ renderer.setSeriesPaint(0, new Color(0xE6, 0x9F, 0x00)); // Naranja fuerte
     plot.getRangeAxis().setLabelPaint(Color.LIGHT_GRAY);
 
     ChartPanel chartPanel = new ChartPanel(chart);
-    chartPanel.setPreferredSize(new Dimension(334, 182));
+    chartPanel.setPreferredSize(new Dimension(798, 200));
 
     return chartPanel;
 }
@@ -1215,7 +1215,7 @@ renderer.setSeriesPaint(1, new Color(0x66, 0xD9, 0x8F)); // Verde claro brillant
 renderer.setSeriesPaint(2, new Color(0xC70039));         // Rojo intenso
 renderer.setSeriesPaint(3, new Color(0xFF6F61));         // Rojo coral claro
     ChartPanel chartPanel = new ChartPanel(chart);
-    chartPanel.setPreferredSize(new Dimension(805, 200));
+    chartPanel.setPreferredSize(new Dimension(798, 200));
 
     return chartPanel;
 }
@@ -1298,7 +1298,7 @@ renderer.setSeriesPaint(3, new Color(0xFF6F61));         // Rojo coral claro
     renderer.setSeriesPaint(1, new Color(0x00, 0x9E, 0x73)); // Verde bosque para ventas
 
     ChartPanel chartPanel = new ChartPanel(chart);
-    chartPanel.setPreferredSize(new Dimension(805, 200));
+    chartPanel.setPreferredSize(new Dimension(798, 200));
 
     return chartPanel;
 }
@@ -1439,7 +1439,7 @@ public static JPanel crearGraficoCircularOperaciones(
 
     // 🎨 Panel contenedor con fondo oscuro
     ChartPanel chartPanel = new ChartPanel(chart);
-    chartPanel.setPreferredSize(new Dimension(320, 146));
+    chartPanel.setPreferredSize(new Dimension(306, 182));
     chartPanel.setBackground(new Color(30, 30, 30)); // fondo del panel
 
     return chartPanel;

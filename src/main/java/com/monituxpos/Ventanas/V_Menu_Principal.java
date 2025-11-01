@@ -1335,9 +1335,9 @@ iniciarCintaLED(lblTitular);
                     .addGroup(jPanel2Layout.createSequentialGroup()
                         .addGap(12, 12, 12)
                         .addComponent(lbl_Nombre_Empresa, javax.swing.GroupLayout.DEFAULT_SIZE, 257, Short.MAX_VALUE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+                    .addGroup(jPanel2Layout.createSequentialGroup()
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(lbl_version, javax.swing.GroupLayout.PREFERRED_SIZE, 105, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(lbl_version)))
                 .addContainerGap())
         );
         jPanel2Layout.setVerticalGroup(
@@ -1362,7 +1362,7 @@ iniciarCintaLED(lblTitular);
         lblTitular.setText("Bienvenido a Monitux-POS...");
         lblTitular.setToolTipText("");
         jPanel3.add(lblTitular);
-        lblTitular.setBounds(820, 0, 304, 40);
+        lblTitular.setBounds(820, 0, 321, 40);
 
         jScrollPane2.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         jScrollPane2.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);

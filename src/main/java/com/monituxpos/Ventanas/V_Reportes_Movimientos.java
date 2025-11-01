@@ -1479,7 +1479,7 @@ public void RPT_Actividades_De_Usuario(LocalDate fechaInicio, LocalDate fechaFin
                     .addComponent(jButton8)
                     .addComponent(jButton7)
                     .addComponent(jButton10))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(111, Short.MAX_VALUE))
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1629,7 +1629,7 @@ public void RPT_Actividades_De_Usuario(LocalDate fechaInicio, LocalDate fechaFin
                             .addGroup(layout.createSequentialGroup()
                                 .addGap(41, 41, 41)
                                 .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addContainerGap(39, Short.MAX_VALUE))
+                                .addContainerGap(22, Short.MAX_VALUE))
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addComponent(jLabel17, javax.swing.GroupLayout.PREFERRED_SIZE, 283, javax.swing.GroupLayout.PREFERRED_SIZE)
