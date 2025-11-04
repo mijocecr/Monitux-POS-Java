@@ -482,7 +482,6 @@ listaDeItems.clear();
         lbl_otrosCargos.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         lbl_otrosCargos.setBackground(new java.awt.Color(0, 204, 204));
         lbl_otrosCargos.setBorder(null);
-        lbl_otrosCargos.setForeground(new java.awt.Color(0, 0, 0));
         lbl_otrosCargos.setForeground(Color.BLUE); // Cambia el texto a azul
         lbl_otrosCargos.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -502,7 +501,6 @@ listaDeItems.clear();
         lbl_impuesto.setForeground(Color.BLUE); // Cambia el texto a azul
         lbl_impuesto.setBackground(new java.awt.Color(0, 204, 204));
         lbl_impuesto.setBorder(null);
-        lbl_impuesto.setForeground(new java.awt.Color(0, 0, 0));
         lbl_impuesto.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 lbl_impuestoActionPerformed(evt);
@@ -524,7 +522,6 @@ listaDeItems.clear();
         lbl_descuento.setForeground(Color.BLUE); // Cambia el texto a azul
         lbl_descuento.setBackground(new java.awt.Color(0, 204, 204));
         lbl_descuento.setBorder(null);
-        lbl_descuento.setForeground(new java.awt.Color(0, 0, 0));
         lbl_descuento.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyReleased(java.awt.event.KeyEvent evt) {
                 lbl_descuentoKeyReleased(evt);
@@ -617,8 +614,8 @@ listaDeItems.clear();
                                 .addGap(10, 10, 10)
                                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(jLabel7)
-                                    .addComponent(jComboBox3, javax.swing.GroupLayout.PREFERRED_SIZE, 93, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addGap(34, 34, 34)
+                                    .addComponent(jComboBox3, javax.swing.GroupLayout.PREFERRED_SIZE, 106, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGap(26, 26, 26)
                                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(jLabel9)
                                     .addComponent(datePicker1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
