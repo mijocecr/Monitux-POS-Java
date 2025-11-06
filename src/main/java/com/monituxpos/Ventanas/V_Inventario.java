@@ -328,7 +328,7 @@ public class V_Inventario extends javax.swing.JPanel {
         jLabel5.setBounds(10, 570, 70, 20);
 
         add(jComboBox3);
-        jComboBox3.setBounds(80, 570, 120, 26);
+        jComboBox3.setBounds(80, 570, 120, 27);
 
         jTextField1.setToolTipText("<html>Para efectuar la busqueda debe presionar Enter. <br>El filtro se restablecera al presionar Enter si la casilla esta vacia.</br></html>");
         jTextField1.addActionListener(new java.awt.event.ActionListener() {
@@ -342,7 +342,7 @@ public class V_Inventario extends javax.swing.JPanel {
             }
         });
         add(jTextField1);
-        jTextField1.setBounds(210, 570, 120, 26);
+        jTextField1.setBounds(210, 570, 120, 27);
 
         jPanel1.setBackground(new java.awt.Color(44, 117, 255));
         jPanel1.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255)));
@@ -587,7 +587,7 @@ public class V_Inventario extends javax.swing.JPanel {
             }
         });
         add(jLabel6);
-        jLabel6.setBounds(390, 570, 107, 26);
+        jLabel6.setBounds(367, 570, 130, 26);
 
         jLabel7.setBackground(new java.awt.Color(35, 32, 45));
         jLabel7.setForeground(new java.awt.Color(255, 0, 0));
@@ -606,7 +606,7 @@ public class V_Inventario extends javax.swing.JPanel {
             }
         });
         add(jLabel7);
-        jLabel7.setBounds(510, 570, 63, 26);
+        jLabel7.setBounds(510, 570, 80, 26);
 
         jLabel8.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/arrow_refresh.png"))); // NOI18N
         jLabel8.setToolTipText("Refrescar Datos.");
@@ -623,7 +623,7 @@ public class V_Inventario extends javax.swing.JPanel {
         jLabel9.setForeground(new java.awt.Color(255, 255, 255));
         jLabel9.setText("Modo: Cuadricula");
         add(jLabel9);
-        jLabel9.setBounds(620, 570, 108, 30);
+        jLabel9.setBounds(620, 570, 119, 30);
 
         icono_carga.setIcon(new javax.swing.ImageIcon(getClass().getResource("/gifs/spinner1-r.gif"))); // NOI18N
         icono_carga.setVisible(false);
