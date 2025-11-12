@@ -237,7 +237,7 @@ public String Fecha_Caducidad;
         precioLabel = new JLabel("Precio: " + producto.getPrecio_Costo());
         }
         
-        cantidadLabel = new JLabel("Stock: " + producto.getCantidad() + "   [Min: " + producto.getExistencia_Minima() + "]");
+        cantidadLabel = new JLabel("Stock: " + producto.getCantidad() + "   [" + producto.getExistencia_Minima() + "]");
 
         infoPanel = new JPanel(new GridLayout(4, 1));
         infoPanel.add(codigoLabel);

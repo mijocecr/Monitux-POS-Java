@@ -5084,17 +5084,18 @@ public void cargar_Items_Cuadricula(int secuencialEmpresa, JPanel contenedor) {
     contenedor.removeAll();
 
     new SwingWorker<List<Producto>, Void>() {
-        EntityManager em = null;
+        private List<Producto> productos = Collections.emptyList();
 
         @Override
         protected List<Producto> doInBackground() {
+            EntityManager em = null;
             try {
                 em = MonituxDBContext.getEntityManager();
                 if (em == null || !em.isOpen()) {
                     throw new IllegalStateException("EntityManager no disponible.");
                 }
 
-                return em.createQuery(
+                productos = em.createQuery(
                     "SELECT p FROM Producto p WHERE p.Secuencial_Empresa = :empresa", Producto.class)
                     .setParameter("empresa", secuencialEmpresa)
                     .getResultList();
@@ -5104,8 +5105,12 @@ public void cargar_Items_Cuadricula(int secuencialEmpresa, JPanel contenedor) {
                     "Error al consultar productos: " + ex.getMessage(),
                     "Error", JOptionPane.ERROR_MESSAGE);
                 ex.printStackTrace();
-                return Collections.emptyList();
+            } finally {
+                if (em != null && em.isOpen()) {
+                    em.close(); // Cerramos aquí para evitar usarlo en el hilo EDT
+                }
             }
+            return productos;
         }
 
         @Override
@@ -5183,9 +5188,6 @@ public void cargar_Items_Cuadricula(int secuencialEmpresa, JPanel contenedor) {
                     "Error", JOptionPane.ERROR_MESSAGE);
                 ex.printStackTrace();
             } finally {
-                if (em != null && em.isOpen()) {
-                    em.close();
-                }
                 icono_carga.setVisible(false);
             }
         }
