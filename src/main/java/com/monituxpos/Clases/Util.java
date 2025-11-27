@@ -55,6 +55,7 @@ import java.io.FileOutputStream;
 import java.lang.reflect.Field;
 import java.net.URL;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -893,52 +894,64 @@ public class Util {
      
 
 
-    public static void exportarJTableAExcel(JTable table, String nombreHoja, String nombreArchivoBase) {
-        try (Workbook workbook = new XSSFWorkbook()) {
-            org.apache.poi.ss.usermodel.Sheet sheet = workbook.createSheet(nombreHoja);
+public static void exportarJTableAExcel(JTable table, String nombreHoja, String nombreArchivoBase) {
+    try (Workbook workbook = new XSSFWorkbook()) {
+        org.apache.poi.ss.usermodel.Sheet sheet = workbook.createSheet(nombreHoja);
 
-            // 🔠 Estilo de encabezado
-            CellStyle headerStyle = workbook.createCellStyle();
-            org.apache.poi.ss.usermodel.Font font = workbook.createFont();
-            font.setBold(true);
-            headerStyle.setFont(font);
+        // 🔠 Estilo de encabezado
+        CellStyle headerStyle = workbook.createCellStyle();
+        org.apache.poi.ss.usermodel.Font font = workbook.createFont();
+        font.setBold(true);
+        headerStyle.setFont(font);
 
-            TableModel model = table.getModel();
+        TableModel model = table.getModel();
 
-            // 🔠 Encabezados
-            org.apache.poi.ss.usermodel.Row headerRow = sheet.createRow(0);
-            for (int col = 0; col < model.getColumnCount(); col++) {
-                org.apache.poi.ss.usermodel.Cell cell = headerRow.createCell(col);
-                cell.setCellValue(model.getColumnName(col));
-                cell.setCellStyle(headerStyle);
-            }
-
-            // 📋 Filas
-            for (int row = 0; row < model.getRowCount(); row++) {
-                org.apache.poi.ss.usermodel.Row dataRow = sheet.createRow(row + 1);
-                for (int col = 0; col < model.getColumnCount(); col++) {
-                    Object value = model.getValueAt(row, col);
-                    dataRow.createCell(col).setCellValue(value != null ? value.toString() : "");
-                }
-            }
-
-            // 💾 Guardar archivo
-            String timestamp = LocalDate.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy"));
-            String nombreArchivo = nombreArchivoBase + "." + timestamp + ".xlsx";
-            String ruta = Paths.get(System.getProperty("user.home"), "Desktop", nombreArchivo).toString();
-
-            try (FileOutputStream out = new FileOutputStream(ruta)) {
-                workbook.write(out);
-            }
-
-          //  V_Menu_Principal.MSG.showMSG("Exportado correctamente a:\n" + ruta, "Excel generado");
-
-        } catch (IOException ex) {
-           // V_Menu_Principal.MSG.showMSG("Error al exportar a Excel: " + ex.getMessage(), "Error");
+        // 🔠 Encabezados
+        org.apache.poi.ss.usermodel.Row headerRow = sheet.createRow(0);
+        for (int col = 0; col < model.getColumnCount(); col++) {
+            org.apache.poi.ss.usermodel.Cell cell = headerRow.createCell(col);
+            cell.setCellValue(model.getColumnName(col));
+            cell.setCellStyle(headerStyle);
         }
-    }
 
- 
+        // 📋 Filas
+        for (int row = 0; row < model.getRowCount(); row++) {
+            org.apache.poi.ss.usermodel.Row dataRow = sheet.createRow(row + 1);
+            for (int col = 0; col < model.getColumnCount(); col++) {
+                Object value = model.getValueAt(row, col);
+                dataRow.createCell(col).setCellValue(value != null ? value.toString() : "");
+            }
+        }
+
+        // 💾 Guardar archivo
+        String timestamp = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        String nombreArchivo = nombreArchivoBase + "_" + timestamp + ".xlsx";
+
+        // Carpeta destino: intenta Desktop/Escritorio, si no existe usa HOME
+        Path home = Paths.get(System.getProperty("user.home"));
+        Path desktop = home.resolve("Desktop");
+        Path escritorio = home.resolve("Escritorio");
+
+        Path destino;
+        if (Files.exists(desktop)) {
+            destino = desktop.resolve(nombreArchivo);
+        } else if (Files.exists(escritorio)) {
+            destino = escritorio.resolve(nombreArchivo);
+        } else {
+            destino = home.resolve(nombreArchivo); // fallback
+        }
+
+        try (FileOutputStream out = new FileOutputStream(destino.toFile())) {
+            workbook.write(out);
+        }
+
+        System.out.println("Exportado correctamente a: " + destino);
+
+    } catch (IOException ex) {
+        System.out.println("Error al exportar a Excel: " + ex.getMessage());
+    }
+}
+
      
  //****************************
  
