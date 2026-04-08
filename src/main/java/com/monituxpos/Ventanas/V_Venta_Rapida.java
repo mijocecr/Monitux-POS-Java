@@ -966,6 +966,19 @@ SwingUtilities.invokeLater(() -> {
         venta.setDescuento(descuento);
 
         em.persist(venta);
+        
+        // Registrar ingreso porque es venta de contado
+Ingreso ingreso = new Ingreso();
+ingreso.setSecuencial_Empresa(venta.getSecuencial_Empresa());
+ingreso.setSecuencial_Factura(venta.getSecuencial());
+ingreso.setSecuencial_Usuario(venta.getSecuencial_Usuario());
+ingreso.setFecha(venta.getFecha());
+ingreso.setTotal(Util.redondear(total));
+ingreso.setTipo_Ingreso("Contado");
+ingreso.setDescripcion("Venta según Factura: " + venta.getSecuencial());
+
+em.persist(ingreso);
+
 
         for (Miniatura_Producto pro : listaDeItems.values()) {
             Venta_Detalle detalle = new Venta_Detalle();
