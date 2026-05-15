@@ -4,15 +4,15 @@
 
 ## 🚀 Características Principales
 
-- 📦 **Inventario con Kardex visual** para rastrear cada movimiento de productos.
-- 🧾 **Gestión de ventas, compras, cotizaciones y facturas**, incluyendo abonos a cuentas por cobrar/pagar.
-- 🔐 **Autenticación de usuarios** por empresa, con roles definidos (Administrador, Vendedor).
-- 📈 **Dashboard dinámico** con métricas, clientes destacados y alertas.
-- ⚡ **Venta rápida tipo POS** optimizada para lector de códigos.
-- 📤 **Envío de facturas por email** y reimpresión de documentos.
-- 🧮 **Módulo de ingresos/egresos**, incluso fuera del ciclo comercial.
-- 🗂️ **Bitácora de actividades automática** para trazabilidad completa.
-- 📑 **Reportes simplificados** con filtros por fecha y exportación a Excel.
+- **Inventario con Kardex visual** para rastrear cada movimiento de productos.
+- **Gestión de ventas, compras, cotizaciones y facturas**, incluyendo abonos a cuentas por cobrar/pagar.
+- **Autenticación de usuarios** por empresa, con roles definidos (Administrador, Vendedor).
+- **Dashboard dinámico** con métricas, clientes destacados y alertas.
+- **Venta rápida tipo POS** optimizada para lector de códigos.
+- **Envío de facturas por email** y reimpresión de documentos.
+- **Módulo de ingresos/egresos**, incluso fuera del ciclo comercial.
+- **Bitácora de actividades automática** para trazabilidad completa.
+- **Reportes simplificados** con filtros por fecha y exportación a Excel.
 
 ## 🧭 Módulos Incluidos
 
