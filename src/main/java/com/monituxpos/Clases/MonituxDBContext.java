@@ -36,19 +36,19 @@ public class MonituxDBContext {
             currentUser = user;
             currentPassword = password;
 
-            // ============================
-            // NUEVA RUTA PORTABLE PARA H2
-            // ============================
-            String home = System.getProperty("user.home");
-            Path dbFolder = Paths.get(home, ".local", "share", "Monitux-POS", "Database");
-
+            // ============================================
+            // RUTA PORTABLE PARA H2 (JAR / APPIMAGE)
+            // ============================================
             if (provider == DBProvider.H2) {
-                dbFolder.toFile().mkdirs();
-                System.out.println("📁 Carpeta de base de datos: " + dbFolder.toAbsolutePath());
 
-                // Archivo principal de H2
+                Path dbFolder = Paths.get(System.getProperty("user.dir"), "Resources", "Database");
+                dbFolder.toFile().mkdirs();
+
+                System.out.println("📁 Carpeta de base de datos (JAR/AppImage): " + dbFolder.toAbsolutePath());
+
                 Path dbPath = dbFolder.resolve("H2-DB");
-                connectionUrl = dbPath.toString();
+
+                connectionUrl = dbPath.toAbsolutePath().normalize().toString().replace("\\", "/");
             } else {
                 connectionUrl = connectionString;
             }

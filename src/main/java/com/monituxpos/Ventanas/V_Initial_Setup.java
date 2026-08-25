@@ -348,6 +348,8 @@ public class V_Initial_Setup extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+  
+    
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
 
         jButton1.setEnabled(true);
@@ -363,23 +365,23 @@ String contraseña = jTextField3.getText().trim();
 
 String cadena = "";
 
- String home = System.getProperty("user.home");
- Path dbPath = Paths.get(home, ".local", "share", "Monitux-POS", "Resources", "Database");
- String basePath;
+ 
 
 switch (proveedor.toUpperCase()) {
 
-    case "H2":
-    
-    basePath = dbPath.toAbsolutePath().normalize().toString().replace("\\", "/");
+    case "H2": {
 
-    // Activamos AUTO_SERVER para permitir múltiples conexiones sin bloqueo
-    // DB_CLOSE_ON_EXIT lo dejamos en TRUE para liberar el archivo al cerrar la JVM
+    Path dbPath = Paths.get(System.getProperty("user.dir"), "Resources", "Database", "H2-DB");
+    String basePath = dbPath.toAbsolutePath().normalize().toString().replace("\\", "/");
+
     cadena = "jdbc:h2:file:" + basePath +
              ";AUTO_SERVER=TRUE" +
              ";DB_CLOSE_DELAY=-1" +
              ";DB_CLOSE_ON_EXIT=TRUE";
+
     break;
+}
+
 
 
 
@@ -433,262 +435,252 @@ if (!cadena.isEmpty()) {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
 
-        
-        //*************************
-
-if (jCheckBox1.isSelected()) {
-    AppSettings.set_Empresa_Creada(true);
-    AppSettings.set_Primer_Arranque(false);
-} else {
-    AppSettings.set_Primer_Arranque(true);
-    AppSettings.set_Empresa_Creada(false);
-}
-
-try {
-    String proveedor = jComboBox1.getSelectedItem() != null
-        ? jComboBox1.getSelectedItem().toString().trim().toUpperCase()
-        : null;
-
-    if (proveedor == null || proveedor.isBlank()) {
-        JOptionPane.showMessageDialog(null, "Debe seleccionar un proveedor de base de datos.", "Advertencia", JOptionPane.WARNING_MESSAGE);
-        return;
-    }
-
-    // Registro manual del driver JDBC
-    try {
-        switch (proveedor) {
-            case "SQLSERVER" -> {
-                DriverManager.registerDriver(new com.microsoft.sqlserver.jdbc.SQLServerDriver());
-                Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-            }
-            case "POSTGRESQL" -> {
-                DriverManager.registerDriver(new org.postgresql.Driver());
-                Class.forName("org.postgresql.Driver");
-            }
-            case "H2" -> {
-                DriverManager.registerDriver(new org.h2.Driver());
-                Class.forName("org.h2.Driver");
-            }
-        }
-    } catch (Exception e) {
-        JOptionPane.showMessageDialog(null, "Error al registrar el driver JDBC: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-        e.printStackTrace();
-        return;
-    }
-
-    // ================================
-    // NUEVA RUTA PARA LOS SCRIPTS SQL
-    // ================================
-    String home = System.getProperty("user.home");
-    Path baseScripts = Paths.get(home, ".local", "share", "Monitux-POS", "Resources", "Database");
-
-    String archivo = switch (proveedor) {
-        case "MYSQL"      -> baseScripts.resolve("MySQL-DB.sql").toString();
-        case "SQLSERVER"  -> baseScripts.resolve("SQL-DB.sql").toString();
-        case "POSTGRESQL" -> baseScripts.resolve("Postgres-DB.sql").toString();
-        case "H2"         -> baseScripts.resolve("H2-DB.sql").toString();
-        default           -> null;
-    };
-
-    if (archivo == null || !Files.exists(Paths.get(archivo))) {
-        JOptionPane.showMessageDialog(null, "El archivo de respaldo no fue encontrado.", "Error", JOptionPane.ERROR_MESSAGE);
-        return;
-    }
-
-    String dbName = "monitux";
-    String server = jTextField1.getText().trim();
-    String user = jTextField2.getText().trim();
-    String password = jTextField3.getText().trim();
-
-    // ============================
-    // MYSQL
-    // ============================
-    if ("MYSQL".equals(proveedor)) {
-        String serverConnection = "jdbc:mysql://" + server + ":3306/?user=" + user + "&password=" + password;
-
-        if (!jCheckBox1.isSelected()) {
-            try (Connection conn = DriverManager.getConnection(serverConnection)) {
-                conn.createStatement().execute("DROP DATABASE IF EXISTS `" + dbName + "`;");
-                conn.createStatement().execute("CREATE DATABASE `" + dbName + "` CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;");
-            }
-
-            String script = Files.readString(Paths.get(archivo));
-            String dbConnection = "jdbc:mysql://" + server + ":3306/" + dbName + "?user=" + user + "&password=" + password;
-
-            try (Connection conn = DriverManager.getConnection(dbConnection)) {
-                for (String sentencia : script.split(";")) {
-                    sentencia = sentencia.trim();
-                    if (!sentencia.isEmpty()) {
-                        conn.createStatement().execute(sentencia);
-                    }
-                }
-            }
-        }
-
-        JOptionPane.showMessageDialog(null, "Base de datos MySQL configurada exitosamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
-
-    // ============================
-    // SQL SERVER
-    // ============================
-    } else if ("SQLSERVER".equals(proveedor)) {
-
-        String serverConnection = "jdbc:sqlserver://" + server + ";user=" + user + ";password=" + password + ";encrypt=false;trustServerCertificate=true";
-
-        if (!jCheckBox1.isSelected()) {
-            try (Connection conn = DriverManager.getConnection(serverConnection)) {
-                String killConnections = """
-                    DECLARE @kill varchar(8000) = '';
-                    SELECT @kill = @kill + 'KILL ' + CONVERT(varchar(5), session_id) + ';'
-                    FROM sys.dm_exec_sessions
-                    WHERE database_id = DB_ID('""" + dbName + "'); EXEC(@kill);";
-
-                conn.createStatement().execute(killConnections);
-                conn.createStatement().execute("IF EXISTS (SELECT name FROM sys.databases WHERE name = N'" + dbName + "') DROP DATABASE [" + dbName + "];");
-                conn.createStatement().execute("CREATE DATABASE [" + dbName + "];");
-            }
-
-            String script = Files.readString(Paths.get(archivo));
-            String[] bloques = script.split("(?i)^\\s*GO\\s*$");
-            String dbConnection = "jdbc:sqlserver://" + server + ";databaseName=" + dbName + ";user=" + user + ";password=" + password + ";encrypt=false;trustServerCertificate=true";
-
-            try (Connection conn = DriverManager.getConnection(dbConnection)) {
-                for (String bloque : bloques) {
-                    bloque = bloque.trim();
-                    if (!bloque.isEmpty()) {
-                        try {
-                            conn.createStatement().execute(bloque);
-                        } catch (SQLException ex) {
-                            JOptionPane.showMessageDialog(null, "Error en bloque SQL:\n" + bloque + "\n\nMensaje: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-                        }
-                    }
-                }
-            }
-        }
-
-        JOptionPane.showMessageDialog(null, "Base de datos SQL Server configurada correctamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
-
-    // ============================
-    // POSTGRESQL
-    // ============================
-    } else if ("POSTGRESQL".equals(proveedor)) {
-
-        String serverConnection = "jdbc:postgresql://" + server + ":5432/postgres?user=" + user + "&password=" + password;
-
-        if (!jCheckBox1.isSelected()) {
-            try (Connection conn = DriverManager.getConnection(serverConnection)) {
-                String terminate = """
-                    SELECT pg_terminate_backend(pid)
-                    FROM pg_stat_activity
-                    WHERE datname = '""" + dbName + "' AND pid <> pg_backend_pid();";
-
-                conn.createStatement().execute(terminate);
-                conn.createStatement().execute("DROP DATABASE IF EXISTS \"" + dbName + "\";");
-                conn.createStatement().execute("CREATE DATABASE \"" + dbName + "\" WITH ENCODING='UTF8';");
-            }
-
-            String script = Files.readString(Paths.get(archivo));
-            String dbConnection = "jdbc:postgresql://" + server + ":5432/" + dbName + "?user=" + user + "&password=" + password;
-
-            try (Connection conn = DriverManager.getConnection(dbConnection)) {
-                for (String sentencia : script.split(";")) {
-                    sentencia = sentencia.trim();
-                    if (!sentencia.isEmpty()) {
-                        conn.createStatement().execute(sentencia);
-                    }
-                }
-            }
-        }
-
-        JOptionPane.showMessageDialog(null, "Base de datos PostgreSQL configurada exitosamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
-
-    // ============================
-    // H2 (ACTUALIZADO)
-    // ============================
-    } else if ("H2".equals(proveedor)) {
-
-        // Ruta persistente en HOME del usuario
-        Path dbFolder = Paths.get(home, ".local", "share", "Monitux-POS", "Database");
-        dbFolder.toFile().mkdirs();
-
-        Path dbPath = dbFolder.resolve("H2-DB");
-        String basePath = dbPath.toAbsolutePath().normalize().toString().replace("\\", "/");
-
-        String dbConnection = "jdbc:h2:file:" + basePath +
-                              ";AUTO_SERVER=TRUE" +
-                              ";DB_CLOSE_DELAY=-1" +
-                              ";DB_CLOSE_ON_EXIT=TRUE";
-
-        AppSettings.set_Conexion("H2", dbConnection);
-        AppSettings.setCredenciales("sa", "");
-
-        if (!jCheckBox1.isSelected()) {
-            try (Connection conn = DriverManager.getConnection(dbConnection, "sa", "")) {
-                String script = Files.readString(Paths.get(archivo));
-
-                for (String sentencia : script.split(";")) {
-                    sentencia = sentencia.trim();
-                    if (!sentencia.isEmpty()) {
-                        try (Statement stmt = conn.createStatement()) {
-                            stmt.execute(sentencia);
-                        } catch (SQLException e) {
-                            System.err.println("⚠️ Error ejecutando sentencia:\n" + sentencia);
-                            e.printStackTrace();
-                        }
-                    }
-                }
-
-                JOptionPane.showMessageDialog(null,
-                    "Base de datos H2 configurada exitosamente.",
-                    "Éxito",
-                    JOptionPane.INFORMATION_MESSAGE);
-
-            } catch (SQLException | IOException e) {
-                JOptionPane.showMessageDialog(null,
-                    "Error al configurar la base de datos H2:\n" + e.getMessage(),
-                    "Error",
-                    JOptionPane.ERROR_MESSAGE);
-                e.printStackTrace();
-            }
-        } else {
-            JOptionPane.showMessageDialog(null,
-                "Conexión H2 establecida sin vaciar base de datos.",
-                "Conexión establecida",
-                JOptionPane.INFORMATION_MESSAGE);
-        }
-    }
-
-    JOptionPane.showMessageDialog(null, "Configuración aplicada correctamente.", "Información", JOptionPane.INFORMATION_MESSAGE);
-    this.dispose();
-
-    boolean requiereEmpresa = !jCheckBox1.isSelected() && !AppSettings.getEmpresa_Creada();
-    if (requiereEmpresa) {
-         JOptionPane.showMessageDialog(null,
-            "Debe crear una Empresa",
-            "Información",
-            JOptionPane.INFORMATION_MESSAGE);
-
-        V_Empresa empresaFrame = new V_Empresa();
-        empresaFrame.setVisible(true);
-        empresaFrame.requestFocus();
+         if (jCheckBox1.isSelected()) {
+        AppSettings.set_Empresa_Creada(true);
+        AppSettings.set_Primer_Arranque(false);
     } else {
-        V_Login loginFrame = new V_Login();
-        loginFrame.setVisible(true);
-        loginFrame.requestFocus();
+        AppSettings.set_Primer_Arranque(true);
+        AppSettings.set_Empresa_Creada(false);
     }
 
-} catch (Exception ex) {
-    JOptionPane.showMessageDialog(null,
-        "Error inesperado: " + ex.getMessage(),
-        "Error",
-        JOptionPane.ERROR_MESSAGE);
-    ex.printStackTrace();
-}
+    try {
+        String proveedor = jComboBox1.getSelectedItem() != null
+            ? jComboBox1.getSelectedItem().toString().trim().toUpperCase()
+            : null;
 
-//*************************
+        if (proveedor == null || proveedor.isBlank()) {
+            JOptionPane.showMessageDialog(null, "Debe seleccionar un proveedor de base de datos.", "Advertencia", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
 
-        
-        
-// TODO add your handling code here:
+        try {
+            switch (proveedor) {
+                case "SQLSERVER" -> {
+                    DriverManager.registerDriver(new com.microsoft.sqlserver.jdbc.SQLServerDriver());
+                    Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
+                }
+                case "POSTGRESQL" -> {
+                    DriverManager.registerDriver(new org.postgresql.Driver());
+                    Class.forName("org.postgresql.Driver");
+                }
+                case "H2" -> {
+                    DriverManager.registerDriver(new org.h2.Driver());
+                    Class.forName("org.h2.Driver");
+                }
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, "Error al registrar el driver JDBC: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+            return;
+        }
+
+        // ==========================================
+        // RUTA CORRECTA PARA SCRIPTS Y BASE DE DATOS
+        // (VIAJA CON EL JAR / APPIMAGE)
+        // ==========================================
+        Path baseScripts = Paths.get(System.getProperty("user.dir"), "Resources", "Database");
+
+        String archivo = switch (proveedor) {
+            case "MYSQL"      -> baseScripts.resolve("MySQL-DB.sql").toString();
+            case "SQLSERVER"  -> baseScripts.resolve("SQL-DB.sql").toString();
+            case "POSTGRESQL" -> baseScripts.resolve("Postgres-DB.sql").toString();
+            case "H2"         -> baseScripts.resolve("H2-DB.sql").toString();
+            default           -> null;
+        };
+
+        if (archivo == null || !Files.exists(Paths.get(archivo))) {
+            JOptionPane.showMessageDialog(null, "El archivo de respaldo no fue encontrado.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        String dbName = "monitux";
+        String server = jTextField1.getText().trim();
+        String user = jTextField2.getText().trim();
+        String password = jTextField3.getText().trim();
+
+        // ============================
+        // MYSQL
+        // ============================
+        if ("MYSQL".equals(proveedor)) {
+            String serverConnection = "jdbc:mysql://" + server + ":3306/?user=" + user + "&password=" + password;
+
+            if (!jCheckBox1.isSelected()) {
+                try (Connection conn = DriverManager.getConnection(serverConnection)) {
+                    conn.createStatement().execute("DROP DATABASE IF EXISTS `" + dbName + "`;");
+                    conn.createStatement().execute("CREATE DATABASE `" + dbName + "` CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;");
+                }
+
+                String script = Files.readString(Paths.get(archivo));
+                String dbConnection = "jdbc:mysql://" + server + ":3306/" + dbName + "?user=" + user + "&password=" + password;
+
+                try (Connection conn = DriverManager.getConnection(dbConnection)) {
+                    for (String sentencia : script.split(";")) {
+                        sentencia = sentencia.trim();
+                        if (!sentencia.isEmpty()) {
+                            conn.createStatement().execute(sentencia);
+                        }
+                    }
+                }
+            }
+
+            JOptionPane.showMessageDialog(null, "Base de datos MySQL configurada exitosamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+
+        // ============================
+        // SQL SERVER
+        // ============================
+        } else if ("SQLSERVER".equals(proveedor)) {
+
+            String serverConnection = "jdbc:sqlserver://" + server + ";user=" + user + ";password=" + password + ";encrypt=false;trustServerCertificate=true";
+
+            if (!jCheckBox1.isSelected()) {
+                try (Connection conn = DriverManager.getConnection(serverConnection)) {
+                    String killConnections = """
+                        DECLARE @kill varchar(8000) = '';
+                        SELECT @kill = @kill + 'KILL ' + CONVERT(varchar(5), session_id) + ';'
+                        FROM sys.dm_exec_sessions
+                        WHERE database_id = DB_ID('""" + dbName + "'); EXEC(@kill);";
+
+                    conn.createStatement().execute(killConnections);
+                    conn.createStatement().execute("IF EXISTS (SELECT name FROM sys.databases WHERE name = N'" + dbName + "') DROP DATABASE [" + dbName + "];");
+                    conn.createStatement().execute("CREATE DATABASE [" + dbName + "];");
+                }
+
+                String script = Files.readString(Paths.get(archivo));
+                String[] bloques = script.split("(?i)^\\s*GO\\s*$");
+                String dbConnection = "jdbc:sqlserver://" + server + ";databaseName=" + dbName + ";user=" + user + ";password=" + password + ";encrypt=false;trustServerCertificate=true";
+
+                try (Connection conn = DriverManager.getConnection(dbConnection)) {
+                    for (String bloque : bloques) {
+                        bloque = bloque.trim();
+                        if (!bloque.isEmpty()) {
+                            try {
+                                conn.createStatement().execute(bloque);
+                            } catch (SQLException ex) {
+                                JOptionPane.showMessageDialog(null, "Error en bloque SQL:\n" + bloque + "\n\nMensaje: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                            }
+                        }
+                    }
+                }
+            }
+
+            JOptionPane.showMessageDialog(null, "Base de datos SQL Server configurada correctamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+
+        // ============================
+        // POSTGRESQL
+        // ============================
+        } else if ("POSTGRESQL".equals(proveedor)) {
+
+            String serverConnection = "jdbc:postgresql://" + server + ":5432/postgres?user=" + user + "&password=" + password;
+
+            if (!jCheckBox1.isSelected()) {
+                try (Connection conn = DriverManager.getConnection(serverConnection)) {
+                    String terminate = """
+                        SELECT pg_terminate_backend(pid)
+                        FROM pg_stat_activity
+                        WHERE datname = '""" + dbName + "' AND pid <> pg_backend_pid();";
+
+                    conn.createStatement().execute(terminate);
+                    conn.createStatement().execute("DROP DATABASE IF EXISTS \"" + dbName + "\";");
+                    conn.createStatement().execute("CREATE DATABASE \"" + dbName + "\" WITH ENCODING='UTF8';");
+                }
+
+                String script = Files.readString(Paths.get(archivo));
+                String dbConnection = "jdbc:postgresql://" + server + ":5432/" + dbName + "?user=" + user + "&password=" + password;
+
+                try (Connection conn = DriverManager.getConnection(dbConnection)) {
+                    for (String sentencia : script.split(";")) {
+                        sentencia = sentencia.trim();
+                        if (!sentencia.isEmpty()) {
+                            conn.createStatement().execute(sentencia);
+                        }
+                    }
+                }
+            }
+
+            JOptionPane.showMessageDialog(null, "Base de datos PostgreSQL configurada exitosamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+
+        // ============================
+        // H2 (CORREGIDO Y ALINEADO)
+        // ============================
+        } else if ("H2".equals(proveedor)) {
+
+            Path dbFolder = Paths.get(System.getProperty("user.dir"), "Resources", "Database");
+            dbFolder.toFile().mkdirs();
+
+            Path dbPath = dbFolder.resolve("H2-DB");
+            String basePath = dbPath.toAbsolutePath().normalize().toString().replace("\\", "/");
+
+            String dbConnection = "jdbc:h2:file:" + basePath +
+                                  ";AUTO_SERVER=TRUE" +
+                                  ";DB_CLOSE_DELAY=-1" +
+                                  ";DB_CLOSE_ON_EXIT=TRUE";
+
+            AppSettings.set_Conexion("H2", dbConnection);
+            AppSettings.setCredenciales("sa", "");
+
+            if (!jCheckBox1.isSelected()) {
+                try (Connection conn = DriverManager.getConnection(dbConnection, "sa", "")) {
+                    String script = Files.readString(Paths.get(archivo));
+
+                    for (String sentencia : script.split(";")) {
+                        sentencia = sentencia.trim();
+                        if (!sentencia.isEmpty()) {
+                            try (Statement stmt = conn.createStatement()) {
+                                stmt.execute(sentencia);
+                            } catch (SQLException e) {
+                                System.err.println("⚠️ Error ejecutando sentencia:\n" + sentencia);
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+
+                    JOptionPane.showMessageDialog(null,
+                        "Base de datos H2 configurada exitosamente.",
+                        "Éxito",
+                        JOptionPane.INFORMATION_MESSAGE);
+
+                } catch (SQLException | IOException e) {
+                    JOptionPane.showMessageDialog(null,
+                        "Error al configurar la base de datos H2:\n" + e.getMessage(),
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE);
+                    e.printStackTrace();
+                }
+            } else {
+                JOptionPane.showMessageDialog(null,
+                    "Conexión H2 establecida sin vaciar base de datos.",
+                    "Conexión establecida",
+                    JOptionPane.INFORMATION_MESSAGE);
+            }
+        }
+
+        JOptionPane.showMessageDialog(null, "Configuración aplicada correctamente.", "Información", JOptionPane.INFORMATION_MESSAGE);
+        this.dispose();
+
+        boolean requiereEmpresa = !jCheckBox1.isSelected() && !AppSettings.getEmpresa_Creada();
+        if (requiereEmpresa) {
+             JOptionPane.showMessageDialog(null,
+                "Debe crear una Empresa",
+                "Información",
+                JOptionPane.INFORMATION_MESSAGE);
+
+            V_Empresa empresaFrame = new V_Empresa();
+            empresaFrame.setVisible(true);
+            empresaFrame.requestFocus();
+        } else {
+            V_Login loginFrame = new V_Login();
+            loginFrame.setVisible(true);
+            loginFrame.requestFocus();
+        }
+
+    } catch (Exception ex) {
+        JOptionPane.showMessageDialog(null,
+            "Error inesperado: " + ex.getMessage(),
+            "Error",
+            JOptionPane.ERROR_MESSAGE);
+        ex.printStackTrace();
+    }
+
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
