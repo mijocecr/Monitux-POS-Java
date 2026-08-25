@@ -1047,7 +1047,7 @@
             <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
               <Color blue="0" green="ff" red="0" type="rgb"/>
             </Property>
-            <Property name="text" type="java.lang.String" value="Monitux-POS v.1.8"/>
+            <Property name="text" type="java.lang.String" value="Monitux-POS v.2.0"/>
           </Properties>
           <Events>
             <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="lbl_versionMouseClicked"/>

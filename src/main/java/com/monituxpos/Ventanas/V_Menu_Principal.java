@@ -1314,7 +1314,7 @@ iniciarCintaLED(lblTitular);
         lbl_Nombre_Empresa.setText("Cargando Empresa...");
 
         lbl_version.setForeground(new java.awt.Color(0, 255, 0));
-        lbl_version.setText("Monitux-POS v.1.8");
+        lbl_version.setText("Monitux-POS v.2.0");
         lbl_version.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 lbl_versionMouseClicked(evt);

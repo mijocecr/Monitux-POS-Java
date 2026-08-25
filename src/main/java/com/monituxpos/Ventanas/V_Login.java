@@ -254,7 +254,7 @@ MonituxDBContext.init(
             .addGroup(jPanel4Layout.createSequentialGroup()
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel4Layout.createSequentialGroup()
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGap(23, 28, Short.MAX_VALUE)
                         .addComponent(jLabel12)
                         .addGap(18, 18, 18)
                         .addComponent(combo_acceso, javax.swing.GroupLayout.PREFERRED_SIZE, 142, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -358,6 +358,11 @@ MonituxDBContext.init(
         });
 
         jLabel13.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/default-empresa.jpg"))); // NOI18N
+        jLabel13.addMouseWheelListener(new java.awt.event.MouseWheelListener() {
+            public void mouseWheelMoved(java.awt.event.MouseWheelEvent evt) {
+                jLabel13MouseWheelMoved(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
@@ -889,6 +894,10 @@ jLabel7.setText("One Click Solutions");
     private void txt_CodigoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txt_CodigoActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_txt_CodigoActionPerformed
+
+    private void jLabel13MouseWheelMoved(java.awt.event.MouseWheelEvent evt) {//GEN-FIRST:event_jLabel13MouseWheelMoved
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jLabel13MouseWheelMoved
 
     
    

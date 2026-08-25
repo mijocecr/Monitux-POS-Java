@@ -1404,27 +1404,27 @@ public class V_Reportes_Facturas extends javax.swing.JPanel {
 
         jPanel1.setBackground(new java.awt.Color(0, 0, 0));
 
+        jLabel1.setText("Desde:");
         jLabel1.setBackground(new java.awt.Color(255, 255, 255));
         jLabel1.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel1.setText("Desde:");
 
-        jLabel2.setForeground(new java.awt.Color(255, 255, 255));
         jLabel2.setText("Hasta:");
+        jLabel2.setForeground(new java.awt.Color(255, 255, 255));
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(151, 151, 151)
+                .addGap(139, 139, 139)
                 .addComponent(jLabel1)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(datePicker1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addComponent(jLabel2)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jLabel2)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(datePicker2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(86, Short.MAX_VALUE))
+                .addContainerGap(151, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1441,15 +1441,15 @@ public class V_Reportes_Facturas extends javax.swing.JPanel {
         jPanel3.setBackground(new java.awt.Color(0, 168, 107));
         jPanel3.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255)));
 
-        jLabel13.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
-        jLabel13.setForeground(new java.awt.Color(255, 255, 255));
         jLabel13.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel13.setText("Ventas");
+        jLabel13.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
+        jLabel13.setForeground(new java.awt.Color(255, 255, 255));
 
         jPanel6.setBackground(new java.awt.Color(35, 32, 45));
 
-        jLabel5.setForeground(new java.awt.Color(255, 255, 255));
         jLabel5.setText("Ventas por Tipo:");
+        jLabel5.setForeground(new java.awt.Color(255, 255, 255));
 
         jComboBox2.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Contado", "Credito" }));
 
@@ -1490,8 +1490,8 @@ public class V_Reportes_Facturas extends javax.swing.JPanel {
 
         jPanel8.setBackground(new java.awt.Color(35, 32, 45));
 
-        jLabel7.setForeground(new java.awt.Color(255, 255, 255));
         jLabel7.setText("Ventas por Cliente:");
+        jLabel7.setForeground(new java.awt.Color(255, 255, 255));
 
         jButton5.setText("Generar");
         jButton5.addActionListener(new java.awt.event.ActionListener() {
@@ -1530,16 +1530,16 @@ public class V_Reportes_Facturas extends javax.swing.JPanel {
 
         jPanel5.setBackground(new java.awt.Color(35, 32, 45));
 
-        jLabel4.setForeground(new java.awt.Color(255, 255, 255));
         jLabel4.setText("Ventas por Rango de Montos:");
+        jLabel4.setForeground(new java.awt.Color(255, 255, 255));
 
+        jLabel9.setText("De:");
         jLabel9.setBackground(new java.awt.Color(35, 32, 45));
         jLabel9.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel9.setText("De:");
 
+        jLabel10.setText("A:");
         jLabel10.setBackground(new java.awt.Color(35, 32, 45));
         jLabel10.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel10.setText("A:");
 
         jButton1.setText("Generar");
         jButton1.addActionListener(new java.awt.event.ActionListener() {
@@ -1588,8 +1588,8 @@ public class V_Reportes_Facturas extends javax.swing.JPanel {
 
         jPanel11.setBackground(new java.awt.Color(35, 32, 45));
 
-        jLabel16.setForeground(new java.awt.Color(255, 255, 255));
         jLabel16.setText("Unidades Vendidas por Usuario");
+        jLabel16.setForeground(new java.awt.Color(255, 255, 255));
 
         jButton7.setText("Generar");
         jButton7.addActionListener(new java.awt.event.ActionListener() {
@@ -1621,8 +1621,8 @@ public class V_Reportes_Facturas extends javax.swing.JPanel {
 
         jPanel13.setBackground(new java.awt.Color(35, 32, 45));
 
-        jLabel18.setForeground(new java.awt.Color(255, 255, 255));
         jLabel18.setText("Todas las Ventas Registradas");
+        jLabel18.setForeground(new java.awt.Color(255, 255, 255));
 
         jButton9.setText("Generar");
         jButton9.addActionListener(new java.awt.event.ActionListener() {
@@ -1701,15 +1701,15 @@ public class V_Reportes_Facturas extends javax.swing.JPanel {
         jPanel2.setBackground(new java.awt.Color(0, 102, 255));
         jPanel2.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255)));
 
-        jLabel14.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
-        jLabel14.setForeground(new java.awt.Color(255, 255, 255));
         jLabel14.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel14.setText("Compras");
+        jLabel14.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
+        jLabel14.setForeground(new java.awt.Color(255, 255, 255));
 
         jPanel7.setBackground(new java.awt.Color(35, 32, 45));
 
-        jLabel6.setForeground(new java.awt.Color(255, 255, 255));
         jLabel6.setText("Compras por Tipo:");
+        jLabel6.setForeground(new java.awt.Color(255, 255, 255));
 
         jComboBox3.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Contado", "Credito" }));
 
@@ -1750,8 +1750,8 @@ public class V_Reportes_Facturas extends javax.swing.JPanel {
 
         jPanel9.setBackground(new java.awt.Color(35, 32, 45));
 
-        jLabel8.setForeground(new java.awt.Color(255, 255, 255));
         jLabel8.setText("Compras por Proveedor:");
+        jLabel8.setForeground(new java.awt.Color(255, 255, 255));
 
         jButton6.setText("Generar");
         jButton6.addActionListener(new java.awt.event.ActionListener() {
@@ -1790,16 +1790,16 @@ public class V_Reportes_Facturas extends javax.swing.JPanel {
 
         jPanel10.setBackground(new java.awt.Color(35, 32, 45));
 
-        jLabel11.setForeground(new java.awt.Color(255, 255, 255));
         jLabel11.setText("Compras por Rango de Montos:");
+        jLabel11.setForeground(new java.awt.Color(255, 255, 255));
 
+        jLabel12.setText("De:");
         jLabel12.setBackground(new java.awt.Color(35, 32, 45));
         jLabel12.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel12.setText("De:");
 
+        jLabel15.setText("A:");
         jLabel15.setBackground(new java.awt.Color(35, 32, 45));
         jLabel15.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel15.setText("A:");
 
         jButton2.setText("Generar");
         jButton2.addActionListener(new java.awt.event.ActionListener() {
@@ -1848,8 +1848,8 @@ public class V_Reportes_Facturas extends javax.swing.JPanel {
 
         jPanel12.setBackground(new java.awt.Color(35, 32, 45));
 
-        jLabel17.setForeground(new java.awt.Color(255, 255, 255));
         jLabel17.setText("Unidades Compradas por Usuario");
+        jLabel17.setForeground(new java.awt.Color(255, 255, 255));
 
         jButton8.setText("Generar");
         jButton8.addActionListener(new java.awt.event.ActionListener() {
@@ -1881,8 +1881,8 @@ public class V_Reportes_Facturas extends javax.swing.JPanel {
 
         jPanel14.setBackground(new java.awt.Color(35, 32, 45));
 
-        jLabel19.setForeground(new java.awt.Color(255, 255, 255));
         jLabel19.setText("Todas las Compras Registradas");
+        jLabel19.setForeground(new java.awt.Color(255, 255, 255));
 
         jButton10.setText("Generar");
         jButton10.addActionListener(new java.awt.event.ActionListener() {
@@ -1967,7 +1967,7 @@ public class V_Reportes_Facturas extends javax.swing.JPanel {
                                 .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(24, 24, 24)))
+                                .addGap(8, 8, 8)))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
         );

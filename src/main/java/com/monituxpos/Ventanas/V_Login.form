@@ -192,7 +192,7 @@
                   <Group type="102" attributes="0">
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Group type="102" alignment="1" attributes="0">
-                              <EmptySpace min="23" max="32767" attributes="0"/>
+                              <EmptySpace min="23" pref="28" max="32767" attributes="0"/>
                               <Component id="jLabel12" min="-2" max="-2" attributes="0"/>
                               <EmptySpace type="separate" max="-2" attributes="0"/>
                               <Component id="combo_acceso" min="-2" pref="142" max="-2" attributes="0"/>
@@ -532,6 +532,9 @@
                   <Image iconType="3" name="/icons/default-empresa.jpg"/>
                 </Property>
               </Properties>
+              <Events>
+                <EventHandler event="mouseWheelMoved" listener="java.awt.event.MouseWheelListener" parameters="java.awt.event.MouseWheelEvent" handler="jLabel13MouseWheelMoved"/>
+              </Events>
             </Component>
           </SubComponents>
         </Container>
