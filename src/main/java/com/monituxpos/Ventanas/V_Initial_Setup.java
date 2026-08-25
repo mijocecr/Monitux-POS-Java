@@ -363,24 +363,15 @@ String contraseña = jTextField3.getText().trim();
 
 String cadena = "";
 
+ String home = System.getProperty("user.home");
+ Path dbPath = Paths.get(home, ".local", "share", "Monitux-POS", "Resources", "Database");
+ String basePath;
+
 switch (proveedor.toUpperCase()) {
-   
-// case "H2":
-//    File dbFile = new File(System.getProperty("user.dir"), "Resources/Database/H2-DB");
-//    String basePath = dbFile.getAbsolutePath().replace("\\", "/");
-//
-//    // Activamos AUTO_SERVER para permitir múltiples conexiones sin bloqueo
-//    // DB_CLOSE_ON_EXIT lo dejamos en TRUE para liberar el archivo al cerrar la JVM
-//    cadena = "jdbc:h2:file:" + basePath +
-//             ";AUTO_SERVER=TRUE" +
-//             ";DB_CLOSE_DELAY=-1" +
-//             ";DB_CLOSE_ON_EXIT=TRUE";
-//
-//    break;
-    
+
     case "H2":
-    Path dbPath = Paths.get(System.getProperty("user.dir"), "Resources", "Database", "H2-DB");
-    String basePath = dbPath.toAbsolutePath().normalize().toString().replace("\\", "/");
+    
+    basePath = dbPath.toAbsolutePath().normalize().toString().replace("\\", "/");
 
     // Activamos AUTO_SERVER para permitir múltiples conexiones sin bloqueo
     // DB_CLOSE_ON_EXIT lo dejamos en TRUE para liberar el archivo al cerrar la JVM
