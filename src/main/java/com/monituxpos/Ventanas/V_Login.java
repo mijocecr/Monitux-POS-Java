@@ -363,6 +363,11 @@ MonituxDBContext.init(
                 jLabel13MouseWheelMoved(evt);
             }
         });
+        jLabel13.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jLabel13MouseClicked(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
@@ -898,6 +903,34 @@ jLabel7.setText("One Click Solutions");
     private void jLabel13MouseWheelMoved(java.awt.event.MouseWheelEvent evt) {//GEN-FIRST:event_jLabel13MouseWheelMoved
         // TODO add your handling code here:
     }//GEN-LAST:event_jLabel13MouseWheelMoved
+
+    private void jLabel13MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel13MouseClicked
+
+       suma++;
+
+if (suma >= 20) {
+
+    int opcion = JOptionPane.showConfirmDialog(
+            rootPane,
+            "¿Desea reinicializar los ajustes?",
+            "Confirmación",
+            JOptionPane.YES_NO_OPTION,
+            JOptionPane.QUESTION_MESSAGE
+    );
+
+    if (opcion == JOptionPane.YES_OPTION) {
+        AppSettings.setPropiedades_Default();
+        JOptionPane.showMessageDialog(rootPane, "Ajustes reinicializados.");
+        System.exit(0);
+    } else{
+    
+        suma=0;
+    }
+}
+
+
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jLabel13MouseClicked
 
     
    
