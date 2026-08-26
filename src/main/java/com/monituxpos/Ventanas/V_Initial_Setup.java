@@ -381,7 +381,7 @@ switch (proveedor.toUpperCase()) {
 
     case "H2": {
 
-    Path dbPath = Paths.get(System.getProperty("user.dir"), "Resources", "Database", "H2-DB");
+    Path dbPath = Paths.get(System.getProperty("user.dir"), "Database", "H2-DB");
     String basePath = dbPath.toAbsolutePath().normalize().toString().replace("\\", "/");
 
     cadena = "jdbc:h2:file:" + basePath +
@@ -488,7 +488,7 @@ if (!cadena.isEmpty()) {
         // RUTA CORRECTA PARA SCRIPTS Y BASE DE DATOS
         // (VIAJA CON EL JAR / APPIMAGE)
         // ==========================================
-        Path baseScripts = Paths.get(System.getProperty("user.dir"), "Resources", "Database");
+        Path baseScripts = Paths.get(System.getProperty("user.dir"), "Database");
 
         String archivo = switch (proveedor) {
             case "MYSQL"      -> baseScripts.resolve("MySQL-DB.sql").toString();
@@ -614,7 +614,7 @@ if (!cadena.isEmpty()) {
         // ============================
         } else if ("H2".equals(proveedor)) {
 
-            Path dbFolder = Paths.get(System.getProperty("user.dir"), "Resources", "Database");
+            Path dbFolder = Paths.get(System.getProperty("user.dir"), "Database");
             dbFolder.toFile().mkdirs();
 
             Path dbPath = dbFolder.resolve("H2-DB");
@@ -651,7 +651,7 @@ if (!cadena.isEmpty()) {
 
                 } catch (SQLException | IOException e) {
                     JOptionPane.showMessageDialog(null,
-                        "Error al configurar la base de datos H2:\n" + e.getMessage(),
+                        "Error al configurar la base de datos H2:\n" + e.getCause(),
                         "Error",
                         JOptionPane.ERROR_MESSAGE);
                     e.printStackTrace();

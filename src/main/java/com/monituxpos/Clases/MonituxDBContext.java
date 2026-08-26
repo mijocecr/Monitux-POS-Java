@@ -41,7 +41,7 @@ public class MonituxDBContext {
             // ============================================
             if (provider == DBProvider.H2) {
 
-                Path dbFolder = Paths.get(System.getProperty("user.dir"), "Resources", "Database");
+                Path dbFolder = Paths.get(System.getProperty("user.dir"), "Database");
                 dbFolder.toFile().mkdirs();
 
                 System.out.println("📁 Carpeta de base de datos (JAR/AppImage): " + dbFolder.toAbsolutePath());
