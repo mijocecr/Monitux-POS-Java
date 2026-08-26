@@ -65,7 +65,7 @@ MonituxDBContext.init(
       
         Util.redimensionarImagenEnLabel(jLabel1, imagen, 210, 220);
     
-        this.setTitle("Bienvenidos a Monitux-POS v.1.8 [Edición JAVA]");
+        this.setTitle("Bienvenidos a Monitux-POS");
         
      
         
